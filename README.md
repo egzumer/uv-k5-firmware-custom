@@ -9,19 +9,21 @@ https://github.com/DualTachyon/uv-k5-firmware
 This version you can customize at compile time by making various changes to the makefile.
 You can edit those changes by (currently) editing the MakeFile, look for these lines ..
 
-"# compilation options"
-"CFLAGS  += -DDISABLE_NOAA"      .. remove NOAA channels option from the firmware
-"CFLAGS  += -DDISABLE_VOICE"     .. remove spoken VOICES option from the firmware
-"CFLAGS  += -DDISABLE_AIRCOPY"   .. remove AIRCOPY option
-"CFLAGS  += -DKEEP_MEM_NAME"     .. don't wipe out the memory channel's name when saving a memory channel
-"#CFLAGS += -DDISABLE_ALARM"     .. not yet implemented
-"#CFLAGS += -DBAND_SCOPE"        .. not yet implemented
+*   # compilation options
+*   CFLAGS  += -DDISABLE_NOAA      .. remove NOAA channels option from the firmware
+*   CFLAGS  += -DDISABLE_VOICE     .. remove spoken VOICES option from the firmware
+*   CFLAGS  += -DDISABLE_AIRCOPY   .. remove AIRCOPY option
+*   CFLAGS  += -DKEEP_MEM_NAME     .. don't wipe out the memory channel's name when saving a memory channel
+*   #CFLAGS += -DDISABLE_ALARM     .. not yet implemented
+*   #CFLAGS += -DBAND_SCOPE        .. not yet implemented
 
 To enable the custom option just uncomment the line by removing the starting '#'.
 
 # Other changes made
 
- 
+* "ABR" menu option now shows extended backlight times
+* "MIC" menu option shows actual mic gain in dB's
+   
 # Compiler
 
 arm-none-eabi GCC version 10.3.1 is recommended, which is the current version on Ubuntu 22.04.03 LTS.
@@ -36,7 +38,7 @@ git submodule update --init --recursive --depth=1
 make
 ```
 
-You can also easily compile this in windows (will an an example shortly) meaning you no longer have to install a linux VM on Windows.
+You can also easily compile this in windows (will add an example shortly) meaning you no longer have to install a linux VM on Windows.
 
 # Credits
 
