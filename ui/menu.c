@@ -49,7 +49,7 @@ static const char MenuList[][7] =
 	"MEM-CH",
 	"SAVE",
     "VOX",
-    "ABR",
+    "BAK-LT",
 // 16
 	"TDR",
     "WX",
@@ -275,14 +275,21 @@ void UI_DisplayMenu(void)
 		gFrameBuffer[3][i] ^= 0xFF;
 	}
 
-	for (i = 0; i < 7; i++)
-	{
-		gFrameBuffer[i][48] = 0xFF;
-		gFrameBuffer[i][49] = 0xFF;
-	}
-
+	// draw vertical separating line
+	#if 0
+		// original thick line
+		for (i = 0; i < 7; i++)
+		{
+			gFrameBuffer[i][48] = 0xFF;
+			gFrameBuffer[i][49] = 0xFF;
+		}
+	#else
+		// a nicer less intense thinner dotted line
+		for (i = 0; i < 6; i++)
+			gFrameBuffer[i][49] = 0xAA;
+	#endif
+	
 	NUMBER_ToDigits(gMenuCursor + 1, String);
-
 	UI_DisplaySmallDigits(2, String + 6, 33, 6);
 
 	if (gIsInSubMenu)
@@ -515,7 +522,7 @@ void UI_DisplayMenu(void)
 	UI_PrintString(String, 50, 127, 2, 8, true);
 
 	if (gMenuCursor == MENU_VOL)
-	{	// 2nd text line
+	{	// 2nd text line .. percentage
 		const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
 		                       (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
 		                        gBatteryVoltageAverage;
@@ -596,4 +603,3 @@ void UI_DisplayMenu(void)
 
 	ST7565_BlitFullScreen();
 }
-
