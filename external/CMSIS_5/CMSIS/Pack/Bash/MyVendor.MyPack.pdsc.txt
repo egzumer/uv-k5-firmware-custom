@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="PACK.xsd" schemaVersion="1.6.0">
+  <name>MyPack</name>
+  <vendor>MyVendor</vendor>
+  <description>MyVendor Pack</description>
+  <!-- empty until the pack gets published -->
+  <url> </url>
+  <license>License.txt</license>
+  <releases>
+    <release version="1.0.0" date="2019-08-16">
+      Initial Release
+    </release>
+  </releases>
+
+  <conditions>
+    <condition id="MyComponent-CM3">
+    <description>This ensures that MyComponent is only available for Cortex-M3</description>
+    <require Dcore="Cortex-M3"/>
+    </condition>	
+  </conditions>
+
+  <components>
+    <component Cclass="MyClass" Cgroup="MyComponent" Cversion="1.0.0" condition="MyComponent-CM3">
+      <description>MyComponent</description>
+      <files>
+        <file category="sourceC" name="Source/component.c"/>
+        <file category="header"  name="Include/component.h"/>
+        <file category="doc" name="README.md"/>
+      </files>
+    </component>
+  </components>
+
+</package>

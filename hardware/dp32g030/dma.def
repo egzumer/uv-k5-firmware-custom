@@ -1,0 +1,169 @@
+# Copyright 2023 Dual Tachyon
+# https://github.com/DualTachyon
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[DMA]
+@ = 0x40001000, 0x100
+
+CTR = 0x0000
+> DMAEN, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+INTEN = 0x0004
+> CH0_TC_INTEN, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> CH1_TC_INTEN, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> CH2_TC_INTEN, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> CH3_TC_INTEN, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> CH0_THC_INTEN, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> CH1_THC_INTEN, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> CH2_THC_INTEN, 10, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> CH3_THC_INTEN, 11, 1
+= DISABLE, 0
+= ENABLE, 1
+
+INTST = 0x0008
+> CH0_TC_INTST, 0, 1
+= NOT_SET, 0
+= SET, 1
+
+> CH1_TC_INTST, 1, 1
+= NOT_SET, 0
+= SET, 1
+
+> CH2_TC_INTST, 2, 1
+= NOT_SET, 0
+= SET, 1
+
+> CH3_TC_INTST, 3, 1
+= NOT_SET, 0
+= SET, 1
+
+> CH0_THC_INTST, 8, 1
+= NOT_SET, 0
+= SET, 1
+
+> CH1_THC_INTST, 9, 1
+= NOT_SET, 0
+= SET, 1
+
+> CH2_THC_INTST, 10, 1
+= NOT_SET, 0
+= SET, 1
+
+> CH3_THC_INTST, 11, 1
+= NOT_SET, 0
+= SET, 1
+
+[DMA_CH]
+$ = DMA_Channel_t
+
+CTR = 0x0000
+> CH_EN, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> LENGTH, 1, 12
+
+> LOOP, 13, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> PRI, 14, 2
+= LOW, 0
+= MEDIUM, 1
+= HIGH, 2
+= HIGHEST, 3
+
+> SWREQ, 16, 1
+= SET, 1
+
+MOD = 0x0004
+> MS_ADDMOD, 0, 1
+= NONE, 0
+= INCREMENT, 1
+
+> MS_SIZE, 1, 2
+= 8BIT, 0
+= 16BIT, 1
+= 32BIT, 2
+= KEEP, 3
+
+> MS_SEL, 3, 3
+= SRAM, 0
+= HSREQ_MS0, 1
+= HSREQ_MS1, 2
+= HSREQ_MS2, 3
+= HSREQ_MS3, 4
+= HSREQ_MS4, 5
+= HSREQ_MS5, 6
+= HSREQ_MS6, 7
+
+> MD_ADDMOD, 8, 1
+= NONE, 0
+= INCREMENT, 1
+
+> MD_SIZE, 9, 2
+= 8BIT, 0
+= 16BIT, 1
+= 32BIT, 2
+= KEEP, 3
+
+> MD_SEL, 11, 3
+= SRAM, 0
+= HSREQ_MS0, 1
+= HSREQ_MS1, 2
+= HSREQ_MS2, 3
+= HSREQ_MS3, 4
+= HSREQ_MS4, 5
+= HSREQ_MS5, 6
+= HSREQ_MS6, 7
+
+MSADDR = 0x0008
+MDADDR = 0x000C
+ST = 0x0010
+
+[DMA_CH0]
+@ = 0x40001100, 0x20, $DMA_CH
+
+[DMA_CH1]
+@ = 0x40001120, 0x20, $DMA_CH
+
+[DMA_CH2]
+@ = 0x40001140, 0x20, $DMA_CH
+
+[DMA_CH3]
+@ = 0x40001160, 0x20, $DMA_CH
+

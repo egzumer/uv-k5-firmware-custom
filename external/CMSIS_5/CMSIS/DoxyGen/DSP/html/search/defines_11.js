@@ -1,0 +1,22 @@
+var searchData=
+[
+  ['scale_5fcol_5ff16',['SCALE_COL_F16',['../matrix__utils_8h.html#aed7321506cb95cc99dd6cc946b319a0c',1,'matrix_utils.h']]],
+  ['scale_5fcol_5ff32',['SCALE_COL_F32',['../matrix__utils_8h.html#a5763afc70639971e34ac9fc33f423e8c',1,'matrix_utils.h']]],
+  ['scale_5fcol_5ff64',['SCALE_COL_F64',['../matrix__utils_8h.html#a4db35cfc9e8d05a2416098688d2d7e06',1,'matrix_utils.h']]],
+  ['scale_5fcol_5ft',['SCALE_COL_T',['../matrix__utils_8h.html#a7fa9981769e07c333412e4d08c95e7f6',1,'matrix_utils.h']]],
+  ['scale_5frow_5ff16',['SCALE_ROW_F16',['../matrix__utils_8h.html#a36f7d084b633d7a1ec6e3765a4bc908c',1,'matrix_utils.h']]],
+  ['scale_5frow_5ff32',['SCALE_ROW_F32',['../matrix__utils_8h.html#a16a999fb8693c571b9e35c7e949f242c',1,'matrix_utils.h']]],
+  ['scale_5frow_5ff64',['SCALE_ROW_F64',['../matrix__utils_8h.html#a2988cfde7783a6beb36faf3b8e3d04c8',1,'matrix_utils.h']]],
+  ['shift_5fmelfilter_5fsaturation_5fq15',['SHIFT_MELFILTER_SATURATION_Q15',['../arm__mfcc__q15_8c.html#a17139f454f553b938cfb6f18d84fba2e',1,'arm_mfcc_q15.c']]],
+  ['shift_5fmelfilter_5fsaturation_5fq31',['SHIFT_MELFILTER_SATURATION_Q31',['../arm__mfcc__q31_8c.html#ac780295ebaed464016410322c1554ccc',1,'arm_mfcc_q31.c']]],
+  ['snr_5fthreshold',['SNR_THRESHOLD',['../arm__convolution__example__f32_8c.html#af08ec3fef897d77c6817638bf0e0c5c6',1,'SNR_THRESHOLD():&#160;arm_convolution_example_f32.c'],['../arm__linear__interp__example__f32_8c.html#af08ec3fef897d77c6817638bf0e0c5c6',1,'SNR_THRESHOLD():&#160;arm_linear_interp_example_f32.c'],['../arm__matrix__example__f32_8c.html#af08ec3fef897d77c6817638bf0e0c5c6',1,'SNR_THRESHOLD():&#160;arm_matrix_example_f32.c']]],
+  ['snr_5fthreshold_5ff32',['SNR_THRESHOLD_F32',['../arm__fir__example__f32_8c.html#af7d1dd4deffa8e7ed6429e5dd0fe1812',1,'SNR_THRESHOLD_F32():&#160;arm_fir_example_f32.c'],['../arm__graphic__equalizer__example__q31_8c.html#af7d1dd4deffa8e7ed6429e5dd0fe1812',1,'SNR_THRESHOLD_F32():&#160;arm_graphic_equalizer_example_q31.c']]],
+  ['sq',['SQ',['../utils_8h.html#ac3644f84794a8bfdacf39c4b2c2495fc',1,'utils.h']]],
+  ['step',['STEP',['../svm__functions_8h.html#a41600e7828c196ee086489538ba6d25e',1,'STEP():&#160;svm_functions.h'],['../svm__functions__f16_8h.html#a41600e7828c196ee086489538ba6d25e',1,'STEP():&#160;svm_functions_f16.h']]],
+  ['swap',['SWAP',['../arm__bitonic__sort__f32_8c.html#a30ba6c2c6a79b076d65258e330866b90',1,'arm_bitonic_sort_f32.c']]],
+  ['swap_5fcols_5ff32',['SWAP_COLS_F32',['../matrix__utils_8h.html#aab32bdb986034bc2e38796c67b73c536',1,'matrix_utils.h']]],
+  ['swap_5fcols_5ff64',['SWAP_COLS_F64',['../matrix__utils_8h.html#a528eac5fb7456d75144a29c38fdae85a',1,'matrix_utils.h']]],
+  ['swap_5frows_5ff16',['SWAP_ROWS_F16',['../matrix__utils_8h.html#a262a0eb6289116baf75266c87ed6dab3',1,'matrix_utils.h']]],
+  ['swap_5frows_5ff32',['SWAP_ROWS_F32',['../matrix__utils_8h.html#a3736d7e2052c3c68c54b6455fa2d137e',1,'matrix_utils.h']]],
+  ['swap_5frows_5ff64',['SWAP_ROWS_F64',['../matrix__utils_8h.html#aa09d40fbd594c64f4f756e4bd9b6db59',1,'matrix_utils.h']]]
+];

@@ -1,0 +1,515 @@
+/**
+\defgroup vio_interface_gr VIO
+\brief API for Virtual I/O (VIO) (%cmsis_vio.h)
+\details 
+
+The VIO software component is a virtual I/O abstraction for peripherals that are typically used in example projects. It
+enables developers to move from an evaluation kit to custom hardware and helps to scale project examples at large to many
+development boards:
+
+\image html vioRationale.png "Virtual I/O provides a generic API for examples and testing"
+
+<b>VIO API</b>
+
+The following header file defines the Application Programming Interface (API) for VIO:
+  - \b %cmsis_vio.h : API for VIO
+
+<b>VIO User Code Templates</b>
+
+The VIO software component contains two user code templates with different purposes:
+  - VIO:Custom: This file is an empty stub with all functions that are defined in the header file that can be used to
+    implement the VIO layer for the hardware that is used in the application.
+  - VIO:Virtual: This file uses a fixed memory location to emulate the VIO functionality and can be used off-the-shelf.
+
+<b>VIO Memory Location Structure</b>
+
+For testing purposes, it is required to have fixed memory locations that are used to read/store values. In the VIO:Virtual
+template file (\b %vio.c), an exemplary implementation is shown:
+
+\code
+// Input, output variables
+__USED uint32_t      vioSignalIn;                                       // Memory for incoming signal
+__USED uint32_t      vioSignalOut;                                      // Memory for outgoing signal
+__USED char          vioPrintMem[VIO_PRINTMEM_NUM][VIO_PRINT_MAX_SIZE]; // Memory for the last value for each level
+__USED int32_t       vioValue   [VIO_VALUE_NUM];                        // Memory for value used in vioGetValue/vioSetValue
+__USED vioValueXYZ_t vioValueXYZ[VIO_VALUEXYZ_NUM];                     // Memory for XYZ value for 3-D vector
+__USED vioAddrIPv4_t vioAddrIPv4[VIO_IPV4_ADDRESS_NUM];                 // Memory for IPv4 address value used in vioSetIPv4/vioGetIPv4
+__USED vioAddrIPv6_t vioAddrIPv6[VIO_IPV6_ADDRESS_NUM];                 // Memory for IPv6 address value used in vioSetIPv6/vioGetIPv6
+\endcode
+
+Use these memory locations to monitor or set the variables as required in the application.
+
+Two defines are available that help to disconnect the actual peripherals and enable virtual I/Os: \c CMSIS_VIN and
+\c CMSIS_VOUT. They help to write code that can be used in testing environments without real hardware access. The following
+implementation example shows such code:
+
+<b>Code Example (VIO Implementation)</b>
+\code
+// Initialize test input, output.
+void vioInit (void) {
+  uint32_t i;
+#if !defined CMSIS_VIN
+// Add user variables here:
+ 
+#endif
+#if !defined CMSIS_VOUT
+// Add user variables here:
+ 
+#endif
+ 
+  vioSignalIn  = 0U;
+  vioSignalOut = 0U;
+ 
+  memset (vioPrintMem, 0, sizeof(vioPrintMem));
+  memset (vioValue,    0, sizeof(vioValue));
+  memset (vioValueXYZ, 0, sizeof(vioValueXYZ));
+  memset (vioAddrIPv4, 0, sizeof(vioAddrIPv4));
+  memset (vioAddrIPv6, 0, sizeof(vioAddrIPv6));
+ 
+#if !defined CMSIS_VOUT
+// Add user code here:
+// <code vioInit output>
+ 
+  BSP_LED_Init(LED_BLUE);
+  BSP_LED_Init(LED_RED);
+  BSP_LED_Init(LED_GREEN);
+// </code>
+#endif
+ 
+#if !defined CMSIS_VIN
+// Add user code here:
+// <code vioInit input>
+ 
+  BSP_PB_Init(BUTTON_USER, BUTTON_MODE_GPIO);
+// </code>
+#endif
+ 
+  return;
+}
+\endcode
+
+<b>Memory display in IDEs</b>
+
+Arm Keil MDK uses the provided SCVD file to display the VIO signals in Component Viewer:
+
+\image html vioComponentViewer.png
+
+@{
+*/
+
+/**
+\defgroup vioDefines_gr  Defines and Structs
+\ingroup vio_interface_gr
+\brief Documents the defines and structs of the VIO API.
+\details
+@{
+    Test.
+*/
+
+/**
+\defgroup vioSignals_gr  Signals
+\ingroup vioDefines_gr
+\brief Signal related defines.
+\details
+@{
+\def vioLED0
+\def vioLED1
+\def vioLED2
+\def vioLED3
+\def vioLED4
+\def vioLED5
+\def vioLED6
+\def vioLED7
+\def vioLEDon
+\def vioLEDoff
+\def vioBUTTON0  
+\def vioBUTTON1  
+\def vioBUTTON2  
+\def vioBUTTON3  
+\def vioJOYup    
+\def vioJOYdown  
+\def vioJOYleft  
+\def vioJOYright 
+\def vioJOYselect
+\def vioJOYall   
+@}
+*/
+
+/**
+\defgroup vioValues_gr  Values
+\ingroup vioDefines_gr
+\brief Value related defines.
+\details
+@{
+\def vioAIN0 
+\def vioAIN1 
+\def vioAIN2 
+\def vioAIN3 
+\def vioAOUT0
+/** 
+\struct     vioValueXYZ_t
+\details
+Structure holding three-dimensional values for gyroscopes, accelerometers, etc.
+
+<b>Parameter for:</b>
+  - \ref vioGetXYZ
+  - \ref vioSetXYZ
+***************************************************************************************************************************/
+@}
+*/
+
+/**
+\defgroup vioIDs_gr  IDs
+\ingroup vioDefines_gr
+\brief ID related defines.
+\details
+@{
+\def vioAIN0 
+\def vioAIN1 
+\def vioAIN2 
+\def vioAIN3 
+\def vioAOUT0
+\def vioMotionGyro    
+\def vioMotionAccelero
+\def vioMotionMagneto 
+@}
+*/
+
+/**
+\defgroup vioPrintLevels_gr  Print Levels
+\ingroup vioDefines_gr
+\brief Print level related defines.
+\details
+@{
+\def vioLevelNone   
+\def vioLevelHeading
+\def vioLevelMessage
+\def vioLevelError
+@}
+*/
+
+/**
+\defgroup vioIPAddr_gr  IP Addresses
+\ingroup vioDefines_gr
+\brief IP address related structs.
+\details
+@{
+\struct     vioAddrIPv4_t
+\details
+Structure holding IPv4 addresses.
+
+<b>Parameter for:</b>
+  - \ref vioGetIPv4
+  - \ref vioSetIPv4
+
+\struct     vioAddrIPv6_t
+\details
+Structure holding IPv6 addresses.
+
+<b>Parameter for:</b>
+  - \ref vioGetIPv6
+  - \ref vioSetIPv6
+@}
+*/
+
+/**
+@}
+*/
+// end group vioDefines_gr
+
+
+
+void vioInit (void) {};
+/**
+\fn void vioInit (void)
+\details
+The function \b vioInit initializes the VIO interface. Use it to initialize any connected hardware that is used to
+map VIO signals. 
+
+\b Code \b Example:
+\code
+#include "cmsis_vio.h"                  // ::CMSIS Driver:VIO
+ 
+int main (void) {
+ 
+  // System Initialization
+  SystemCoreClockUpdate();
+  vioInit();
+  // ...
+ 
+}
+\endcode
+***************************************************************************************************************************/
+
+int32_t vioPrint (uint32_t level, const char *format, ...) {
+  return (0);
+};
+/**
+\fn int32_t vioPrint (uint32_t level, const char *format, ...)
+\details
+The function \b vioPrint prints a formatted string to a test terminal. Formatting of the output follows the rules of 
+standard C language printf().
+
+Refer to \ref vioPrintLevels_gr for information about the possible \a levels.
+
+\b Code \b Example:
+\code
+#include "cmsis_vio.h"                  // ::CMSIS Driver:VIO
+ 
+int main (void) {
+  int x = 3;
+ 
+  vioInit();
+  vioPrint(vioLevelNone,    "Test [None]"); 
+  vioPrint(vioLevelHeading, "Test [Heading] = Network Connector Message"); 
+  vioPrint(vioLevelMessage, "Test [Message] = Connection failed"); 
+  vioPrint(vioLevelError,   "Test [Error]   = %d", x); 
+}
+\endcode
+***************************************************************************************************************************/
+
+void vioSetSignal (uint32_t mask, uint32_t signal) {};
+/**
+\fn void vioSetSignal (uint32_t mask, uint32_t signal)
+\details
+The function \b vioSetSignal set a \a signal to an output specified by \a mask. Use this function to map VIOs to actual
+hardware for displaying signals on a target board.
+
+Refer to \ref vioSignals_gr for information about the possible \a mask and \a signal values.
+
+\b Code \b Example:
+\code
+#include "cmsis_vio.h"                  // ::CMSIS Driver:VIO
+ 
+int main (void) {
+ 
+  vioInit();
+  vioSetSignal(vioLED0, vioLEDon);
+  // ...
+  vioSetSignal(vioLED0, vioLEDoff);
+}
+\endcode
+***************************************************************************************************************************/
+
+uint32_t vioGetSignal (uint32_t mask) {
+  return (0);
+};
+/**
+\fn uint32_t vioGetSignal (uint32_t mask)
+\details
+The function \b vioGetSignal retrieves a signal from an input identified by \a mask. Use this function to read data from any
+input that is provided.
+
+Refer to \ref vioSignals_gr for information about the possible \a mask values.
+
+\b Code \b Example:
+\code
+#include "cmsis_vio.h"                  // ::CMSIS Driver:VIO
+ 
+int main (void) {
+  uint32_t state;
+  uint32_t last = 0U;
+ 
+  vioInit();
+  for (;;) {
+    state = (vioGetSignal (vioBUTTON0)); // Get pressed button state
+    if (state != last){
+      if (state == vioBUTTON0){
+        // do something
+      }
+    }
+    last = state;
+  }
+}
+\endcode
+***************************************************************************************************************************/
+
+void vioSetValue (uint32_t id, int32_t value) {};
+/**
+\fn void vioSetValue (uint32_t id, int32_t value)
+\details
+The function \b vioSetValue set the \a value to the output identified by \a id. Use this function to set states of I/Os for
+example.
+
+Refer to \ref vioValues_gr for information about \a value and \ref vioIDs_gr for \a id.
+
+\b Code \b Example:
+\code
+#include "cmsis_vio.h"                  // ::CMSIS Driver:VIO
+ 
+int main (void) {
+ 
+  vioInit();
+  vioSetValue(vioAOUT0, 1024);
+}
+\endcode
+***************************************************************************************************************************/
+
+int32_t vioGetValue (uint32_t id) {
+  return (0);
+};
+/**
+\fn int32_t vioGetValue (uint32_t id)
+\details
+The function \b vioGetValue retrieves a value from the input identified by \a id. Use this function to read data from inputs.
+
+Refer to \ref vioIDs_gr for information about \a id.
+
+\b Code \b Example:
+\code
+#include "cmsis_vio.h"                  // ::CMSIS Driver:VIO
+ 
+int main (void) {
+  uint32_t button;
+ 
+  vioInit();
+  button = vioGetValue(vioBUTTON0);
+}
+\endcode
+***************************************************************************************************************************/
+
+void vioSetXYZ (uint32_t id, vioValueXYZ_t valueXYZ) {
+  return (0);
+};
+/**
+\fn void vioSetXYZ (uint32_t id, vioValueXYZ_t valueXYZ)
+\details
+The function \b vioSetXYZ sets a three-dimensional value \a valueXYZ to the output identified by \a id. Use this function to
+apply a 3d value to an output.
+
+Refer to \ref vioValues_gr for information about the \a valueXYZ and \ref vioIDs_gr for \a id.
+
+\b Code \b Example:
+\code
+#include "cmsis_vio.h"                  // ::CMSIS Driver:VIO
+ 
+int main (void) {
+  vioValueXYZ_t xyz = {123, 456, 789};
+ 
+  vioInit();
+  vioSetXYZ(0, xyz);
+}
+\endcode
+***************************************************************************************************************************/
+
+vioValueXYZ_t vioGetXYZ (uint32_t id) {
+  return (0);
+};
+/**
+\fn vioValueXYZ_t vioGetXYZ (uint32_t id)
+\details
+The function \b vioGetXYZ retrieves a three-dimensional value from the input identified by \a id. Use this function to get a
+3d value.
+
+Refer to \ref vioIDs_gr for information about \a id.
+
+\b Code \b Example:
+\code
+#include "cmsis_vio.h"                  // ::CMSIS Driver:VIO
+ 
+int main (void) {
+  volatile vioValueXYZ_t xyz;
+ 
+  vioInit();
+  xyz = vioGetXYZ(vioMotionGyro);
+}
+\endcode
+***************************************************************************************************************************/
+
+void vioSetIPv4 (uint32_t id, vioAddrIPv4_t addrIPv4) {};
+/**
+\fn void vioSetIPv4 (uint32_t id, vioAddrIPv4_t addrIPv4)
+\details
+The function \b vioSetIPv4 sets an IPv4 address specified by \a addrIPv4 to an interface identified by \a id. Use this
+function to assign an IPv4 address to an interface.
+
+Refer to \ref vioIDs_gr for information about \a id and \ref vioIPAddr_gr for \a addrIPv4.
+
+\b Code \b Example:
+\code
+#include "cmsis_vio.h"                  // ::CMSIS Driver:VIO
+ 
+int main (void) {
+  vioAddrIPv4_t addrIPv4 = {192U, 168U, 111U, 123U};
+ 
+  vioInit();
+  vioSetIPv4 (0, addrIPv4);
+}
+\endcode
+***************************************************************************************************************************/
+
+vioAddrIPv4_t vioGetIPv4 (uint32_t id) {
+  return (0);
+};
+/**
+\fn vioAddrIPv4_t vioGetIPv4 (uint32_t id)
+\details
+The function \b vioGetIPv4 retrieves the IPv4 addrIPv4 from an interface identified by \a id. Use this function to read an
+IPv4 address.
+
+Refer to \ref vioIDs_gr for information about \a id.
+
+\b Code \b Example:
+\code
+#include "cmsis_vio.h"                  // ::CMSIS Driver:VIO
+ 
+int main (void) {
+  vioAddrIPv4_t addrIPv4;
+ 
+  vioInit();
+  addrIPv4 = vioGetIPv4(0);
+}
+\endcode
+***************************************************************************************************************************/
+
+void vioSetIPv6 (uint32_t id, vioAddrIPv6_t addrIPv6) {};
+/**
+\fn void vioSetIPv6 (uint32_t id, vioAddrIPv6_t addrIPv6)
+\details
+The function \b vioSetIPv6 sets an IPv6 address specified by \a addrIPv6 to an interface identified by \a id. Use this
+function to assign an IPv6 address to an interface.
+
+Refer to \ref vioIDs_gr for information about \a id and \ref vioIPAddr_gr for \a addrIPv6.
+
+\b Code \b Example:
+\code
+#include "cmsis_vio.h"                  // ::CMSIS Driver:VIO
+ 
+int main (void) {
+  vioAddrIPv6_t addrIPv6 = {1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U,
+                           9U, 10U, 11U, 12U, 13U, 14U, 15U, 16U};
+ 
+  vioInit();
+  vioSetIPv6 (0, addrIPv6);
+}
+\endcode
+***************************************************************************************************************************/
+
+vioAddrIPv6_t vioGetIPv6 (uint32_t id) {
+  return (0);
+};
+/**
+\fn vioAddrIPv6_t vioGetIPv6 (uint32_t id)
+\details
+The function \b vioGetIPv6 retrieves the IPv6 addrIPv6 from an interface identified by \a id. Use this function to read an
+IPv6 address.
+
+Refer to \ref vioIDs_gr for information about \a id.
+
+\b Code \b Example:
+\code
+#include "cmsis_vio.h"                  // ::CMSIS Driver:VIO
+ 
+int main (void) {
+  vioAddrIPv6_t addrIPv6;
+ 
+  vioInit();
+  addrIPv6 = vioGetIPv6(0);
+}
+\endcode
+***************************************************************************************************************************/
+
+/**
+@}
+*/
+// End VIO Interface

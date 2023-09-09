@@ -1,0 +1,117 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Open-CMSIS-Pack/devtools/schemas/projmgr/1.3.0/tools/projmgr/schemas/cproject.schema.json
+
+project:
+  layers:
+    # App: CMSIS-Core Validation for Cortex-M (Bootloader part)
+    - layer: ../Layer/App/Bootloader_Cortex-M/App.clayer.yml
+      for-context:
+        - .AC6_low
+        - .AC6_mid
+        - .AC6_high
+        - .AC6_size
+        - .AC6_tiny
+        - .GCC_low
+        - .GCC_mid
+        - .GCC_high
+        - .GCC_size
+        - .GCC_tiny
+        - .IAR_low
+        - .IAR_mid
+        - .IAR_high
+        - .IAR_size
+        - .IAR_tiny
+
+    #Target: CM23S
+    - layer: ../Layer/Target/CM23S_BL/Target.clayer.yml
+      for-context:
+        - .AC6_low+CM23S
+        - .AC6_mid+CM23S
+        - .AC6_high+CM23S
+        - .AC6_size+CM23S
+        - .AC6_tiny+CM23S
+        - .GCC_low+CM23S
+        - .GCC_mid+CM23S
+        - .GCC_high+CM23S
+        - .GCC_size+CM23S
+        - .GCC_tiny+CM23S
+        - .IAR_low+CM23S
+        - .IAR_mid+CM23S
+        - .IAR_high+CM23S
+        - .IAR_size+CM23S
+        - .IAR_tiny+CM23S
+
+    #Target: CM33S
+    - layer: ../Layer/Target/CM33S_BL/Target.clayer.yml
+      for-context:
+        - .AC6_low+CM33S
+        - .AC6_mid+CM33S
+        - .AC6_high+CM33S
+        - .AC6_size+CM33S
+        - .AC6_tiny+CM33S
+        - .GCC_low+CM33S
+        - .GCC_mid+CM33S
+        - .GCC_high+CM33S
+        - .GCC_size+CM33S
+        - .GCC_tiny+CM33S
+        - .IAR_low+CM33S
+        - .IAR_mid+CM33S
+        - .IAR_high+CM33S
+        - .IAR_size+CM33S
+        - .IAR_tiny+CM33S
+
+    #Target: CM35PS
+    - layer: ../Layer/Target/CM35PS_BL/Target.clayer.yml
+      for-context:
+        - .AC6_low+CM35PS
+        - .AC6_mid+CM35PS
+        - .AC6_high+CM35PS
+        - .AC6_size+CM35PS
+        - .AC6_tiny+CM35PS
+        - .GCC_low+CM35PS
+        - .GCC_mid+CM35PS
+        - .GCC_high+CM35PS
+        - .GCC_size+CM35PS
+        - .GCC_tiny+CM35PS
+        - .IAR_low+CM35PS
+        - .IAR_mid+CM35PS
+        - .IAR_high+CM35PS
+        - .IAR_size+CM35PS
+        - .IAR_tiny+CM35PS
+
+    #Target: CM55S
+    - layer: ../Layer/Target/CM55S_BL/Target.clayer.yml
+      for-context:
+        - .AC6_low+CM55S
+        - .AC6_mid+CM55S
+        - .AC6_high+CM55S
+        - .AC6_size+CM55S
+        - .AC6_tiny+CM55S
+        - .GCC_low+CM55S
+        - .GCC_mid+CM55S
+        - .GCC_high+CM55S
+        - .GCC_size+CM55S
+        - .GCC_tiny+CM55S
+        - .IAR_low+CM55S
+        - .IAR_mid+CM55S
+        - .IAR_high+CM55S
+        - .IAR_size+CM55S
+        - .IAR_tiny+CM55S
+
+    #Target: CM85S
+    - layer: ../Layer/Target/CM85S_BL/Target.clayer.yml
+      for-context:
+        - .AC6_low+CM85S
+        - .AC6_mid+CM85S
+        - .AC6_high+CM85S
+        - .AC6_size+CM85S
+        - .AC6_tiny+CM85S
+        - .GCC_low+CM85S
+        - .GCC_mid+CM85S
+        - .GCC_high+CM85S
+        - .GCC_size+CM85S
+        - .GCC_tiny+CM85S
+        - .IAR_low+CM85S
+        - .IAR_mid+CM85S
+        - .IAR_high+CM85S
+        - .IAR_size+CM85S
+        - .IAR_tiny+CM85S

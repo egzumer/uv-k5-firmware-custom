@@ -1,0 +1,1090 @@
+# Copyright 2023 Dual Tachyon
+# https://github.com/DualTachyon
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[PORTCON]
+@ = 0x400B0000, 0x800
+
+PORTA_SEL0 = 0x0000
+> A0, 0, 4
+= GPIOA0, 0
+= PWMP1_PLUS0, 1
+= PWMP0_PLUS1, 2
+= TM, 3
+= WAKEUP0, 4
+
+> A1, 4, 4
+= GPIOA1, 0
+= XTAL_XI, 1
+
+> A2, 8, 4
+= GPIOA2, 0
+= XTAL_XO, 1
+
+> A3, 12, 4
+= GPIOA3, 0
+= CMP0_VN, 1
+= XTAH_XI, 2
+
+> A4, 16, 4
+= GPIOA4, 0
+= CMP0_VP, 1
+= XTAH_XO, 2
+
+> A5, 20, 4
+= GPIOA5, 0
+= UART1_CTS, 1
+= PWMP1_PLUS1, 2
+= TIMERP1_IN0, 3
+= TIMERP1_OUT_L, 4
+= WAKEUP1, 5
+= SARADC_CH1, 6
+
+> A6, 24, 4
+= GPIOA6, 0
+= UART1_RTS, 1
+= TIMERP1_IN1, 2
+= TIMERP1_OUT_H, 3
+= SARADC_CH1, 4
+= OPA0_OUT, 5
+
+> A7, 28, 4
+= GPIOA7, 0
+= UART1_TX, 1
+= TIMERP0_IN0, 2
+= TIMERP0_OUT_L, 3
+= SARADC_CH2, 4
+= OPA0_VP, 5
+
+PORTA_SEL1  = 0x0004
+> A8, 0, 4
+= GPIOA8, 0
+= UART1_RX, 1
+= TIMERP0_IN1, 2
+= TIMERP0_OUT_H, 3
+= SARADC_CH3, 4
+= OPA0_VN, 5
+
+> A9, 4, 4
+= GPIOA9, 0
+= SPI0_SSN, 1
+= TIMERP1_IN0, 2
+= TIMERP1_OUT_L, 3
+= TM, 4
+= SARADC_CH4, 5
+= CMP1_VN, 6
+
+> A10, 8, 4
+= GPIOA10, 0
+= SPI0_CLK, 1
+= SARADC_CH5, 2
+= CMP1_VP, 3
+
+> A11, 12, 4
+= GPIOA11, 0
+= SPI0_MISO, 1
+= PWMB0_CH0, 2
+= PWMP0_BRAKE0, 3
+= TIMERP1_IN1, 4
+= TIMERP1_OUT_H, 5
+= SARADC_CH6, 6
+
+> A12, 16, 4
+= GPIOA12, 0
+= SPI0_MOSI, 1
+= PWMB0_CH1, 2
+= PWMP0_CH0N, 3
+= TIMERP0_IN0, 4
+= TIMERP0_OUT_L, 5
+= SARADC_CH7, 6
+
+> A13, 20, 4
+= GPIOA13, 0
+= PWMB0_CH2, 1
+= PWMP0_CH1N, 2
+= TIMERP0_IN1, 3
+= TIMERP0_OUT_H, 4
+= SARADC_CH8, 5
+
+> A14, 24, 4
+= GPIOA14, 0
+= PWMB1_CH0, 1
+= PWMP0_CH2N, 2
+= TIMERP1_IN0, 3
+= TIMERP1_OUT_L, 4
+= SARADC_CH9, 5
+
+> A15, 28, 4
+= GPIOA15, 0
+= PWMB1_CH1, 1
+= PWMP0_CH0, 2
+= TIMERP1_IN1, 3
+= TIMERP1_OUT_H, 4
+
+PORTB_SEL0 = 0x0008
+> B0, 0, 4
+= GPIOB0, 0
+= UART2_TX, 1
+= IIC0_SCL, 2
+= PWMB1_CH2, 3
+= PWMP0_CH1, 4
+
+> B1, 4, 4
+= GPIOB1, 0
+= UART2_RX, 1
+= IIC0_SDA, 2
+= PWMP0_CH2, 3
+
+> B2, 8, 4
+= GPIOB2, 0
+= SPI1_SSN, 1
+= PWMP0_BRAKE1, 2
+= TIMERP1_HALL0, 3
+
+> B3, 12, 4
+= GPIOB3, 0
+= SPI1_CLK, 1
+= IIC1_SDA, 2
+= PWMP0_CH0N, 3
+= TIMERP1_HALL1, 4
+
+> B4, 16, 4
+= GPIOB4, 0
+= SPI1_MISO, 1
+= IIC1_SCL, 2
+= PWMP1_CH0, 3
+= PWMP0_CH1N, 4
+= TIMERP1_HALL2, 5
+
+> B5, 20, 4
+= GPIOB5, 0
+= SPI1_MOSI, 1
+= PWMP1_CH0N, 2
+= PWMP0_CH2N, 3
+= TIMERP0_IN0, 4
+= TIMERP0_OUT_L, 5
+
+> B6, 24, 4
+= GPIOB6, 0
+= PWMP0_CH0, 1
+= TIMERP0_IN1, 2
+= TIMERP0_OUT_H, 3
+
+> B7, 28, 4
+= GPIOB7, 0
+= SPI0_SSN, 1
+= UART0_TX, 2
+= IIC0_SCL, 3
+= PWMP1_BRAKE0, 4
+= PWMP0_CH1, 5
+
+PORTB_SEL1 = 0x000C
+> B8, 0, 4
+= GPIOB8, 0
+= SPI0_CLK, 1
+= UART0_RX, 2
+= IIC0_SDA, 3
+= PWMB0_CH0, 4
+= PWMP1_BRAKE1, 5
+= PWMP0_CH2, 6
+
+> B9, 4, 4
+= GPIOB9, 0
+= SPI0_MISO, 1
+= UART0_CTS, 2
+= PWMB0_CH1, 3
+= PWMP1_CH0, 4
+= TIMERP1_IN1, 5
+= TIMERP1_OUT_H, 6
+
+> B10, 8, 4
+= GPIOB10, 0
+= SPI0_MOSI, 1
+= UART0_RTS, 2
+= PWMB0_CH2, 3
+= PWMP1_CH1, 4
+= PWMP0_PLUS0, 5
+= TIMERP1_IN0, 6
+= TIMERP1_OUT_L, 7
+
+> B11, 12, 4
+= GPIOB11, 0
+= SWDIO, 1
+= PWMP1_CH2, 2
+= PWMP0_BRAKE2, 3
+
+> B12, 16, 4
+= GPIOB12, 0
+= UART1_TX, 1
+= IIC1_SCL, 2
+= PWMP1_CH0N, 3
+
+> B13, 20, 4
+= GPIOB13, 0
+= UART1_RX, 1
+= IIC1_SDA, 2
+= PWMP1_CH1N, 3
+
+> B14, 24, 4
+= GPIOB14, 0
+= SWCLK, 1
+= UART2_TX, 2
+= PWMP1_CH2N, 3
+
+> B15, 28, 4
+= GPIOB15, 0
+= SPI1_SSN, 1
+= UART2_RX, 2
+
+PORTC_SEL0 = 0x0010
+> C0, 0, 4
+= GPIOC0, 0
+= SPI1_CLK, 1
+= UART2_CTS, 2
+= PWMB1_CH0, 3
+
+> C1, 4, 4
+= GPIOC1, 0
+= SPI1_MISO, 1
+= UART2_RTS, 2
+= PWMB1_CH1, 3
+= TIMERP0_IN0, 4
+= TIMERP0_OUT_L, 5
+
+> C2, 8, 4
+= GPIOC2, 0
+= SPI1_MOSI, 1
+= PWMB1_CH2, 2
+= PWMP1_BRAKE2, 3
+= TIMERP0_IN1, 4
+= TIMERP0_OUT_H, 5
+
+> C3, 12, 4
+= GPIOC3, 0
+= UART0_TX, 1
+= IIC0_SCL, 2
+= PWMP1_CH1N, 3
+= TIMERP0_HALL0, 4
+= CMP2_VN, 5
+
+> C4, 16, 4
+= GPIOC4, 0
+= UART0_RX, 1
+= IIC0_SDA, 2
+= PWMP1_CH2N, 3
+= TIMERP0_HALL1, 4
+= CMP2_VP, 5
+
+> C5, 20, 4
+= GPIOC5, 0
+= TIMERP0_HALL2, 1
+= TM, 2
+= OPA1_VP, 3
+
+> C6, 24, 4
+= GPIOC6, 0
+= IIC1_SCL, 1
+= PWMP1_CH1, 2
+= TIMERP1_IN1, 3
+= TIMERP1_OUT_H, 4
+= OPA1_VN, 5
+
+> C7, 28, 4
+= GPIOC7, 0
+= IIC1_SDA, 1
+= PWMP1_CH2, 2
+= TIMERP1_IN0, 3
+= TIMERP1_OUT_L, 4
+= OPA1_OUT, 5
+
+PORTA_IE = 0x0100
+> A0, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A1, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A2, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A3, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A4, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A5, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A6, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A7, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A8, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A9, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A10, 10, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A11, 11, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A12, 12, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A13, 13, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A14, 14, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A15, 15, 1
+= DISABLE, 0
+= ENABLE, 1
+
+PORTB_IE = 0x0104
+> B0, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B1, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B2, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B3, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B4, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B5, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B6, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B7, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B8, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B9, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B10, 10, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B11, 11, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B12, 12, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B13, 13, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B14, 14, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B15, 15, 1
+= DISABLE, 0
+= ENABLE, 1
+
+PORTC_IE = 0x0108
+> C0, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C1, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C2, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C3, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C4, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C5, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C6, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C7, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C8, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C9, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C10, 10, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C11, 11, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C12, 12, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C13, 13, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C14, 14, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C15, 15, 1
+= DISABLE, 0
+= ENABLE, 1
+
+PORTA_PU = 0x0200
+> A0, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A1, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A2, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A3, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A4, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A5, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A6, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A7, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A8, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A9, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A10, 10, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A11, 11, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A12, 12, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A13, 13, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A14, 14, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A15, 15, 1
+= DISABLE, 0
+= ENABLE, 1
+
+PORTB_PU = 0x0204
+> B0, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B1, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B2, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B3, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B4, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B5, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B6, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B7, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B8, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B9, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B10, 10, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B11, 11, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B12, 12, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B13, 13, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B14, 14, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B15, 15, 1
+= DISABLE, 0
+= ENABLE, 1
+
+PORTC_PU = 0x0208
+> C0, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C1, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C2, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C3, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C4, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C5, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C6, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C7, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C8, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C9, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C10, 10, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C11, 11, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C12, 12, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C13, 13, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C14, 14, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C15, 15, 1
+= DISABLE, 0
+= ENABLE, 1
+
+PORTA_PD = 0x0300
+> A0, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A1, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A2, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A3, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A4, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A5, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A6, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A7, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A8, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A9, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A10, 10, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A11, 11, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A12, 12, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A13, 13, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A14, 14, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A15, 15, 1
+= DISABLE, 0
+= ENABLE, 1
+
+PORTB_PD = 0x0304
+> B0, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B1, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B2, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B3, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B4, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B5, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B6, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B7, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B8, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B9, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B10, 10, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B11, 11, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B12, 12, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B13, 13, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B14, 14, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B15, 15, 1
+= DISABLE, 0
+= ENABLE, 1
+
+PORTC_PD = 0x0308
+> C0, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C1, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C2, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C3, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C4, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C5, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C6, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C7, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C8, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C9, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C10, 10, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C11, 11, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C12, 12, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C13, 13, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C14, 14, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C15, 15, 1
+= DISABLE, 0
+= ENABLE, 1
+
+PORTA_OD = 0x0400
+> A0, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A1, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A2, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A3, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A4, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A5, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A6, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A7, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A8, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A9, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A10, 10, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A11, 11, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A12, 12, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A13, 13, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A14, 14, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> A15, 15, 1
+= DISABLE, 0
+= ENABLE, 1
+
+PORTB_OD = 0x0404
+> B0, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B1, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B2, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B3, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B4, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B5, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B6, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B7, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B8, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B9, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B10, 10, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B11, 11, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B12, 12, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B13, 13, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B14, 14, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> B15, 15, 1
+= DISABLE, 0
+= ENABLE, 1
+
+PORTC_OD = 0x0408
+> C0, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C1, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C2, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C3, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C4, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C5, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C6, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C7, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C8, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C9, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C10, 10, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C11, 11, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C12, 12, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C13, 13, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C14, 14, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> C15, 15, 1
+= DISABLE, 0
+= ENABLE, 1
+

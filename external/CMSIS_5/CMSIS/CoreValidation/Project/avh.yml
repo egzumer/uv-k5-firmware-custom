@@ -1,0 +1,39 @@
+name: "RTOS2 Validation"
+workdir: ../../../
+backend:
+  aws:
+    ami-version: ~=1.3
+    instance-type: t2.micro
+upload:
+  - ARM.CMSIS.pdsc
+  - CMSIS/Core/**/*
+  - CMSIS/Core_A/**/*
+  - CMSIS/CoreValidation/**/*
+  - -:CMSIS/CoreValidation/Project/Core_Validation-*.zip
+  - -:CMSIS/CoreValidation/Project/Core_Validation-*.junit
+  - -:CMSIS/CoreValidation/Project/Validation.*/**/*
+  - -:CMSIS/CoreValidation/Project/Bootloader.*/**/*
+  - Device/ARM/**/*
+steps:
+  - run: |
+      wget https://github.com/Open-CMSIS-Pack/cmsis-toolbox/releases/download/1.5.0/cmsis-toolbox.sh
+      chmod +x cmsis-toolbox.sh
+      sudo ./cmsis-toolbox.sh <<EOI
+      /opt/ctools
+      $CMSIS_PACK_ROOT
+      $(dirname $(which armclang 2>/dev/null))
+      $(dirname $(which armcc 2>/dev/null))
+      $(dirname $(which arm-none-eabi-gcc 2>/dev/null))
+
+      EOI
+      echo "cpackget : $(which cpackget)"
+      echo "csolution: $(which csolution)"
+      echo "cbuild   : $(which cbuild)"
+  - run: |
+      pip install -r requirements.txt 2>&1
+  - run: |
+      cd CMSIS/CoreValidation/Project
+      python build.py --verbose -c AC6 -c GCC -d "CM[047]*" -d "CM[23]3*" build run 2>&1 || echo "Something failed!"
+download:
+  - CMSIS/CoreValidation/Project/Core_Validation-*.zip
+  - CMSIS/CoreValidation/Project/Core_Validation-*.junit

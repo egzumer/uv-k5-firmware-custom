@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component_viewer schemaVersion="1.2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="Component_Viewer.xsd">
+<component name="CMSIS-Driver VIO" version="1.0.0"/>
+
+  <typedefs>
+    <typedef name="vioPrintMem_t" size="64">
+      <member name="mem" type="uint8_t" size="64" offset="0"/>
+    </typedef>
+
+    <typedef name="vioValueXYZ_t" size="12">
+      <member name="X" type="int32_t" offset="0"/>
+      <member name="Y" type="int32_t" offset="4"/>
+      <member name="Z" type="int32_t" offset="8"/>
+    </typedef>
+
+    <typedef name="vioAddrIPv4_t" size="4">
+      <member name="addr" type="uint8_t" size="4"  offset="0"/>
+    </typedef>
+
+    <typedef name="vioAddrIPv6_t" size="16">
+      <member name="addr" type="uint8_t" size="16" offset="0"/>
+    </typedef>
+
+  </typedefs>
+
+  <objects>
+    <object name="VIO Object">
+      <var name="i" type="int32_t" value="0"/>
+
+      <read     name="SignalIn"    type="uint32_t"      symbol="vioSignalIn"/>
+      <read     name="SignalOut"   type="uint32_t"      symbol="vioSignalOut"/>
+      <readlist name="PrintMem"    type="vioPrintMem_t" symbol="vioPrintMem" count="4"/>
+      <read     name="Value"       type="int32_t"       symbol="vioValue"    size="__size_of(&quot;vioValue&quot;)"/>
+      <readlist name="ValueXYZ"    type="vioValueXYZ_t" symbol="vioValueXYZ" count="__size_of(&quot;vioValueXYZ&quot;)"/>
+      <readlist name="IPv4Address" type="vioAddrIPv4_t" symbol="vioAddrIPv4" count="__size_of(&quot;vioAddrIPv4&quot;)"/>
+      <readlist name="IPv6Address" type="vioAddrIPv6_t" symbol="vioAddrIPv6" count="__size_of(&quot;vioAddrIPv6&quot;)"/>
+
+      <out name="CMSIS-Driver VIO">
+        <item property="Signal Bits (Input)"  value="%x[SignalIn]"/>
+        <item property="Signal Bits (Output)" value="%x[SignalOut]"/>
+
+        <item property="Print Memory Array">
+           <list name="i" start="0" limit="PrintMem._count">
+             <item property="Print Memory[%d[i]]" value="%t[PrintMem[i].mem]"/>
+           </list>
+        </item>
+
+        <item property="Value Array">
+           <list name="i" start="0" limit="Value._count">
+             <item property="Value[%d[i]]"  value="%d[Value[i]]"/>
+           </list>
+        </item>
+
+        <item property="ValueXYZ Array">
+           <list name="i" start="0" limit="ValueXYZ._count">
+             <item property="ValueXYZ[%d[i]]" value="X: %d[ValueXYZ[i].X] Y: %d[ValueXYZ[i].Y] Z: %d[ValueXYZ[i].Z]"/>
+           </list>
+        </item>
+
+        <item property="IP4 Address Array">
+           <list name="i" start="0" limit="IPv4Address._count">
+             <item property="IP4 Address[%d[i]]" value="%I[IPv4Address[i].addr]"/>
+           </list>
+        </item>
+
+        <item property="IP6 Address Array">
+           <list name="i" start="0" limit="IPv6Address._count">
+             <item property="IP6 Address[%d[i]]" value="%J[IPv6Address[i].addr]"/>
+           </list>
+        </item>
+
+      </out>
+
+    </object>
+
+  </objects>
+
+</component_viewer>

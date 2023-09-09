@@ -1,0 +1,124 @@
+# Copyright 2023 Dual Tachyon
+# https://github.com/DualTachyon
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[SPI]
+$ = SPI_Port_t
+
+CR = 0x0000
+> TF_CLR, 16, 1
+> RF_CLR, 15, 1
+> TXDMAEN, 14, 1
+> RXDMAEN, 13, 1
+
+> MSR_SSN, 12, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> CPHA_DATA_HOLD_S, 8, 4
+> LSB, 7, 1
+> MSTR, 6, 1
+> CPOL, 5, 1
+> CPHA, 4, 1
+
+> SPE, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> SPR, 0, 3
+= FPCLK_DIV_4, 0
+= FPCLK_DIV_8, 1
+= FPCLK_DIV_16, 2
+= FPCLK_DIV_32, 3
+= FPCLK_DIV_64, 4
+= FPCLK_DIV_128, 5
+= FPCLK_DIV_256, 6
+= FPCLK_DIV_512, 7
+
+WDR = 0x0004
+RDR = 0x0008
+
+IE = 0x0010
+> RXFIFO_OVF, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> RXFIFO_FULL, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> RXFIFO_HFULL, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> TXFIFO_EMPTY, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> TXFIFO_HFULL, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+IF = 0x0014
+FIFOST = 0x0018
+> RFE, 0, 1
+= NOT_EMPTY, 0
+= EMPTY, 1
+
+> RFF, 1, 1
+= NOT_FULL, 0
+= FULL, 1
+
+> RFHF, 2, 1
+= NOT_HALF_FULL, 0
+= HALF_FULL, 1
+
+> TFE, 3, 1
+= NOT_EMPTY, 0
+= EMPTY, 1
+
+> TFF, 4, 1
+= NOT_FULL, 0
+= FULL, 1
+
+> TFHF, 5, 1
+= NOT_HALF_FULL,                   0
+= HALF_FULL,                       1
+
+> RF_LEVEL, 6, 3
+= 0_BYTE, 0
+= 1_BYTE, 1
+= 2_BYTE, 2
+= 3_BYTE, 3
+= 4_BYTE, 4
+= 5_BYTE, 5
+= 6_BYTE, 6
+= 7_BYTE, 7
+
+> TF_LEVEL, 9, 3
+= 0_BYTE, 0
+= 1_BYTE, 1
+= 2_BYTE, 2
+= 3_BYTE, 3
+= 4_BYTE, 4
+= 5_BYTE, 5
+= 6_BYTE, 6
+= 7_BYTE, 7
+
+[SPI0]
+@ = 0x400B8000, 0x800, $SPI
+
+[SPI1]
+@ = 0x400B8800, 0x800, $SPI
+

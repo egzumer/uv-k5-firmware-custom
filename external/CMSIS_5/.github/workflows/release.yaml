@@ -1,0 +1,41 @@
+name: Release Documentation
+on:
+  release:
+    types: [published]
+jobs:
+  docs:
+    name: Build release documentation
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - name: Install Doxygen 1.8.6
+        run: |
+          wget http://archive.ubuntu.com/ubuntu/pool/main/d/doxygen/doxygen_1.8.6-2_amd64.deb
+          sudo dpkg -i doxygen_1.8.6-2_amd64.deb
+      - name: Install mscgen 0.20
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y mscgen=0.20-12
+      - name: Generate doxygen
+        run: CMSIS/DoxyGen/gen_doc.sh
+      - name: Archive documentation
+        run: |
+          cd CMSIS/Documentation
+          tar -cvjf /tmp/doc.tbz2 .
+      - uses: actions/checkout@v2
+        with:
+          ref: gh-pages
+      - name: Publish documentation
+        run: |
+          RELEASE=$(echo $GITHUB_REF | sed 's/refs\/tags\///')
+          mkdir ${RELEASE}
+          rm latest
+          ln -s ${RELEASE} latest
+          cd ${RELEASE}
+          tar -xvjf /tmp/doc.tbz2
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add . ../latest
+          git commit -m "Update documentation for release ${RELEASE}"
+          git push

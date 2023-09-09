@@ -1,0 +1,6 @@
+packdir: ${home}/.rtebuild/PACK
+import:
+ - armcc.rtebuild
+ - armclang.rtebuild
+ - armclang_ltm.rtebuild
+ - gcc.rtebuild

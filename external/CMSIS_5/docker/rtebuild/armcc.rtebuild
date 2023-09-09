@@ -1,0 +1,27 @@
+toolchain:
+  ARMCC5:
+    env:
+      PATH     : [ "/opt/armcc/bin" ]
+    rte:
+      Tcompiler: "ARMCC"
+      Toptions : "AC5"
+    ccompiler:
+      cmd     : "armcc"
+      cmdfile : "--via \""
+      input   : "\""
+      output  : "-o \""
+      include : "-I\""
+      define  : "-D"
+    assembler:
+      cmd     : "armasm"
+      cmdfile : "--via \""
+      input   : "\""
+      output  : "-o \""
+      include : "-I\""
+      define  : "--pd \"%{str.join(' SETA ', (str.split(value, '=') + [ '1' ])[0:2])}\""
+    linker:
+      cmd     : "armlink"
+      cmdfile : "--via \""
+      input   : "\""
+      output  : "-o \""
+      script  : "--scatter=\""

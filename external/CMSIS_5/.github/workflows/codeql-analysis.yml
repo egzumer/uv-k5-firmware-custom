@@ -1,0 +1,92 @@
+name: "CodeQL"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ develop ]
+    paths:
+      - 'CMSIS/Core/**'
+      - 'CMSIS/Core_A/**'
+      - 'CMSIS/CoreValidation/**'
+      - 'Device/ARM/**'
+  pull_request:
+    branches: [ develop ]
+    paths:
+      - '.github/workflows/codeql-analysis.yml'
+      - 'CMSIS/Core/**'
+      - 'CMSIS/Core_A/**'
+      - 'CMSIS/CoreValidation/**'
+      - 'Device/ARM/**'
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    env:
+      CMSIS_PACK_ROOT: /tmp/.packs-${{ github.run_id }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install build dependencies
+      run: |
+        sudo apt install gcc-arm-none-eabi ninja-build cmake
+
+    - name: Cache pack folder
+      id: cache-packs
+      uses: actions/cache@v3
+      with:
+        key: packs-${{ github.run_id }}
+        restore-keys: |
+          packs-
+        path: /tmp/.packs-${{ github.run_id }}
+
+    - name: Install CMSIS-Toolbox
+      run: |
+        wget https://github.com/Open-CMSIS-Pack/cmsis-toolbox/releases/download/1.5.0/cmsis-toolbox.sh
+        chmod +x cmsis-toolbox.sh
+        sudo ./cmsis-toolbox.sh <<EOI
+        /opt/ctools
+        $CMSIS_PACK_ROOT
+
+
+        $(dirname $(which arm-none-eabi-gcc 2>/dev/null))
+
+        EOI
+        echo "/opt/ctools/bin" >> $GITHUB_PATH
+        echo "cpackget : $(which cpackget)"
+        echo "csolution: $(which csolution)"
+        echo "cbuild   : $(which cbuild)"
+
+    - name: Initialize packs folder
+      if: steps.cache-packs.outputs.cache-hit != 'true'
+      run: cpackget init https://www.keil.com/pack/index.pidx
+
+    - name: Update pack index
+      if: steps.cache-packs.outputs.cache-hit == 'true'
+      run: cpackget update-index
+
+    - name: Install build.py requirements
+      run: pip install -r requirements.txt
+      working-directory: CMSIS/CoreValidation/Project
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: cpp
+        queries: security-and-quality
+
+    - name: Build projects
+      working-directory: CMSIS/CoreValidation/Project
+      run: |
+        pip install -r requirements.txt
+        cpackget add -a -f cpacklist.txt
+        python build.py --verbose -c GCC -d "CM[047]*" -d "CM[23]3*" -o low build || echo "Something failed!"
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2

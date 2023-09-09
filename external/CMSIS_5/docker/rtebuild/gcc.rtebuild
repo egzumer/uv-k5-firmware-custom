@@ -1,0 +1,27 @@
+toolchain:
+  GCC:
+    env:
+      PATH     : [ "/opt/gcc-arm-none-eabi-10-2020-q4-major/bin" ]
+    rte:
+      Tcompiler: "GCC"
+      Toptions : ""
+    ccompiler:
+      cmd     : "arm-none-eabi-gcc"
+      cmdfile : "@\""
+      input   : "\""
+      output  : "-o \""
+      include : "-I\""
+      define  : "-D"
+    assembler:
+      cmd     : "arm-none-eabi-gcc"
+      cmdfile : "@\""
+      input   : "\""
+      output  : "-o \""
+      include : "-I\""
+      define  : "-D"
+    linker:
+      cmd     : "arm-none-eabi-gcc"
+      cmdfile : "@\""
+      input   : "\""
+      output  : "-o \""
+      script  : "-T \""

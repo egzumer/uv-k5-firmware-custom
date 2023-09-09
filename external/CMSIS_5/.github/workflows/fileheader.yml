@@ -1,0 +1,42 @@
+name: File header
+
+on:
+  pull_request:
+    branches: [ develop ]
+    paths:
+      - 'CMSIS/Core/**'
+      - 'CMSIS/Core_A/**'
+      - 'CMSIS/RTOS2/Include/**'
+      - 'CMSIS/RTOS2/Source/**'
+      - 'Device/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check:
+    name: Check file header
+    runs-on: ubuntu-latest
+    steps:
+    - name: Calculate depth
+      id: depth
+      run: |
+        echo ::set-output name=GIT_COMMITS::$((${{ github.event.pull_request.commits }} + 1))
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        fetch-depth: ${{ steps.depth.outputs.GIT_COMMITS }}
+    - id: files
+      uses: jitterbit/get-changed-files@v1
+    - name: Check changed files
+      run: |
+        echo "GIT_COMMITS=${{ steps.depth.outputs.GIT_COMMITS }}"
+        echo "::add-matcher::.github/fileheader.json"
+        RC=0
+        for changed_file in ${{ steps.files.outputs.added_modified }}; do
+          ./CMSIS/Utilities/check_header.sh -v -b HEAD~${{ github.event.pull_request.commits }} ${changed_file} || RC=1
+        done
+        echo "::remove-matcher owner=fileheader::"
+        exit $RC

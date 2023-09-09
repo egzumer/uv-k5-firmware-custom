@@ -1,0 +1,8 @@
+/**
+\page rtosValidation RTOS Validation
+
+<a href="https://github.com/ARM-software/CMSIS-RTOS2_Validation" target="_blank"><b>CMSIS-RTOS2 Validation</b></a> framework is available to verify operation of CMSIS-RTOS2 implementations. The test cases validate the functional behavior, test invalid parameters and call management functions from Interrupt Service Routines (ISRs). The test projects are provided based on the <a href=" https://github.com/Open-CMSIS-Pack/devtools/tree/main/tools" target="_blank">CMSIS-Toolbox</a> and integrate well into CI workflows.
+
+For details about the scope and usage, please, refer to the <a href="https://arm-software.github.io/CMSIS-RTOS2_Validation/main/index.html" target="_blank">CMSIS-RTOS2 Validation manual</a>.
+
+*/

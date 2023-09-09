@@ -1,0 +1,63 @@
+toolchain:
+  ARMCC6:
+    env:
+      PATH     : [ "/opt/armclang/bin" ]
+    rte:
+      Tcompiler: "ARMCC"
+      Toptions : "AC6"
+    ccompiler:
+      cmd     : "armclang"
+      cmdfile : "@\""
+      input   : "\""
+      output  : "-o \""
+      include : "-I\""
+      define  : "-D"
+    assembler:
+      cmd     : "armclang"
+      cmdfile : "@\""
+      input   : "\""
+      output  : "-o \""
+      include : "-I\""
+      define  : "-D"
+    linker:
+      cmd     : "armclang"
+      cmdfile : "@\""
+      input   : "\""
+      output  : "-o \""
+      script  : "-Wl,--scatter=\""
+    librarian:
+      cmd     : "armar"
+      cmdfile : "--Via \""
+      input   : "\""
+      output  : "--create \""
+  ARMCC6_MDK:
+    env:
+      PATH             : [ "/opt/armclang/bin" ]
+    rte:
+      Tcompiler: "ARMCC"
+      Toptions : "AC6"
+    ccompiler:
+      cmd     : "armclang"
+      cmdfile : "@\""
+      input   : "\""
+      output  : "-o \""
+      include : "-I\""
+      define  : "-D"
+    assembler:
+      cmd     : "armasm"
+      cmdfile : "--Via \""
+      input   : "\""
+      output  : "-o \""
+      include : "-I\""
+      define  : "--pd \"%{value.replace('=', ' SETA ') if '=' in value else value+' SETA 1'}\""
+    linker:
+      cmd     : "armlink"
+      cmdfile : "--Via \""
+      input   : "\""
+      output  : "-o \""
+      script  : "--scatter=\""
+    librarian:
+      cmd     : "armar"
+      cmdfile : "--Via \""
+      input   : "\""
+      output  : "--create \""

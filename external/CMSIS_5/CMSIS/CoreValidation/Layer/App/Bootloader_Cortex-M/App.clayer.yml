@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Open-CMSIS-Pack/devtools/schemas/projmgr/1.3.0/tools/projmgr/schemas/clayer.schema.json
+
+layer:
+  # type: App
+  # name: CMSIS-Core_Validation (Bootloader)
+  description: Validation of CMSIS-Core implementation (Bootloader part)
+
+  # packs:
+  #   - pack: ARM::CMSIS
+
+  groups:
+    - group: Source Files
+      files:
+        - file: ./bootloader.c

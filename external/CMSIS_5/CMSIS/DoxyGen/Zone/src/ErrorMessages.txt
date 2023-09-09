@@ -1,0 +1,39 @@
+/*=======0=========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1====*/
+/**
+\page ErrorMessages Error Messages 
+
+The following table explains the output messages issued by CMSIS-Zone utility.
+
+Message                                                                                                   | Description
+:---------------------------------------------------------------------------------------------------------|:-----------------------
+Error Z101: \<name\>: Invalid memory size                                                                 | Size of the memory region is invalid or negative
+Error Z102: \<name\>: Memory size exceeds parent region size                                              | Size of the sub-memory region exceeds the available memory in the parent 
+Error Z103: \<name\>: Invalid memory offset                                                               | Offset of the sub-memory region is invalid or negative
+Error Z104: \<name\>: Memory offset is outside parent boundary                                            | Offset of the sub-memory region is outside of the available memory in the parent
+Error Z105: \<name\>: Memory exceeds parent region boundary                                               | The sub-memory region exceeds the limits of physical memory space in the parent
+Error Z106: \<name\>: Memory region cannot be arranged: no physical slot is available                     | The memory region cannot be arranged as there is no physical memory space available
+Error Z107: \<name\>: Memory region fully overlaps with region \<name\>                                   | The sub-memory region overlaps with another memory region
+Error Z108: \<name\>: Memory region partially overlaps with region \<name\>                               | The sub-memory region overlaps with another memory region
+Error Z110: \<name\>: Number of available MPU slots is exceeded                                           | There are not enough MPU regions to allocate the required resources
+Error Z111: No MPU slot can be allocated according to ArmV7 requirements                                  | There are not enough MPU regions to allocate the required resources
+Error Z112: \<name\>: Memory size is rounded up to align with ArmV7 MPU requirements                      | The Memory size of the region is increased due to MPU alignment restrictions
+Error Z120: No startup memory region is specified                                                         | There is not memory region for the reset vector (startup) defined
+Error Z121: Multiple startup memory regions are specified                                                 | There is more then one region for the reset vector (startup) defined
+Error Z201: \<name\>: Memory region is missing                                                            | The memory region in the assignment *.azone file is missing in the resource *.rzone file
+Error Z202: \<name\>: Peripheral group is missing                                                         | The peripheral group in the assignment *.azone file is missing in the resource *.rzone file
+Error Z203: \<name\>: Peripheral is missing                                                               | The peripheral in the assignment *.azone file is missing in the resource *.rzone file
+Error Z401: \<name\>: Device description is missing                                                       | The device specification in the resource *.rzone file is incomplete
+Error Z402: \<name\>: Device pack is not specified                                                        | The device specification in the resource *.rzone file is incomplete
+Error Z403: \<name\>: Device pack specification is invalid                                                | The device specification in the resource *.rzone file is incomplete 
+Error Z404: \<name\>: Resource file is missing                                                            | The resource *.rzone file referenced by the assignment *.azone file is missing
+Error Z405: \<name\>: Error reading resource file                                                         | The resource *.rzone file has an incorrect format
+Error Z406: \<name\>: Processor description is missing                                                    | The processor specification in the resource *.rzone file is incomplete
+Error Z407: \<name\>: Processor description: missing or invalid DnumInterrupts attribute for TrustZone device | The processor specification in the resource *.rzone file is incomplete
+Error Z408: \<name\>: Processor description: missing or invalid DnumSauRegions attribute for TrustZone device | The processor specification in the resource *.rzone file is incomplete
+Error Z501: \<name\>: Creating sub-zone files failed                                                      | The sub-zone resource files cannot be created
+Error Z601: \<name\>: creating FreeMarker model failed                                                    | The FreeMarker model *.fzone file cannot be created 
+Error Z602: \<name\>: processing template file failed                                                     | The FreeMarker model template file cannot be processed 
+Error Z603: \<name\>: processing template file failed                                                     | The FreeMarker model template file cannot be processed 
+Error Z604: \<name\>: folder contains no template files                                                   | There are no FreeMarker model template files
+
+*/

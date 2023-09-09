@@ -1,0 +1,743 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<configuration name="MCU-LINK" xsi:schemaLocation="http://mcuxpresso.nxp.com/XSD/mex_configuration_1.9 http://mcuxpresso.nxp.com/XSD/mex_configuration_1.9.xsd" uuid="ec487fd8-754b-47b3-bbcd-ee484cc22247" version="1.9" xmlns="http://mcuxpresso.nxp.com/XSD/mex_configuration_1.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <common>
+      <processor>LPC55S69</processor>
+      <package>LPC55S69JBD64</package>
+      <mcu_data>ksdk2_0</mcu_data>
+      <cores selected="cm33_core0">
+         <core name="Cortex-M33 (Core #0)" id="cm33_core0" description=""/>
+         <core name="Cortex-M33 (Core #1)" id="cm33_core1" description=""/>
+      </cores>
+      <description></description>
+   </common>
+   <preferences>
+      <validate_boot_init_only>true</validate_boot_init_only>
+      <generate_extended_information>false</generate_extended_information>
+      <generate_code_modified_registers_only>false</generate_code_modified_registers_only>
+   </preferences>
+   <tools>
+      <pins name="Pins" version="9.0" enabled="true" update_project_code="true">
+         <generated_project_files>
+            <file path="board/pin_mux.c" update_enabled="true"/>
+            <file path="board/pin_mux.h" update_enabled="true"/>
+         </generated_project_files>
+         <pins_profile>
+            <processor_version>9.0.3</processor_version>
+            <pin_labels>
+               <pin_label pin_num="36" pin_signal="PIO0_0/FC3_SCK/CTIMER0_MAT0/SCT_GPI0/SD1_CARD_INT_N/SECURE_GPIO0_0/ACMP0_A" label="_DBGIF_TCK_SWCLK" identifier="DBGIF_TCK_SWCLK"/>
+               <pin_label pin_num="2" pin_signal="PIO0_1/FC3_CTS_SDA_SSEL0/CT_INP0/SCT_GPI1/SD1_CLK/CMP0_OUT/SECURE_GPIO0_1" label="_DBGIF_TDI" identifier="DBGIF_TDI"/>
+               <pin_label pin_num="52" pin_signal="PIO0_2/FC3_TXD_SCL_MISO_WS/CT_INP1/SCT0_OUT0/SCT_GPI2/SECURE_GPIO0_2" label="_DBGIF_TMS_SWDIO" identifier="DBGIF_TMS_SWDIO"/>
+               <pin_label pin_num="44" pin_signal="PIO0_28/FC0_SCK/SD1_CMD/CT_INP11/SCT0_OUT7/USB0_OVERCURRENTN/PLU_OUT1/SECURE_GPIO0_28" label="_DBGIF_TMS_SWDIO_TXEN" identifier="DBGIF_TMS_SWDIO_TXEN"/>
+               <pin_label pin_num="58" pin_signal="PIO0_19/FC4_RTS_SCL_SSEL1/UTICK_CAP0/CTIMER0_MAT2/SCT0_OUT2/FC7_TXD_SCL_MISO_WS/PLU_IN4/SECURE_GPIO0_19" label="_DBGIF_RESET" identifier="DBG_IF_RESET;DBGIF_RESET"/>
+               <pin_label pin_num="46" pin_signal="PIO0_13/FC1_CTS_SDA_SSEL0/UTICK_CAP0/CT_INP0/SCT_GPI0/FC1_RXD_SDA_MOSI_DATA/PLU_IN0/SECURE_GPIO0_13" label="_DBGIF_RESET_TXEN" identifier="DBG_IF_RESET_TXEN;DBGIF_RESET_TXEN"/>
+               <pin_label pin_num="53" pin_signal="PIO0_3/FC3_RXD_SDA_MOSI_DATA/CTIMER0_MAT1/SCT0_OUT1/SCT_GPI3/SECURE_GPIO0_3" label="_DBGIF_TDO_SWO" identifier="DBG_IF_TDO_SWO;DBGIF_TDO_SWO"/>
+               <pin_label pin_num="45" pin_signal="PIO0_24/FC0_RXD_SDA_MOSI_DATA/SD0_D0/CT_INP8/SCT_GPI0/SECURE_GPIO0_24" label="_FC0_TARGET_RXD" identifier="FC0_TARGET_RXD"/>
+               <pin_label pin_num="51" pin_signal="PIO0_25/FC0_TXD_SCL_MISO_WS/SD0_D1/CT_INP9/SCT_GPI1/SECURE_GPIO0_25" label="_FC0_TARGET_TXD" identifier="FC0_TARGET_TXD"/>
+               <pin_label pin_num="56" pin_signal="PIO0_5/FC4_RXD_SDA_MOSI_DATA/CTIMER3_MAT0/SCT_GPI5/FC3_RTS_SCL_SSEL1/MCLK/SECURE_GPIO0_5" label="_LED1" identifier="LED1"/>
+            </pin_labels>
+         </pins_profile>
+         <functions_list>
+            <function name="MCU_LINK_InitPins">
+               <description>Configures pin routing and optionally pin electrical features.</description>
+               <options>
+                  <callFromInitBoot>true</callFromInitBoot>
+                  <prefix></prefix>
+                  <coreID>cm33_core0</coreID>
+                  <enableClock>true</enableClock>
+               </options>
+               <dependencies>
+                  <dependency resourceType="Peripheral" resourceId="FLEXCOMM3" description="Peripheral FLEXCOMM3 is not initialized" problem_level="1" source="Pins:MCU_LINK_InitPins">
+                     <feature name="initialized" evaluation="equal">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="Peripheral" resourceId="FLEXCOMM0" description="Peripheral FLEXCOMM0 is not initialized" problem_level="1" source="Pins:MCU_LINK_InitPins">
+                     <feature name="initialized" evaluation="equal">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="Peripheral" resourceId="USBHSH" description="Peripheral USBHSH is not initialized" problem_level="1" source="Pins:MCU_LINK_InitPins">
+                     <feature name="initialized" evaluation="equal">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Pins initialization requires the COMMON Driver in the project." problem_level="2" source="Pins:MCU_LINK_InitPins">
+                     <feature name="enabled" evaluation="equal" configuration="cm33_core1">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.lpc_gpio" description="Pins initialization requires the LPC_GPIO Driver in the project." problem_level="2" source="Pins:MCU_LINK_InitPins">
+                     <feature name="enabled" evaluation="equal" configuration="cm33_core1">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+               </dependencies>
+               <pins>
+                  <pin peripheral="GPIO" signal="PIO0, 0" pin_num="36" pin_signal="PIO0_0/FC3_SCK/CTIMER0_MAT0/SCT_GPI0/SD1_CARD_INT_N/SECURE_GPIO0_0/ACMP0_A">
+                     <pin_features>
+                        <pin_feature name="direction" value="INPUT"/>
+                        <pin_feature name="slew_rate" value="fast"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="GPIO" signal="PIO0, 1" pin_num="2" pin_signal="PIO0_1/FC3_CTS_SDA_SSEL0/CT_INP0/SCT_GPI1/SD1_CLK/CMP0_OUT/SECURE_GPIO0_1">
+                     <pin_features>
+                        <pin_feature name="direction" value="INPUT"/>
+                        <pin_feature name="slew_rate" value="fast"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="GPIO" signal="PIO0, 2" pin_num="52" pin_signal="PIO0_2/FC3_TXD_SCL_MISO_WS/CT_INP1/SCT0_OUT0/SCT_GPI2/SECURE_GPIO0_2">
+                     <pin_features>
+                        <pin_feature name="direction" value="INPUT"/>
+                        <pin_feature name="mode" value="inactive"/>
+                        <pin_feature name="slew_rate" value="fast"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="GPIO" signal="PIO0, 28" pin_num="44" pin_signal="PIO0_28/FC0_SCK/SD1_CMD/CT_INP11/SCT0_OUT7/USB0_OVERCURRENTN/PLU_OUT1/SECURE_GPIO0_28">
+                     <pin_features>
+                        <pin_feature name="direction" value="OUTPUT"/>
+                        <pin_feature name="gpio_init_state" value="false"/>
+                        <pin_feature name="slew_rate" value="fast"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="GPIO" signal="PIO0, 19" pin_num="58" pin_signal="PIO0_19/FC4_RTS_SCL_SSEL1/UTICK_CAP0/CTIMER0_MAT2/SCT0_OUT2/FC7_TXD_SCL_MISO_WS/PLU_IN4/SECURE_GPIO0_19">
+                     <pin_features>
+                        <pin_feature name="identifier" value="DBGIF_RESET"/>
+                        <pin_feature name="direction" value="INPUT"/>
+                        <pin_feature name="slew_rate" value="fast"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="GPIO" signal="PIO0, 13" pin_num="46" pin_signal="PIO0_13/FC1_CTS_SDA_SSEL0/UTICK_CAP0/CT_INP0/SCT_GPI0/FC1_RXD_SDA_MOSI_DATA/PLU_IN0/SECURE_GPIO0_13">
+                     <pin_features>
+                        <pin_feature name="identifier" value="DBGIF_RESET_TXEN"/>
+                        <pin_feature name="direction" value="OUTPUT"/>
+                        <pin_feature name="gpio_init_state" value="false"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="FLEXCOMM3" signal="RXD_SDA_MOSI_DATA" pin_num="53" pin_signal="PIO0_3/FC3_RXD_SDA_MOSI_DATA/CTIMER0_MAT1/SCT0_OUT1/SCT_GPI3/SECURE_GPIO0_3">
+                     <pin_features>
+                        <pin_feature name="identifier" value="DBGIF_TDO_SWO"/>
+                        <pin_feature name="slew_rate" value="fast"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="FLEXCOMM0" signal="RXD_SDA_MOSI_DATA" pin_num="45" pin_signal="PIO0_24/FC0_RXD_SDA_MOSI_DATA/SD0_D0/CT_INP8/SCT_GPI0/SECURE_GPIO0_24">
+                     <pin_features>
+                        <pin_feature name="slew_rate" value="fast"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="FLEXCOMM0" signal="TXD_SCL_MISO_WS" pin_num="51" pin_signal="PIO0_25/FC0_TXD_SCL_MISO_WS/SD0_D1/CT_INP9/SCT_GPI1/SECURE_GPIO0_25">
+                     <pin_features>
+                        <pin_feature name="slew_rate" value="fast"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="USBHSH" signal="USB_DP" pin_num="23" pin_signal="USB1_DP"/>
+                  <pin peripheral="USBHSH" signal="USB_DM" pin_num="24" pin_signal="USB1_DM"/>
+                  <pin peripheral="USBHSH" signal="USB_VBUS" pin_num="25" pin_signal="USB1_VBUS"/>
+                  <pin peripheral="USBHSH" signal="USB_VSS" pin_num="22" pin_signal="USB1_VSS22"/>
+                  <pin peripheral="USBHSH" signal="USB_VSS" pin_num="26" pin_signal="USB1_VSS26"/>
+                  <pin peripheral="USBHSH" signal="USB_PORTPWRN" pin_num="41" pin_signal="PIO1_2/CTIMER0_MAT3/SCT_GPI6/HS_SPI_SCK/USB1_PORTPWRN/PLU_OUT5"/>
+                  <pin peripheral="GPIO" signal="PIO0, 5" pin_num="56" pin_signal="PIO0_5/FC4_RXD_SDA_MOSI_DATA/CTIMER3_MAT0/SCT_GPI5/FC3_RTS_SCL_SSEL1/MCLK/SECURE_GPIO0_5">
+                     <pin_features>
+                        <pin_feature name="direction" value="OUTPUT"/>
+                        <pin_feature name="gpio_init_state" value="true"/>
+                        <pin_feature name="mode" value="pullUp"/>
+                     </pin_features>
+                  </pin>
+               </pins>
+            </function>
+         </functions_list>
+      </pins>
+      <clocks name="Clocks" version="7.0" enabled="true" update_project_code="true">
+         <generated_project_files>
+            <file path="board/clock_config.c" update_enabled="true"/>
+            <file path="board/clock_config.h" update_enabled="true"/>
+         </generated_project_files>
+         <clocks_profile>
+            <processor_version>9.0.3</processor_version>
+         </clocks_profile>
+         <clock_configurations>
+            <clock_configuration name="BOARD_BootClockRUN">
+               <description></description>
+               <options/>
+               <dependencies>
+                  <dependency resourceType="PinSignal" resourceId="SYSCON.XTALIN" description="&apos;XTALIN&apos; (Pins tool id: SYSCON.XTALIN, Clocks tool id: SYSCON.XTALIN) needs to be routed" problem_level="1" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="routed" evaluation="">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PinSignal" resourceId="SYSCON.XTALIN" description="&apos;XTALIN&apos; (Pins tool id: SYSCON.XTALIN, Clocks tool id: SYSCON.XTALIN) needs to have &apos;INPUT&apos; direction" problem_level="1" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="direction" evaluation="">
+                        <data>INPUT</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PinSignal" resourceId="SYSCON.XTALOUT" description="&apos;XTALOUT&apos; (Pins tool id: SYSCON.XTALOUT, Clocks tool id: SYSCON.XTALOUT) needs to be routed" problem_level="1" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="routed" evaluation="">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PinSignal" resourceId="SYSCON.XTALOUT" description="&apos;XTALOUT&apos; (Pins tool id: SYSCON.XTALOUT, Clocks tool id: SYSCON.XTALOUT) needs to have &apos;OUTPUT&apos; direction" problem_level="1" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="direction" evaluation="">
+                        <data>OUTPUT</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Clocks initialization requires the COMMON Driver in the project." problem_level="2" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="enabled" evaluation="equal" configuration="cm33_core1">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Clocks initialization requires the COMMON Driver in the project." problem_level="2" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="enabled" evaluation="equal" configuration="cm33_core0">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.power" description="Clocks initialization requires the POWER Driver in the project." problem_level="2" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="enabled" evaluation="equal" configuration="cm33_core1">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.power" description="Clocks initialization requires the POWER Driver in the project." problem_level="2" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="enabled" evaluation="equal" configuration="cm33_core0">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.clock" description="Clocks initialization requires the CLOCK Driver in the project." problem_level="2" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="enabled" evaluation="equal" configuration="cm33_core1">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.clock" description="Clocks initialization requires the CLOCK Driver in the project." problem_level="2" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="enabled" evaluation="equal" configuration="cm33_core0">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+               </dependencies>
+               <clock_sources>
+                  <clock_source id="ANACTRL.fro_hf.outFreq" value="96 MHz" locked="false" enabled="false"/>
+                  <clock_source id="SYSCON.XTAL32M.outFreq" value="16 MHz" locked="false" enabled="true"/>
+               </clock_sources>
+               <clock_outputs>
+                  <clock_output id="FXCOM0_clock.outFreq" value="48 MHz" locked="false" accuracy=""/>
+                  <clock_output id="FXCOM3_clock.outFreq" value="48 MHz" locked="false" accuracy=""/>
+                  <clock_output id="System_clock.outFreq" value="150 MHz" locked="true" accuracy="0.001"/>
+                  <clock_output id="USB1_PHY_clock.outFreq" value="16 MHz" locked="false" accuracy=""/>
+               </clock_outputs>
+               <clock_settings>
+                  <setting id="PLL0_Mode" value="Normal" locked="false"/>
+                  <setting id="ANALOG_CONTROL_FRO192M_CTRL_ENDI_FRO_96M_CFG" value="Enable" locked="false"/>
+                  <setting id="ENABLE_CLKIN_ENA" value="Enabled" locked="false"/>
+                  <setting id="ENABLE_PLL_USB_OUT" value="Enabled" locked="false"/>
+                  <setting id="ENABLE_SYSTEM_CLK_OUT" value="Enabled" locked="false"/>
+                  <setting id="SYSCON.FCCLKSEL0.sel" value="SYSCON.FROHFDIV" locked="false"/>
+                  <setting id="SYSCON.FCCLKSEL3.sel" value="SYSCON.FROHFDIV" locked="false"/>
+                  <setting id="SYSCON.FRGCTRL3_DIV.scale" value="256" locked="true"/>
+                  <setting id="SYSCON.FROHFDIV.scale" value="2" locked="true"/>
+                  <setting id="SYSCON.MAINCLKSELB.sel" value="SYSCON.PLL0_BYPASS" locked="false"/>
+                  <setting id="SYSCON.PLL0CLKSEL.sel" value="SYSCON.CLK_IN_EN" locked="false"/>
+                  <setting id="SYSCON.PLL0M_MULT.scale" value="150" locked="true"/>
+                  <setting id="SYSCON.PLL0N_DIV.scale" value="8" locked="true"/>
+                  <setting id="SYSCON.PLL0_PDEC.scale" value="2" locked="false"/>
+               </clock_settings>
+               <called_from_default_init>true</called_from_default_init>
+            </clock_configuration>
+         </clock_configurations>
+      </clocks>
+      <dcdx name="DCDx" version="2.0" enabled="false" update_project_code="true">
+         <generated_project_files/>
+         <dcdx_profile>
+            <processor_version>0.0.0</processor_version>
+         </dcdx_profile>
+         <dcdx_configurations/>
+      </dcdx>
+      <periphs name="Peripherals" version="9.0" enabled="true" update_project_code="true">
+         <generated_project_files>
+            <file path="board/peripherals.c" update_enabled="true"/>
+            <file path="board/peripherals.h" update_enabled="true"/>
+         </generated_project_files>
+         <peripherals_profile>
+            <processor_version>9.0.3</processor_version>
+         </peripherals_profile>
+         <functional_groups>
+            <functional_group name="BOARD_InitPeripherals" uuid="85f4cd0c-3b58-4e23-a413-239f6952f139" called_from_default_init="true" id_prefix="" core="cm33_core0">
+               <description></description>
+               <options/>
+               <dependencies/>
+               <instances>
+                  <instance name="NVIC" uuid="96d19cd9-5329-408b-ab68-cd8a2e493850" type="nvic" type_id="nvic_57b5eef3774cc60acaede6f5b8bddc67" mode="general" peripheral="NVIC" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
+                     <config_set name="nvic">
+                        <array name="interrupt_table"/>
+                        <array name="interrupts"/>
+                     </config_set>
+                  </instance>
+                  <instance name="FLEXCOMM3" uuid="878079cb-696c-4271-a7b1-8f9fbc96ca99" type="flexcomm_usart_cmsis" type_id="flexcomm_usart_cmsis_adab49614496eb4b6311b98863269f48" mode="interrupt" peripheral="FLEXCOMM3" enabled="false" comment="" custom_name_enabled="false" editing_lock="false">
+                     <config_set name="general" quick_selection="default">
+                        <struct name="main_config">
+                           <setting name="operationMode" value="ARM_USART_MODE_ASYNCHRONOUS"/>
+                           <setting name="clockSource" value="FXCOMFunctionClock"/>
+                           <setting name="clockSourceFreq" value="BOARD_BootClockRUN"/>
+                           <setting name="power_state" value="ARM_POWER_FULL"/>
+                           <setting name="baudRate_Bps" value="500000"/>
+                           <setting name="dataBits" value="ARM_USART_DATA_BITS_8"/>
+                           <setting name="parityBit" value="ARM_USART_PARITY_NONE"/>
+                           <setting name="stopBit" value="ARM_USART_STOP_BITS_1"/>
+                           <setting name="enableRX" value="false"/>
+                           <setting name="enableTX" value="false"/>
+                           <setting name="signalEventFunctionId" value="USART_SignalEvent"/>
+                           <setting name="enableGetFreqFnCustomName" value="false"/>
+                           <setting name="getFreqFunctionCustomID" value="USART_GetFreq"/>
+                           <setting name="enableInitPinsFnCustomName" value="false"/>
+                           <setting name="initPinFunctionCustomID" value="USART_InitPins"/>
+                           <setting name="enableDeinitPinsFnCustomName" value="false"/>
+                           <setting name="deinitPinFunctionCustomID" value="USART_DeinitPins"/>
+                        </struct>
+                     </config_set>
+                     <config_set name="fsl_cmsis_uart">
+                        <struct name="interrupt">
+                           <setting name="IRQn" value="FLEXCOMM3_IRQn"/>
+                           <setting name="enable_priority" value="false"/>
+                           <setting name="priority" value="0"/>
+                        </struct>
+                     </config_set>
+                  </instance>
+                  <instance name="FLEXCOMM0" uuid="700bce49-bf21-46fe-8618-062c52fe30f6" type="flexcomm_usart_cmsis" type_id="flexcomm_usart_cmsis_adab49614496eb4b6311b98863269f48" mode="interrupt" peripheral="FLEXCOMM0" enabled="false" comment="" custom_name_enabled="false" editing_lock="false">
+                     <config_set name="general" quick_selection="default">
+                        <struct name="main_config">
+                           <setting name="operationMode" value="ARM_USART_MODE_ASYNCHRONOUS"/>
+                           <setting name="clockSource" value="FXCOMFunctionClock"/>
+                           <setting name="clockSourceFreq" value="BOARD_BootClockRUN"/>
+                           <setting name="power_state" value="ARM_POWER_FULL"/>
+                           <setting name="baudRate_Bps" value="500000"/>
+                           <setting name="dataBits" value="ARM_USART_DATA_BITS_8"/>
+                           <setting name="parityBit" value="ARM_USART_PARITY_NONE"/>
+                           <setting name="stopBit" value="ARM_USART_STOP_BITS_1"/>
+                           <setting name="enableRX" value="false"/>
+                           <setting name="enableTX" value="false"/>
+                           <setting name="signalEventFunctionId" value="USART_SignalEvent"/>
+                           <setting name="enableGetFreqFnCustomName" value="false"/>
+                           <setting name="getFreqFunctionCustomID" value="USART_GetFreq"/>
+                           <setting name="enableInitPinsFnCustomName" value="false"/>
+                           <setting name="initPinFunctionCustomID" value="USART_InitPins"/>
+                           <setting name="enableDeinitPinsFnCustomName" value="false"/>
+                           <setting name="deinitPinFunctionCustomID" value="USART_DeinitPins"/>
+                        </struct>
+                     </config_set>
+                     <config_set name="fsl_cmsis_uart">
+                        <struct name="interrupt">
+                           <setting name="IRQn" value="FLEXCOMM0_IRQn"/>
+                           <setting name="enable_priority" value="false"/>
+                           <setting name="priority" value="0"/>
+                        </struct>
+                     </config_set>
+                  </instance>
+                  <instance name="USBHSH" uuid="953a3f80-8155-4308-af14-b0c8598e9b55" type="usb" type_id="usb_49b3e4c7d25fbcd298641994d1b911e9" mode="host" peripheral="USBHSH" enabled="false" comment="" custom_name_enabled="false" editing_lock="false">
+                     <config_set name="hostSettings" quick_selection="QS_HOST_DEFAULT">
+                        <setting name="max_power" value="500"/>
+                        <setting name="hub_support" value="true"/>
+                        <array name="interfaces"/>
+                     </config_set>
+                  </instance>
+                  <instance name="DMA0" uuid="883b2846-ab3c-4241-941c-366bc6b8da44" type="lpc_dma" type_id="lpc_dma_c13ca997a68f2ca6c666916ba13db7d7" mode="basic" peripheral="DMA0" enabled="false" comment="" custom_name_enabled="false" editing_lock="false">
+                     <config_set name="fsl_dma">
+                        <array name="dma_table"/>
+                        <array name="dma_channels">
+                           <struct name="0">
+                              <setting name="apiMode" value="trans"/>
+                              <struct name="dma_channel">
+                                 <setting name="channel_prefix_id" value="CH0"/>
+                                 <setting name="DMA_source" value="kDma0RequestFlexcomm3Rx"/>
+                                 <setting name="init_channel_priority" value="true"/>
+                                 <setting name="dma_priority" value="kDMA_ChannelPriority0"/>
+                                 <setting name="enable_custom_name" value="false"/>
+                              </struct>
+                              <setting name="peripheral_request" value="true"/>
+                              <setting name="init_trigger_config" value="false"/>
+                              <struct name="trigger_config">
+                                 <setting name="type" value="kDMA_NoTrigger"/>
+                                 <setting name="burst" value="kDMA_SingleTransfer"/>
+                                 <setting name="wrap" value="kDMA_NoWrap"/>
+                              </struct>
+                              <struct name="trans_config">
+                                 <setting name="init_callback" value="false"/>
+                                 <setting name="callback_function" value=""/>
+                                 <setting name="callback_user_data" value=""/>
+                              </struct>
+                              <array name="tcd_config"/>
+                              <setting name="allocateTCD" value="noncache"/>
+                              <setting name="initTCD" value="noTCDInit"/>
+                           </struct>
+                        </array>
+                        <struct name="dma_interrupt_trans">
+                           <setting name="IRQn" value="DMA0_IRQn"/>
+                           <setting name="enable_priority" value="false"/>
+                           <setting name="priority" value="0"/>
+                        </struct>
+                     </config_set>
+                  </instance>
+               </instances>
+            </functional_group>
+         </functional_groups>
+         <components>
+            <component name="system" uuid="9cbd66be-7ac1-4104-b28d-2bebba2e4e11" type_id="system_54b53072540eeeb8f8e9343e71f28176">
+               <config_set_global name="global_system_definitions">
+                  <setting name="user_definitions" value=""/>
+                  <setting name="user_includes" value=""/>
+               </config_set_global>
+            </component>
+            <component name="msg" uuid="617d74e2-0b6d-4083-802c-350abaf71755" type_id="msg_6e2baaf3b97dbeef01c0043275f9a0e7">
+               <config_set_global name="global_messages"/>
+            </component>
+            <component name="generic_uart" uuid="7f9addee-5c8c-4ce3-8089-19751347aba2" type_id="generic_uart_8cae00565451cf2346eb1b8c624e73a6">
+               <config_set_global name="global_uart"/>
+            </component>
+            <component name="generic_can" uuid="1282bde3-0821-45b7-8df8-cde69f421f03" type_id="generic_can_1bfdd78b1af214566c1f23cf6a582d80">
+               <config_set_global name="global_can"/>
+            </component>
+         </components>
+      </periphs>
+      <tee name="TEE" version="2.0" enabled="false" update_project_code="true">
+         <generated_project_files/>
+         <tee_profile>
+            <processor_version>0.0.0</processor_version>
+         </tee_profile>
+         <ahb>
+            <relative_region start="0" size="655360" security="ns_user" memory="PROGRAM_FLASH"/>
+            <relative_region start="0" size="131072" security="ns_user" memory="BootROM"/>
+            <relative_region start="0" size="32768" security="ns_user" memory="SRAMX"/>
+            <relative_region start="0" size="65536" security="ns_user" memory="SRAM0"/>
+            <relative_region start="0" size="65536" security="ns_user" memory="SRAM1"/>
+            <relative_region start="0" size="65536" security="ns_user" memory="SRAM2"/>
+            <relative_region start="0" size="65536" security="ns_user" memory="SRAM3"/>
+            <relative_region start="0" size="16384" security="ns_user" memory="SRAM4"/>
+            <relative_region start="0" size="16384" security="ns_user" memory="USB_RAM"/>
+            <masters>
+               <master id="HASH" security="ns_user"/>
+               <master id="MCM33C" security="ns_user"/>
+               <master id="MCM33S" security="ns_user"/>
+               <master id="PQ" security="ns_user"/>
+               <master id="SDIO" security="ns_user"/>
+               <master id="SDMA0" security="ns_user"/>
+               <master id="SDMA1" security="ns_user"/>
+               <master id="USBFSD" security="ns_user"/>
+               <master id="USBFSH" security="ns_user"/>
+            </masters>
+            <peripherals>
+               <peripheral id="ADC0" security="ns_user"/>
+               <peripheral id="AHB_SECURE_CTRL" security="ns_user"/>
+               <peripheral id="ANACTRL" security="ns_user"/>
+               <peripheral id="CASPER" security="ns_user"/>
+               <peripheral id="CRC_ENGINE" security="ns_user"/>
+               <peripheral id="CTIMER0" security="ns_user"/>
+               <peripheral id="CTIMER1" security="ns_user"/>
+               <peripheral id="CTIMER2" security="ns_user"/>
+               <peripheral id="CTIMER3" security="ns_user"/>
+               <peripheral id="CTIMER4" security="ns_user"/>
+               <peripheral id="DBGMAILBOX" security="ns_user"/>
+               <peripheral id="DMA0" security="ns_user"/>
+               <peripheral id="DMA1" security="ns_user"/>
+               <peripheral id="FLASH" security="ns_user"/>
+               <peripheral id="FLEXCOMM0" security="ns_user"/>
+               <peripheral id="FLEXCOMM1" security="ns_user"/>
+               <peripheral id="FLEXCOMM2" security="ns_user"/>
+               <peripheral id="FLEXCOMM3" security="ns_user"/>
+               <peripheral id="FLEXCOMM4" security="ns_user"/>
+               <peripheral id="FLEXCOMM5" security="ns_user"/>
+               <peripheral id="FLEXCOMM6" security="ns_user"/>
+               <peripheral id="FLEXCOMM7" security="ns_user"/>
+               <peripheral id="GINT0" security="ns_user"/>
+               <peripheral id="GINT1" security="ns_user"/>
+               <peripheral id="GPIO" security="ns_user"/>
+               <peripheral id="HASHCRYPT" security="ns_user"/>
+               <peripheral id="INPUTMUX" security="ns_user"/>
+               <peripheral id="IOCON" security="ns_user"/>
+               <peripheral id="MAILBOX" security="ns_user"/>
+               <peripheral id="MRT0" security="ns_user"/>
+               <peripheral id="OSTIMER" security="ns_user"/>
+               <peripheral id="PINT" security="ns_user"/>
+               <peripheral id="PLU" security="ns_user"/>
+               <peripheral id="PMC" security="ns_user"/>
+               <peripheral id="POWERQUAD" security="ns_user"/>
+               <peripheral id="PRINCE" security="ns_user"/>
+               <peripheral id="PUF" security="ns_user"/>
+               <peripheral id="RNG" security="ns_user"/>
+               <peripheral id="RTC" security="ns_user"/>
+               <peripheral id="SCT0" security="ns_user"/>
+               <peripheral id="SDIF" security="ns_user"/>
+               <peripheral id="SECGPIO" security="ns_user"/>
+               <peripheral id="SECPINT" security="ns_user"/>
+               <peripheral id="SPI8" security="ns_user"/>
+               <peripheral id="SYSCON" security="ns_user"/>
+               <peripheral id="SYSCTL" security="ns_user"/>
+               <peripheral id="USB0" security="ns_user"/>
+               <peripheral id="USBFSH" security="ns_user"/>
+               <peripheral id="USBHSD" security="ns_user"/>
+               <peripheral id="USBHSH" security="ns_user"/>
+               <peripheral id="USBPHY" security="ns_user"/>
+               <peripheral id="UTICK0" security="ns_user"/>
+               <peripheral id="WWDT" security="ns_user"/>
+            </peripherals>
+            <interrupts>
+               <masking>
+                  <interrupt id="acmp_capt_irq" masked="Non-masked"/>
+                  <interrupt id="adc_irq" masked="Non-masked"/>
+                  <interrupt id="casper_irq" masked="Non-masked"/>
+                  <interrupt id="ctimer0_irq" masked="Non-masked"/>
+                  <interrupt id="ctimer1_irq" masked="Non-masked"/>
+                  <interrupt id="ctimer2_irq" masked="Non-masked"/>
+                  <interrupt id="ctimer3_irq" masked="Non-masked"/>
+                  <interrupt id="ctimer4_irq" masked="Non-masked"/>
+                  <interrupt id="flexcomm0_irq" masked="Non-masked"/>
+                  <interrupt id="flexcomm1_irq" masked="Non-masked"/>
+                  <interrupt id="flexcomm2_irq" masked="Non-masked"/>
+                  <interrupt id="flexcomm3_irq" masked="Non-masked"/>
+                  <interrupt id="flexcomm4_irq" masked="Non-masked"/>
+                  <interrupt id="flexcomm5_irq" masked="Non-masked"/>
+                  <interrupt id="flexcomm6_irq" masked="Non-masked"/>
+                  <interrupt id="flexcomm7_irq" masked="Non-masked"/>
+                  <interrupt id="global_irq0" masked="Non-masked"/>
+                  <interrupt id="global_irq1" masked="Non-masked"/>
+                  <interrupt id="lspi_hs_irq" masked="Non-masked"/>
+                  <interrupt id="mailbox_irq" masked="Non-masked"/>
+                  <interrupt id="mrt_irq" masked="Non-masked"/>
+                  <interrupt id="os_event_irq" masked="Non-masked"/>
+                  <interrupt id="pin_int4" masked="Non-masked"/>
+                  <interrupt id="pin_int5" masked="Non-masked"/>
+                  <interrupt id="pin_int6" masked="Non-masked"/>
+                  <interrupt id="pin_int7" masked="Non-masked"/>
+                  <interrupt id="pin_irq0" masked="Non-masked"/>
+                  <interrupt id="pin_irq1" masked="Non-masked"/>
+                  <interrupt id="pin_irq2" masked="Non-masked"/>
+                  <interrupt id="pin_irq3" masked="Non-masked"/>
+                  <interrupt id="plu_irq" masked="Non-masked"/>
+                  <interrupt id="pq_irq" masked="Non-masked"/>
+                  <interrupt id="qddkey_irq" masked="Non-masked"/>
+                  <interrupt id="rtc_irq" masked="Non-masked"/>
+                  <interrupt id="sct_irq" masked="Non-masked"/>
+                  <interrupt id="sdio_irq" masked="Non-masked"/>
+                  <interrupt id="sdma0_irq" masked="Non-masked"/>
+                  <interrupt id="sdma1_irq" masked="Non-masked"/>
+                  <interrupt id="sec_hypervisor_call_irq" masked="Non-masked"/>
+                  <interrupt id="sec_int0" masked="Non-masked"/>
+                  <interrupt id="sec_int1" masked="Non-masked"/>
+                  <interrupt id="sec_vio_irq" masked="Non-masked"/>
+                  <interrupt id="sha_irq" masked="Non-masked"/>
+                  <interrupt id="sys_irq" masked="Non-masked"/>
+                  <interrupt id="usb0_irq" masked="Non-masked"/>
+                  <interrupt id="usb0_needclk_irq" masked="Non-masked"/>
+                  <interrupt id="usb1_irq" masked="Non-masked"/>
+                  <interrupt id="usb1_needclk_irq" masked="Non-masked"/>
+                  <interrupt id="usb1_utmi_irq" masked="Non-masked"/>
+                  <interrupt id="utick_irq" masked="Non-masked"/>
+               </masking>
+               <security>
+                  <interrupt id="acmp_capt_irq" secure="Secure"/>
+                  <interrupt id="adc_irq" secure="Secure"/>
+                  <interrupt id="casper_irq" secure="Secure"/>
+                  <interrupt id="ctimer0_irq" secure="Secure"/>
+                  <interrupt id="ctimer1_irq" secure="Secure"/>
+                  <interrupt id="ctimer2_irq" secure="Secure"/>
+                  <interrupt id="ctimer3_irq" secure="Secure"/>
+                  <interrupt id="ctimer4_irq" secure="Secure"/>
+                  <interrupt id="flexcomm0_irq" secure="Secure"/>
+                  <interrupt id="flexcomm1_irq" secure="Secure"/>
+                  <interrupt id="flexcomm2_irq" secure="Secure"/>
+                  <interrupt id="flexcomm3_irq" secure="Secure"/>
+                  <interrupt id="flexcomm4_irq" secure="Secure"/>
+                  <interrupt id="flexcomm5_irq" secure="Secure"/>
+                  <interrupt id="flexcomm6_irq" secure="Secure"/>
+                  <interrupt id="flexcomm7_irq" secure="Secure"/>
+                  <interrupt id="global_irq0" secure="Secure"/>
+                  <interrupt id="global_irq1" secure="Secure"/>
+                  <interrupt id="lspi_hs_irq" secure="Secure"/>
+                  <interrupt id="mailbox_irq" secure="Secure"/>
+                  <interrupt id="mrt_irq" secure="Secure"/>
+                  <interrupt id="os_event_irq" secure="Secure"/>
+                  <interrupt id="pin_int4" secure="Secure"/>
+                  <interrupt id="pin_int5" secure="Secure"/>
+                  <interrupt id="pin_int6" secure="Secure"/>
+                  <interrupt id="pin_int7" secure="Secure"/>
+                  <interrupt id="pin_irq0" secure="Secure"/>
+                  <interrupt id="pin_irq1" secure="Secure"/>
+                  <interrupt id="pin_irq2" secure="Secure"/>
+                  <interrupt id="pin_irq3" secure="Secure"/>
+                  <interrupt id="plu_irq" secure="Secure"/>
+                  <interrupt id="pq_irq" secure="Secure"/>
+                  <interrupt id="qddkey_irq" secure="Secure"/>
+                  <interrupt id="rtc_irq" secure="Secure"/>
+                  <interrupt id="sct_irq" secure="Secure"/>
+                  <interrupt id="sdio_irq" secure="Secure"/>
+                  <interrupt id="sdma0_irq" secure="Secure"/>
+                  <interrupt id="sdma1_irq" secure="Secure"/>
+                  <interrupt id="sec_hypervisor_call_irq" secure="Secure"/>
+                  <interrupt id="sec_int0" secure="Secure"/>
+                  <interrupt id="sec_int1" secure="Secure"/>
+                  <interrupt id="sec_vio_irq" secure="Secure"/>
+                  <interrupt id="sha_irq" secure="Secure"/>
+                  <interrupt id="sys_irq" secure="Secure"/>
+                  <interrupt id="usb0_irq" secure="Secure"/>
+                  <interrupt id="usb0_needclk_irq" secure="Secure"/>
+                  <interrupt id="usb1_irq" secure="Secure"/>
+                  <interrupt id="usb1_needclk_irq" secure="Secure"/>
+                  <interrupt id="usb1_utmi_irq" secure="Secure"/>
+                  <interrupt id="utick_irq" secure="Secure"/>
+               </security>
+            </interrupts>
+            <pins_masks>
+               <port id="pio0">
+                  <pin_mask id="0" masked="Non-masked"/>
+                  <pin_mask id="1" masked="Non-masked"/>
+                  <pin_mask id="10" masked="Non-masked"/>
+                  <pin_mask id="11" masked="Non-masked"/>
+                  <pin_mask id="12" masked="Non-masked"/>
+                  <pin_mask id="13" masked="Non-masked"/>
+                  <pin_mask id="14" masked="Non-masked"/>
+                  <pin_mask id="15" masked="Non-masked"/>
+                  <pin_mask id="16" masked="Non-masked"/>
+                  <pin_mask id="17" masked="Non-masked"/>
+                  <pin_mask id="18" masked="Non-masked"/>
+                  <pin_mask id="19" masked="Non-masked"/>
+                  <pin_mask id="2" masked="Non-masked"/>
+                  <pin_mask id="20" masked="Non-masked"/>
+                  <pin_mask id="21" masked="Non-masked"/>
+                  <pin_mask id="22" masked="Non-masked"/>
+                  <pin_mask id="23" masked="Non-masked"/>
+                  <pin_mask id="24" masked="Non-masked"/>
+                  <pin_mask id="25" masked="Non-masked"/>
+                  <pin_mask id="26" masked="Non-masked"/>
+                  <pin_mask id="27" masked="Non-masked"/>
+                  <pin_mask id="28" masked="Non-masked"/>
+                  <pin_mask id="29" masked="Non-masked"/>
+                  <pin_mask id="3" masked="Non-masked"/>
+                  <pin_mask id="30" masked="Non-masked"/>
+                  <pin_mask id="31" masked="Non-masked"/>
+                  <pin_mask id="4" masked="Non-masked"/>
+                  <pin_mask id="5" masked="Non-masked"/>
+                  <pin_mask id="6" masked="Non-masked"/>
+                  <pin_mask id="7" masked="Non-masked"/>
+                  <pin_mask id="8" masked="Non-masked"/>
+                  <pin_mask id="9" masked="Non-masked"/>
+               </port>
+               <port id="pio1">
+                  <pin_mask id="0" masked="Non-masked"/>
+                  <pin_mask id="1" masked="Non-masked"/>
+                  <pin_mask id="10" masked="Non-masked"/>
+                  <pin_mask id="11" masked="Non-masked"/>
+                  <pin_mask id="12" masked="Non-masked"/>
+                  <pin_mask id="13" masked="Non-masked"/>
+                  <pin_mask id="14" masked="Non-masked"/>
+                  <pin_mask id="15" masked="Non-masked"/>
+                  <pin_mask id="16" masked="Non-masked"/>
+                  <pin_mask id="17" masked="Non-masked"/>
+                  <pin_mask id="18" masked="Non-masked"/>
+                  <pin_mask id="19" masked="Non-masked"/>
+                  <pin_mask id="2" masked="Non-masked"/>
+                  <pin_mask id="20" masked="Non-masked"/>
+                  <pin_mask id="21" masked="Non-masked"/>
+                  <pin_mask id="22" masked="Non-masked"/>
+                  <pin_mask id="23" masked="Non-masked"/>
+                  <pin_mask id="24" masked="Non-masked"/>
+                  <pin_mask id="25" masked="Non-masked"/>
+                  <pin_mask id="26" masked="Non-masked"/>
+                  <pin_mask id="27" masked="Non-masked"/>
+                  <pin_mask id="28" masked="Non-masked"/>
+                  <pin_mask id="29" masked="Non-masked"/>
+                  <pin_mask id="3" masked="Non-masked"/>
+                  <pin_mask id="30" masked="Non-masked"/>
+                  <pin_mask id="31" masked="Non-masked"/>
+                  <pin_mask id="4" masked="Non-masked"/>
+                  <pin_mask id="5" masked="Non-masked"/>
+                  <pin_mask id="6" masked="Non-masked"/>
+                  <pin_mask id="7" masked="Non-masked"/>
+                  <pin_mask id="8" masked="Non-masked"/>
+                  <pin_mask id="9" masked="Non-masked"/>
+               </port>
+            </pins_masks>
+         </ahb>
+         <sau enabled="true" all_non_secure="false" generate_code_for_disabled_regions="false">
+            <region start="0" size="268435456" security="ns" enabled="true" index="0"/>
+            <region start="536870912" size="3489660928" security="ns" enabled="true" index="1"/>
+            <region start="0" size="32" security="ns" enabled="false" index="2"/>
+            <region start="0" size="32" security="ns" enabled="false" index="3"/>
+            <region start="0" size="32" security="ns" enabled="false" index="4"/>
+            <region start="0" size="32" security="ns" enabled="false" index="5"/>
+            <region start="0" size="32" security="ns" enabled="false" index="6"/>
+            <region start="0" size="32" security="ns" enabled="false" index="7"/>
+         </sau>
+         <global_options>
+            <option id="AIRCR_PRIS" value="no"/>
+            <option id="AIRCR_BFHFNMINS" value="no"/>
+            <option id="AIRCR_SYSRESETREQS" value="no"/>
+            <option id="SCR_SLEEPDEEPS" value="no"/>
+            <option id="SHCSR_SECUREFAULTENA" value="no"/>
+            <option id="NSACR_CP0" value="yes"/>
+            <option id="NSACR_CP1" value="yes"/>
+            <option id="NSACR_CP2" value="no"/>
+            <option id="NSACR_CP3" value="no"/>
+            <option id="NSACR_CP4" value="no"/>
+            <option id="NSACR_CP5" value="no"/>
+            <option id="NSACR_CP6" value="no"/>
+            <option id="NSACR_CP7" value="no"/>
+            <option id="NSACR_CP10" value="yes"/>
+            <option id="NSACR_CP11" value="yes"/>
+            <option id="CPPWR_SU0" value="no"/>
+            <option id="CPPWR_SUS0" value="no"/>
+            <option id="CPPWR_SU1" value="no"/>
+            <option id="CPPWR_SUS1" value="no"/>
+            <option id="CPPWR_SU2" value="no"/>
+            <option id="CPPWR_SUS2" value="no"/>
+            <option id="CPPWR_SU3" value="no"/>
+            <option id="CPPWR_SUS3" value="no"/>
+            <option id="CPPWR_SU4" value="no"/>
+            <option id="CPPWR_SUS4" value="no"/>
+            <option id="CPPWR_SU5" value="no"/>
+            <option id="CPPWR_SUS5" value="no"/>
+            <option id="CPPWR_SU6" value="no"/>
+            <option id="CPPWR_SUS6" value="no"/>
+            <option id="CPPWR_SU7" value="no"/>
+            <option id="CPPWR_SUS7" value="no"/>
+            <option id="CPPWR_SU10" value="no"/>
+            <option id="CPPWR_SUS10" value="no"/>
+            <option id="CPPWR_SU11" value="no"/>
+            <option id="CPPWR_SUS11" value="no"/>
+            <option id="SEC_GPIO_MASK0_LOCK" value="no"/>
+            <option id="SEC_GPIO_MASK1_LOCK" value="no"/>
+            <option id="SEC_CPU1_INT_MASK0_LOCK" value="no"/>
+            <option id="SEC_CPU1_INT_MASK1_LOCK" value="no"/>
+            <option id="MASTER_SEC_LEVEL_LOCK" value="no"/>
+            <option id="CPU0_LOCK_NS_VTOR" value="no"/>
+            <option id="CPU0_LOCK_NS_MPU" value="no"/>
+            <option id="CPU0_LOCK_S_VTAIRCR" value="no"/>
+            <option id="CPU0_LOCK_S_MPU" value="no"/>
+            <option id="CPU0_LOCK_SAU" value="no"/>
+            <option id="CPU0_LOCK_REG_LOCK" value="no"/>
+            <option id="CPU1_LOCK_NS_VTOR" value="no"/>
+            <option id="CPU1_LOCK_NS_MPU" value="no"/>
+            <option id="CPU1_LOCK_REG_LOCK" value="no"/>
+            <option id="AHB_MISC_CTRL_REG_ENABLE_SECURE_CHECKING" value="yes"/>
+            <option id="AHB_MISC_CTRL_REG_ENABLE_S_PRIV_CHECK" value="no"/>
+            <option id="AHB_MISC_CTRL_REG_ENABLE_NS_PRIV_CHECK" value="no"/>
+            <option id="AHB_MISC_CTRL_REG_DISABLE_VIOLATION_ABORT" value="no"/>
+            <option id="AHB_MISC_CTRL_REG_DISABLE_SIMPLE_MASTER_STRICT_MODE" value="no"/>
+            <option id="AHB_MISC_CTRL_REG_DISABLE_SMART_MASTER_STRICT_MODE" value="no"/>
+            <option id="AHB_MISC_CTRL_REG_IDAU_ALL_NS" value="no"/>
+            <option id="AHB_MISC_CTRL_REG_WRITE_LOCK" value="yes"/>
+         </global_options>
+         <user_memory_regions/>
+         <mpus>
+            <mpu enabled="false" priv_default_map="false" handler_enabled="false" id="s" generate_code_for_disabled_regions="false">
+               <attributes>
+                  <group index="0" id="Code" memory_type="normal" device="nGnRE"/>
+                  <group index="1" id="RAM" memory_type="normal" device="nGnRE"/>
+                  <group index="2" id="Peripheral" memory_type="device" device="nGnRE"/>
+               </attributes>
+               <regions/>
+            </mpu>
+            <mpu enabled="false" priv_default_map="false" handler_enabled="false" id="ns" generate_code_for_disabled_regions="false">
+               <attributes>
+                  <group index="0" id="Code" memory_type="normal" device="nGnRE"/>
+                  <group index="1" id="RAM" memory_type="normal" device="nGnRE"/>
+                  <group index="2" id="Peripheral" memory_type="device" device="nGnRE"/>
+               </attributes>
+               <regions/>
+            </mpu>
+         </mpus>
+      </tee>
+   </tools>
+</configuration>

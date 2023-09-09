@@ -1,0 +1,85 @@
+# Copyright 2023 Dual Tachyon
+# https://github.com/DualTachyon
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[FLASH]
+@ = 0x4006F000, 0x800
+
+CFG = 0x0000
+> READ_MD, 0, 1
+= 1_CYCLE, 0
+= 2_CYCLE, 1
+
+> NVR_SEL, 1, 1
+= MAIN, 0
+= NVR, 1
+
+> MODE, 2, 3
+= READ_AHB, 0
+= PROGRAM, 1
+= ERASE, 2
+= READ_APB, 5
+
+> DEEP_PD, 31, 1
+= NORMAL, 0
+= LOW_POWER, 1
+
+ADDR = 0x0004
+WDATA = 0x0008
+RDATA = 0x000C
+
+START = 0x0010
+> START, 0, 1
+= START, 1
+
+ST = 0x0014
+> INIT_BUSY, 0, 1
+= COMPLETE, 0
+= BUSY, 1
+
+> BUSY, 1, 1
+= READY, 0
+= BUSY, 1
+
+> PROG_BUF_EMPTY, 2, 1
+= NOT_EMPTY, 0
+= EMPTY, 1
+
+LOCK = 0x0018
+> LOCK, 0, 8
+= LOCK, 0x55
+
+UNLOCK = 0x001C
+> UNLOCK, 0, 8
+= UNLOCK, 0xAA
+
+MASK = 0x0020
+> SEL, 0, 2
+= NONE, 0
+= 2KB, 1
+= 4KB, 2
+= 8KB, 3
+
+> LOCK, 2, 1
+= NOT_SET, 0
+= SET, 1
+
+ERASETIME = 0x0024
+> TERASE, 0, 19
+> TRCV, 19, 12
+
+PROGTIME = 0x0028
+> TPROG, 0, 11
+> TPGS, 11, 11
+

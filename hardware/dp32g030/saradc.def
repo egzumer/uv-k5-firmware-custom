@@ -1,0 +1,132 @@
+# Copyright 2023 Dual Tachyon
+# https://github.com/DualTachyon
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[SARADC]
+@ = 0x400BA000, 0x800
+
+CFG = 0x0000
+> CH_SEL, 0, 15
+
+> AVG, 16, 2
+= 1_SAMPLE, 0
+= 2_SAMPLE, 1
+= 4_SAMPLE, 2
+= 8_SAMPLE, 3
+
+> CONT, 18, 1
+= SINGLE, 0
+= CONTINUOUS, 1
+
+> SMPL_SETUP, 19, 3
+= 1_CYCLE, 0
+= 2_CYCLE, 1
+= 4_CYCLE, 2
+= 8_CYCLE, 3
+= 16_CYCLE, 4
+= 32_CYCLE, 5
+= 64_CYCLE, 6
+= 128_CYCLE, 7
+
+> MEM_MODE, 22, 1
+= FIFO, 0
+= CHANNEL, 1
+
+> SMPL_CLK, 23, 1
+= EXTERNAL, 0
+= INTERNAL, 1
+
+> SMPL_WIN, 24, 3
+= 1_CYCLE, 0
+= 3_CYCLE, 1
+= 5_CYCLE, 2
+= 7_CYCLE, 3
+= 9_CYCLE, 4
+= 11_CYCLE, 5
+= 13_CYCLE, 6
+= 15_CYCLE, 7
+
+> ADC_EN, 27, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> ADC_TRIG, 28, 1
+= CPU, 0
+= EXTERNAL, 1
+
+> DMA_EN, 29, 1
+= DISABLE, 0
+= ENABLE, 1
+
+START = 0x0004
+> START, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> SOFT_RESET, 2, 1
+= ASSERT, 0
+= DEASSERT, 1
+
+IE = 0x0008
+> CHx_EOC, 0, 16
+= NONE, 0x0000
+= ALL, 0xFFFF
+
+> FIFO_FULL, 16, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> FIFO_HFULL, 17, 1
+= DISABLE, 0
+= ENABLE, 1
+
+IF = 0x000C
+> CHx_EOC, 0, 16
+
+> FIFO_FULL, 16, 1
+= NOT_SET, 0
+= SET, 1
+
+> FIFO_HFULL, 17, 1
+= NOT_SET, 0
+= SET, 1
+
+CH0 = 0x0010
+
+EXTTRIG_SEL = 0x00B0
+
+CALIB_OFFSET = 0x00F0
+> OFFSET, 0, 8
+> VALID, 16, 1
+= NO, 0
+= YES, 1
+
+CALIB_KD = 0x00F4
+> KD, 0, 8
+> VALID, 16, 1
+= NO, 0
+= YES, 1
+
+[ADC_CHx]
+$ = ADC_Channel_t
+
+STAT = 0x0000
+> EOC, 0, 1
+= NOT_COMPLETE, 0
+= COMPLETE, 1
+
+DATA = 0x0004
+> DATA, 0, 12
+> NUM, 12, 4
+

@@ -1,0 +1,44 @@
+name: Publish CoreValidation Test Results
+
+on:
+  workflow_run:
+    workflows: ["CoreValidation"]
+    branches-ignore: ["develop"]
+    types:
+      - completed
+
+jobs:
+  publish-test-results:
+    name: Publish CoreValidation Test Results
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    if: github.event.workflow_run.conclusion != 'skipped'
+
+    steps:
+      - name: Download test results
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+           mkdir -p artifacts && cd artifacts
+
+           artifacts_url=${{ github.event.workflow_run.artifacts_url }}
+
+           gh api "$artifacts_url" -q '.artifacts[] | select(.name=="tests" or .name=="EventFile") | [.name, .archive_download_url] | @tsv' | \
+           while read artifact; do
+             IFS=$'\t' read name url <<< "$artifact"
+             gh api $url > "$name.zip"
+             unzip -d "$name" "$name.zip"
+           done
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          commit: ${{ github.event.workflow_run.head_sha }}
+          event_file: artifacts/EventFile/event.json
+          report_individual_runs: true
+          event_name: ${{ github.event.workflow_run.event }}
+          junit_files: "artifacts/**/*.junit"

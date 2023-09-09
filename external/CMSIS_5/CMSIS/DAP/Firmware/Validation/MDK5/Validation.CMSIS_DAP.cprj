@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<cprj schemaVersion="1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="CPRJ.xsd">
+
+  <created timestamp="2021-12-21T16:44:51" tool="uVision V5.36.0.0"/>
+
+  <info>
+    <name>Validation</name>
+    <description/>
+  </info>
+
+  <packages>
+    <package name="CMSIS" vendor="ARM"/>
+  </packages>
+
+  <compilers>
+    <compiler name="AC5" version="5.0.0:5.99.99"/>
+  </compilers>
+
+  <target Ddsp="NO_DSP" Dendian="Little-endian" Dfpu="NO_FPU" Dmve="NO_MVE" Dname="ARMCM3" Dsecure="Non-secure" Dtz="NO_TZ" Dvendor="ARM:82">
+    <output intdir="./Objects/" name="Validation" outdir="./Objects/" type="exe"/>
+    <ldflags add="--strict --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols --info sizes --info totals --info unused --info veneers --entry=Reset_Handler" compiler="AC5" file="./Validation.CMSIS_DAP.sct"/>
+    <cflags add="--apcs=interwork --c99 --split_sections -O0 -g" compiler="AC5"/>
+    <asflags add="--apcs=interwork --xref -g" compiler="AC5"/>
+    <includes/>
+    <defines/>
+  </target>
+
+  <components>
+    <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM"/>
+    <component Cclass="Device" Cgroup="Startup" Cvendor="ARM">
+      <file attr="config" category="sourceAsm" name="Device/ARM/ARMCM3/Source/ARM/startup_ARMCM3.s" version="1.0.0"/>
+      <file attr="config" category="sourceC" name="Device/ARM/ARMCM3/Source/system_ARMCM3.c" version="1.0.0"/>
+    </component>
+  </components>
+
+  <files>
+    <group name="Source Code">
+      <file category="sourceC" name="./test.c"/>
+    </group>
+    <group name="Documentation">
+      <file category="doc" name="./README.md"/>
+    </group>
+  </files>
+
+</cprj>

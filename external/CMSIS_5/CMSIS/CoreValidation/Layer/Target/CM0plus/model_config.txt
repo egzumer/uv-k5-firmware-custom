@@ -1,0 +1,8 @@
+# Parameters:
+# instance.parameter=value       #(type, mode) default = 'def value' : description : [min..max]
+#------------------------------------------------------------------------------
+fvp_mps2.UART0.out_file=-                             # (string, init-time) default = ''       : Output file to hold data written by the UART (use '-' to send all output to stdout)
+fvp_mps2.UART0.shutdown_on_eot=1                      # (bool  , init-time) default = '0'      : Shutdown simulation when a EOT (ASCII 4) char is transmitted (useful for regression tests when semihosting is not available)
+fvp_mps2.UART0.unbuffered_output=1                    # (bool  , init-time) default = '0'      : Unbuffered output
+fvp_mps2.mps2_visualisation.disable-visualisation=1   # (bool  , init-time) default = '0'      : Enable/disable visualisation
+#------------------------------------------------------------------------------

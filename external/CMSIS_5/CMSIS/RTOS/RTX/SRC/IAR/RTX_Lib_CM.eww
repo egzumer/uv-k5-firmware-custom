@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspace>
+    <project>
+        <path>$WS_DIR$\RTX_Lib_CM.ewp</path>
+    </project>
+    <batchBuild>
+        <batchDefinition>
+            <name>RTX_Lib_CM</name>
+            <member>
+                <project>RTX_Lib_CM</project>
+                <configuration>CM0_LE</configuration>
+            </member>
+            <member>
+                <project>RTX_Lib_CM</project>
+                <configuration>CM0_BE</configuration>
+            </member>
+            <member>
+                <project>RTX_Lib_CM</project>
+                <configuration>CM3_LE</configuration>
+            </member>
+            <member>
+                <project>RTX_Lib_CM</project>
+                <configuration>CM3_BE</configuration>
+            </member>
+            <member>
+                <project>RTX_Lib_CM</project>
+                <configuration>CM4F_LE</configuration>
+            </member>
+            <member>
+                <project>RTX_Lib_CM</project>
+                <configuration>CM4F_BE</configuration>
+            </member>
+        </batchDefinition>
+    </batchBuild>
+</workspace>

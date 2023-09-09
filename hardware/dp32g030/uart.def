@@ -1,0 +1,230 @@
+# Copyright 2023 Dual Tachyon
+# https://github.com/DualTachyon
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[UART]
+$ = UART_Port_t
+
+CTRL = 0x0000
+> UARTEN, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> RXEN, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> TXEN, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> RXDMAEN, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> TXDMAEN, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> NINEBIT, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> PAREN, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+BAUD = 0x0004
+TDR = 0x0008
+RDR = 0x000C
+
+IE = 0x0010
+> TXDONE, 2, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> PARITYE, 3, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> STOPE, 4, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> RXTO, 5, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> RXFIFO, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> TXFIFO, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> RXFIFO_OVF, 8, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> ABRD_OVF, 9, 1
+= DISABLE, 0
+= ENABLE, 1
+
+IF = 0x0014
+> TXDONE, 2, 1
+= NOT_SET, 0
+= SET, 1
+
+> PARITYE, 3, 1
+= NOT_SET, 0
+= SET, 1
+
+> STOPE, 4, 1
+= NOT_SET, 0
+= SET, 1
+
+> RXTO, 5, 1
+= NOT_SET, 0
+= SET, 1
+
+> RXFIFO, 6, 1
+= NOT_SET, 0
+= SET, 1
+
+> TXFIFO, 7, 1
+= NOT_SET, 0
+= SET, 1
+
+> RXFIFO_OVF, 8, 1
+= NOT_SET, 0
+= SET, 1
+
+> ABRD_OVF, 9, 1
+= NOT_SET, 0
+= SET, 1
+
+> RXFIFO_EMPTY, 10, 1
+= NOT_SET, 0
+= SET, 1
+
+> RXFIFO_FULL, 11, 1
+= NOT_SET, 0
+= SET, 1
+
+> RXFIFO_HFULL, 12, 1
+= NOT_SET, 0
+= SET, 1
+
+> TXFIFO_EMPTY, 13, 1
+= NOT_SET, 0
+= SET, 1
+
+> TXFIFO_FULL, 14, 1
+= NOT_SET, 0
+= SET, 1
+
+> TXFIFO_HFULL, 15, 1
+= NOT_SET, 0
+= SET, 1
+
+> TXBUSY, 16, 1
+= NOT_SET, 0
+= SET, 1
+
+> RF_LEVEL, 17, 3
+= 0_8_BYTE, 0
+= 1_BYTE, 1
+= 2_BYTE, 2
+= 3_BYTE, 3
+= 4_BYTE, 4
+= 5_BYTE, 5
+= 6_BYTE, 6
+= 7_BYTE, 7
+
+> TF_LEVEL, 20, 3
+= 0_8_BYTE, 0
+= 1_BYTE, 1
+= 2_BYTE, 2
+= 3_BYTE, 3
+= 4_BYTE, 4
+= 5_BYTE, 5
+= 6_BYTE, 6
+= 7_BYTE, 7
+
+FIFO = 0x0018
+> RF_LEVEL, 0, 3
+= 1_BYTE, 0
+= 2_BYTE, 1
+= 3_BYTE, 2
+= 4_BYTE, 3
+= 5_BYTE, 4
+= 6_BYTE, 5
+= 7_BYTE, 6
+= 8_BYTE, 7
+
+> TF_LEVEL, 3, 3
+= 0_BYTE, 0
+= 1_BYTE, 1
+= 2_BYTE, 2
+= 3_BYTE, 3
+= 4_BYTE, 4
+= 5_BYTE, 5
+= 6_BYTE, 6
+= 7_BYTE, 7
+
+> RF_CLR, 6, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> TF_CLR, 7, 1
+= DISABLE, 0
+= ENABLE, 1
+
+FC = 0x001C
+> CTSEN, 0, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> RTSEN, 1, 1
+= DISABLE, 0
+= ENABLE, 1
+
+> CTSPOL, 2, 1
+= LOW, 0
+= HIGH, 1
+
+> RTSPOL, 3, 1
+= LOW, 0
+= HIGH, 1
+
+> CTS_SIGNAL, 4, 1
+= LOW, 0
+= HIGH, 1
+
+> RTS_SIGNAL, 5, 1
+= LOW, 0
+= HIGH, 1
+
+RXTO = 0x0020
+
+[UART0]
+@ = 0x4006B000, 0x800, $UART
+
+[UART1]
+@ = 0x4006B800, 0x800, $UART
+
+[UART2]
+@ = 0x4006C000, 0x800, $UART
+

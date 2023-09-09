@@ -1,0 +1,31 @@
+name: Pack Description
+
+on:
+  pull_request:
+    branches: [ develop ]
+    paths:
+      - 'ARM.CMSIS.pdsc'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check:
+    name: Check pack description schema
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install xmllint
+      run: |
+        sudo apt-get update
+        sudo apt-get install libxml2-utils
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+    - name: Run xmllint
+      run: |
+        curl https://raw.githubusercontent.com/Open-CMSIS-Pack/Open-CMSIS-Pack-Spec/main/schema/PACK.xsd -o CMSIS/Utilities/PACK.xsd
+        echo "::add-matcher::.github/xmllint.json"
+        xmllint --noout --schema "$(realpath -m ./CMSIS/Utilities/PACK.xsd)" "ARM.CMSIS.pdsc"
+        echo "::remove-matcher owner=xmllint::"

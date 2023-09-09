@@ -1,0 +1,105 @@
+# Due to bandwidth limitation, we need to keep the base image into our
+# Artifactory Docker Registry. Because we have more than one registry,
+# we need to set during build time which Artifactory Docker Registry to use.
+ARG DOCKER_REGISTRY
+FROM ${DOCKER_REGISTRY}/ubuntu:focal
+
+# jenkins user needs to be present to work on CI
+# User 1000 for Kubernetes
+RUN useradd -u 1000 -U -m -c Jenkins jenkins
+
+# install packages from official Ubuntu repo
+ENV DEBIAN_FRONTEND=noninteractive
+# hadolint ignore=DL3008
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y \
+        bc \
+        build-essential \
+        curl \
+        dos2unix \
+        git \
+        lib32stdc++6 \
+        mscgen \
+        p7zip-full \
+        python3 \
+        python3-pip \
+        tar \
+        unzip \
+        wget \
+        libxml2-utils \
+        zip && \
+    apt-get autoremove -y && \
+    apt-get autoclean -y && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create build ARGs for installer files & versions
+ARG ARMCC=ArmCompiler-5.06u7-linux.sh
+ARG ARMCLANG=ArmCompiler-6.16-linux-x86_64.sh
+ARG ARMCLANGLTM=ArmCompiler-6.6.4-linux-x86_64.sh
+ARG GCC=gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
+ARG DOXYGEN=doxygen_1.8.6-2_amd64.deb
+ARG FASTMODELS=fvp-11.12-linux-x86_64.tar.gz
+
+# Including dependency folder
+ARG DEPENDENCIESFOLDER=dependenciesFiles
+ARG TOOLS_PATH=/opt
+ARG INSTALLER_PATH=/tmp/dependenciesFiles
+RUN mkdir -p ${INSTALLER_PATH}
+COPY dependenciesFiles/ ${INSTALLER_PATH}
+
+# install & setup armcc
+RUN ${INSTALLER_PATH}/${ARMCC} --i-agree-to-the-contained-eula --no-interactive -v -d ${TOOLS_PATH}/armcc
+ENV PATH=${PATH}:${TOOLS_PATH}/armcc/bin
+ENV CI_ARMCC5_TOOLCHAIN_ROOT=${TOOLS_PATH}/armclang/bin
+
+# install & setup armclang
+RUN ${INSTALLER_PATH}/${ARMCLANG} --i-agree-to-the-contained-eula --no-interactive -v -d ${TOOLS_PATH}/armclang
+ENV PATH=${PATH}:${TOOLS_PATH}/armclang/bin
+ENV CI_ARMCC6_TOOLCHAIN_ROOT=${TOOLS_PATH}/armclang/bin
+
+# install & setup armclang ltm
+RUN ${INSTALLER_PATH}/${ARMCLANGLTM} --i-agree-to-the-contained-eula --no-interactive -v -d ${TOOLS_PATH}/armclangltm
+ENV CI_ARMCC6LTM_TOOLCHAIN_ROOT=${TOOLS_PATH}/armclangltm/bin
+
+# install & setup gcc
+RUN mkdir -p ${TOOLS_PATH}
+WORKDIR ${TOOLS_PATH}
+RUN tar -xvf ${INSTALLER_PATH}/${GCC}
+ENV PATH=${PATH}:${TOOLS_PATH}/gcc-arm-none-eabi-10-2020-q4-major/bin
+ENV CI_GCC_TOOLCHAIN_ROOT=${TOOLS_PATH}/gcc-arm-none-eabi-10-2020-q4-major/bin
+WORKDIR /
+
+# install fast models 11.12
+RUN mkdir -p ${TOOLS_PATH}/fvp/
+WORKDIR ${TOOLS_PATH}/fvp/
+RUN tar -xvf ${INSTALLER_PATH}/${FASTMODELS}
+ENV PATH=${PATH}:${TOOLS_PATH}/fvp
+WORKDIR /
+
+# install doxygen
+RUN dpkg -i ${INSTALLER_PATH}/${DOXYGEN}
+
+# install PackChk
+RUN cp ${INSTALLER_PATH}/PackChk /usr/local/bin/PackChk
+RUN chmod +x /usr/local/bin/PackChk
+
+# install Python requirements
+COPY requirements.txt ${INSTALLER_PATH}/
+# hadolint ignore=DL3013
+RUN python3 -m pip install -U --no-cache-dir pip && \
+    python3 -m pip install -U --no-cache-dir -r ${INSTALLER_PATH}/requirements.txt
+
+# install buildtools
+RUN python3 -m pip install --no-cache-dir -r ${INSTALLER_PATH}/buildtools/requirements.txt
+RUN mv ${INSTALLER_PATH}/buildtools ${TOOLS_PATH}
+COPY rtebuild /home/jenkins/.rtebuild
+COPY rtebuild /root/.rtebuild
+ENV PATH=${PATH}:${TOOLS_PATH}/buildtools
+
+# set ARMLMD_LICENSE_FILE for ARM compilers
+ENV ARMLMD_LICENSE_FILE="7010@euhpc-lic-armlmd.euhpc.arm.com:7010@euhpc-lic03.euhpc.arm.com:7010@euhpc-lic05.euhpc.arm.com:7010@euhpc-lic07.euhpc.arm.com"
+
+# remove dependency folder
+RUN rm -rf ${INSTALLER_PATH}
+
+CMD ["bash"]
