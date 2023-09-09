@@ -23,9 +23,10 @@
 
 void UI_GenerateChannelString(char *pString, uint8_t Channel)
 {
-	uint8_t i;
+	unsigned int i;
 
-	if (gInputBoxIndex == 0) {
+	if (gInputBoxIndex == 0)
+	{
 		sprintf(pString, "CH-%02d", Channel + 1);
 		return;
 	}
@@ -33,41 +34,27 @@ void UI_GenerateChannelString(char *pString, uint8_t Channel)
 	pString[0] = 'C';
 	pString[1] = 'H';
 	pString[2] = '-';
-
-	for (i = 0; i < 2; i++) {
-		if (gInputBox[i] == 10) {
-			pString[i + 3] = '-';
-		} else {
-			pString[i + 3] = gInputBox[i] + '0';
-		}
-	}
-
+	for (i = 0; i < 2; i++)
+		pString[i + 3] = (gInputBox[i] == 10) ? '-' : gInputBox[i] + '0';
 }
 
 void UI_GenerateChannelStringEx(char *pString, bool bShowPrefix, uint8_t ChannelNumber)
 {
-	if (gInputBoxIndex) {
-		uint8_t i;
-
-		for (i = 0; i < 3; i++) {
-			if (gInputBox[i] == 10) {
-				pString[i] = '-';
-			} else {
-				pString[i] = gInputBox[i] + '0';
-			}
-		}
+	if (gInputBoxIndex)
+	{
+		unsigned int i;
+		for (i = 0; i < 3; i++)
+			pString[i] = (gInputBox[i] == 10) ? '-' : gInputBox[i] + '0';
 		return;
 	}
 
-	if (bShowPrefix) {
+	if (bShowPrefix)
 		sprintf(pString, "CH-%03d", ChannelNumber + 1);
-	} else {
-		if (ChannelNumber == 0xFF) {
-			strcpy(pString, "NULL");
-		} else {
-			sprintf(pString, "%03d", ChannelNumber + 1);
-		}
-	}
+	else
+	if (ChannelNumber == 0xFF)
+		strcpy(pString, "NULL");
+	else
+		sprintf(pString, "%03d", ChannelNumber + 1);
 }
 
 void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Line, uint8_t Width, bool bCentered)
@@ -82,31 +69,34 @@ void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Lin
 	{
 		if (pString[i] >= ' ' && pString[i] < 127)
 		{
-			const uint8_t Index = pString[i] - ' ';
-			memcpy(gFrameBuffer[Line + 0] + (i * Width) + Start, &gFontBig[Index][0], 8);
-			memcpy(gFrameBuffer[Line + 1] + (i * Width) + Start, &gFontBig[Index][8], 8);
+			const unsigned int Index = pString[i] - ' ';
+			const unsigned int ofs   = (unsigned int)Start + (i * Width);
+			memcpy(gFrameBuffer[Line + 0] + ofs, &gFontBig[Index][0], 8);
+			memcpy(gFrameBuffer[Line + 1] + ofs, &gFontBig[Index][8], 8);
 		}
 	}
 }
 
 void UI_DisplayFrequency(const char *pDigits, uint8_t X, uint8_t Y, bool bDisplayLeadingZero, bool bFlag)
 {
-	uint8_t *pFb0, *pFb1;
-	bool bCanDisplay;
-	uint8_t i;
+	unsigned int i;
+	uint8_t     *pFb0        = gFrameBuffer[Y] + X;;
+	uint8_t     *pFb1        = pFb0 + 128;
+	bool         bCanDisplay = false;
 
-	pFb0 = gFrameBuffer[Y] + X;
-	pFb1 = pFb0 + 128;
-
-	bCanDisplay = false;
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < 3; i++)
+	{
 		const uint8_t Digit = pDigits[i];
 
-		if (bDisplayLeadingZero || bCanDisplay || Digit) {
+		if (bDisplayLeadingZero || bCanDisplay || Digit)
+		{
 			bCanDisplay = true;
 			memcpy(pFb0 + (i * 13), gFontBigDigits[Digit] +  0, 13);
 			memcpy(pFb1 + (i * 13), gFontBigDigits[Digit] + 13, 13);
-		} else if (bFlag) {
+		}
+		else
+		if (bFlag)
+		{
 			pFb1 -= 6;
 			pFb0 -= 6;
 		}
