@@ -11,7 +11,6 @@ Am amazing achievement if you ask me !
 This version you can customize at compile time by making various changes to the makefile.
 You can edit those changes by (currently) editing the MakeFile, look for these lines ..
 
-*   # compilation options
 *   CFLAGS  += -DDISABLE_NOAA         .. remove NOAA channels option from the firmware
 *   CFLAGS  += -DDISABLE_VOICE        .. remove spoken VOICES option from the firmware
 *   CFLAGS  += -DDISABLE_AIRCOPY      .. remove AIRCOPY option
