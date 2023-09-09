@@ -22,12 +22,11 @@ To enable the custom option just uncomment the line by removing the starting '#'
 
 # Other changes made
 
-Battery voltage boot screen now includes the percentage (as well as voltage).
+* Battery voltage boot screen now includes the percentage (as well as voltage).
+* Slightly less intense menu style.
+* AM RX allowed everywhere. Although the radio really doesn't do AM, the adverts are a con !
 
-Slightly less intense menu style.
-
-AM RX allowed everywhere. Although the radio really doesn't do AM, the adverts are a con !
-
+* "MEM-CH" and "DEL-CH" menus now include channel name
 * "STEP" menu, added 1.25kHz option, removed 5kHz option
 * "TXP" menu, renamed to "TX-PWR"
 * "SAVE" menu, renamed to "B-SAVE"
