@@ -72,15 +72,17 @@ void UI_GenerateChannelStringEx(char *pString, bool bShowPrefix, uint8_t Channel
 
 void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Line, uint8_t Width, bool bCentered)
 {
-	uint32_t i, Length;
+	size_t i;
+	size_t Length = strlen(pString);
 
-	Length = strlen(pString);
-	if (bCentered) {
+	if (bCentered)
 		Start += (((End - Start) - (Length * Width)) + 1) / 2;
-	}
-	for (i = 0; i < Length; i++) {
-		if (pString[i] >= ' ' && pString[i] < 0x7F) {
-			uint8_t Index = pString[i] - ' ';
+
+	for (i = 0; i < Length; i++)
+	{
+		if (pString[i] >= ' ' && pString[i] < 127)
+		{
+			const uint8_t Index = pString[i] - ' ';
 			memcpy(gFrameBuffer[Line + 0] + (i * Width) + Start, &gFontBig[Index][0], 8);
 			memcpy(gFrameBuffer[Line + 1] + (i * Width) + Start, &gFontBig[Index][8], 8);
 		}
@@ -114,9 +116,9 @@ void UI_DisplayFrequency(const char *pDigits, uint8_t X, uint8_t Y, bool bDispla
 	pFb1[0x28] = 0x60;
 	pFb1[0x29] = 0x60;
 
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < 3; i++)
+	{
 		const uint8_t Digit = pDigits[i + 3];
-
 		memcpy(pFb0 + (i * 13) + 42, gFontBigDigits[Digit] +  0, 13);
 		memcpy(pFb1 + (i * 13) + 42, gFontBigDigits[Digit] + 13, 13);
 	}
@@ -124,10 +126,8 @@ void UI_DisplayFrequency(const char *pDigits, uint8_t X, uint8_t Y, bool bDispla
 
 void UI_DisplaySmallDigits(uint8_t Size, const char *pString, uint8_t X, uint8_t Y)
 {
-	uint8_t i;
-
-	for (i = 0; i < Size; i++) {
+	unsigned int i;
+	for (i = 0; i < Size; i++)
 		memcpy(gFrameBuffer[Y] + (i * 7) + X, gFontSmallDigits[(uint8_t)pString[i]], 7);
-	}
 }
 

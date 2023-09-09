@@ -512,8 +512,20 @@ void UI_DisplayMenu(void)
 			break;
 	}
 
-	UI_PrintString(String, 50, 127, 2, 8, true);
-
+	if (gMenuCursor == MENU_AM)
+	{	// the radio doesn't really do AM
+		UI_PrintString(String, 50, 127, 1, 8, true);
+		if (gSubMenuSelection > 0)
+		{
+			UI_PrintString("not", 50, 127, 3, 8, true);
+			UI_PrintString("really", 50, 127, 5, 8, true);
+		}
+	}
+	else
+	{
+		UI_PrintString(String, 50, 127, 2, 8, true);
+	}
+	
 	if (gMenuCursor == MENU_VOL)
 	{	// 2nd text line .. percentage
 		const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
