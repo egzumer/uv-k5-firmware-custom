@@ -1,8 +1,10 @@
 # Open reimplementation of the Quan Sheng UV K5 v2.1.27 firmware
 
-This repository is a cloned and customized version of DualTachyon's firmware found here ..
+This repository is a cloned and customized version of DualTachyon's open firmware found here ..
 
 https://github.com/DualTachyon/uv-k5-firmware
+
+Am amazing achievement if you ask me !
 
 # User customization
 
