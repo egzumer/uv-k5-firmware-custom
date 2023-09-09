@@ -10,19 +10,19 @@ This version you can customize at compile time by making various changes to the 
 You can edit those changes by (currently) editing the MakeFile, look for these lines ..
 
 *   # compilation options
-*   CFLAGS  += -DDISABLE_NOAA      .. remove NOAA channels option from the firmware
-*   CFLAGS  += -DDISABLE_VOICE     .. remove spoken VOICES option from the firmware
-*   CFLAGS  += -DDISABLE_AIRCOPY   .. remove AIRCOPY option
-*   CFLAGS  += -DKEEP_MEM_NAME     .. don't wipe out the memory channel's name when saving a memory channel
-*   #CFLAGS += -DDISABLE_ALARM     .. not yet implemented
-*   #CFLAGS += -DBAND_SCOPE        .. not yet implemented
+*   CFLAGS  += -DDISABLE_NOAA         .. remove NOAA channels option from the firmware
+*   CFLAGS  += -DDISABLE_VOICE        .. remove spoken VOICES option from the firmware
+*   CFLAGS  += -DDISABLE_AIRCOPY      .. remove AIRCOPY option
+*   CFLAGS  += -DKEEP_MEM_NAME        .. don't wipe out the memory channel's name when saving a memory channel
+*   #CFLAGS += -DDISABLE_ALARM        .. not yet implemented
+*   #CFLAGS += -DBAND_SCOPE           .. not yet implemented
 
 To enable the custom option just uncomment the line by removing the starting '#'.
 
 # Other changes made
 
 * "ABR" menu option now shows extended backlight times
-* "MIC" menu option shows actual mic gain in dB's
+* "MIC" menu option shows actual mic gain in dB's, which now includes the max mic gain setting possible (+15.5dB)
    
 # Compiler
 
