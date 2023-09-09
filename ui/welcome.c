@@ -21,6 +21,7 @@
 #include "external/printf/printf.h"
 #include "helper/battery.h"
 #include "settings.h"
+#include "misc.h"
 #include "ui/helper.h"
 #include "ui/welcome.h"
 #include "version.h"
@@ -44,8 +45,14 @@ void UI_DisplayWelcome(void)
 
 		if (gEeprom.POWER_ON_DISPLAY_MODE == POWER_ON_DISPLAY_MODE_VOLTAGE)
 		{
+			const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
+			                       (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
+		                            gBatteryVoltageAverage;
+
 			sprintf(WelcomeString0, "VOLTAGE");
-			sprintf(WelcomeString1, "%.2fV", gBatteryVoltageAverage * 0.01);  // argh, floating point :(
+			sprintf(WelcomeString1, "%.2fV %u%%",
+				gBatteryVoltageAverage * 0.01,        // argh, floating point :(
+				(100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
 		}
 		else
 		{

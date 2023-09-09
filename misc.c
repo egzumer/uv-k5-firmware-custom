@@ -29,6 +29,9 @@ bool              gSetting_350EN;
 uint8_t           gSetting_F_LOCK;
 bool              gSetting_ScrambleEnable;
 
+const uint16_t gMax_bat_v = 840;   // 8.4V
+const uint16_t gMin_bat_v = 660;   // 6.6V
+
 const uint32_t    gDefaultAesKey[4] =
 {
 	0x4AA5CC60,

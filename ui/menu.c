@@ -89,7 +89,7 @@ static const char MenuList[][7] =
 	"PONMSG",
 	"ROGER",
 	"BATVOL",
-	"AM",
+	"MODE",
 // 48
 	#ifndef DISABLE_NOAA
 		"NOAA_S",
@@ -375,6 +375,10 @@ void UI_DisplayMenu(void)
 				sprintf(String, "%d sec", gSubMenuSelection * 10);
 			break;
 	
+		case MENU_AM:
+			strcpy(String, (gSubMenuSelection == 0) ? "FM" : "AM");
+			break;
+			
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_AUTOLK:
@@ -383,7 +387,6 @@ void UI_DisplayMenu(void)
 		case MENU_STE:
 		case MENU_D_ST:
 		case MENU_D_DCD:
-		case MENU_AM:
 		#ifndef DISABLE_NOAA
 			case MENU_NOAA_S:
 		#endif
@@ -497,7 +500,7 @@ void UI_DisplayMenu(void)
 			break;
 	
 		case MENU_VOL:
-			sprintf(String, "%.3fV", gBatteryVoltageAverage * 0.01);  // argh, floating point :(
+			sprintf(String, "%.2fV", gBatteryVoltageAverage * 0.01);  // argh, floating point :(
 			break;
 	
 		case MENU_RESET:
@@ -510,6 +513,15 @@ void UI_DisplayMenu(void)
 	}
 
 	UI_PrintString(String, 50, 127, 2, 8, true);
+
+	if (gMenuCursor == MENU_VOL)
+	{	// 2nd text line
+		const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
+		                       (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
+		                        gBatteryVoltageAverage;
+		sprintf(String, "%u%%", (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
+		UI_PrintString(String, 50, 127, 4, 8, true);
+	}
 
 	if (gMenuCursor == MENU_OFFSET)
 		UI_PrintString("MHz", 50, 127, 4, 8, true);

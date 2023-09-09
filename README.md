@@ -22,10 +22,14 @@ To enable the custom option just uncomment the line by removing the starting '#'
 
 # Other changes made
 
+Battery voltage boot screen now includes the percentage (as well as voltage).
+
 * "STEP" menu, added 1.25kHz option, removed 5kHz option
 * "ABR" menu, shows extended backlight times
 * "MIC" menu, shows mic gain in dB's, now includes the max mic gain possible (+15.5dB)
-   
+* "VOL" menu, renamed to "BATVOL", shows voltage and percentage 
+* "AM" menu, renamed to "MODE", shows modulation mode
+
 # Compiler
 
 arm-none-eabi GCC version 10.3.1 is recommended, which is the current version on Ubuntu 22.04.03 LTS.
