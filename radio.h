@@ -19,6 +19,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
 #include "dcs.h"
 
 enum {
@@ -28,44 +29,56 @@ enum {
 };
 
 enum {
-	RADIO_CHANNEL_UP = 0x01U,
+	RADIO_CHANNEL_UP   = 0x01U,
 	RADIO_CHANNEL_DOWN = 0xFFU,
 };
 
 enum {
-	BANDWIDTH_WIDE = 0U,
-	BANDWIDTH_NARROW = 1U,
+	BANDWIDTH_WIDE = 0,
+	BANDWIDTH_NARROW
 };
 
 enum PTT_ID_t {
-	PTT_ID_OFF  = 0U,
-	PTT_ID_BOT  = 1U,
-	PTT_ID_EOT  = 2U,
-	PTT_ID_BOTH = 3U,
+	PTT_ID_OFF = 0,
+	PTT_ID_BOT,
+	PTT_ID_EOT,
+	PTT_ID_BOTH
 };
 
 typedef enum PTT_ID_t PTT_ID_t;
 
-enum STEP_Setting_t {
-	STEP_2_5kHz,
-	STEP_5_0kHz,
-	STEP_6_25kHz,
-	STEP_10_0kHz,
-	STEP_12_5kHz,
-	STEP_25_0kHz,
-	STEP_8_33kHz,
-};
+#if 0
+	enum STEP_Setting_t {
+		STEP_2_5kHz,
+		STEP_5_0kHz,
+		STEP_6_25kHz,
+		STEP_10_0kHz,
+		STEP_12_5kHz,
+		STEP_25_0kHz,
+		STEP_8_33kHz,
+	};
+#else
+	enum STEP_Setting_t {
+		STEP_1_25kHz,
+		STEP_2_5kHz,
+		STEP_6_25kHz,
+		STEP_10_0kHz,
+		STEP_12_5kHz,
+		STEP_25_0kHz,
+		STEP_8_33kHz,
+	};
+#endif
 
 typedef enum STEP_Setting_t STEP_Setting_t;
 
 enum VfoState_t {
-	VFO_STATE_NORMAL     = 0U,
-	VFO_STATE_BUSY       = 1U,
-	VFO_STATE_BAT_LOW    = 2U,
-	VFO_STATE_TX_DISABLE = 3U,
-	VFO_STATE_TIMEOUT    = 4U,
-	VFO_STATE_ALARM      = 5U,
-	VFO_STATE_VOL_HIGH   = 6U,
+	VFO_STATE_NORMAL = 0,
+	VFO_STATE_BUSY,
+	VFO_STATE_BAT_LOW,
+	VFO_STATE_TX_DISABLE,
+	VFO_STATE_TIMEOUT,
+	VFO_STATE_ALARM,
+	VFO_STATE_VOL_HIGH
 };
 
 typedef enum VfoState_t VfoState_t;
@@ -123,24 +136,24 @@ extern STEP_Setting_t gStepSetting;
 
 extern VfoState_t     VfoState[2];
 
-bool RADIO_CheckValidChannel(uint16_t ChNum, bool bCheckScanList, uint8_t RadioNum);
-uint8_t RADIO_FindNextChannel(uint8_t ChNum, int8_t Direction, bool bCheckScanList, uint8_t RadioNum);
-void RADIO_InitInfo(VFO_Info_t *pInfo, uint8_t ChannelSave, uint8_t ChIndex, uint32_t Frequency);
-void RADIO_ConfigureChannel(uint8_t RadioNum, uint32_t Arg);
-void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo);
-void RADIO_ApplyOffset(VFO_Info_t *pInfo);
-void RADIO_SelectVfos(void);
-void RADIO_SetupRegisters(bool bSwitchToFunction0);
+bool     RADIO_CheckValidChannel(uint16_t ChNum, bool bCheckScanList, uint8_t RadioNum);
+uint8_t  RADIO_FindNextChannel(uint8_t ChNum, int8_t Direction, bool bCheckScanList, uint8_t RadioNum);
+void     RADIO_InitInfo(VFO_Info_t *pInfo, uint8_t ChannelSave, uint8_t ChIndex, uint32_t Frequency);
+void     RADIO_ConfigureChannel(uint8_t RadioNum, uint32_t Arg);
+void     RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo);
+void     RADIO_ApplyOffset(VFO_Info_t *pInfo);
+void     RADIO_SelectVfos(void);
+void     RADIO_SetupRegisters(bool bSwitchToFunction0);
 #ifndef DISABLE_NOAA
 	void RADIO_ConfigureNOAA(void);
 #endif
-void RADIO_SetTxParameters(void);
+void     RADIO_SetTxParameters(void);
 
-void RADIO_SetVfoState(VfoState_t State);
-void RADIO_PrepareTX(void);
-void RADIO_EnableCxCSS(void);
-void RADIO_PrepareCssTX(void);
-void RADIO_SendEndOfTransmission(void);
+void     RADIO_SetVfoState(VfoState_t State);
+void     RADIO_PrepareTX(void);
+void     RADIO_EnableCxCSS(void);
+void     RADIO_PrepareCssTX(void);
+void     RADIO_SendEndOfTransmission(void);
 
 #endif
 

@@ -109,6 +109,9 @@ void Main(void)
 		SYSTEM_DelayMs(2000);
 
 		gMenuListCount = 51;
+		#ifdef DISABLE_ALARM
+			gMenuListCount--;
+		#endif
 		#ifdef DISABLE_VOICE
 			gMenuListCount--;
 		#endif

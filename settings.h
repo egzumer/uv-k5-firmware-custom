@@ -19,85 +19,86 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
 #include "radio.h"
 
 enum POWER_OnDisplayMode_t {
-	POWER_ON_DISPLAY_MODE_FULL_SCREEN = 0U,
-	POWER_ON_DISPLAY_MODE_MESSAGE     = 1U,
-	POWER_ON_DISPLAY_MODE_VOLTAGE     = 2U,
+	POWER_ON_DISPLAY_MODE_FULL_SCREEN = 0,
+	POWER_ON_DISPLAY_MODE_MESSAGE,
+	POWER_ON_DISPLAY_MODE_VOLTAGE
 };
 
 typedef enum POWER_OnDisplayMode_t POWER_OnDisplayMode_t;
 
 enum {
-	F_LOCK_OFF = 0U,
-	F_LOCK_FCC = 1U,
-	F_LOCK_CE  = 2U,
-	F_LOCK_GB  = 3U,
-	F_LOCK_430 = 4U,
-	F_LOCK_438 = 5U,
+	F_LOCK_OFF = 0,
+	F_LOCK_FCC,
+	F_LOCK_CE,
+	F_LOCK_GB,
+	F_LOCK_430,
+	F_LOCK_438
 };
 
 enum {
-	SCAN_RESUME_TO = 0U,
-	SCAN_RESUME_CO = 1U,
-	SCAN_RESUME_SE = 2U,
+	SCAN_RESUME_TO = 0,
+	SCAN_RESUME_CO,
+	SCAN_RESUME_SE
 };
 
 enum {
-	CROSS_BAND_OFF = 0U,
-	CROSS_BAND_CHAN_A = 1U,
-	CROSS_BAND_CHAN_B = 2U,
+	CROSS_BAND_OFF = 0,
+	CROSS_BAND_CHAN_A,
+	CROSS_BAND_CHAN_B
 };
 
 enum {
-	DUAL_WATCH_OFF = 0U,
-	DUAL_WATCH_CHAN_A = 1U,
-	DUAL_WATCH_CHAN_B = 2U,
+	DUAL_WATCH_OFF = 0,
+	DUAL_WATCH_CHAN_A,
+	DUAL_WATCH_CHAN_B
 };
 
 enum {
-	FREQUENCY_DEVIATION_OFF = 0U,
-	FREQUENCY_DEVIATION_ADD = 1U,
-	FREQUENCY_DEVIATION_SUB = 2U,
+	FREQUENCY_DEVIATION_OFF = 0,
+	FREQUENCY_DEVIATION_ADD,
+	FREQUENCY_DEVIATION_SUB
 };
 
 enum {
-	OUTPUT_POWER_LOW = 0U,
-	OUTPUT_POWER_MID = 1U,
-	OUTPUT_POWER_HIGH = 2U,
+	OUTPUT_POWER_LOW = 0,
+	OUTPUT_POWER_MID,
+	OUTPUT_POWER_HIGH
 };
 
 #ifndef DISABLE_VOICE
 	enum VOICE_Prompt_t
 	{
-		VOICE_PROMPT_OFF = 0U,
-		VOICE_PROMPT_CHINESE = 1U,
-		VOICE_PROMPT_ENGLISH = 2U,
+		VOICE_PROMPT_OFF = 0,
+		VOICE_PROMPT_CHINESE,
+		VOICE_PROMPT_ENGLISH
 	};
 	
 	typedef enum VOICE_Prompt_t VOICE_Prompt_t;
 #endif
 
 enum ALARM_Mode_t {
-	ALARM_MODE_SITE = 0U,
-	ALARM_MODE_TONE = 1U,
+	ALARM_MODE_SITE = 0,
+	ALARM_MODE_TONE
 };
 
 typedef enum ALARM_Mode_t ALARM_Mode_t;
 
 enum ROGER_Mode_t {
-	ROGER_MODE_OFF   = 0U,
-	ROGER_MODE_ROGER = 1U,
-	ROGER_MODE_MDC   = 2U,
+	ROGER_MODE_OFF = 0,
+	ROGER_MODE_ROGER,
+	ROGER_MODE_MDC
 };
 
 typedef enum ROGER_Mode_t ROGER_Mode_t;
 
 enum CHANNEL_DisplayMode_t {
-	MDF_FREQUENCY = 0U,
-	MDF_CHANNEL   = 1U,
-	MDF_NAME      = 2U,
+	MDF_FREQUENCY = 0,
+	MDF_CHANNEL,
+	MDF_NAME
 };
 
 typedef enum CHANNEL_DisplayMode_t CHANNEL_DisplayMode_t;
@@ -154,7 +155,9 @@ typedef struct {
 	uint16_t              FM_LowerLimit;
 	uint16_t              FM_UpperLimit;
 	bool                  AUTO_KEYPAD_LOCK;
-	ALARM_Mode_t          ALARM_MODE;
+	#ifndef DISABLE_ALARM
+		ALARM_Mode_t      ALARM_MODE;
+	#endif
 	POWER_OnDisplayMode_t POWER_ON_DISPLAY_MODE;
 	ROGER_Mode_t          ROGER;
 	uint8_t               REPEATER_TAIL_TONE_ELIMINATION;

@@ -16,13 +16,14 @@ You can edit those changes by (currently) editing the MakeFile, look for these l
 *   CFLAGS  += -DDISABLE_VOICE        .. remove spoken VOICES option from the firmware
 *   CFLAGS  += -DDISABLE_AIRCOPY      .. remove AIRCOPY option
 *   CFLAGS  += -DKEEP_MEM_NAME        .. don't wipe out the memory channel's name when saving a memory channel
-*   CFLAGS  += -DDISABLE_ALARM        .. remove ALARM option from the firmware
+*   CFLAGS  += -DDISABLE_ALARM        .. remove the ALARM transmit option from the firmware
 *   #CFLAGS += -DBAND_SCOPE           .. not yet implemented
 
 To enable the custom option just uncomment the line by removing the starting '#'.
 
 # Other changes made
 
+* "STEP" menu option added 1.25kHz option, removed 5kHz option
 * "ABR" menu option now shows extended backlight times
 * "MIC" menu option shows actual mic gain in dB's, which now includes the max mic gain setting possible (+15.5dB)
    

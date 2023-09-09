@@ -77,7 +77,9 @@ uint8_t           gReducedService;
 uint8_t           gBatteryVoltageIndex;
 CssScanMode_t     gCssScanMode;
 bool              gUpdateRSSI;
-AlarmState_t      gAlarmState;
+#ifndef DISABLE_ALARM
+	AlarmState_t  gAlarmState;
+#endif
 uint8_t           gVoltageMenuCountdown;
 bool              gPttWasReleased;
 bool              gPttWasPressed;
@@ -117,8 +119,10 @@ uint8_t           gCurrentScanList;
 uint8_t           gPreviousMrChannel;
 uint32_t          gRestoreFrequency;
 uint8_t           gRxVfoIsActive;
-uint8_t           gAlarmToneCounter;
-uint16_t          gAlarmRunningCounter;
+#ifndef DISABLE_ALARM
+	uint8_t       gAlarmToneCounter;
+	uint16_t      gAlarmRunningCounter;
+#endif
 bool              gKeyBeingHeld;
 bool              gPttIsPressed;
 uint8_t           gPttDebounceCounter;

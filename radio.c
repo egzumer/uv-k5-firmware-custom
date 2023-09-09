@@ -802,7 +802,9 @@ void RADIO_PrepareTX(void)
 
 	RADIO_SelectCurrentVfo();
 
-	if (gAlarmState == ALARM_STATE_OFF || gAlarmState == ALARM_STATE_TX1750 || (gAlarmState == ALARM_STATE_ALARM && gEeprom.ALARM_MODE == ALARM_MODE_TONE))
+	#ifndef DISABLE_ALARM
+		if (gAlarmState == ALARM_STATE_OFF || gAlarmState == ALARM_STATE_TX1750 || (gAlarmState == ALARM_STATE_ALARM && gEeprom.ALARM_MODE == ALARM_MODE_TONE))
+	#endif
 	{
 		VfoState_t State;
 
@@ -824,15 +826,17 @@ void RADIO_PrepareTX(void)
 
 		RADIO_SetVfoState(State);
 
-		gAlarmState = ALARM_STATE_OFF;
-
+		#ifndef DISABLE_ALARM
+			gAlarmState = ALARM_STATE_OFF;
+		#endif
+		
 		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 
 		gDTMF_ReplyState = DTMF_REPLY_NONE;
 
 		return;
 	}
-
+	
 Skip:
 	if (gDTMF_ReplyState == DTMF_REPLY_ANI)
 	{
@@ -851,8 +855,12 @@ Skip:
 
 	FUNCTION_Select(FUNCTION_TRANSMIT);
 
-	gTxTimerCountdown = (gAlarmState == ALARM_STATE_OFF) ? gEeprom.TX_TIMEOUT_TIMER * 120 : 0;
-
+	#ifndef DISABLE_ALARM
+		gTxTimerCountdown = (gAlarmState == ALARM_STATE_OFF) ? gEeprom.TX_TIMEOUT_TIMER * 120 : 0;
+	#else
+		gTxTimerCountdown = gEeprom.TX_TIMEOUT_TIMER * 120;
+	#endif
+	
 	gTxTimeoutReached    = false;
 	gFlagEndTransmission = false;
 	gRTTECountdown       = 0;

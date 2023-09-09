@@ -122,7 +122,11 @@ void SETTINGS_SaveSettings(void)
 		EEPROM_WriteBuffer(0x0EA0, State);
 	#endif
 
-	State[0] = gEeprom.ALARM_MODE;
+	#ifndef DISABLE_ALARM
+		State[0] = gEeprom.ALARM_MODE;
+	#else
+		State[0] = false;
+	#endif
 	State[1] = gEeprom.ROGER;
 	State[2] = gEeprom.REPEATER_TAIL_TONE_ELIMINATION;
 	State[3] = gEeprom.TX_CHANNEL;

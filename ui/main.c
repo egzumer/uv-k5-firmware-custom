@@ -153,11 +153,13 @@ void UI_DisplayMain(void)
 
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
 		{
-			if (gAlarmState == ALARM_STATE_ALARM)
-			{
-				SomeValue = 2;
-			}
-			else
+			#ifndef DISABLE_ALARM
+				if (gAlarmState == ALARM_STATE_ALARM)
+				{
+					SomeValue = 2;
+				}
+				else
+			#endif
 			{
 				if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF)
 					Channel = gEeprom.RX_CHANNEL;
@@ -214,16 +216,19 @@ void UI_DisplayMain(void)
 		// 0x8FEC
 
 		uint8_t State = VfoState[i];
-		if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_ALARM)
-		{
-			if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF)
-				Channel = gEeprom.RX_CHANNEL;
-			else
-				Channel = gEeprom.TX_CHANNEL;
-			if (Channel == i)
-				State = VFO_STATE_ALARM;
-		}
 
+		#ifndef DISABLE_ALARM
+			if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_ALARM)
+			{
+				if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF)
+					Channel = gEeprom.RX_CHANNEL;
+				else
+					Channel = gEeprom.TX_CHANNEL;
+				if (Channel == i)
+					State = VFO_STATE_ALARM;
+			}
+		#endif
+		
 		if (State)
 		{
 			uint8_t Width = 10;

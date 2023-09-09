@@ -127,48 +127,54 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 		return;
 
 	case FUNCTION_TRANSMIT:
-		if (gFmRadioMode) {
+		if (gFmRadioMode)
 			BK1080_Init(0, false);
-		}
 
-		if (gAlarmState == ALARM_STATE_TXALARM && gEeprom.ALARM_MODE != ALARM_MODE_TONE) {
-			gAlarmState = ALARM_STATE_ALARM;
-			GUI_DisplayScreen();
-			GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
-			SYSTEM_DelayMs(20);
-			BK4819_PlayTone(500, 0);
-			SYSTEM_DelayMs(2);
-			GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
-			gEnableSpeaker = true;
-			SYSTEM_DelayMs(60);
-			BK4819_ExitTxMute();
-			gAlarmToneCounter = 0;
-			break;
-		}
-
+		#ifndef DISABLE_ALARM
+			if (gAlarmState == ALARM_STATE_TXALARM && gEeprom.ALARM_MODE != ALARM_MODE_TONE)
+			{
+				gAlarmState = ALARM_STATE_ALARM;
+				GUI_DisplayScreen();
+				GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+				SYSTEM_DelayMs(20);
+				BK4819_PlayTone(500, 0);
+				SYSTEM_DelayMs(2);
+				GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+				gEnableSpeaker = true;
+				SYSTEM_DelayMs(60);
+				BK4819_ExitTxMute();
+				gAlarmToneCounter = 0;
+				break;
+			}
+		#endif
+		
 		GUI_DisplayScreen();
 		RADIO_SetTxParameters();
 		BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, true);
 
 		DTMF_Reply();
 
-		if (gAlarmState != ALARM_STATE_OFF) {
-			if (gAlarmState == ALARM_STATE_TX1750) {
-				BK4819_TransmitTone(true, 1750);
-			} else {
-				BK4819_TransmitTone(true, 500);
+		#ifndef DISABLE_ALARM
+			if (gAlarmState != ALARM_STATE_OFF)
+			{
+				if (gAlarmState == ALARM_STATE_TX1750)
+					BK4819_TransmitTone(true, 1750);
+				else
+					BK4819_TransmitTone(true, 500);
+	
+				SYSTEM_DelayMs(2);
+				GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+				gAlarmToneCounter = 0;
+				gEnableSpeaker = true;
+				break;
 			}
-			SYSTEM_DelayMs(2);
-			GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
-			gAlarmToneCounter = 0;
-			gEnableSpeaker = true;
-			break;
-		}
-		if (gCurrentVfo->SCRAMBLING_TYPE && gSetting_ScrambleEnable) {
+		#endif
+		
+		if (gCurrentVfo->SCRAMBLING_TYPE && gSetting_ScrambleEnable)
 			BK4819_EnableScramble(gCurrentVfo->SCRAMBLING_TYPE - 1U);
-		} else {
+		else
 			BK4819_DisableScramble();
-		}
+
 		break;
 	}
 	gBatterySaveCountdown = 1000;

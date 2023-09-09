@@ -171,7 +171,9 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 		case MENU_S_ADD1:
 		case MENU_S_ADD2:
 		case MENU_STE:
-		case MENU_AL_MOD:
+		#ifndef DISABLE_ALARM
+			case MENU_AL_MOD:
+		#endif
 		case MENU_D_ST:
 		case MENU_D_DCD:
 		case MENU_AM:
@@ -469,10 +471,12 @@ void MENU_AcceptSetting(void)
 			gEeprom.SCAN_LIST_DEFAULT = gSubMenuSelection - 1;
 			break;
 	
-		case MENU_AL_MOD:
-			gEeprom.ALARM_MODE = gSubMenuSelection;
-			break;
-	
+		#ifndef DISABLE_ALARM
+			case MENU_AL_MOD:
+				gEeprom.ALARM_MODE = gSubMenuSelection;
+				break;
+		#endif
+		
 		case MENU_D_ST:
 			gEeprom.DTMF_SIDE_TONE = gSubMenuSelection;
 			break;
@@ -809,10 +813,12 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = RADIO_FindNextChannel(0, 1, true, 1);
 			break;
 	
-		case MENU_AL_MOD:
-			gSubMenuSelection = gEeprom.ALARM_MODE;
-			break;
-	
+		#ifndef DISABLE_ALARM
+			case MENU_AL_MOD:
+				gSubMenuSelection = gEeprom.ALARM_MODE;
+				break;
+		#endif
+		
 		case MENU_D_ST:
 			gSubMenuSelection = gEeprom.DTMF_SIDE_TONE;
 			break;

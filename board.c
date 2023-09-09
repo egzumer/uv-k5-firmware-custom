@@ -431,7 +431,9 @@ void BOARD_EEPROM_Init(void)
 	
 	// 0EA8..0EAF
 	EEPROM_ReadBuffer(0x0EA8, Data, 8);
-	gEeprom.ALARM_MODE                     = (Data[0] <  2) ? Data[0] : true;
+	#ifndef DISABLE_ALARM
+		gEeprom.ALARM_MODE                 = (Data[0] <  2) ? Data[0] : true;
+	#endif
 	gEeprom.ROGER                          = (Data[1] <  3) ? Data[1] : ROGER_MODE_OFF;
 	gEeprom.REPEATER_TAIL_TONE_ELIMINATION = (Data[2] < 11) ? Data[2] : 0;
 	gEeprom.TX_CHANNEL                     = (Data[3] <  2) ? Data[3] : 0;

@@ -72,7 +72,9 @@ static const char MenuList[][7] =
 	"SLIST1",
 // 32
 	"SLIST2",
-	"AL-MOD",
+	#ifndef DISABLE_ALARM
+		"AL-MOD",
+	#endif
 	"ANI-ID",
 	"UPCODE",
 	"DWCODE",
@@ -195,11 +197,13 @@ static const char gSubMenu_MDF[3][5] =
 	"NAME",
 };
 
-static const char gSubMenu_AL_MOD[2][5] =
-{
-	"SITE",
-	"TONE",
-};
+#ifndef DISABLE_ALARM
+	static const char gSubMenu_AL_MOD[2][5] =
+	{
+		"SITE",
+		"TONE",
+	};
+#endif
 
 static const char gSubMenu_D_RSP[4][6] =
 {
@@ -441,10 +445,12 @@ void UI_DisplayMenu(void)
 			sprintf(String, "LIST%d", gSubMenuSelection);
 			break;
 	
-		case MENU_AL_MOD:
-			sprintf(String, gSubMenu_AL_MOD[gSubMenuSelection]);
-			break;
-	
+		#ifndef DISABLE_ALARM
+			case MENU_AL_MOD:
+				sprintf(String, gSubMenu_AL_MOD[gSubMenuSelection]);
+				break;
+		#endif
+		
 		case MENU_ANI_ID:
 			strcpy(String, gEeprom.ANI_DTMF_ID);
 			break;

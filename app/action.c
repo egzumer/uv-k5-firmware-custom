@@ -182,14 +182,16 @@ void ACTION_Vox(void)
 	gUpdateStatus        = true;
 }
 
-static void ACTION_AlarmOr1750(bool b1750)
-{
-	gInputBoxIndex        = 0;
-	gAlarmState           = b1750 ? ALARM_STATE_TX1750 : ALARM_STATE_TXALARM;
-	gAlarmRunningCounter  = 0;
-	gFlagPrepareTX        = true;
-	gRequestDisplayScreen = DISPLAY_MAIN;
-}
+#ifndef DISABLE_ALARM
+	static void ACTION_AlarmOr1750(bool b1750)
+	{
+		gInputBoxIndex        = 0;
+		gAlarmState           = b1750 ? ALARM_STATE_TX1750 : ALARM_STATE_TXALARM;
+		gAlarmRunningCounter  = 0;
+		gFlagPrepareTX        = true;
+		gRequestDisplayScreen = DISPLAY_MAIN;
+	}
+#endif
 
 void ACTION_FM(void)
 {
@@ -290,13 +292,17 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			ACTION_Vox();
 			break;
 		case 6:
-			ACTION_AlarmOr1750(false);
+			#ifndef DISABLE_ALARM
+				ACTION_AlarmOr1750(false);
+			#endif
 			break;
 		case 7:
 			ACTION_FM();
 			break;
 		case 8:
-			ACTION_AlarmOr1750(true);
+			#ifndef DISABLE_ALARM
+				ACTION_AlarmOr1750(true);
+			#endif
 			break;
 	}
 }
