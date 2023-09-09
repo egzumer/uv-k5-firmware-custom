@@ -16,7 +16,7 @@ You can edit those changes by (currently) editing the MakeFile, look for these l
 *   CFLAGS  += -DDISABLE_VOICE        .. remove spoken VOICES option from the firmware
 *   CFLAGS  += -DDISABLE_AIRCOPY      .. remove AIRCOPY option
 *   CFLAGS  += -DKEEP_MEM_NAME        .. don't wipe out the memory channel's name when saving a memory channel
-*   #CFLAGS += -DDISABLE_ALARM        .. not yet implemented
+*   CFLAGS  += -DDISABLE_ALARM        .. remove ALARM option from the firmware
 *   #CFLAGS += -DBAND_SCOPE           .. not yet implemented
 
 To enable the custom option just uncomment the line by removing the starting '#'.
