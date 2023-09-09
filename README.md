@@ -14,7 +14,7 @@ You can edit those changes by (currently) editing the MakeFile, look for these l
 *   CFLAGS  += -DDISABLE_NOAA         .. remove NOAA channels option from the firmware
 *   CFLAGS  += -DDISABLE_VOICE        .. remove spoken VOICES option from the firmware
 *   CFLAGS  += -DDISABLE_AIRCOPY      .. remove AIRCOPY option
-*   CFLAGS  += -DKEEP_MEM_NAME        .. don't wipe out the memory channel's name when saving a memory channel
+*   CFLAGS  += -DKEEP_MEM_NAME        .. maintain the memory channel's name when re-saving the memory channel
 *   CFLAGS  += -DDISABLE_ALARM        .. remove the ALARM transmit option from the firmware
 *   #CFLAGS += -DBAND_SCOPE           .. not yet implemented
 
@@ -23,6 +23,8 @@ To enable the custom option just uncomment the line by removing the starting '#'
 # Other changes made
 
 Battery voltage boot screen now includes the percentage (as well as voltage).
+
+Slightly less intense menu style.
 
 * "STEP" menu, added 1.25kHz option, removed 5kHz option
 * "ABR" menu, renamed to "BAK-LT", shows extended backlight times
