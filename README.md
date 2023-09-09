@@ -22,9 +22,9 @@ To enable the custom option just uncomment the line by removing the starting '#'
 
 # Other changes made
 
-* "STEP" menu option added 1.25kHz option, removed 5kHz option
-* "ABR" menu option now shows extended backlight times
-* "MIC" menu option shows actual mic gain in dB's, which now includes the max mic gain setting possible (+15.5dB)
+* "STEP" menu, added 1.25kHz option, removed 5kHz option
+* "ABR" menu, shows extended backlight times
+* "MIC" menu, shows mic gain in dB's, now includes the max mic gain possible (+15.5dB)
    
 # Compiler
 
