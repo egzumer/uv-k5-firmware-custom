@@ -522,26 +522,60 @@ void UI_DisplayMenu(void)
 		}
 	}
 	else
-	{
-		UI_PrintString(String, 50, 127, 2, 8, true);
-	}
-	
 	if (gMenuCursor == MENU_VOL)
 	{	// 2nd text line .. percentage
+		UI_PrintString(String, 50, 127, 1, 8, true);
 		const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
 		                       (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
 		                        gBatteryVoltageAverage;
 		sprintf(String, "%u%%", (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
-		UI_PrintString(String, 50, 127, 4, 8, true);
+		UI_PrintString(String, 50, 127, 3, 8, true);
+	}
+	else
+	if (gMenuCursor == MENU_OFFSET)
+	{
+		UI_PrintString(String, 50, 127, 1, 8, true);
+		UI_PrintString("MHz",  50, 127, 3, 8, true);
+	}
+	else
+	{
+		UI_PrintString(String, 50, 127, 2, 8, true);
 	}
 
-	if (gMenuCursor == MENU_OFFSET)
-		UI_PrintString("MHz", 50, 127, 4, 8, true);
-
 	if ((gMenuCursor == MENU_RESET || gMenuCursor == MENU_MEM_CH || gMenuCursor == MENU_DEL_CH) && gAskForConfirmation)
-	{
+	{	// display confirmation
 		strcpy(String, (gAskForConfirmation == 1) ? "SURE?" : "WAIT!");
 		UI_PrintString(String, 50, 127, 4, 8, true);
+	}
+	else
+	if ((gMenuCursor == MENU_MEM_CH || gMenuCursor == MENU_DEL_CH) && !gAskForConfirmation)
+	{	// display the channel name
+		const uint16_t channel = (uint16_t)gSubMenuSelection;
+		const bool valid = RADIO_CheckValidChannel(channel, false, 0);
+		if (valid)
+		{	// 16 bytes allocated to the channel name but only 12 used
+			char s[17] = {0};
+			EEPROM_ReadBuffer(0x0F50 + (channel * 16), s + 0, 8);
+			EEPROM_ReadBuffer(0x0F58 + (channel * 16), s + 8, 2);
+			{	// make invalid chars '0'
+				i = 0;
+				while (i < sizeof(s))
+				{
+					if (s[i] < 32 || s[i] >= 128)
+						break;
+					i++;
+				}
+				while (i < sizeof(s))
+					s[i++] = 0;
+				while (--i > 0)
+				{
+					if (s[i] != 0 && s[i] != 32)
+						break;
+					s[i] = 0;
+				}
+			}
+			UI_PrintString(s, 50, 127, 4, 8, true);
+		}
 	}
 
 	if ((gMenuCursor == MENU_R_CTCS || gMenuCursor == MENU_R_DCS) && gCssScanMode != CSS_SCAN_MODE_OFF)

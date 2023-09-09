@@ -21,7 +21,7 @@
 #include "ui/helper.h"
 #include "ui/inputbox.h"
 
-void UI_GenerateChannelString(char *pString, uint8_t Channel)
+void UI_GenerateChannelString(char *pString, const uint8_t Channel)
 {
 	unsigned int i;
 
@@ -38,7 +38,7 @@ void UI_GenerateChannelString(char *pString, uint8_t Channel)
 		pString[i + 3] = (gInputBox[i] == 10) ? '-' : gInputBox[i] + '0';
 }
 
-void UI_GenerateChannelStringEx(char *pString, bool bShowPrefix, uint8_t ChannelNumber)
+void UI_GenerateChannelStringEx(char *pString, const bool bShowPrefix, const uint8_t ChannelNumber)
 {
 	if (gInputBoxIndex)
 	{

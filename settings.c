@@ -215,11 +215,10 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 				if (IS_MR_CHANNEL(Channel))
 				{	// clear/reset the channel name
 					memset(&State8, 0xFF, sizeof(State8));
-					EEPROM_WriteBuffer(0x0F50 + OffsetMR + , State8);
+					EEPROM_WriteBuffer(0x0F50 + OffsetMR, State8);
 					EEPROM_WriteBuffer(0x0F58 + OffsetMR, State8);
 				}
 			#endif
-
 		}
 	}
 }
