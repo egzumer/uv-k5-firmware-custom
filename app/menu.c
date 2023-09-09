@@ -1038,6 +1038,7 @@ static void MENU_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 			{
 				if (gInputBoxIndex == 0 || gMenuCursor != MENU_OFFSET)
 				{
+					gAskForConfirmation = 0;     // fix bug
 					gIsInSubMenu        = false;
 					gInputBoxIndex      = 0;
 					gFlagRefreshSetting = true;
@@ -1098,7 +1099,9 @@ static void MENU_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 						break;
 					case 1:
 						gAskForConfirmation = 2;
+
 						UI_DisplayMenu();
+
 						if (gMenuCursor == MENU_RESET)
 						{
 							#ifndef DISABLE_VOICE
@@ -1108,6 +1111,7 @@ static void MENU_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 							MENU_AcceptSetting();
 							overlay_FLASH_RebootToBootloader();
 						}
+
 						gFlagAcceptSetting  = true;
 						gIsInSubMenu        = false;
 						gAskForConfirmation = 0;

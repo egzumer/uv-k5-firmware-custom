@@ -103,9 +103,7 @@ void UI_DisplayMain(void)
 					}
 				}
 				else
-				{
 					sprintf(String, ">%s", gDTMF_InputBox);
-				}
 
 				UI_PrintString(String, 2, 127, i * 3, 8, false);
 
@@ -133,6 +131,7 @@ void UI_DisplayMain(void)
 					if (gDTMF_IsTx)
 						sprintf(String, ">%s", gDTMF_String);
 				}
+
 				UI_PrintString(String, 2, 127, 2 + (i * 3), 8, false);
 				continue;
 			}
@@ -143,7 +142,7 @@ void UI_DisplayMain(void)
 		else
 		{
 			if (bIsSameVfo)
-				memcpy(pLine0 + 2, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
+				memcpy(pLine0 + 2, BITMAP_VFO_Default,    sizeof(BITMAP_VFO_Default));
 			else
 				memcpy(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
@@ -176,6 +175,7 @@ void UI_DisplayMain(void)
 		else
 		{
 			SomeValue = 2;
+
 			if ((gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR) && gEeprom.RX_CHANNEL == i)
 				memcpy(pLine0 + 14, BITMAP_RX, sizeof(BITMAP_RX));
 		}
@@ -234,6 +234,7 @@ void UI_DisplayMain(void)
 			uint8_t Width = 10;
 
 			memset(String, 0, sizeof(String));
+
 			switch (State)
 			{
 				case 1:
@@ -316,9 +317,7 @@ void UI_DisplayMain(void)
 								UI_PrintString(String, 31, 112, i * 4, 8, true);
 							}
 							else
-							{
 								UI_PrintString(gEeprom.VfoInfo[i].Name, 31, 112, i * 4, 8, true);
-							}
 							break;
 					}
 				}
@@ -344,8 +343,10 @@ void UI_DisplayMain(void)
 					if (IS_MR_CHANNEL(gEeprom.ScreenChannel[i]))
 					{
 						const uint8_t Attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[i]];
+
 						if (Attributes & MR_CH_SCANLIST1)
 							memcpy(pLine0 + 113, BITMAP_ScanList, sizeof(BITMAP_ScanList));
+
 						if (Attributes & MR_CH_SCANLIST2)
 							memcpy(pLine0 + 120, BITMAP_ScanList, sizeof(BITMAP_ScanList));
 					}
@@ -360,13 +361,13 @@ void UI_DisplayMain(void)
 
 		if (SomeValue == 1)
 		{
-				if (gRxVfo->OUTPUT_POWER == OUTPUT_POWER_LOW)
-					Level = 2;
-				else
-				if (gRxVfo->OUTPUT_POWER == OUTPUT_POWER_MID)
-					Level = 4;
-				else
-					Level = 6;
+			if (gRxVfo->OUTPUT_POWER == OUTPUT_POWER_LOW)
+				Level = 2;
+			else
+			if (gRxVfo->OUTPUT_POWER == OUTPUT_POWER_MID)
+				Level = 4;
+			else
+				Level = 6;
 		}
 		else
 		if (SomeValue == 2)
@@ -409,10 +410,7 @@ void UI_DisplayMain(void)
 		{
 			const FREQ_Config_t *pConfig;
 
-			if (SomeValue == 1)
-				pConfig = gEeprom.VfoInfo[i].pTX;
-			else
-				pConfig = gEeprom.VfoInfo[i].pRX;
+			pConfig = (SomeValue == 1) ? gEeprom.VfoInfo[i].pTX : gEeprom.VfoInfo[i].pRX;
 
 			switch (pConfig->CodeType)
 			{
