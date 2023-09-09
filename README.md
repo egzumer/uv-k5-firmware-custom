@@ -27,10 +27,16 @@ Battery voltage boot screen now includes the percentage (as well as voltage).
 Slightly less intense menu style.
 
 * "STEP" menu, added 1.25kHz option, removed 5kHz option
+* "TXP" menu, renamed to "TX-PWR"
+* "SAVE" menu, renamed to "B-SAVE"
+* "WX" menu, renamed to "CROS-B" - 'WX' normally means weather here in the UK
 * "ABR" menu, renamed to "BAK-LT", shows extended backlight times
+* "SCR" menu, renamed to "SCRAM"
 * "MIC" menu, shows mic gain in dB's, now includes the max mic gain possible (+15.5dB)
 * "VOL" menu, renamed to "BATVOL", shows voltage and percentage 
 * "AM" menu, renamed to "MODE", shows modulation mode
+
+Menu renames are to try and reduce 'WTF does that do/mean ?'
 
 # Compiler
 

@@ -32,27 +32,24 @@
 
 static const char MenuList[][7] =
 {
-// 0
 	"SQL",
     "STEP",
-    "TXP",
+    "TX-PWR",
     "R_DCS",
 	"R_CTCS",
 	"T_DCS",
 	"T_CTCS",
 	"SFT-D",
-// 8
 	"OFFSET",
 	"W/N",
-	"SCR",
+	"SCRAM",
     "BCL",
 	"MEM-CH",
-	"SAVE",
+	"B-SAVE",
     "VOX",
     "BAK-LT",
-// 16
 	"TDR",
-    "WX",
+    "CROS-B",
 	"BEEP",
 	"TOT",
 	#ifndef DISABLE_VOICE
@@ -61,7 +58,6 @@ static const char MenuList[][7] =
 	"SC-REV",
 	"MDF",
     "AUTOLK",
-// 24
 	"S-ADD1",
 	"S-ADD2",
 	"STE",
@@ -70,7 +66,6 @@ static const char MenuList[][7] =
     "1-CALL",
 	"S-LIST",
 	"SLIST1",
-// 32
 	"SLIST2",
 	#ifndef DISABLE_ALARM
 		"AL-MOD",
@@ -81,7 +76,6 @@ static const char MenuList[][7] =
 	"D-ST",
     "D-RSP",
 	"D-HOLD",
-// 40
 	"D-PRE",
 	"PTT-ID",
 	"D-DCD",
@@ -90,21 +84,20 @@ static const char MenuList[][7] =
 	"ROGER",
 	"BATVOL",
 	"MODE",
-// 48
 	#ifndef DISABLE_NOAA
 		"NOAA_S",
 	#endif
 	"DEL-CH",
 	"RESET",
 
-// normally hidden menu items from here on ..
+	// normally hidden menu items from here on.
+	// enabled if pressing PTT and side button below PTT at power-on.
 
 	"350TX",
 	"F-LOCK",
 	"200TX",
 	"500TX",
 	"350EN",
-// 56 (55 if NOAA is not used)
 	"SCREN"
 };
 
