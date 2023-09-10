@@ -34,7 +34,7 @@ To enable the custom option just uncomment the line by removing the starting '#'
 * "TXP" menu, renamed to "TX-PWR"
 * "SAVE" menu, renamed to "B-SAVE"
 * "WX" menu, renamed to "CROS-B" - 'WX' normally means weather here in the UK
-* "ABR" menu, renamed to "BAK-LT", shows extended backlight times
+* "ABR" menu, renamed to "BAK-LT", shows extended backlight times, now has always ON option
 * "SCR" menu, renamed to "SCRAM"
 * "MIC" menu, shows mic gain in dB's, now includes the max mic gain possible (+15.5dB)
 * "VOL" menu, renamed to "BATVOL", shows voltage and percentage 

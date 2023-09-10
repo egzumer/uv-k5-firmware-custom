@@ -1301,7 +1301,8 @@ void APP_TimeSlice500ms(void)
 			{
 				if (gBacklightCountdown)
 					if (--gBacklightCountdown == 0)
-						GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);   // turn backlight off
+						if (gEeprom.BACKLIGHT < 5)
+							GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);   // turn backlight off
 
 				#ifndef DISABLE_AIRCOPY
 					if (gScreenToDisplay != DISPLAY_AIRCOPY && (gScreenToDisplay != DISPLAY_SCANNER || gScanCssState >= SCAN_CSS_STATE_FOUND))
@@ -1397,7 +1398,8 @@ void APP_TimeSlice500ms(void)
 						gReducedService = true;
 						FUNCTION_Select(FUNCTION_POWER_SAVE);
 						ST7565_Configure_GPIO_B11();
-						GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
+						//if (gEeprom.BACKLIGHT < 5)
+							GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
 					}
 					#ifndef DISABLE_VOICE
 						else

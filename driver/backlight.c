@@ -23,7 +23,7 @@ uint8_t gBacklightCountdown;
 
 void BACKLIGHT_TurnOn(void)
 {
-	if (gEeprom.BACKLIGHT)
+	if (gEeprom.BACKLIGHT > 0)
 	{
 		GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
 		#if 0

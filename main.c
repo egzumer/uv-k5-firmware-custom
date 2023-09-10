@@ -110,7 +110,8 @@ void Main(void)
 	if (!gChargingWithTypeC && !gBatteryDisplayLevel)
 	{
 		FUNCTION_Select(FUNCTION_POWER_SAVE);
-		GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
+		//if (gEeprom.BACKLIGHT < 5)
+			GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
 		gReducedService = true;
 	}
 	else
