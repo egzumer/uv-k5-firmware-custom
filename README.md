@@ -17,18 +17,19 @@ You can edit those changes by (currently) editing the MakeFile, look for these l
 *   CFLAGS  += -DKEEP_MEM_NAME        .. maintain the memory channel's name when re-saving the memory channel
 *   CFLAGS  += -DDISABLE_ALARM        .. remove the ALARM transmit option from the firmware
 *   CFLAGS  += -DCHAN_NAME_FREQ       .. show the channel frequency (as well as channel number/name)
-*   CFLAGS  += -DSINGLE_VFO_CHAN      .. only show a single VFO/CHANNEL if dual watch is disabled
+*   CFLAGS  += -DSINGLE_VFO_CHAN      .. not yet implemented .. only show a single VFO/CHANNEL if dual watch is disabled
 *   #CFLAGS += -DBAND_SCOPE           .. not yet implemented
 
 To enable the custom option just uncomment the line by removing the starting '#'.
 
 # Other changes made
 
-* Battery voltage boot screen now includes the percentage (as well as voltage).
-* Slightly less intense menu style.
-* AM RX allowed everywhere. Although the radio really doesn't do AM, the adverts are a con !
+* Various bugs fixed that the QS firmware had (TX tail, Menu confimation etc)
+* Battery voltage boot screen now includes the percentage (as well as voltage)
+* Slightly less intense menu style
+* AM RX now allowed everywhere, although the radio really doesn't do AM, the adverts are a con !
 * Finer RSSI bar steps
-
+*
 * "MEM-CH" and "DEL-CH" menus now include channel name
 * "STEP" menu, added 1.25kHz option, removed 5kHz option
 * "TXP" menu, renamed to "TX-PWR"
@@ -37,7 +38,7 @@ To enable the custom option just uncomment the line by removing the starting '#'
 * "ABR" menu, renamed to "BAK-LT", shows extended backlight times, now has always ON option
 * "SCR" menu, renamed to "SCRAM"
 * "MIC" menu, shows mic gain in dB's, now includes the max mic gain possible (+15.5dB)
-* "VOL" menu, renamed to "BATVOL", shows voltage and percentage 
+* "VOL" menu, renamed to "BATVOL", shows voltage and percentage
 * "AM" menu, renamed to "MODE", shows modulation mode
 
 Menu renames are to try and reduce 'WTF does that do/mean ?'

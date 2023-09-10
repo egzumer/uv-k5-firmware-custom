@@ -129,7 +129,7 @@ static void APP_HandleIncoming(void)
 			gSystickCountdown2 = 0;
 		}
 	#endif
-	
+
 	if (g_CTCSS_Lost && gCurrentCodeType == CODE_TYPE_CONTINUOUS_TONE)
 	{
 		bFlag = true;
@@ -234,7 +234,7 @@ static void APP_HandleReceive(void)
 						}
 					}
 					break;
-	
+
 				case CODE_TYPE_CONTINUOUS_TONE:
 					if (g_CTCSS_Lost)
 					{
@@ -253,7 +253,7 @@ static void APP_HandleReceive(void)
 						g_CxCSS_TAIL_Found = false;
 					}
 					break;
-	
+
 				case CODE_TYPE_DIGITAL:
 				case CODE_TYPE_REVERSE_DIGITAL:
 					if (g_CDCSS_Lost && gCDCSSCodeType == CDCSS_POSITIVE_CODE)
@@ -273,7 +273,7 @@ static void APP_HandleReceive(void)
 						g_CxCSS_TAIL_Found = false;
 					}
 					break;
-	
+
 				default:
 					break;
 			}
@@ -292,14 +292,14 @@ Skip:
 	{
 		case END_OF_RX_MODE_END:
 			RADIO_SetupRegisters(true);
-	
+
 			#ifndef DISABLE_NOAA
 				if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
 					gSystickCountdown2 = 300;
 			#endif
-	
+
 			gUpdateDisplay = true;
-	
+
 			if (gScanState != SCAN_OFF)
 			{
 				switch (gEeprom.SCAN_RESUME_MODE)
@@ -314,7 +314,7 @@ Skip:
 				}
 			}
 			break;
-	
+
 		case END_OF_RX_MODE_TTE:
 			if (gEeprom.TAIL_NOTE_ELIMINATION)
 			{
@@ -419,7 +419,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			if (gVoiceWriteIndex == 0)
 		#endif
 				BK4819_SetAF(gRxVfo->IsAM ? BK4819_AF_AM : BK4819_AF_OPEN);
-		
+
 		FUNCTION_Select(Function);
 
 		if (Function == FUNCTION_MONITOR || gFmRadioMode)
@@ -532,9 +532,9 @@ static void DUALWATCH_Alternate(void)
 				gEeprom.RX_CHANNEL = gEeprom.RX_CHANNEL == 0;
 			else
 				gEeprom.RX_CHANNEL = 0;
-	
+
 			gRxVfo = &gEeprom.VfoInfo[gEeprom.RX_CHANNEL];
-	
+
 			if (gEeprom.VfoInfo[0].CHANNEL_SAVE >= NOAA_CHANNEL_FIRST)
 				NOAA_IncreaseChannel();
 		}
@@ -732,7 +732,7 @@ void APP_Update(void)
 			gFlagPlayQueuedVoice = false;
 		}
 	#endif
-	
+
 	if (gCurrentFunction == FUNCTION_TRANSMIT && gTxTimeoutReached)
 	{
 		gTxTimeoutReached    = false;
@@ -801,7 +801,7 @@ void APP_Update(void)
 			gNOAA_Countdown = 7;
 		}
 	#endif
-	
+
 	if (gScreenToDisplay != DISPLAY_SCANNER && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 	{
 		#ifndef DISABLE_VOICE
@@ -853,7 +853,7 @@ void APP_Update(void)
 			else
 				FUNCTION_Select(FUNCTION_POWER_SAVE);
 		#endif
-		
+
 		gSchedulePowerSave = false;
 	}
 
@@ -905,11 +905,11 @@ void APP_Update(void)
 	}
 }
 
+// called every 10ms
 void APP_CheckKeys(void)
 {
 	const uint16_t key_repeat_delay = 70;   // 700ms
-	
-	KEY_Code_t Key;
+	KEY_Code_t     Key;
 
 	#ifndef DISABLE_AIRCOPY
 		if (gSetting_KILLED || (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState != AIRCOPY_READY))
@@ -918,27 +918,27 @@ void APP_CheckKeys(void)
 		if (gSetting_KILLED)
 			return;
 	#endif
-	
+
 	if (gPttIsPressed)
 	{
 		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
 		{	// PTT released
 
 			// denoise the PTT
-			unsigned int i     = 4;   // loop for 4ms
+			unsigned int i     = 6;   // test the PTT button for 6ms
 			unsigned int count = 0;
 			while (i-- > 0)
 			{
 				SYSTEM_DelayMs(1);
 				if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
-					count++;
+					count++;   // PTT still released
 				else
 				if (count > 0)
-					count--;
+					count--;   // no it's not
 			}
 
-			if (count >= 2)
-			{
+			if (count >= 3)
+			{	// good enough to end transmission
 				APP_ProcessKey(KEY_PTT, false, false);
 				gPttIsPressed = false;
 				if (gKeyReading1 != KEY_INVALID)
@@ -947,18 +947,16 @@ void APP_CheckKeys(void)
 		}
 	}
 	else
-	{
-		if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
-		{
-			if (++gPttDebounceCounter >= 4)	// 40ms
-			{
-				gPttIsPressed = true;
-				APP_ProcessKey(KEY_PTT, true, false);
-			}
+	if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
+	{	// PTT pressed
+		if (++gPttDebounceCounter >= 4)	    // 40ms
+		{	// lets start transmitting
+			gPttIsPressed = true;
+			APP_ProcessKey(KEY_PTT, true, false);
 		}
-		else
-			gPttDebounceCounter = 0;
 	}
+	else
+		gPttDebounceCounter = 0;
 
 	Key = KEYBOARD_Poll();
 
@@ -1022,7 +1020,7 @@ void APP_CheckKeys(void)
 void APP_TimeSlice10ms(void)
 {
 	gFlashLightBlinkCounter++;
-	
+
 	if (UART_IsCommandAvailable())
 	{
 		__disable_irq();
@@ -1071,23 +1069,23 @@ void APP_TimeSlice10ms(void)
 			if (gAlarmState == ALARM_STATE_TXALARM || gAlarmState == ALARM_STATE_ALARM)
 			{
 				uint16_t Tone;
-	
+
 				gAlarmRunningCounter++;
 				gAlarmToneCounter++;
-	
+
 				Tone = 500 + (gAlarmToneCounter * 25);
 				if (Tone > 1500)
 				{
 					Tone              = 500;
 					gAlarmToneCounter = 0;
 				}
-	
+
 				BK4819_SetScrambleFrequencyControlWord(Tone);
-	
+
 				if (gEeprom.ALARM_MODE == ALARM_MODE_TONE && gAlarmRunningCounter == 512)
 				{
 					gAlarmRunningCounter = 0;
-	
+
 					if (gAlarmState == ALARM_STATE_TXALARM)
 					{
 						gAlarmState = ALARM_STATE_ALARM;
@@ -1113,7 +1111,7 @@ void APP_TimeSlice10ms(void)
 				}
 			}
 		#endif
-		
+
 		// repeater tail tone elimination
 		if (gRTTECountdown)
 		{
@@ -1259,7 +1257,7 @@ void APP_TimeSlice10ms(void)
 			}
 		}
 	#endif
-	
+
 	APP_CheckKeys();
 }
 
@@ -1397,17 +1395,17 @@ void APP_TimeSlice500ms(void)
 				if (!gChargingWithTypeC)
 				{
 					AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP);
-	
+
 					#ifndef DISABLE_VOICE
 						AUDIO_SetVoiceID(0, VOICE_ID_LOW_VOLTAGE);
 					#endif
-					
+
 					if (gBatteryDisplayLevel == 0)
 					{
 						#ifndef DISABLE_VOICE
 							AUDIO_PlaySingleVoice(true);
 						#endif
-						
+
 						gReducedService = true;
 						FUNCTION_Select(FUNCTION_POWER_SAVE);
 						ST7565_Configure_GPIO_B11();
@@ -1481,17 +1479,17 @@ void APP_TimeSlice500ms(void)
 		gAlarmState = ALARM_STATE_OFF;
 		GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 		gEnableSpeaker = false;
-	
+
 		if (gEeprom.ALARM_MODE == ALARM_MODE_TONE)
 		{
 			RADIO_SendEndOfTransmission();
 			RADIO_EnableCxCSS();
 		}
-	
+
 		gVoxResumeCountdown = 80;
-	
+
 		SYSTEM_DelayMs(5);
-	
+
 		RADIO_SetupRegisters(true);
 		gRequestDisplayScreen = DISPLAY_MAIN;
 	}
@@ -1742,12 +1740,12 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				if (!bKeyHeld && bKeyPressed)
 				{
 					ALARM_Off();
-	
+
 					if (gEeprom.REPEATER_TAIL_TONE_ELIMINATION == 0)
 						FUNCTION_Select(FUNCTION_FOREGROUND);
 					else
 						gRTTECountdown = gEeprom.REPEATER_TAIL_TONE_ELIMINATION * 10;
-	
+
 					if (Key == KEY_PTT)
 						gPttWasPressed  = true;
 					else
@@ -1913,7 +1911,7 @@ Skip:
 			AUDIO_SetVoiceID(0, VOICE_ID_SCANNING_BEGIN);
 			AUDIO_PlaySingleVoice(true);
 		#endif
-		
+
 		SCANNER_Start();
 
 		gRequestDisplayScreen = DISPLAY_SCANNER;
@@ -1935,7 +1933,7 @@ Skip:
 			gAnotherVoiceID = VOICE_ID_INVALID;
 		}
 	#endif
-	
+
 	GUI_SelectNextDisplay(gRequestDisplayScreen);
 
 	gRequestDisplayScreen = DISPLAY_INVALID;
