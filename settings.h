@@ -98,7 +98,8 @@ typedef enum ROGER_Mode_t ROGER_Mode_t;
 enum CHANNEL_DisplayMode_t {
 	MDF_FREQUENCY = 0,
 	MDF_CHANNEL,
-	MDF_NAME
+	MDF_NAME,
+	MDF_NAME_FREQ
 };
 
 typedef enum CHANNEL_DisplayMode_t CHANNEL_DisplayMode_t;

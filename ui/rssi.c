@@ -74,10 +74,13 @@ void UI_UpdateRSSI(uint16_t RSSI)
 {
 	//const int16_t dB = (int16_t)(RSSI / 2) - 160;
 
-	const uint16_t level0  = gEEPROM_RSSI_CALIB[gRxVfo->Band][0];
-	const uint16_t level1  = gEEPROM_RSSI_CALIB[gRxVfo->Band][1];
-	const uint16_t level2  = gEEPROM_RSSI_CALIB[gRxVfo->Band][2];
-	const uint16_t level3  = gEEPROM_RSSI_CALIB[gRxVfo->Band][3];
+//	const unsigned int band = gRxVfo->Band;
+	const unsigned int band = 0;
+	
+	const uint16_t level0  = gEEPROM_RSSI_CALIB[band][0];
+	const uint16_t level1  = gEEPROM_RSSI_CALIB[band][1];
+	const uint16_t level2  = gEEPROM_RSSI_CALIB[band][2];
+	const uint16_t level3  = gEEPROM_RSSI_CALIB[band][3];
 	const uint16_t level01 = (level0 + level1) / 2;
 	const uint16_t level12 = (level1 + level2) / 2;
 	const uint16_t level23 = (level2 + level3) / 2;

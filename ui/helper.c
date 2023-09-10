@@ -22,6 +22,10 @@
 #include "ui/helper.h"
 #include "ui/inputbox.h"
 
+#ifndef ARRAY_SIZE
+	#define ARRAY_SIZE(arr) (sizeof(arr)/sizeof((arr)[0]))
+#endif
+
 void UI_GenerateChannelString(char *pString, const uint8_t Channel)
 {
 	unsigned int i;
@@ -86,18 +90,53 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 	if (bCentered)
 		Start += (((End - Start) - (Length * 8)) + 1) / 2;
 
-	for (i = 0; i < Length; i++)
-	{
-		if (pString[i] >= 32)
+	#if 0
+	{	// 5x7 font
+		for (i = 0; i < Length; i++)
 		{
-			const unsigned int Index = ((unsigned int)pString[i] - 32) * 5;
-			if (Index < sizeof(gFont5x7))
+			if (pString[i] >= 32)
 			{
-				const unsigned int ofs = (unsigned int)Start + (i * 8);
-				memcpy(gFrameBuffer[Line] + ofs, &gFont5x7[Index], 5);
+				const unsigned int Index = ((unsigned int)pString[i] - 32) * 5;
+				if (Index < sizeof(gFont5x7))
+				{
+					const unsigned int ofs = (unsigned int)Start + (i * 8);
+					memcpy(gFrameBuffer[Line] + ofs, &gFont5x7[Index], 5);
+				}
 			}
 		}
 	}
+	#else
+	{	// 6x8 font
+		for (i = 0; i < Length; i++)
+		{
+			if (pString[i] >= 32)
+			{
+				const unsigned int Index = (unsigned int)pString[i] - 32;
+				if (Index < ARRAY_SIZE(gFont6x8))
+				{
+					const unsigned int ofs = (unsigned int)Start + (i * 8);
+					memcpy(gFrameBuffer[Line] + ofs, &gFont6x8[Index], 6);
+				}
+			}
+		}
+	}
+/*
+	{	// 8x8 font
+		for (i = 0; i < Length; i++)
+		{
+			if (pString[i] >= 32)
+			{
+				const unsigned int Index = (unsigned int)pString[i] - 32;
+				if (Index < ARRAY_SIZE(gFont8x8))
+				{
+					const unsigned int ofs = (unsigned int)Start + (i * 8);
+					memcpy(gFrameBuffer[Line] + ofs, &gFont8x8[Index], 8);
+				}
+			}
+		}
+	}
+*/
+	#endif
 }
 
 void UI_DisplayFrequency(const char *pDigits, uint8_t X, uint8_t Y, bool bDisplayLeadingZero, bool bFlag)

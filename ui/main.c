@@ -288,20 +288,28 @@ void UI_DisplayMain(void)
 							UI_DisplaySmallDigits(2, String + 6, 112, Line + 1);
 
 							frequency_Hz = 0;
-							
 							break;
 
 						case MDF_CHANNEL:
-							sprintf(String, "CH-%03d", gEeprom.ScreenChannel[vfo_num] + 1);
-							#ifdef CHAN_NAME_FREQ
-								UI_PrintStringSmall(String, 31 + 8, 0, (vfo_num * 4) + 1, false);
-							#else
-								UI_PrintString(String, 31, 112, vfo_num * 4, 8, true);
-							#endif
+							UI_PrintString(String, 31, 112, vfo_num * 4, 8, true);
+							frequency_Hz = 0;
 							break;
 
 						case MDF_NAME:
-							#ifdef CHAN_NAME_FREQ
+							if (gEeprom.VfoInfo[vfo_num].Name[0] == 0 || gEeprom.VfoInfo[vfo_num].Name[0] == 0xFF)
+							{	// channel number
+								sprintf(String, "CH-%03d", gEeprom.ScreenChannel[vfo_num] + 1);
+								UI_PrintString(String, 31, 112, vfo_num * 4, 8, true);
+							}
+							else
+							{	// channel name
+								UI_PrintString(gEeprom.VfoInfo[vfo_num].Name, 31, 112, vfo_num * 4, 8, true);
+							}
+							frequency_Hz = 0;
+							break;
+
+						#ifdef CHAN_NAME_FREQ
+							case MDF_NAME_FREQ:
 								if (gEeprom.VfoInfo[vfo_num].Name[0] == 0 || gEeprom.VfoInfo[vfo_num].Name[0] == 0xFF)
 								{	// channel number
 									sprintf(String, "CH-%03d", gEeprom.ScreenChannel[vfo_num] + 1);
@@ -313,18 +321,8 @@ void UI_DisplayMain(void)
 									memcpy(String, gEeprom.VfoInfo[vfo_num].Name, 8);
 									UI_PrintStringSmall(gEeprom.VfoInfo[vfo_num].Name, 31 + 8, 0, (vfo_num * 4) + 1, false);
 								}
-							#else
-								if (gEeprom.VfoInfo[vfo_num].Name[0] == 0 || gEeprom.VfoInfo[vfo_num].Name[0] == 0xFF)
-								{	// channel number
-									sprintf(String, "CH-%03d", gEeprom.ScreenChannel[vfo_num] + 1);
-									UI_PrintString(String, 31, 112, vfo_num * 4, 8, true);
-								}
-								else
-								{	// channel name
-									UI_PrintString(gEeprom.VfoInfo[vfo_num].Name, 31, 112, vfo_num * 4, 8, true);
-								}
-							#endif
-							break;
+								break;
+						#endif
 					}
 				}
 				else

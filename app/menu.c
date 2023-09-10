@@ -127,6 +127,7 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 			*pMin = 0;
 			*pMax = 9;
 			break;
+
 		case MENU_STEP:
 			if (gTxVfo->Band == BAND2_108MHz)
 			{
@@ -134,12 +135,24 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 				*pMax = 6;
 				break;
 			}
+
 			// Fallthrough
+
 		case MENU_ABR:
 		case MENU_F_LOCK:
 			*pMin = 0;
 			*pMax = 5;
 			break;
+			
+		case MENU_MDF:
+			#ifdef CHAN_NAME_FREQ
+				*pMin = 0;
+				*pMax = 3;
+				break;
+			#endif
+
+			// Fallthrough
+			
 		case MENU_TXP:
 		case MENU_SFT_D:
 		case MENU_TDR:
@@ -148,22 +161,24 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 			case MENU_VOICE:
 		#endif
 		case MENU_SC_REV:
-		case MENU_MDF:
 		case MENU_PONMSG:
 		case MENU_ROGER:
 			*pMin = 0;
 			*pMax = 2;
 			break;
+
 		case MENU_R_DCS:
 		case MENU_T_DCS:
 			*pMin = 0;
 			*pMax = 208;
 			break;
+			
 		case MENU_R_CTCS:
 		case MENU_T_CTCS:
 			*pMin = 0;
 			*pMax = 50;
 			break;
+			
 		case MENU_W_N:
 		case MENU_BCL:
 		case MENU_BEEP:
@@ -189,6 +204,7 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 			*pMin = 0;
 			*pMax = 1;
 			break;
+			
 		case MENU_SCR:
 		case MENU_VOX:
 		case MENU_TOT:
@@ -196,6 +212,7 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 			*pMin = 0;
 			*pMax = 10;
 			break;
+			
 		case MENU_MEM_CH:
 		case MENU_1_CALL:
 		case MENU_SLIST1:
@@ -204,32 +221,39 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 			*pMin = 0;
 			*pMax = 199;
 			break;
+			
 		case MENU_SAVE:
 		case MENU_MIC:
 			*pMin = 0;
 			*pMax = 4;
 			break;
+			
 		case MENU_S_LIST:
 			*pMin = 1;
 			*pMax = 2;
 			break;
+			
 		case MENU_D_RSP:
 		case MENU_PTT_ID:
 			*pMin = 0;
 			*pMax = 3;
 			break;
+			
 		case MENU_D_HOLD:
 			*pMin = 5;
 			*pMax = 60;
 			break;
+			
 		case MENU_D_PRE:
 			*pMin = 3;
 			*pMax = 99;
 			break;
+			
 		case MENU_D_LIST:
 			*pMin = 1;
 			*pMax = 16;
 			break;
+			
 		default:
 			return -1;
 	}
