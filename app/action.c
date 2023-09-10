@@ -230,7 +230,7 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				gDTMF_InputBox[--gDTMF_InputIndex] = '-';
 				if (gDTMF_InputIndex)
 				{
-					gPttWasReleased = true;
+					gPttWasReleased       = true;
 					gRequestDisplayScreen = DISPLAY_MAIN;
 					return;
 				}

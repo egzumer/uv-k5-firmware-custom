@@ -22,6 +22,10 @@
 #include "misc.h"
 #include "settings.h"
 
+#include "driver/backlight.h"
+#include "bsp/dp32g030/gpio.h"
+#include "driver/gpio.h"
+
 #define DECREMENT_AND_TRIGGER(cnt, flag) \
 	do { \
 		if (cnt) { \
@@ -35,40 +39,41 @@ static volatile uint32_t gGlobalSysTickCounter;
 
 void SystickHandler(void);
 
+// we come here every 10ms
 void SystickHandler(void)
 {
 	gGlobalSysTickCounter++;
+
 	gNextTimeslice = true;
-	if ((gGlobalSysTickCounter % 50) == 0) {
+
+	if ((gGlobalSysTickCounter % 50) == 0)
+	{
 		gNextTimeslice500ms = true;
 		DECREMENT_AND_TRIGGER(gTxTimerCountdown, gTxTimeoutReached);
 	}
-	if ((gGlobalSysTickCounter & 3) == 0) {
-		gNextTimeslice40ms = true;
-	}
-	if (gSystickCountdown2) {
-		gSystickCountdown2--;
-	}
-	if (gFoundCDCSSCountdown) {
-		gFoundCDCSSCountdown--;
-	}
-	if (gFoundCTCSSCountdown) {
-		gFoundCTCSSCountdown--;
-	}
-	if (gCurrentFunction == FUNCTION_FOREGROUND) {
-		DECREMENT_AND_TRIGGER(gBatterySaveCountdown, gSchedulePowerSave);
-	}
-	if (gCurrentFunction == FUNCTION_POWER_SAVE) {
-		DECREMENT_AND_TRIGGER(gBatterySave, gBatterySaveCountdownExpired);
-	}
 
-	if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF) {
-		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT) {
-			if (gCurrentFunction != FUNCTION_RECEIVE) {
+	if ((gGlobalSysTickCounter & 3) == 0)
+		gNextTimeslice40ms = true;
+
+	if (gSystickCountdown2)
+		gSystickCountdown2--;
+
+	if (gFoundCDCSSCountdown)
+		gFoundCDCSSCountdown--;
+
+	if (gFoundCTCSSCountdown)
+		gFoundCTCSSCountdown--;
+
+	if (gCurrentFunction == FUNCTION_FOREGROUND)
+		DECREMENT_AND_TRIGGER(gBatterySaveCountdown, gSchedulePowerSave);
+
+	if (gCurrentFunction == FUNCTION_POWER_SAVE)
+		DECREMENT_AND_TRIGGER(gBatterySave, gBatterySaveCountdownExpired);
+
+	if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
+		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
+			if (gCurrentFunction != FUNCTION_RECEIVE)
 				DECREMENT_AND_TRIGGER(gDualWatchCountdown, gScheduleDualWatch);
-			}
-		}
-	}
 
 	#ifndef DISABLE_NOAA
 		if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH == DUAL_WATCH_OFF)
@@ -77,11 +82,9 @@ void SystickHandler(void)
 					DECREMENT_AND_TRIGGER(gNOAA_Countdown, gScheduleNOAA);
 	#endif
 
-	if (gScanState != SCAN_OFF || gCssScanMode == CSS_SCAN_MODE_SCANNING) {
-		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT) {
+	if (gScanState != SCAN_OFF || gCssScanMode == CSS_SCAN_MODE_SCANNING)
+		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
 			DECREMENT_AND_TRIGGER(ScanPauseDelayIn10msec, gScheduleScanListen);
-		}
-	}
 
 	DECREMENT_AND_TRIGGER(gTailNoteEliminationCountdown, gFlagTteComplete);
 
@@ -89,13 +92,28 @@ void SystickHandler(void)
 		DECREMENT_AND_TRIGGER(gCountdownToPlayNextVoice, gFlagPlayQueuedVoice);
 	#endif
 	
-	if (gFM_ScanState != FM_SCAN_OFF && gCurrentFunction != FUNCTION_MONITOR) {
-		if (gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE) {
+	if (gFM_ScanState != FM_SCAN_OFF && gCurrentFunction != FUNCTION_MONITOR)
+		if (gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE)
 			DECREMENT_AND_TRIGGER(gFmPlayCountdown, gScheduleFM);
-		}
-	}
-	if (gVoxStopCountdown) {
-		gVoxStopCountdown--;
-	}
-}
 
+	if (gVoxStopCountdown)
+		gVoxStopCountdown--;
+
+	#if 0
+		if (gCurrentFunction == FUNCTION_TRANSMIT || gBacklightCountdown > 0)
+		{
+			GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  		// turn the backlight ON
+		}
+		else
+		if (gEeprom.BACKLIGHT >= 5)
+		{	// backlight ON - half brightness
+			// was hoping to use this but don't like the odd flicker
+			if (gGlobalSysTickCounter & 1)
+				GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  	// turn the backlight ON
+			else
+				GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
+		}
+		else
+			GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);		// turn the backlight OFF
+	#endif
+}

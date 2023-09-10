@@ -64,7 +64,6 @@ void Main(void)
 
 	SYSTICK_Init();
 	BOARD_Init();
-
 	UART_Init();
 	
 	#ifdef GIT_HASH
@@ -110,8 +109,12 @@ void Main(void)
 	if (!gChargingWithTypeC && !gBatteryDisplayLevel)
 	{
 		FUNCTION_Select(FUNCTION_POWER_SAVE);
-		//if (gEeprom.BACKLIGHT < 5)
-			GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
+
+		if (gEeprom.BACKLIGHT < 5)
+			GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
+		else
+			GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  	// turn the backlight ON
+
 		gReducedService = true;
 	}
 	else

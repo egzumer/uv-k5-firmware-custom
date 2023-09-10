@@ -907,6 +907,8 @@ void APP_Update(void)
 
 void APP_CheckKeys(void)
 {
+	const uint16_t key_repeat_delay = 70;   // 700ms
+	
 	KEY_Code_t Key;
 
 	#ifndef DISABLE_AIRCOPY
@@ -920,15 +922,25 @@ void APP_CheckKeys(void)
 	if (gPttIsPressed)
 	{
 		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
-		{
-			SYSTEM_DelayMs(20);
+		{	// PTT released
 
-			if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
+			// denoise the PTT
+			unsigned int i     = 4;   // loop for 4ms
+			unsigned int count = 0;
+			while (i-- > 0)
+			{
+				SYSTEM_DelayMs(1);
+				if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
+					count++;
+				else
+				if (count > 0)
+					count--;
+			}
+
+			if (count >= 2)
 			{
 				APP_ProcessKey(KEY_PTT, false, false);
-
 				gPttIsPressed = false;
-
 				if (gKeyReading1 != KEY_INVALID)
 					gPttWasReleased = true;
 			}
@@ -938,7 +950,7 @@ void APP_CheckKeys(void)
 	{
 		if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
 		{
-			if (++gPttDebounceCounter > 4)
+			if (++gPttDebounceCounter >= 4)	// 40ms
 			{
 				gPttIsPressed = true;
 				APP_ProcessKey(KEY_PTT, true, false);
@@ -982,7 +994,7 @@ void APP_CheckKeys(void)
 		gKeyBeingHeld = false;
 	}
 	else
-	if (gDebounceCounter == 128)
+	if (gDebounceCounter == key_repeat_delay)
 	{
 		if (Key == KEY_STAR || Key == KEY_F || Key == KEY_SIDE2 || Key == KEY_SIDE1 || Key == KEY_UP || Key == KEY_DOWN)
 		{
@@ -991,7 +1003,7 @@ void APP_CheckKeys(void)
 		}
 	}
 	else
-	if (gDebounceCounter > 128)
+	if (gDebounceCounter > key_repeat_delay)
 	{
 		if (Key == KEY_UP || Key == KEY_DOWN)
 		{
@@ -1003,14 +1015,14 @@ void APP_CheckKeys(void)
 		if (gDebounceCounter < 0xFFFF)
 			return;
 
-		gDebounceCounter = 128;
+		gDebounceCounter = key_repeat_delay;
 	}
 }
 
 void APP_TimeSlice10ms(void)
 {
 	gFlashLightBlinkCounter++;
-
+	
 	if (UART_IsCommandAvailable())
 	{
 		__disable_irq();
@@ -1102,6 +1114,7 @@ void APP_TimeSlice10ms(void)
 			}
 		#endif
 		
+		// repeater tail tone elimination
 		if (gRTTECountdown)
 		{
 			if (--gRTTECountdown == 0)
@@ -1560,9 +1573,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		if (gDTMF_DecodeRing)
 		{
 			gDTMF_DecodeRing = false;
-
 			AUDIO_PlayBeep(BEEP_1KHZ_60MS_OPTIONAL);
-
 			if (Key != KEY_PTT)
 			{
 				gPttWasReleased = true;

@@ -19,19 +19,14 @@
 #include "driver/gpio.h"
 #include "settings.h"
 
-uint8_t gBacklightCountdown;
+uint8_t gBacklightCountdown = 0;
 
 void BACKLIGHT_TurnOn(void)
 {
 	if (gEeprom.BACKLIGHT > 0)
 	{
-		GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
-		#if 0
-			gBacklightCountdown = 1 + (gEeprom.BACKLIGHT * 2);
-		#else
-			// much longer backlight times
-			gBacklightCountdown = (gEeprom.BACKLIGHT * 20) - 19;
-		#endif
+		GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  // turn the backlight ON
+		gBacklightCountdown = (gEeprom.BACKLIGHT < 5) ? (gEeprom.BACKLIGHT * 20) - 19 : 0;		// much longer backlight times
 	}
 }
 

@@ -19,18 +19,19 @@
 
 #include <stdint.h>
 
-enum FUNCTION_Type_t {
-	FUNCTION_FOREGROUND = 0U,
-	FUNCTION_TRANSMIT   = 1U,
-	FUNCTION_MONITOR    = 2U,
-	FUNCTION_INCOMING   = 3U,
-	FUNCTION_RECEIVE    = 4U,
-	FUNCTION_POWER_SAVE = 5U,
+enum FUNCTION_Type_t
+{
+	FUNCTION_FOREGROUND = 0,
+	FUNCTION_TRANSMIT,
+	FUNCTION_MONITOR,
+	FUNCTION_INCOMING,
+	FUNCTION_RECEIVE,
+	FUNCTION_POWER_SAVE
 };
 
 typedef enum FUNCTION_Type_t FUNCTION_Type_t;
 
-extern FUNCTION_Type_t gCurrentFunction;
+extern FUNCTION_Type_t       gCurrentFunction;
 
 void FUNCTION_Init(void);
 void FUNCTION_Select(FUNCTION_Type_t Function);
