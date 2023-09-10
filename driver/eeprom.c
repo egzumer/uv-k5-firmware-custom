@@ -37,7 +37,6 @@ void EEPROM_ReadBuffer(uint16_t Address, void *pBuffer, uint8_t Size)
 }
 
 void EEPROM_WriteBuffer(uint16_t Address, const void *pBuffer)
-
 {
 	I2C_Start();
 
@@ -52,4 +51,3 @@ void EEPROM_WriteBuffer(uint16_t Address, const void *pBuffer)
 
 	SYSTEM_DelayMs(10);
 }
-

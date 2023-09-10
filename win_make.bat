@@ -13,7 +13,7 @@ del /S /Q *.o >nul 2>nul
 del /S /Q *.d >nul 2>nul
 
 ::python -m pip install --upgrade pip crcmod
-fw-pack.py firmware.bin 230910 firmware.packed.bin
+fw-pack.py firmware.bin 230911 firmware.packed.bin
 
 ::arm-none-eabi-size firmware
 

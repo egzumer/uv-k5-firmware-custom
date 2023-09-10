@@ -341,6 +341,7 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 	if (!bKeyHeld && bKeyPressed)
 	{
 		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
 		if (!gFmRadioMode)
 		{
 			if (gScanState == SCAN_OFF)
@@ -348,6 +349,7 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 				if (gInputBoxIndex == 0)
 					return;
 				gInputBox[--gInputBoxIndex] = 10;
+
 				#ifndef DISABLE_VOICE
 					if (gInputBoxIndex == 0)
 						gAnotherVoiceID = VOICE_ID_CANCEL;
@@ -356,6 +358,7 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 			else
 			{
 				SCANNER_Stop();
+
 				#ifndef DISABLE_VOICE
 					gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
 				#endif
@@ -364,6 +367,7 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 			gRequestDisplayScreen = DISPLAY_MAIN;
 			return;
 		}
+
 		ACTION_FM();
 	}
 }

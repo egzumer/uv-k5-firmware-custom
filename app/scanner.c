@@ -108,6 +108,7 @@ static void SCANNER_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 					gRequestDisplayScreen       = DISPLAY_SCANNER;
 					break;
 				}
+
 				// Fallthrough
 
 			case 2:
@@ -159,14 +160,10 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 		case 0:
 			if (!gScanSingleFrequency)
 			{
-				uint32_t Freq250;
-				uint32_t Freq625;
-				int16_t  Delta250;
 				int16_t  Delta625;
-
-				Freq250  = FREQUENCY_FloorToStep(gScanFrequency, 250, 0);
-				Freq625  = FREQUENCY_FloorToStep(gScanFrequency, 625, 0);
-				Delta250 = (short)gScanFrequency - (short)Freq250;
+				uint32_t Freq250  = FREQUENCY_FloorToStep(gScanFrequency, 250, 0);
+				uint32_t Freq625  = FREQUENCY_FloorToStep(gScanFrequency, 625, 0);
+				int16_t  Delta250 = (int16_t)gScanFrequency - (int16_t)Freq250;
 
 				if (125 < Delta250)
 				{
@@ -174,7 +171,7 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 					Freq250 += 250;
 				}
 
-				Delta625 = (short)gScanFrequency - (short)Freq625;
+				Delta625 = (int16_t)gScanFrequency - (int16_t)Freq625;
 
 				if (312 < Delta625)
 				{
@@ -239,6 +236,7 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 			{
 				RADIO_ConfigureChannel(0, 2);
 				RADIO_ConfigureChannel(1, 2);
+
 				gTxVfo->ConfigRX.CodeType = gScanCssResultType;
 				gTxVfo->ConfigRX.Code     = gScanCssResultCode;
 				gTxVfo->ConfigTX.CodeType = gScanCssResultType;
@@ -274,9 +272,9 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 
 static void SCANNER_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 {
-	if ((!bKeyHeld) && (bKeyPressed))
+	if (!bKeyHeld && bKeyPressed)
 	{
-		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+		gBeepToPlay    = BEEP_1KHZ_60MS_OPTIONAL;
 		gFlagStartScan = true;
 	}
 	return;
@@ -328,7 +326,7 @@ void SCANNER_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			SCANNER_Key_MENU(bKeyPressed, bKeyHeld);
 			break;
 		case KEY_UP:
-			SCANNER_Key_UP_DOWN(bKeyPressed, bKeyHeld, 1);
+			SCANNER_Key_UP_DOWN(bKeyPressed, bKeyHeld,  1);
 			break;
 		case KEY_DOWN:
 			SCANNER_Key_UP_DOWN(bKeyPressed, bKeyHeld, -1);
@@ -355,6 +353,7 @@ void SCANNER_Start(void)
 	uint16_t BackupFrequency;
 
 	BK4819_StopScan();
+
 	RADIO_SelectVfos();
 
 	#ifndef DISABLE_NOAA
@@ -392,7 +391,7 @@ void SCANNER_Start(void)
 		BK4819_EnableFrequencyScan();
 	}
 
-	gScanDelay             = 21;
+	gScanDelay             = g_scan_delay;
 	gScanCssResultCode     = 0xFF;
 	gScanCssResultType     = 0xFF;
 	gScanHitCount          = 0;
@@ -410,7 +409,7 @@ void SCANNER_Start(void)
 
 void SCANNER_Stop(void)
 {
-	uint8_t Previous = gRestoreMrChannel;
+	const uint8_t Previous = gRestoreMrChannel;
 
 	gScanState = SCAN_OFF;
 

@@ -15,6 +15,7 @@
  */
 
 #include <stdint.h>
+
 #include "bsp/dp32g030/gpio.h"
 #include "bsp/dp32g030/spi.h"
 #include "driver/gpio.h"
@@ -84,7 +85,7 @@ void ST7565_BlitFullScreen(void)
 	#else
 		SYSTEM_DelayMs(1);
 	#endif
-	
+
 	SPI_ToggleMasterMode(&SPI0->CR, true);
 }
 
@@ -158,9 +159,9 @@ void ST7565_Init(void)
 	SYSTEM_DelayMs(1);
 
 	ST7565_WriteByte(0x2E);
-	
+
 	SYSTEM_DelayMs(1);
-	
+
 	ST7565_WriteByte(0x2F);
 	ST7565_WriteByte(0x2F);
 	ST7565_WriteByte(0x2F);

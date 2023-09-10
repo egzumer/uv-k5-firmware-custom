@@ -344,6 +344,7 @@ void DTMF_Reply(void)
 	if (gEeprom.DTMF_SIDE_TONE)
 	{
 		GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+
 		gEnableSpeaker = true;
 
 		Delay = gEeprom.DTMF_PRELOAD_TIME;

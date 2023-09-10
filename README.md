@@ -11,14 +11,15 @@ Am amazing achievement if you ask me !
 This version you can customize at compile time by making various changes to the makefile.
 You can edit those changes by (currently) editing the MakeFile, look for these lines ..
 
-*   CFLAGS  += -DDISABLE_NOAA         .. remove NOAA channels option from the firmware
-*   CFLAGS  += -DDISABLE_VOICE        .. remove spoken VOICES option from the firmware
-*   CFLAGS  += -DDISABLE_AIRCOPY      .. remove AIRCOPY option
-*   CFLAGS  += -DKEEP_MEM_NAME        .. maintain the memory channel's name when re-saving the memory channel
-*   CFLAGS  += -DDISABLE_ALARM        .. remove the ALARM transmit option from the firmware
-*   CFLAGS  += -DCHAN_NAME_FREQ       .. show the channel frequency (as well as channel number/name)
-*   CFLAGS  += -DSINGLE_VFO_CHAN      .. not yet implemented .. only show a single VFO/CHANNEL if dual watch is disabled
-*   #CFLAGS += -DBAND_SCOPE           .. not yet implemented
+*	CFLAGS  += -DBIG_FREQ_FONT        .. show frequency using big font
+*	CFLAGS  += -DDISABLE_NOAA         .. remove NOAA channels option from the firmware
+*	CFLAGS  += -DDISABLE_VOICE        .. remove spoken VOICES option from the firmware
+*	CFLAGS  += -DDISABLE_AIRCOPY      .. remove AIRCOPY option
+*	CFLAGS  += -DKEEP_MEM_NAME        .. keep the memory channels name when re-saving a channel
+*	CFLAGS  += -DDISABLE_ALARM        .. remove the ALARM transmit option from the firmware
+*	CFLAGS  += -DCHAN_NAME_FREQ       .. show the channel frequency (as well as channel number/name)
+*	#CFLAGS += -DSINGLE_VFO_CHAN      .. (not yet implemented) show a single VFO/CHANNEL if dual-watch/cross-band are disabled
+*	#CFLAGS += -DBAND_SCOPE           .. (not yet implemented) show a band scope (spectrum/panadapter)
 
 To enable the custom option just uncomment the line by removing the starting '#'.
 
@@ -29,6 +30,7 @@ To enable the custom option just uncomment the line by removing the starting '#'
 * Slightly less intense menu style
 * AM RX now allowed everywhere, although the radio really doesn't do AM, the adverts are a con !
 * Finer RSSI bar steps
+* Nicer big font than original big font (frequency mode)
 *
 * "MEM-CH" and "DEL-CH" menus now include channel name
 * "STEP" menu, added 1.25kHz option, removed 5kHz option

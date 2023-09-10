@@ -109,18 +109,20 @@ void ACTION_Scan(bool bRestart)
 	{
 		if (gCurrentFunction != FUNCTION_RECEIVE && gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
 		{
-			uint16_t Frequency;
-
 			GUI_SelectNextDisplay(DISPLAY_FM);
+
 			if (gFM_ScanState != FM_SCAN_OFF)
 			{
 				FM_PlayAndUpdate();
+
 				#ifndef DISABLE_VOICE
 					gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
 				#endif
 			}
 			else
 			{
+				uint16_t Frequency;
+
 				if (bRestart)
 				{
 					gFM_AutoScan        = true;
@@ -134,8 +136,10 @@ void ACTION_Scan(bool bRestart)
 					gFM_ChannelPosition = 0;
 					Frequency           = gEeprom.FM_FrequencyPlaying;
 				}
+
 				BK1080_GetFrequencyDeviation(Frequency);
 				FM_Tune(Frequency, 1, bRestart);
+
 				#ifndef DISABLE_VOICE
 					gAnotherVoiceID = VOICE_ID_SCANNING_BEGIN;
 				#endif
@@ -152,9 +156,11 @@ void ACTION_Scan(bool bRestart)
 		#endif
 		{
 			GUI_SelectNextDisplay(DISPLAY_MAIN);
+
 			if (gScanState != SCAN_OFF)
 			{
 				SCANNER_Stop();
+
 				#ifndef DISABLE_VOICE
 					gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
 				#endif
@@ -162,6 +168,7 @@ void ACTION_Scan(bool bRestart)
 			else
 			{
 				CHANNEL_Next(true, 1);
+
 				#ifndef DISABLE_VOICE
 					AUDIO_SetVoiceID(0, VOICE_ID_SCANNING_BEGIN);
 					AUDIO_PlaySingleVoice(true);

@@ -18,6 +18,15 @@
 
 #include "misc.h"
 
+const uint8_t     g_scan_delay = 21;   // 21
+
+const uint16_t    gMax_bat_v = 840;   // 8.4V
+const uint16_t    gMin_bat_v = 660;   // 6.6V
+
+const uint32_t    gDefaultAesKey[4] = {0x4AA5CC60, 0x0312CC5F, 0xFFD2DABB, 0x6BBA7F92};
+
+const uint8_t     gMicGain_dB2[5] = {3, 8, 16, 24, 31};
+
 const uint32_t   *gUpperLimitFrequencyBandTable;
 const uint32_t   *gLowerLimitFrequencyBandTable;
 
@@ -28,19 +37,6 @@ bool              gSetting_500TX;
 bool              gSetting_350EN;
 uint8_t           gSetting_F_LOCK;
 bool              gSetting_ScrambleEnable;
-
-const uint16_t gMax_bat_v = 840;   // 8.4V
-const uint16_t gMin_bat_v = 660;   // 6.6V
-
-const uint32_t    gDefaultAesKey[4] =
-{
-	0x4AA5CC60,
-	0x0312CC5F,
-	0xFFD2DABB,
-	0x6BBA7F92,
-};
-
-const uint8_t     gMicGain_dB2[5] = {3, 8, 16, 24, 31};
 
 uint32_t          gCustomAesKey[4];
 bool              bHasCustomAesKey;

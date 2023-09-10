@@ -69,6 +69,7 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 		gMenuCursor        = MENU_350TX;
 		gSubMenuSelection  = gSetting_350TX;
 		GUI_SelectNextDisplay(DISPLAY_MENU);
+		gF_LOCK            = true;
 		gMenuListCount     = 57;
 		#ifdef DISABLE_VOICE
 			gMenuListCount--;
@@ -76,7 +77,6 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 		#ifdef DISABLE_NOAA
 			gMenuListCount--;
 		#endif
-		gF_LOCK            = true;
 	}
 	#ifndef DISABLE_AIRCOPY
 		else
@@ -91,23 +91,22 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 			gEeprom.KEY_1_LONG_PRESS_ACTION  = 0;
 			gEeprom.KEY_2_SHORT_PRESS_ACTION = 0;
 			gEeprom.KEY_2_LONG_PRESS_ACTION  = 0;
-	
+
 			RADIO_InitInfo(gRxVfo, 205, 5, 41002500);
-	
+
 			gRxVfo->CHANNEL_BANDWIDTH        = BANDWIDTH_NARROW;
 			gRxVfo->OUTPUT_POWER             = 0;
-	
+
 			RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
-	
+
 			gCurrentVfo = gRxVfo;
-	
+
 			RADIO_SetupRegisters(true);
 			BK4819_SetupAircopy();
 			BK4819_ResetFSK();
-	
+
 			gAircopyState = AIRCOPY_READY;
 			GUI_SelectNextDisplay(DISPLAY_AIRCOPY);
-	
 		}
 	#endif
 	else

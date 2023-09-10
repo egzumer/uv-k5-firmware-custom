@@ -642,10 +642,7 @@ void MENU_SelectNextCode(void)
 
 	RADIO_SetupRegisters(true);
 
-	if (gSelectedCodeType == CODE_TYPE_CONTINUOUS_TONE)
-		ScanPauseDelayIn10msec = 20;
-	else
-		ScanPauseDelayIn10msec = 30;
+	ScanPauseDelayIn10msec = (gSelectedCodeType == CODE_TYPE_CONTINUOUS_TONE) ? 20 : 30;
 
 	gUpdateDisplay = true;
 }

@@ -744,6 +744,11 @@ void RADIO_SetTxParameters(void)
 
 	switch (gCurrentVfo->pTX->CodeType)
 	{
+		default:
+		case CODE_TYPE_OFF:
+			BK4819_ExitSubAu();
+			break;
+
 		case CODE_TYPE_CONTINUOUS_TONE:
 			BK4819_SetCTCSSFrequency(CTCSS_Options[gCurrentVfo->pTX->Code]);
 			break;
@@ -753,10 +758,6 @@ void RADIO_SetTxParameters(void)
 			BK4819_SetCDCSSCodeWord(
 					DCS_GetGolayCodeWord(gCurrentVfo->pTX->CodeType, gCurrentVfo->pTX->Code)
 				);
-			break;
-
-		default:
-			BK4819_ExitSubAu();
 			break;
 	}
 }

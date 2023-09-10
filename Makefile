@@ -93,6 +93,7 @@ LDFLAGS = -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld
 #LDFLAGS = -mcpu=cortex-m0 -nostartfiles -Wl,-gc-sections,-T,firmware.ld
 
 # compilation options
+#CFLAGS  += -DBIG_FREQ_FONT
 CFLAGS  += -DDISABLE_NOAA
 CFLAGS  += -DDISABLE_VOICE
 CFLAGS  += -DDISABLE_AIRCOPY

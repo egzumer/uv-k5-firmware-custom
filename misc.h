@@ -30,50 +30,52 @@
 #endif
 
 enum {
-	MR_CHANNEL_FIRST       = 0U,
-	MR_CHANNEL_LAST        = 199U,
-	FREQ_CHANNEL_FIRST     = 200U,
-	FREQ_CHANNEL_LAST      = 206U,
-	NOAA_CHANNEL_FIRST     = 207U,
-	NOAA_CHANNEL_LAST      = 216U
+	MR_CHANNEL_FIRST   = 0U,
+	MR_CHANNEL_LAST    = 199U,
+	FREQ_CHANNEL_FIRST = 200U,
+	FREQ_CHANNEL_LAST  = 206U,
+	NOAA_CHANNEL_FIRST = 207U,
+	NOAA_CHANNEL_LAST  = 216U
 };
 
 enum {
-	FLASHLIGHT_OFF         = 0U,
-	FLASHLIGHT_ON          = 1U,
-	FLASHLIGHT_BLINK       = 2U
+	FLASHLIGHT_OFF = 0,
+	FLASHLIGHT_ON,
+	FLASHLIGHT_BLINK
 };
 
 enum {
-	VFO_CONFIGURE_0        = 0U,
-	VFO_CONFIGURE_1        = 1U,
-	VFO_CONFIGURE_RELOAD   = 2U
+	VFO_CONFIGURE_0 = 0,
+	VFO_CONFIGURE_1,
+	VFO_CONFIGURE_RELOAD
 };
 
 enum AlarmState_t {
-	ALARM_STATE_OFF        = 0U,
-	ALARM_STATE_TXALARM    = 1U,
-	ALARM_STATE_ALARM      = 2U,
-	ALARM_STATE_TX1750     = 3U
+	ALARM_STATE_OFF = 0,
+	ALARM_STATE_TXALARM,
+	ALARM_STATE_ALARM,
+	ALARM_STATE_TX1750
 };
 
 typedef enum AlarmState_t AlarmState_t;
 
 enum ReceptionMode_t {
-	RX_MODE_NONE           = 0U,
-	RX_MODE_DETECTED       = 1U,
-	RX_MODE_LISTENING      = 2U
+	RX_MODE_NONE = 0,
+	RX_MODE_DETECTED,
+	RX_MODE_LISTENING
 };
 
 typedef enum ReceptionMode_t ReceptionMode_t;
 
 enum CssScanMode_t {
-	CSS_SCAN_MODE_OFF      = 0U,
-	CSS_SCAN_MODE_SCANNING = 1U,
-	CSS_SCAN_MODE_FOUND    = 2U,
+	CSS_SCAN_MODE_OFF = 0,
+	CSS_SCAN_MODE_SCANNING,
+	CSS_SCAN_MODE_FOUND,
 };
 
 typedef enum CssScanMode_t CssScanMode_t;
+
+extern const uint8_t     g_scan_delay;
 
 extern const uint16_t    gMax_bat_v;
 extern const uint16_t    gMin_bat_v;
