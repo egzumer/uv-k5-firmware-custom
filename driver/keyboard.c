@@ -37,33 +37,45 @@ KEY_Code_t KEYBOARD_Poll(void)
 	SYSTICK_DelayUs(1);
 
 	// Keys connected to gnd
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0))
+	{
 		Key = KEY_SIDE1;
 		goto Bye;
 	}
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_1)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_1))
+	{
 		Key = KEY_SIDE2;
 		goto Bye;
 	}
+
 	// Original doesn't do PTT
 
 	// First row
 	GPIO_ClearBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_4);
 	SYSTICK_DelayUs(1);
 
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0)) {
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0))
+	{
 		Key = KEY_MENU;
 		goto Bye;
 	}
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_1)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_1))
+	{
 		Key = KEY_1;
 		goto Bye;
 	}
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_2)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_2))
+	{
 		Key = KEY_4;
 		goto Bye;
 	}
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_3)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_3))
+	{
 		Key = KEY_7;
 		goto Bye;
 	}
@@ -75,19 +87,26 @@ KEY_Code_t KEYBOARD_Poll(void)
 	GPIO_SetBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_4);
 	SYSTICK_DelayUs(1);
 
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0)) {
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0))
+	{
 		Key = KEY_UP;
 		goto Bye;
 	}
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_1)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_1))
+	{
 		Key = KEY_2;
 		goto Bye;
 	}
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_2)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_2))
+	{
 		Key = KEY_5;
 		goto Bye;
 	}
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_3)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_3))
+	{
 		Key = KEY_8;
 		goto Bye;
 	}
@@ -105,19 +124,26 @@ KEY_Code_t KEYBOARD_Poll(void)
 	GPIO_ClearBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_6);
 	SYSTICK_DelayUs(1);
 
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0)) {
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0))
+	{
 		Key = KEY_DOWN;
 		goto Bye;
 	}
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_1)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_1))
+	{
 		Key = KEY_3;
 		goto Bye;
 	}
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_2)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_2))
+	{
 		Key = KEY_6;
 		goto Bye;
 	}
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_3)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_3))
+	{
 		Key = KEY_9;
 		goto Bye;
 	}
@@ -129,19 +155,26 @@ KEY_Code_t KEYBOARD_Poll(void)
 	GPIO_SetBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_6);
 	SYSTICK_DelayUs(1);
 
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0)) {
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0))
+	{
 		Key = KEY_EXIT;
 		goto Bye;
 	}
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_1)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_1))
+	{
 		Key = KEY_STAR;
 		goto Bye;
 	}
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_2)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_2))
+	{
 		Key = KEY_0;
 		goto Bye;
 	}
-	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_3)) {
+
+	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_3))
+	{
 		Key = KEY_F;
 		goto Bye;
 	}
@@ -154,4 +187,3 @@ Bye:
 
 	return Key;
 }
-

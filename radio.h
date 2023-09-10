@@ -48,7 +48,8 @@ enum PTT_ID_t {
 typedef enum PTT_ID_t PTT_ID_t;
 
 #if 0
-	enum STEP_Setting_t {
+	enum STEP_Setting_t
+	{
 		STEP_2_5kHz,
 		STEP_5_0kHz,
 		STEP_6_25kHz,
@@ -58,7 +59,8 @@ typedef enum PTT_ID_t PTT_ID_t;
 		STEP_8_33kHz,
 	};
 #else
-	enum STEP_Setting_t {
+	enum STEP_Setting_t
+	{
 		STEP_1_25kHz,
 		STEP_2_5kHz,
 		STEP_6_25kHz,
@@ -71,7 +73,8 @@ typedef enum PTT_ID_t PTT_ID_t;
 
 typedef enum STEP_Setting_t STEP_Setting_t;
 
-enum VfoState_t {
+enum VfoState_t
+{
 	VFO_STATE_NORMAL = 0,
 	VFO_STATE_BUSY,
 	VFO_STATE_BAT_LOW,
@@ -156,4 +159,3 @@ void     RADIO_PrepareCssTX(void);
 void     RADIO_SendEndOfTransmission(void);
 
 #endif
-

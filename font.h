@@ -19,12 +19,12 @@
 
 #include <stdint.h>
 
-extern const uint8_t  gFontBig[95][16];
-extern const uint8_t  gFontBigDigits[11][26];
-extern const uint8_t  gFontSmallDigits[11][7];
+extern const uint8_t gFontBig[95][16];
+extern const uint8_t gFontBigDigits[11][26];
+extern const uint8_t gFontSmallDigits[11][7];
 
-//extern const uint64_t gFont8x8[16 * 6];
-extern const uint8_t  gFont6x8[96][6];
+//extern const uint8_t gFont8x8[95][8];
+extern const uint8_t gFont5x8[95][5];
 //extern const uint8_t  gFont5x7[96][5];
 
 #endif

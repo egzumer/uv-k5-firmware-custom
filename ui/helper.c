@@ -92,50 +92,49 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 
 	#if 0
 	{	// 5x7 font
+		const unsigned int char_width   = ARRAY_SIZE(gFont5x7[0]);
+		const unsigned int char_spacing = char_width + 1;
+		uint8_t            *pFb         = gFrameBuffer[Line] + Start;
 		for (i = 0; i < Length; i++)
 		{
 			if (pString[i] >= 32)
 			{
 				const unsigned int Index = ((unsigned int)pString[i] - 32);
 				if (Index < ARRAY_SIZE(gFont5x7))
-				{
-					const unsigned int ofs = (unsigned int)Start + (i * 6);
-					memcpy(gFrameBuffer[Line] + ofs, &gFont5x7[Index], ARRAY_SIZE(gFont5x7[Index]));
-				}
+					memcpy(pfB + (i * char_spacing), &gFont5x7[Index], char_width);
 			}
 		}
 	}
-	#else
-	{	// 6x8 font
+	#elif 1
+	{	// 5x8 font
+		const unsigned int char_width   = ARRAY_SIZE(gFont5x8[0]);
+		const unsigned int char_spacing = char_width + 1;
+		uint8_t            *pFb         = gFrameBuffer[Line] + Start;
 		for (i = 0; i < Length; i++)
 		{
 			if (pString[i] >= 32)
 			{
 				const unsigned int Index = (unsigned int)pString[i] - 32;
-				if (Index < ARRAY_SIZE(gFont6x8))
-				{
-					const unsigned int ofs = (unsigned int)Start + (i * 7);
-					memcpy(gFrameBuffer[Line] + ofs, &gFont6x8[Index], ARRAY_SIZE(gFont6x8[Index]));
-				}
+				if (Index < ARRAY_SIZE(gFont5x8))
+					memcpy(pFb + (i * char_spacing), &gFont5x8[Index], char_width);
 			}
 		}
 	}
-/*
-	{	// 8x8 font
+	#else
+	{	// 8x8 font .. not yet working
+		const unsigned int char_width   = ARRAY_SIZE(gFont8x8[0]);
+		const unsigned int char_spacing = char_width + 1;
+		uint8_t            *pFb         = gFrameBuffer[Line] + Start;
 		for (i = 0; i < Length; i++)
 		{
 			if (pString[i] >= 32)
 			{
 				const unsigned int Index = (unsigned int)pString[i] - 32;
 				if (Index < ARRAY_SIZE(gFont8x8))
-				{
-					const unsigned int ofs = (unsigned int)Start + (i * 8);
-					memcpy(gFrameBuffer[Line] + ofs, &gFont8x8[Index], 8);
-				}
+					memcpy(pFb + (i * char_spacing), &gFont8x8[Index], char_width);
 			}
 		}
 	}
-*/
 	#endif
 }
 

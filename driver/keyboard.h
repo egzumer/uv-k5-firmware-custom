@@ -22,34 +22,34 @@
 #include <stdint.h>
 
 enum KEY_Code_t {
-	KEY_0 = 0,
-	KEY_1 = 1,
-	KEY_2 = 2,
-	KEY_3 = 3,
-	KEY_4 = 4,
-	KEY_5 = 5,
-	KEY_6 = 6,
-	KEY_7 = 7,
-	KEY_8 = 8,
-	KEY_9 = 9,
-	KEY_MENU = 10,
-	KEY_UP = 11,
-	KEY_DOWN = 12,
-	KEY_EXIT = 13,
-	KEY_STAR = 14,
-	KEY_F = 15,
-	KEY_PTT = 21,
-	KEY_SIDE2 = 22,
-	KEY_SIDE1 = 23,
-	KEY_INVALID = 255,
+	KEY_0       = 0,
+	KEY_1       = 1,
+	KEY_2       = 2,
+	KEY_3       = 3,
+	KEY_4       = 4,
+	KEY_5       = 5,
+	KEY_6       = 6,
+	KEY_7       = 7,
+	KEY_8       = 8,
+	KEY_9       = 9,
+	KEY_MENU    = 10,
+	KEY_UP      = 11,
+	KEY_DOWN    = 12,
+	KEY_EXIT    = 13,
+	KEY_STAR    = 14,
+	KEY_F       = 15,
+	KEY_PTT     = 21,
+	KEY_SIDE2   = 22,
+	KEY_SIDE1   = 23,
+	KEY_INVALID = 255
 };
 
 typedef enum KEY_Code_t KEY_Code_t;
 
 extern KEY_Code_t gKeyReading0;
 extern KEY_Code_t gKeyReading1;
-extern uint16_t gDebounceCounter;
-extern bool gWasFKeyPressed;
+extern uint16_t   gDebounceCounter;
+extern bool       gWasFKeyPressed;
 
 KEY_Code_t KEYBOARD_Poll(void);
 
