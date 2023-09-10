@@ -497,7 +497,7 @@ void RADIO_SelectVfos(void)
 	gTxVfo = &gEeprom.VfoInfo[gEeprom.TX_CHANNEL];
 
 	if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF)
-		gEeprom.RX_CHANNEL = gEeprom.TX_CHANNEL;
+		gEeprom.RX_CHANNEL =  gEeprom.TX_CHANNEL;
 	else
 		gEeprom.RX_CHANNEL = (gEeprom.TX_CHANNEL == 0) ? 1 : 0;
 

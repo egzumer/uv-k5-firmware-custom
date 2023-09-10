@@ -17,6 +17,7 @@ You can edit those changes by (currently) editing the MakeFile, look for these l
 *   CFLAGS  += -DKEEP_MEM_NAME        .. maintain the memory channel's name when re-saving the memory channel
 *   CFLAGS  += -DDISABLE_ALARM        .. remove the ALARM transmit option from the firmware
 *   CFLAGS  += -DCHAN_NAME_FREQ       .. show the channel frequency (as well as channel number/name)
+*   CFLAGS  += -DSINGLE_VFO_CHAN      .. only show a single VFO/CHANNEL if dual watch is disabled
 *   #CFLAGS += -DBAND_SCOPE           .. not yet implemented
 
 To enable the custom option just uncomment the line by removing the starting '#'.

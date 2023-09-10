@@ -96,11 +96,11 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 		{
 			if (pString[i] >= 32)
 			{
-				const unsigned int Index = ((unsigned int)pString[i] - 32) * 5;
-				if (Index < sizeof(gFont5x7))
+				const unsigned int Index = ((unsigned int)pString[i] - 32);
+				if (Index < ARRAY_SIZE(gFont5x7))
 				{
-					const unsigned int ofs = (unsigned int)Start + (i * 8);
-					memcpy(gFrameBuffer[Line] + ofs, &gFont5x7[Index], 5);
+					const unsigned int ofs = (unsigned int)Start + (i * 6);
+					memcpy(gFrameBuffer[Line] + ofs, &gFont5x7[Index], ARRAY_SIZE(gFont5x7[Index]));
 				}
 			}
 		}
@@ -114,8 +114,8 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 				const unsigned int Index = (unsigned int)pString[i] - 32;
 				if (Index < ARRAY_SIZE(gFont6x8))
 				{
-					const unsigned int ofs = (unsigned int)Start + (i * 8);
-					memcpy(gFrameBuffer[Line] + ofs, &gFont6x8[Index], 6);
+					const unsigned int ofs = (unsigned int)Start + (i * 7);
+					memcpy(gFrameBuffer[Line] + ofs, &gFont6x8[Index], ARRAY_SIZE(gFont6x8[Index]));
 				}
 			}
 		}
