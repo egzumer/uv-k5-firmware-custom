@@ -27,7 +27,7 @@ static void Render(uint8_t RssiLevel, uint8_t VFO)
 {
 	uint8_t *pLine;
 	uint8_t  Line;
-	bool     bIsClearMode;
+	bool     bIsClearMode = false;
 
 	if (gCurrentFunction == FUNCTION_TRANSMIT || gScreenToDisplay != DISPLAY_MAIN)
 		return;
@@ -52,20 +52,19 @@ static void Render(uint8_t RssiLevel, uint8_t VFO)
 	}
 	else
 	{
-		memcpy(pLine,          BITMAP_Antenna,       5);
-		memcpy(pLine + 5,      BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
-		if (RssiLevel >= 2)  // 2
+		memcpy(pLine, BITMAP_Antenna, 5);
+		if (RssiLevel >= 2)
+			memcpy(pLine +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
+		if (RssiLevel >= 3)
 			memcpy(pLine +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
-		if (RssiLevel >= 3)  // 3
+		if (RssiLevel >= 4)
 			memcpy(pLine + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
-		if (RssiLevel >= 4)  // 4
+		if (RssiLevel >= 5)
 			memcpy(pLine + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
-		if (RssiLevel >= 5)  // 5
+		if (RssiLevel >= 6)
 			memcpy(pLine + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
-		if (RssiLevel >= 6)  // 6
+		if (RssiLevel >= 7)
 			memcpy(pLine + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
-
-		bIsClearMode = false;
 	}
 
 	ST7565_DrawLine(0, Line, 23 , pLine, bIsClearMode);
@@ -73,22 +72,32 @@ static void Render(uint8_t RssiLevel, uint8_t VFO)
 
 void UI_UpdateRSSI(uint16_t RSSI)
 {
+	//const int16_t dB = (int16_t)(RSSI / 2) - 160;
+
+	const uint16_t level0  = gEEPROM_RSSI_CALIB[gRxVfo->Band][0];
+	const uint16_t level1  = gEEPROM_RSSI_CALIB[gRxVfo->Band][1];
+	const uint16_t level2  = gEEPROM_RSSI_CALIB[gRxVfo->Band][2];
+	const uint16_t level3  = gEEPROM_RSSI_CALIB[gRxVfo->Band][3];
+	const uint16_t level01 = (level0 + level1) / 2;
+	const uint16_t level12 = (level1 + level2) / 2;
+	const uint16_t level23 = (level2 + level3) / 2;
+	
 	uint8_t Level = 0;
 
-	if (RSSI >= gEEPROM_RSSI_CALIB[gRxVfo->Band][3])
-		Level = 6;
+	if (RSSI >= level3)  Level = 7;
 	else
-	if (RSSI >= gEEPROM_RSSI_CALIB[gRxVfo->Band][2])
-		Level = 4;
+	if (RSSI >= level23) Level = 6;
 	else
-	if (RSSI >= gEEPROM_RSSI_CALIB[gRxVfo->Band][1])
-		Level = 2;
+	if (RSSI >= level2)  Level = 5;
 	else
-	if (RSSI >= gEEPROM_RSSI_CALIB[gRxVfo->Band][0])
-		Level = 1;
+	if (RSSI >= level12) Level = 4;
+	else
+	if (RSSI >= level1)  Level = 3;
+	else
+	if (RSSI >= level01) Level = 2;
+	else
+	if (RSSI >= level0)  Level = 1;
 
-	//const int16_t dB = (int16_t)(RSSI / 2) - 160;
-	
 	if (gVFO_RSSI_Level[gEeprom.RX_CHANNEL] != Level)
 	{
 		gVFO_RSSI_Level[gEeprom.RX_CHANNEL] = Level;

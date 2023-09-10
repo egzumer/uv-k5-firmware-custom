@@ -30,7 +30,9 @@ void ST7565_DrawLine(uint8_t Column, uint8_t Line, uint16_t Size, const uint8_t 
 	uint16_t i;
 
 	SPI_ToggleMasterMode(&SPI0->CR, false);
+
 	ST7565_SelectColumnAndLine(Column + 4U, Line);
+
 	GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_ST7565_A0);
 
 	if (!bIsClearMode)
@@ -87,7 +89,8 @@ void ST7565_BlitFullScreen(void)
 }
 
 void ST7565_BlitStatusLine(void)
-{
+{	// the top small text line on the display
+
 	unsigned int i;
 
 	SPI_ToggleMasterMode(&SPI0->CR, false);

@@ -170,9 +170,9 @@ uint8_t           gIsLocked = 0xFF;
 
 void NUMBER_Get(char *pDigits, uint32_t *pInteger)
 {
-	uint8_t  i;
-	uint32_t Multiplier = 10000000;
-	uint32_t Value      = 0;
+	unsigned int i;
+	uint32_t     Multiplier = 10000000;
+	uint32_t     Value      = 0;
 	for (i = 0; i < 8; i++)
 	{
 		if (pDigits[i] > 9)
@@ -185,14 +185,14 @@ void NUMBER_Get(char *pDigits, uint32_t *pInteger)
 
 void NUMBER_ToDigits(uint32_t Value, char *pDigits)
 {
-	uint8_t i;
-
+	unsigned int i;
 	for (i = 0; i < 8; i++)
 	{
 		const uint32_t Result = Value / 10U;
 		pDigits[7 - i] = Value - (Result * 10U);
 		Value = Result;
 	}
+	pDigits[8] = 0;
 }
 
 uint8_t NUMBER_AddWithWraparound(uint8_t Base, int8_t Add, uint8_t LowerLimit, uint8_t UpperLimit)

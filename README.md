@@ -16,6 +16,7 @@ You can edit those changes by (currently) editing the MakeFile, look for these l
 *   CFLAGS  += -DDISABLE_AIRCOPY      .. remove AIRCOPY option
 *   CFLAGS  += -DKEEP_MEM_NAME        .. maintain the memory channel's name when re-saving the memory channel
 *   CFLAGS  += -DDISABLE_ALARM        .. remove the ALARM transmit option from the firmware
+*   CFLAGS  += -DCHAN_NAME_FREQ       .. show the channel frequency (as well as channel number/name)
 *   #CFLAGS += -DBAND_SCOPE           .. not yet implemented
 
 To enable the custom option just uncomment the line by removing the starting '#'.
@@ -25,6 +26,7 @@ To enable the custom option just uncomment the line by removing the starting '#'
 * Battery voltage boot screen now includes the percentage (as well as voltage).
 * Slightly less intense menu style.
 * AM RX allowed everywhere. Although the radio really doesn't do AM, the adverts are a con !
+* Finer RSSI bar steps
 
 * "MEM-CH" and "DEL-CH" menus now include channel name
 * "STEP" menu, added 1.25kHz option, removed 5kHz option

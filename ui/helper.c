@@ -15,6 +15,7 @@
  */
 
 #include <string.h>
+
 #include "driver/st7565.h"
 #include "external/printf/printf.h"
 #include "font.h"
@@ -77,47 +78,112 @@ void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Lin
 	}
 }
 
+void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_t Line, bool bCentered)
+{
+	const size_t Length = strlen(pString);
+	size_t       i;
+
+	if (bCentered)
+		Start += (((End - Start) - (Length * 8)) + 1) / 2;
+
+	for (i = 0; i < Length; i++)
+	{
+		if (pString[i] >= 32)
+		{
+			const unsigned int Index = ((unsigned int)pString[i] - 32) * 5;
+			if (Index < sizeof(gFont5x7))
+			{
+				const unsigned int ofs = (unsigned int)Start + (i * 8);
+				memcpy(gFrameBuffer[Line] + ofs, &gFont5x7[Index], 5);
+			}
+		}
+	}
+}
+
 void UI_DisplayFrequency(const char *pDigits, uint8_t X, uint8_t Y, bool bDisplayLeadingZero, bool bFlag)
 {
-	unsigned int i;
-	uint8_t     *pFb0        = gFrameBuffer[Y] + X;;
-	uint8_t     *pFb1        = pFb0 + 128;
-	bool         bCanDisplay = false;
-
-	for (i = 0; i < 3; i++)
+	const unsigned int char_width  = 13;
+	uint8_t           *pFb0        = gFrameBuffer[Y] + X;
+	uint8_t           *pFb1        = pFb0 + 128;
+	bool               bCanDisplay = false;
+	unsigned int       i           = 0;
+	
+	// MHz
+	while (i < 3)
 	{
-		const uint8_t Digit = pDigits[i];
-
-		if (bDisplayLeadingZero || bCanDisplay || Digit)
+		const unsigned int Digit = pDigits[i++];
+		if (bDisplayLeadingZero || bCanDisplay || Digit > 0)
 		{
 			bCanDisplay = true;
-			memcpy(pFb0 + (i * 13), gFontBigDigits[Digit] +  0, 13);
-			memcpy(pFb1 + (i * 13), gFontBigDigits[Digit] + 13, 13);
+			memcpy(pFb0, gFontBigDigits[Digit],              char_width);
+			memcpy(pFb1, gFontBigDigits[Digit] + char_width, char_width);
 		}
 		else
 		if (bFlag)
 		{
-			pFb1 -= 6;
 			pFb0 -= 6;
+			pFb1 -= 6;
+		}
+		pFb0 += char_width;
+		pFb1 += char_width;
+	}
+
+	// decimal point
+	*pFb1 = 0x60; pFb0++; pFb1++;
+	*pFb1 = 0x60; pFb0++; pFb1++;
+	*pFb1 = 0x60; pFb0++; pFb1++;
+	
+	// kHz
+	while (i < 6)
+	{
+		const unsigned int Digit = pDigits[i++];
+		memcpy(pFb0, gFontBigDigits[Digit],              char_width);
+		memcpy(pFb1, gFontBigDigits[Digit] + char_width, char_width);
+		pFb0 += char_width;
+		pFb1 += char_width;
+	}
+}
+
+void UI_DisplayFrequencySmall(const char *pDigits, uint8_t X, uint8_t Y, bool bDisplayLeadingZero)
+{
+	const unsigned int char_width  = 7;
+	uint8_t           *pFb         = gFrameBuffer[Y] + X;
+	bool               bCanDisplay = false;
+	unsigned int       i           = 0;
+
+	// MHz
+	while (i < 3)
+	{
+		const unsigned int Digit = pDigits[i++];
+		if (bDisplayLeadingZero || bCanDisplay || Digit > 0)
+		{
+			bCanDisplay = true;
+			memcpy(pFb, gFontSmallDigits[Digit], char_width);
+			pFb += char_width;
 		}
 	}
 
-	pFb1[0x27] = 0x60;
-	pFb1[0x28] = 0x60;
-	pFb1[0x29] = 0x60;
+	// decimal point
+	pFb++;
+	pFb++;
+	*pFb++ = 0x60;
+	*pFb++ = 0x60;
+	pFb++;
 
-	for (i = 0; i < 3; i++)
+	// kHz
+	while (i < 8)
 	{
-		const uint8_t Digit = pDigits[i + 3];
-		memcpy(pFb0 + (i * 13) + 42, gFontBigDigits[Digit] +  0, 13);
-		memcpy(pFb1 + (i * 13) + 42, gFontBigDigits[Digit] + 13, 13);
+		const unsigned int Digit = pDigits[i++];
+		memcpy(pFb, gFontSmallDigits[Digit], char_width);
+		pFb += char_width;
 	}
 }
 
 void UI_DisplaySmallDigits(uint8_t Size, const char *pString, uint8_t X, uint8_t Y)
 {
-	unsigned int i;
-	for (i = 0; i < Size; i++)
-		memcpy(gFrameBuffer[Y] + (i * 7) + X, gFontSmallDigits[(uint8_t)pString[i]], 7);
+	const unsigned int char_width  = 7;
+	unsigned int       x = X;
+	unsigned int       i;
+	for (i = 0; i < Size; i++, x += char_width)
+		memcpy(gFrameBuffer[Y] + x, gFontSmallDigits[(unsigned int)pString[i]], char_width);
 }
-
