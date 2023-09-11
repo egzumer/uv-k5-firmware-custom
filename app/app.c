@@ -1276,6 +1276,7 @@ void APP_TimeSlice10ms(void)
 	APP_CheckKeys();
 }
 
+// this is called once every 500ms
 void APP_TimeSlice500ms(void)
 {
 	// Skipped authentic device check
@@ -1339,7 +1340,7 @@ void APP_TimeSlice500ms(void)
 					if (gScreenToDisplay != DISPLAY_SCANNER || gScanCssState >= SCAN_CSS_STATE_FOUND)
 				#endif
 				{
-					if (gEeprom.AUTO_KEYPAD_LOCK && gKeyLockCountdown && !gDTMF_InputMode)
+					if (gEeprom.AUTO_KEYPAD_LOCK && gKeyLockCountdown > 0 && !gDTMF_InputMode)
 					{
 						if (--gKeyLockCountdown == 0)
 							gEeprom.KEY_LOCK = true;
@@ -1588,7 +1589,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	else
 	{
 		if (Key != KEY_PTT)
-			gVoltageMenuCountdown = 16;
+			gVoltageMenuCountdown = 2 * 30;	// 30 sec
 
 		BACKLIGHT_TurnOn();
 
