@@ -27,11 +27,12 @@ To enable the custom option just uncomment the line by removing the starting '#'
 # Other changes made
 
 * Various bugs fixed that the QS firmware had (TX tail, Menu confimation etc)
+* Added new bugs
 * Battery voltage boot screen now includes the percentage (as well as voltage)
 * Slightly less intense menu style
 * AM RX now allowed everywhere, although the radio really doesn't do AM, the adverts are a con !
 * Finer RSSI bar steps
-* Nicer big font than original big font (frequency mode)
+* Nicer big font than original big font
 *
 * "MEM-CH" and "DEL-CH" menus now include channel name
 * "STEP" menu, added 1.25kHz option, removed 5kHz option
@@ -65,21 +66,26 @@ To compile directly in windows without the need of a linux virtual machine:
 ```
 * Download and install "gcc-arm-none-eabi-10.3-2021.10-win32.exe" from https://developer.arm.com/downloads/-/gnu-rm
 * Download and install "gnu_make-3.81.exe" from https://gnuwin32.sourceforge.net/packages/make.htm
-*
-* To compile just run win_make.bat from the directory you saved this source code too, you may have to edit the bat file depending on where you installed 'gnu_make' too
 ```
+
+You may (or may not) need to reboot your PC after installing the above.
+
+Run 'win_make.bat' from the directory you saved this source code too, you may have to edit the bat file depending on where you installed 'gnu_make' too
 
 # Credits
 
 Many thanks to various people on Telegram for putting up with me during this effort and helping:
 
-* [Mikhail](https://github.com/fagci/)
+* [DualTachyon](https://github.com/DualTachyon)
+* [Mikhail](https://github.com/fagci)
 * [Andrej](https://github.com/Tunas1337)
+* [Manuel](https://github.com/manujedi)
 * @wagner
 * @Lohtse Shar
 * [@Matoz](https://github.com/spm81)
 * @Davide
 * @Ismo OH2FTG
+* [OneOfEleven](https://github.com/OneOfEleven)
 * and others I forget
 
 # License
