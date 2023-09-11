@@ -98,22 +98,4 @@ void SystickHandler(void)
 
 	if (gVoxStopCountdown)
 		gVoxStopCountdown--;
-
-	#if 0
-		if (gCurrentFunction == FUNCTION_TRANSMIT || gBacklightCountdown > 0)
-		{
-			GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  		// turn the backlight ON
-		}
-		else
-		if (gEeprom.BACKLIGHT >= 5)
-		{	// backlight ON - half brightness
-			// was hoping to use this but don't like the odd flicker
-			if (gGlobalSysTickCounter & 1)
-				GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  	// turn the backlight ON
-			else
-				GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
-		}
-		else
-			GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);		// turn the backlight OFF
-	#endif
 }

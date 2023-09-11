@@ -26,7 +26,7 @@ const uint32_t LowerLimitFrequencyBandTable[7] =
 	17400000,
 	35000000,
 	40000000,
-	47000000,
+	47000000
 };
 
 const uint32_t MiddleFrequencyBandTable[7] =
@@ -37,7 +37,7 @@ const uint32_t MiddleFrequencyBandTable[7] =
 	26000000,
 	37000000,
 	43500000,
-	55000000,
+	55000000
 };
 
 const uint32_t UpperLimitFrequencyBandTable[7] =
@@ -48,7 +48,7 @@ const uint32_t UpperLimitFrequencyBandTable[7] =
 	34999990,
 	39999990,
 	46999990,
-	60000000,
+	60000000
 };
 
 #ifndef DISABLE_NOAA
@@ -63,19 +63,31 @@ const uint32_t UpperLimitFrequencyBandTable[7] =
 		16252500,
 		16152500,
 		16177500,
-		16327500,
+		16327500
 	};
 #endif
 
-const uint16_t StepFrequencyTable[6] =
-{
-	250,
-	500,
-	625,
-	1000,
-	1250,
-	2500
-};
+#if 0
+	const uint16_t StepFrequencyTable[6] =
+	{
+		250,
+		500,
+		625,
+		1000,
+		1250,
+		2500
+	};
+#else
+	const uint16_t StepFrequencyTable[6] =
+	{
+		125,
+		250,
+		625,
+		1000,
+		1250,
+		2500
+	};
+#endif
 
 FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency)
 {
@@ -135,47 +147,47 @@ int FREQUENCY_Check(VFO_Info_t *pInfo)
 	switch (gSetting_F_LOCK)
 	{
 		case F_LOCK_FCC:
-			if (Frequency >= 14400000 && Frequency <= 14799990)
+			if (Frequency >= 14400000 && Frequency < 14800000)
 				return 0;
-			if (Frequency >= 42000000 && Frequency <= 44999990)
+			if (Frequency >= 42000000 && Frequency < 45000000)
 				return 0;
 			break;
 
 		case F_LOCK_CE:
-			if (Frequency >= 14400000 && Frequency <= 14599990)
+			if (Frequency >= 14400000 && Frequency < 14600000)
 				return 0;
 			break;
 
 		case F_LOCK_GB:
-			if (Frequency >= 14400000 && Frequency <= 14799990)
+			if (Frequency >= 14400000 && Frequency < 14800000)
 				return 0;
-			if (Frequency >= 43000000 && Frequency <= 43999990)
+			if (Frequency >= 43000000 && Frequency < 44000000)
 				return 0;
 			break;
 
 		case F_LOCK_430:
-			if (Frequency >= 13600000 && Frequency <= 17399990)
+			if (Frequency >= 13600000 && Frequency < 17400000)
 				return 0;
-			if (Frequency >= 40000000 && Frequency <= 42999990)
+			if (Frequency >= 40000000 && Frequency < 43000000)
 				return 0;
 			break;
 
 		case F_LOCK_438:
-			if (Frequency >= 13600000 && Frequency <= 17399990)
+			if (Frequency >= 13600000 && Frequency < 17400000)
 				return 0;
-			if (Frequency >= 40000000 && Frequency <= 43799990)
+			if (Frequency >= 40000000 && Frequency < 43800000)
 				return 0;
 			break;
 
 		default:
-			if (Frequency >= 13600000 && Frequency <= 17399990)
+			if (Frequency >= 13600000 && Frequency < 17400000)
 				return 0;
-			if (Frequency >= 35000000 && Frequency <= 39999990)
+			if (Frequency >= 35000000 && Frequency < 40000000)
 				if (gSetting_350TX && gSetting_350EN)
 					return 0;
-			if (Frequency >= 40000000 && Frequency <= 46999990)
+			if (Frequency >= 40000000 && Frequency < 47000000)
 				return 0;
-			if (Frequency >= 17400000 && Frequency <= 34999990)
+			if (Frequency >= 17400000 && Frequency < 35000000)
 				if (gSetting_200TX)
 					return 0;
 			if (Frequency >= 47000000 && Frequency <= 60000000)

@@ -812,6 +812,13 @@ void RADIO_PrepareTX(void)
 	{
 		VfoState_t State;
 
+		#ifndef ENABLE_TX_WHEN_AM
+			// disable the TX when VFO/Channel is set to AM
+			// the radio does NOT do AM, the adverts are false
+			if (gCurrentVfo->IsAM)
+				State = VFO_STATE_TX_DISABLE;
+			else
+		#endif
 		if (!FREQUENCY_Check(gCurrentVfo))
 		{
 			if (gCurrentVfo->BUSY_CHANNEL_LOCK && gCurrentFunction == FUNCTION_RECEIVE)
@@ -827,7 +834,7 @@ void RADIO_PrepareTX(void)
 		}
 		else
 			State = VFO_STATE_TX_DISABLE;
-
+	
 		RADIO_SetVfoState(State);
 
 		#ifndef DISABLE_ALARM

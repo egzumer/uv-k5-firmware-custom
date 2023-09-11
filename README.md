@@ -11,13 +11,14 @@ Am amazing achievement if you ask me !
 This version you can customize at compile time by making various changes to the makefile.
 You can edit those changes by (currently) editing the MakeFile, look for these lines ..
 
-*	CFLAGS  += -DBIG_FREQ_FONT        .. show frequency using big font
+*	CFLAGS  += -DDISABLE_BIG_FREQ     .. show frequencies using smaller font
 *	CFLAGS  += -DDISABLE_NOAA         .. remove NOAA channels option from the firmware
 *	CFLAGS  += -DDISABLE_VOICE        .. remove spoken VOICES option from the firmware
 *	CFLAGS  += -DDISABLE_AIRCOPY      .. remove AIRCOPY option
-*	CFLAGS  += -DKEEP_MEM_NAME        .. keep the memory channels name when re-saving a channel
 *	CFLAGS  += -DDISABLE_ALARM        .. remove the ALARM transmit option from the firmware
+*	CFLAGS  += -DKEEP_MEM_NAME        .. keep the memory channels name when re-saving a channel
 *	CFLAGS  += -DCHAN_NAME_FREQ       .. show the channel frequency (as well as channel number/name)
+*	#CFLAGS += -DENABLE_TX_WHEN_AM    .. enable TX when radio set to AM (radio does NOT do AM, the adverts are false)
 *	#CFLAGS += -DSINGLE_VFO_CHAN      .. (not yet implemented) show a single VFO/CHANNEL if dual-watch/cross-band are disabled
 *	#CFLAGS += -DBAND_SCOPE           .. (not yet implemented) show a band scope (spectrum/panadapter)
 
@@ -37,11 +38,11 @@ To enable the custom option just uncomment the line by removing the starting '#'
 * "TXP" menu, renamed to "TX-PWR"
 * "SAVE" menu, renamed to "B-SAVE"
 * "WX" menu, renamed to "CROS-B" - 'WX' normally means weather here in the UK
-* "ABR" menu, renamed to "BAK-LT", shows extended backlight times, now has always ON option
+* "ABR" menu, renamed to "BAK-LT", shows extended backlight times, includes always ON option
 * "SCR" menu, renamed to "SCRAM"
-* "MIC" menu, shows mic gain in dB's, now includes the max mic gain possible (+15.5dB)
+* "MIC" menu, shows mic gain in dB's, includes max mic gain possible (+15.5dB)
 * "VOL" menu, renamed to "BATVOL", shows voltage and percentage
-* "AM" menu, renamed to "MODE", shows modulation mode
+* "AM" menu, renamed to "MODE", shows RX modulation mode
 
 Menu renames are to try and reduce 'WTF does that do/mean ?'
 

@@ -93,14 +93,15 @@ LDFLAGS = -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld
 #LDFLAGS = -mcpu=cortex-m0 -nostartfiles -Wl,-gc-sections,-T,firmware.ld
 
 # compilation options
-#CFLAGS  += -DBIG_FREQ_FONT
+CFLAGS  += -DDISABLE_BIG_FREQ
 CFLAGS  += -DDISABLE_NOAA
 CFLAGS  += -DDISABLE_VOICE
 CFLAGS  += -DDISABLE_AIRCOPY
-CFLAGS  += -DKEEP_MEM_NAME
 CFLAGS  += -DDISABLE_ALARM
+CFLAGS  += -DKEEP_MEM_NAME
 CFLAGS  += -DCHAN_NAME_FREQ
-CFLAGS  += -DSINGLE_VFO_CHAN
+#CFLAGS  += -DENABLE_TX_WHEN_AM
+#CFLAGS  += -DSINGLE_VFO_CHAN
 #CFLAGS += -DBAND_SCOPE
 
 ifeq ($(DEBUG),1)

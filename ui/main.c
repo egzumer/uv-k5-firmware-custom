@@ -267,7 +267,7 @@ void UI_DisplayMain(void)
 					switch (gEeprom.CHANNEL_DISPLAY_MODE)
 					{
 						case MDF_FREQUENCY:	// show the channel frequency
-							#ifdef BIG_FREQ_FONT
+							#ifndef DISABLE_BIG_FREQ
 								NUMBER_ToDigits(frequency_Hz, String);
 								// show the main large frequency digits
 								UI_DisplayFrequency(String, 31, vfo_num * 4, false, false);
@@ -329,7 +329,7 @@ void UI_DisplayMain(void)
 							frequency_Hz = gEeprom.VfoInfo[vfo_num].pTX->Frequency;
 					}
 
-					#ifdef BIG_FREQ_FONT
+					#ifndef DISABLE_BIG_FREQ
 						NUMBER_ToDigits(frequency_Hz, String);  // 8 digits
 						// show the main large frequency digits
 						UI_DisplayFrequency(String, 31, vfo_num * 4, false, false);
