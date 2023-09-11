@@ -379,13 +379,26 @@ void UI_DisplayMenu(void)
 			break;
 	
 		case MENU_ABR:
-			if (gSubMenuSelection == 0)
-				strcpy(String, "OFF");
-			else
-			if (gSubMenuSelection < 5)
-				sprintf(String, "%d sec", gSubMenuSelection * 10);
-			else
-				strcpy(String, "ON");
+			#if 0
+				if (gSubMenuSelection == 0)
+					strcpy(String, "OFF");
+				else
+				if (gSubMenuSelection < 5)
+					sprintf(String, "%d sec", gSubMenuSelection * 10);
+				else
+					strcpy(String, "ON");
+			#else
+				switch (gSubMenuSelection)
+				{
+					case 0:  strcpy(String, "OFF");    break;
+					case 1:  strcpy(String, "10 sec"); break;
+					case 2:  strcpy(String, "20 sec"); break;
+					case 3:  strcpy(String, "40 sec"); break;
+					case 4:  strcpy(String, "80 sec"); break;
+					case 5:  strcpy(String, "ON");     break;
+					default: strcpy(String, "???");    break;
+				}
+			#endif
 			break;
 	
 		case MENU_AM:

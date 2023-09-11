@@ -11,16 +11,16 @@ Am amazing achievement if you ask me !
 This version you can customize at compile time by making various changes to the makefile.
 You can edit those changes by (currently) editing the MakeFile, look for these lines ..
 
-*	CFLAGS  += -DDISABLE_BIG_FREQ     .. show frequencies using smaller font
-*	CFLAGS  += -DDISABLE_NOAA         .. remove NOAA channels option from the firmware
-*	CFLAGS  += -DDISABLE_VOICE        .. remove spoken VOICES option from the firmware
-*	CFLAGS  += -DDISABLE_AIRCOPY      .. remove AIRCOPY option
-*	CFLAGS  += -DDISABLE_ALARM        .. remove the ALARM transmit option from the firmware
-*	CFLAGS  += -DKEEP_MEM_NAME        .. keep the memory channels name when re-saving a channel
-*	CFLAGS  += -DCHAN_NAME_FREQ       .. show the channel frequency (as well as channel number/name)
-*	#CFLAGS += -DENABLE_TX_WHEN_AM    .. enable TX when radio set to AM (radio does NOT do AM, the adverts are false)
-*	#CFLAGS += -DSINGLE_VFO_CHAN      .. (not yet implemented) show a single VFO/CHANNEL if dual-watch/cross-band are disabled
-*	#CFLAGS += -DBAND_SCOPE           .. (not yet implemented) show a band scope (spectrum/panadapter)
+* CFLAGS  += -DDISABLE_BIG_FREQ     .. show frequencies using smaller font
+* CFLAGS  += -DDISABLE_NOAA         .. remove NOAA channels option from the firmware
+* CFLAGS  += -DDISABLE_VOICE        .. remove spoken VOICES option from the firmware
+* CFLAGS  += -DDISABLE_AIRCOPY      .. remove AIRCOPY option
+* CFLAGS  += -DDISABLE_ALARM        .. remove the ALARM transmit option from the firmware
+* CFLAGS  += -DKEEP_MEM_NAME        .. keep the memory channels name when re-saving a channel
+* CFLAGS  += -DCHAN_NAME_FREQ       .. show the channel frequency (as well as channel number/name)
+* #CFLAGS += -DENABLE_TX_WHEN_AM    .. enable TX when radio set to AM (radio does NOT do AM, the adverts are false)
+* #CFLAGS += -DSINGLE_VFO_CHAN      .. (not yet implemented) show a single VFO/CHANNEL if dual-watch/cross-band are disabled
+* #CFLAGS += -DBAND_SCOPE           .. (not yet implemented) add a band scope/spectrum/panadapter option
 
 To enable the custom option just uncomment the line by removing the starting '#'.
 
@@ -28,7 +28,7 @@ To enable the custom option just uncomment the line by removing the starting '#'
 
 * Various bugs fixed that the QS firmware had (TX tail, Menu confimation etc)
 * Added new bugs
-* Battery voltage boot screen now includes the percentage (as well as voltage)
+* Battery voltage boot screen now includes percentage
 * Slightly less intense menu style
 * AM RX now allowed everywhere, although the radio really doesn't do AM, the adverts are a con !
 * Finer RSSI bar steps
@@ -38,14 +38,14 @@ To enable the custom option just uncomment the line by removing the starting '#'
 * "STEP" menu, added 1.25kHz option, removed 5kHz option
 * "TXP" menu, renamed to "TX-PWR"
 * "SAVE" menu, renamed to "B-SAVE"
-* "WX" menu, renamed to "CROS-B" - 'WX' normally means weather here in the UK
-* "ABR" menu, renamed to "BAK-LT", shows extended backlight times, includes always ON option
+* "WX" menu, renamed to "CROS-B" ('WX' means weather here in the UK)
+* "ABR" menu, renamed to "BAK-LT", extended times, includes always ON option
 * "SCR" menu, renamed to "SCRAM"
 * "MIC" menu, shows mic gain in dB's, includes max mic gain possible (+15.5dB)
-* "VOL" menu, renamed to "BATVOL", shows voltage and percentage
+* "VOL" menu, renamed to "BATVOL", added percentage level
 * "AM" menu, renamed to "MODE", shows RX modulation mode
 
-Menu renames are to try and reduce 'WTF does that do/mean ?'
+Menu renames are to try and reduce 'WTF does that mean ?'
 
 # Compiler
 

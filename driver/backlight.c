@@ -26,7 +26,26 @@ void BACKLIGHT_TurnOn(void)
 	if (gEeprom.BACKLIGHT > 0)
 	{
 		GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  // turn the backlight ON
-		gBacklightCountdown = (gEeprom.BACKLIGHT < 5) ? (gEeprom.BACKLIGHT * 20) - 19 : 0;		// much longer backlight times
+		switch (gEeprom.BACKLIGHT)
+		{
+			case 1:	// 10 sec
+				gBacklightCountdown = 1;
+				break;
+			case 2:	// 20 sec
+				gBacklightCountdown = 21;
+				break;
+			case 3:	// 40 sec
+				gBacklightCountdown = 61;
+				break;
+			case 4:	// 80 sec
+				gBacklightCountdown = 141;
+				break;
+			case 5:	// always on
+			default:
+				gBacklightCountdown = 0;
+				break;
+		}
+//		gBacklightCountdown = (gEeprom.BACKLIGHT < 5) ? (gEeprom.BACKLIGHT * 20) - 19 : 0;
 	}
 }
 
