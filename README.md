@@ -60,7 +60,7 @@ git submodule update --init --recursive --depth=1
 make
 ```
 
-You can also easily compile this in windows without installing a linux VM ...
+To compile directly in windows without the need of a linux virtual machine:
 
 ```
 * Download and install "gcc-arm-none-eabi-10.3-2021.10-win32.exe" from https://developer.arm.com/downloads/-/gnu-rm
