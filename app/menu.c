@@ -57,7 +57,9 @@
 		VOICE_ID_INVALID,
 		VOICE_ID_BEEP_PROMPT,
 		VOICE_ID_TRANSMIT_OVER_TIME,
-		VOICE_ID_VOICE_PROMPT,
+//		#ifndef DISABLE_VOICE
+			VOICE_ID_VOICE_PROMPT,
+//		#endif
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
@@ -70,7 +72,9 @@
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
+		#ifndef DISABLE_ALARM
+			VOICE_ID_INVALID,
+		#endif
 		VOICE_ID_ANI_CODE,
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
@@ -287,7 +291,7 @@ void MENU_AcceptSetting(void)
 			if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
 			{
 				gTxVfo->STEP_SETTING = gSubMenuSelection;
-				gRequestSaveChannel  = 1;
+				gRequestSaveChannel  = 2;
 				return;
 			}
 			gSubMenuSelection = gTxVfo->STEP_SETTING;
@@ -295,7 +299,7 @@ void MENU_AcceptSetting(void)
 	
 		case MENU_TXP:
 			gTxVfo->OUTPUT_POWER = gSubMenuSelection;
-			gRequestSaveChannel  = 1;
+			gRequestSaveChannel = 2;
 			return;
 	
 		case MENU_T_DCS:
@@ -367,17 +371,17 @@ void MENU_AcceptSetting(void)
 	
 		case MENU_W_N:
 			gTxVfo->CHANNEL_BANDWIDTH = gSubMenuSelection;
-			gRequestSaveChannel       = 1;
+			gRequestSaveChannel       = 2;
 			return;
 	
 		case MENU_SCR:
 			gTxVfo->SCRAMBLING_TYPE = gSubMenuSelection;
-			gRequestSaveChannel     = 1;
+			gRequestSaveChannel     = 2;
 			return;
 	
 		case MENU_BCL:
 			gTxVfo->BUSY_CHANNEL_LOCK = gSubMenuSelection;
-			gRequestSaveChannel       = 1;
+			gRequestSaveChannel       = 2;
 			return;
 	
 		case MENU_MEM_CH:
@@ -412,7 +416,7 @@ void MENU_AcceptSetting(void)
 			gEeprom.DUAL_WATCH   = gSubMenuSelection;
 			gFlagReconfigureVfos = true;
 			gRequestSaveSettings = true;
-			gUpdateStatus = true;
+			gUpdateStatus        = true;
 			return;
 	
 		case MENU_WX:
@@ -549,7 +553,7 @@ void MENU_AcceptSetting(void)
 	
 		case MENU_AM:
 			gTxVfo->AM_CHANNEL_MODE = gSubMenuSelection;
-			gRequestSaveChannel     = 1;
+			gRequestSaveChannel     = 2;
 			return;
 	
 		#ifndef DISABLE_NOAA
@@ -697,10 +701,7 @@ void MENU_ShowCurrentSetting(void)
 			break;
 	
 		case MENU_R_CTCS:
-			if (gTxVfo->ConfigRX.CodeType == CODE_TYPE_CONTINUOUS_TONE)
-				gSubMenuSelection = gTxVfo->ConfigRX.Code + 1;
-			else
-				gSubMenuSelection = 0;
+			gSubMenuSelection = (gTxVfo->ConfigRX.CodeType == CODE_TYPE_CONTINUOUS_TONE) ? gTxVfo->ConfigRX.Code + 1 : 0;
 			break;
 	
 		case MENU_T_DCS:
@@ -719,10 +720,7 @@ void MENU_ShowCurrentSetting(void)
 			break;
 	
 		case MENU_T_CTCS:
-			if (gTxVfo->ConfigTX.CodeType == CODE_TYPE_CONTINUOUS_TONE)
-				gSubMenuSelection = gTxVfo->ConfigTX.Code + 1;
-			else
-				gSubMenuSelection = 0;
+			gSubMenuSelection = (gTxVfo->ConfigTX.CodeType == CODE_TYPE_CONTINUOUS_TONE) ? gTxVfo->ConfigTX.Code + 1 : 0;
 			break;
 	
 		case MENU_SFT_D:
@@ -746,7 +744,11 @@ void MENU_ShowCurrentSetting(void)
 			break;
 	
 		case MENU_MEM_CH:
-			gSubMenuSelection = gEeprom.MrChannel[0];
+			#if 0
+				gSubMenuSelection = gEeprom.MrChannel[0];
+			#else
+				gSubMenuSelection = gEeprom.MrChannel[gEeprom.TX_CHANNEL];
+			#endif
 			break;
 	
 		case MENU_SAVE:
@@ -754,10 +756,7 @@ void MENU_ShowCurrentSetting(void)
 			break;
 	
 		case MENU_VOX:
-			if (gEeprom.VOX_SWITCH)
-				gSubMenuSelection = gEeprom.VOX_LEVEL + 1;
-			else
-				gSubMenuSelection = 0;
+			gSubMenuSelection = gEeprom.VOX_SWITCH ? gEeprom.VOX_LEVEL + 1 : 0;
 			break;
 	
 		case MENU_ABR:
@@ -887,7 +886,11 @@ void MENU_ShowCurrentSetting(void)
 		#endif
 		
 		case MENU_DEL_CH:
-			gSubMenuSelection = RADIO_FindNextChannel(gEeprom.MrChannel[0], 1, false, 1);
+			#if 0
+				gSubMenuSelection = RADIO_FindNextChannel(gEeprom.MrChannel[0], 1, false, 1);
+			#else
+				gSubMenuSelection = RADIO_FindNextChannel(gEeprom.MrChannel[gEeprom.TX_CHANNEL], 1, false, 1);
+			#endif
 			break;
 	
 		case MENU_350TX:

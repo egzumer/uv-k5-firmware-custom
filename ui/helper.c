@@ -90,7 +90,7 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 	if (bCentered)
 		Start += (((End - Start) - (Length * 8)) + 1) / 2;
 
-	#if 0
+	#if 1
 	{	// 5x7 font
 		const unsigned int char_width   = ARRAY_SIZE(gFont5x7[0]);
 		const unsigned int char_spacing = char_width + 1;
@@ -101,12 +101,12 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 			{
 				const unsigned int Index = ((unsigned int)pString[i] - 32);
 				if (Index < ARRAY_SIZE(gFont5x7))
-					memcpy(pfB + (i * char_spacing), &gFont5x7[Index], char_width);
+					memcpy(pFb + (i * char_spacing), &gFont5x7[Index], char_width);
 			}
 		}
 	}
 	#elif 1
-	{	// 5x8 font
+	{	// 5x8 font - this one
 		const unsigned int char_width   = ARRAY_SIZE(gFont5x8[0]);
 		const unsigned int char_spacing = char_width + 1;
 		uint8_t            *pFb         = gFrameBuffer[Line] + Start;
@@ -121,8 +121,8 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 		}
 	}
 	#else
-	{	// 8x8 font .. not yet working
-		const unsigned int char_width   = ARRAY_SIZE(gFont8x8[0]);
+	{
+		const unsigned int char_width   = ARRAY_SIZE(gFont6x8[0]);
 		const unsigned int char_spacing = char_width + 1;
 		uint8_t            *pFb         = gFrameBuffer[Line] + Start;
 		for (i = 0; i < Length; i++)
@@ -130,8 +130,8 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 			if (pString[i] >= 32)
 			{
 				const unsigned int Index = (unsigned int)pString[i] - 32;
-				if (Index < ARRAY_SIZE(gFont8x8))
-					memcpy(pFb + (i * char_spacing), &gFont8x8[Index], char_width);
+				if (Index < ARRAY_SIZE(gFont6x8))
+					memcpy(pFb + (i * char_spacing), &gFont6x8[Index], char_width);
 			}
 		}
 	}

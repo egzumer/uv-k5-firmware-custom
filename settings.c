@@ -232,23 +232,17 @@ void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool bUpdat
 	#endif
 	{
 		uint8_t  State[8];
-		uint8_t  Attributes;
-		uint16_t Offset = 0x0D60 + (Channel & ~7U);
+		uint8_t  Attributes = 0xFF;
+		uint16_t Offset     = 0x0D60 + (Channel & ~7U);
 
 		EEPROM_ReadBuffer(Offset, State, sizeof(State));
 
 		if (bUpdate)
 		{
-			Attributes = 0
-				| (pVFO->SCANLIST1_PARTICIPATION << 7)
-				| (pVFO->SCANLIST2_PARTICIPATION << 6)
-				| (pVFO->Band                    << 0);
-
+			Attributes = (pVFO->SCANLIST1_PARTICIPATION << 7) | (pVFO->SCANLIST2_PARTICIPATION << 6) | (pVFO->Band << 0);
 			if (State[Channel & 7U] == Attributes)
 				return;
 		}
-		else
-			Attributes = 0xFF;
 
 		State[Channel & 7U] = Attributes;
 

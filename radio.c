@@ -91,7 +91,7 @@ bool RADIO_CheckValidChannel(uint16_t Channel, bool bCheckScanList, uint8_t VFO)
 
 uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScanList, uint8_t VFO)
 {
-	uint8_t i;
+	unsigned int i;
 
 	for (i = 0; i < 200; i++)
 	{
