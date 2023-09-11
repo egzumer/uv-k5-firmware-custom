@@ -1280,18 +1280,21 @@ void APP_TimeSlice500ms(void)
 {
 	// Skipped authentic device check
 
-	if (gBacklightCountdown > 0)
-		if (--gBacklightCountdown == 0)
-			if (gEeprom.BACKLIGHT < 5)
-				GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);   // turn backlight off
-			
-	if (gKeypadLocked)
+	if (gCurrentFunction != FUNCTION_TRANSMIT)
+	{
+		if (gBacklightCountdown > 0)
+			if (--gBacklightCountdown == 0)
+				if (gEeprom.BACKLIGHT < 5)
+					GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);   // turn backlight off
+	}
+	
+	if (gKeypadLocked > 0)
 		if (--gKeypadLocked == 0)
 			gUpdateDisplay = true;
 
 	// Skipped authentic device check
 
-	if (gFmRadioCountdown)
+	if (gFmRadioCountdown > 0)
 	{
 		gFmRadioCountdown--;
 		return;
@@ -1326,7 +1329,7 @@ void APP_TimeSlice500ms(void)
 			gCurrentRSSI = BK4819_GetRSSI();
 			UI_UpdateRSSI(gCurrentRSSI);
 		}
-		else
+//		else
 		{
 			if ((gFM_ScanState == FM_SCAN_OFF || gAskToSave) && gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF)
 			{
@@ -1344,7 +1347,7 @@ void APP_TimeSlice500ms(void)
 						gUpdateStatus = true;
 					}
 
-					if (gVoltageMenuCountdown)
+					if (gVoltageMenuCountdown > 0)
 					{
 						if (--gVoltageMenuCountdown == 0)
 						{

@@ -64,13 +64,13 @@ make
 To compile directly in windows without the need of a linux virtual machine:
 
 ```
-* Download and install "gcc-arm-none-eabi-10.3-2021.10-win32.exe" from https://developer.arm.com/downloads/-/gnu-rm
-* Download and install "gnu_make-3.81.exe" from https://gnuwin32.sourceforge.net/packages/make.htm
+1. Download and install "gcc-arm-none-eabi-10.3-2021.10-win32.exe" from https://developer.arm.com/downloads/-/gnu-rm
+2. Download and install "gnu_make-3.81.exe" from https://gnuwin32.sourceforge.net/packages/make.htm
+3. You may (or may not) need to reboot your PC after installing the above
 ```
 
-You may (or may not) need to reboot your PC after installing the above.
-
-Run 'win_make.bat' from the directory you saved this source code too, you may have to edit the bat file depending on where you installed 'gnu_make' too
+Then you can run 'win_make.bat' from the directory you saved this source code too.
+You may need to edit the bat file (path to make.exe) depending on where you installed 'gnu_make' too.
 
 # Credits
 

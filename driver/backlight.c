@@ -19,6 +19,7 @@
 #include "driver/gpio.h"
 #include "settings.h"
 
+// this is decremented once every 500ms
 uint8_t gBacklightCountdown = 0;
 
 void BACKLIGHT_TurnOn(void)
@@ -33,16 +34,16 @@ void BACKLIGHT_TurnOn(void)
 	{
 		default:
 		case 1:	// 10 sec
-			gBacklightCountdown = 2 * 10;	// 1
+			gBacklightCountdown = 2 * 10;
 			break;
 		case 2:	// 20 sec
-			gBacklightCountdown = 2 * 20;	// 21
+			gBacklightCountdown = 2 * 20;
 			break;
 		case 3:	// 40 sec
-			gBacklightCountdown = 2 * 40;	// 61
+			gBacklightCountdown = 2 * 40;
 			break;
 		case 4:	// 80 sec
-			gBacklightCountdown = 2 * 80;	// 141
+			gBacklightCountdown = 2 * 80;
 			break;
 		case 5:	// always on
 			gBacklightCountdown = 0;
