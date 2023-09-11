@@ -256,7 +256,7 @@ void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool bUpdat
 
 		gMR_ChannelAttributes[Channel] = Attributes;
 
-		#ifdef KEEP_MEM_NAME
+		#ifndef KEEP_MEM_NAME
 			if (IS_MR_CHANNEL(Channel))
 			{	// clear/reset the channel name
 				const uint16_t OffsetMR = Channel * 16;
