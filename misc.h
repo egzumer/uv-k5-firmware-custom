@@ -77,8 +77,12 @@ typedef enum CssScanMode_t CssScanMode_t;
 
 extern const uint8_t     g_scan_delay;
 
+extern const uint8_t     g_menu_timeout;
+
 extern const uint16_t    gMax_bat_v;
 extern const uint16_t    gMin_bat_v;
+
+extern const uint8_t     gMicGain_dB2[5];
 
 extern const uint32_t   *gUpperLimitFrequencyBandTable;
 extern const uint32_t   *gLowerLimitFrequencyBandTable;
@@ -91,8 +95,6 @@ extern bool              gSetting_350EN;
 extern uint8_t           gSetting_F_LOCK;
 extern bool              gSetting_ScrambleEnable;
 extern uint8_t           gSetting_F_LOCK;
-
-extern const uint8_t     gMicGain_dB2[5];
 
 extern const uint32_t    gDefaultAesKey[4];
 extern uint32_t          gCustomAesKey[4];

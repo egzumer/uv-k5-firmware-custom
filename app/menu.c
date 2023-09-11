@@ -1322,5 +1322,5 @@ void MENU_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	}
 
 	if (gScreenToDisplay == DISPLAY_MENU && gMenuCursor == MENU_VOL)
-		gVoltageMenuCountdown = 2 * 30;   // 30 sec
+		gVoltageMenuCountdown = g_menu_timeout;
 }

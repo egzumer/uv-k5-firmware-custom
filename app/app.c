@@ -1589,7 +1589,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	else
 	{
 		if (Key != KEY_PTT)
-			gVoltageMenuCountdown = 2 * 30;	// 30 sec
+			gVoltageMenuCountdown = g_menu_timeout;
 
 		BACKLIGHT_TurnOn();
 

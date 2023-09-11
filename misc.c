@@ -20,6 +20,8 @@
 
 const uint8_t     g_scan_delay = 21;   // 21
 
+const uint8_t     g_menu_timeout = 2 * 30;  // 30 seconds
+
 const uint16_t    gMax_bat_v = 840;   // 8.4V
 const uint16_t    gMin_bat_v = 660;   // 6.6V
 
