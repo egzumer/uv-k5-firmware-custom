@@ -60,7 +60,14 @@ git submodule update --init --recursive --depth=1
 make
 ```
 
-You can also easily compile this in windows (will add an example shortly) meaning you no longer have to install a linux VM on Windows.
+You can also easily compile this in windows without installing a linux VM ...
+
+```
+* Download and install "gcc-arm-none-eabi-10.3-2021.10-win32.exe" from https://developer.arm.com/downloads/-/gnu-rm
+* Download and install "gnu_make-3.81.exe" from https://gnuwin32.sourceforge.net/packages/make.htm
+*
+* To compile just run win_make.bat from the directory you saved this source code too, you may have to edit the bat file depending on where you installed 'gnu_make' too
+```
 
 # Credits
 
