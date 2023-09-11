@@ -121,7 +121,7 @@ void UI_DisplayMain(void)
 		if (!single_vfo)
 		{	// highlight the selected/used VFO with a marker
 			if (bIsSameVfo)
-				memcpy(pLine0 + 2, BITMAP_VFO_Default,    sizeof(BITMAP_VFO_Default));
+				memcpy(pLine0 + 2, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			//else
 				//memcpy(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
@@ -234,14 +234,14 @@ void UI_DisplayMain(void)
 					break;
 			}
 
-			UI_PrintString(String, 31, 111, vfo_num * 4, Width, true);
+			UI_PrintString(String, 31, 111, Line, Width, true);
 		}
 		else
 		{	// normal state
 
 			if (gInputBoxIndex && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_CHANNEL == vfo_num)
 			{	// user is entering a new frequency
-				UI_DisplayFrequency(gInputBox, 31, vfo_num * 4, true, false);
+				UI_DisplayFrequency(gInputBox, 31, Line, true, false);
 			}
 			else
 			{
@@ -270,13 +270,13 @@ void UI_DisplayMain(void)
 							#ifndef DISABLE_BIG_FREQ
 								NUMBER_ToDigits(frequency_Hz, String);
 								// show the main large frequency digits
-								UI_DisplayFrequency(String, 31, vfo_num * 4, false, false);
+								UI_DisplayFrequency(String, 31, Line, false, false);
 								// show the remaining 2 small frequency digits
 								UI_DisplaySmallDigits(2, String + 6, 112, Line + 1);
 							#else
 								// show the frequency in the main font
 								sprintf(String, "%9.5f", frequency_Hz * 0.00001);
-								UI_PrintString(String, 31, 112, vfo_num * 4, 8, true);
+								UI_PrintString(String, 31, 112, Line, 8, true);
 							#endif
 
 							frequency_Hz = 0;
@@ -284,7 +284,7 @@ void UI_DisplayMain(void)
 
 						case MDF_CHANNEL:	// show the channel number
 							sprintf(String, "CH-%03d", gEeprom.ScreenChannel[vfo_num] + 1);
-							UI_PrintString(String, 31, 112, vfo_num * 4, 8, true);
+							UI_PrintString(String, 31, 112, Line, 8, true);
 							frequency_Hz = 0;
 							break;
 
@@ -292,11 +292,11 @@ void UI_DisplayMain(void)
 							if (gEeprom.VfoInfo[vfo_num].Name[0] == 0 || gEeprom.VfoInfo[vfo_num].Name[0] == 0xFF)
 							{	// no channel name, show the channel number instead
 								sprintf(String, "CH-%03d", gEeprom.ScreenChannel[vfo_num] + 1);
-								UI_PrintString(String, 31, 112, vfo_num * 4, 8, true);
+								UI_PrintString(String, 31, 112, Line, 8, true);
 							}
 							else
 							{	// channel name
-								UI_PrintString(gEeprom.VfoInfo[vfo_num].Name, 31, 112, vfo_num * 4, 8, true);
+								UI_PrintString(gEeprom.VfoInfo[vfo_num].Name, 31, 112, Line, 8, true);
 							}
 							frequency_Hz = 0;
 							break;
@@ -306,13 +306,13 @@ void UI_DisplayMain(void)
 								if (gEeprom.VfoInfo[vfo_num].Name[0] == 0 || gEeprom.VfoInfo[vfo_num].Name[0] == 0xFF)
 								{	// no channel name, show channel number instead
 									sprintf(String, "CH-%03d", gEeprom.ScreenChannel[vfo_num] + 1);
-									UI_PrintStringSmall(gEeprom.VfoInfo[vfo_num].Name, 31 + 8, 0, (vfo_num * 4) + 0, false);
+									UI_PrintStringSmall(gEeprom.VfoInfo[vfo_num].Name, 31 + 8, 0, Line, false);
 								}
 								else
 								{	// channel name
 									memset(String, 0, sizeof(String));
 									memcpy(String, gEeprom.VfoInfo[vfo_num].Name, 8);
-									UI_PrintStringSmall(gEeprom.VfoInfo[vfo_num].Name, 31 + 8, 0, (vfo_num * 4) + 0, false);
+									UI_PrintStringSmall(gEeprom.VfoInfo[vfo_num].Name, 31 + 8, 0, Line, false);
 								}
 								break;
 						#endif
@@ -332,13 +332,13 @@ void UI_DisplayMain(void)
 					#ifndef DISABLE_BIG_FREQ
 						NUMBER_ToDigits(frequency_Hz, String);  // 8 digits
 						// show the main large frequency digits
-						UI_DisplayFrequency(String, 31, vfo_num * 4, false, false);
+						UI_DisplayFrequency(String, 31, Line, false, false);
 						// show the remaining 2 small frequency digits
 						UI_DisplaySmallDigits(2, String + 6, 112, Line + 1);
 					#else
 						// show the frequency in the main font
 						sprintf(String, "%9.5f", frequency_Hz * 0.00001);
-						UI_PrintString(String, 31, 112, vfo_num * 4, 8, true);
+						UI_PrintString(String, 31, 112, Line, 8, true);
 					#endif
 					
 					frequency_Hz = 0;
@@ -452,10 +452,10 @@ void UI_DisplayMain(void)
 			{	// show the channel frequency below the channel number/name
 				#if 1
 					NUMBER_ToDigits(frequency_Hz, String);  // 8 digits
-					UI_DisplayFrequencySmall(String, 31 + 8, (vfo_num * 4) + 1, false);
+					UI_DisplayFrequencySmall(String, 31 + 8, Line + 1, false);
 				#else
 					sprintf(String, "%9.5f", frequency_Hz * 0.00001);
-					UI_PrintStringSmall(String, 31 + 8, 0, (vfo_num * 4) + 1, false);
+					UI_PrintStringSmall(String, 31 + 8, 0, Line + 1, false);
 				#endif
 			}
 		#endif

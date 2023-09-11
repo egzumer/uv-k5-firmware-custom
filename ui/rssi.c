@@ -36,6 +36,7 @@ static void Render(uint8_t RssiLevel, uint8_t VFO)
 	{
 		pLine = gFrameBuffer[2];
 		Line  = 3;
+//		Line  = 4;
 	}
 	else
 	{
