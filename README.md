@@ -32,7 +32,7 @@ To enable the custom option just uncomment the line by removing the starting '#'
 * Slightly less intense menu style
 * AM RX now allowed everywhere, although the radio really doesn't do AM, the adverts are a con !
 * Finer RSSI bar steps
-* Nicer big font than original big font
+* Nicer/cleaner big numeric font than original QS big numeric font
 *
 * "MEM-CH" and "DEL-CH" menus now include channel name
 * "STEP" menu, added 1.25kHz option, removed 5kHz option

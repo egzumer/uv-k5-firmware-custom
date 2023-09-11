@@ -1280,6 +1280,11 @@ void APP_TimeSlice500ms(void)
 {
 	// Skipped authentic device check
 
+	if (gBacklightCountdown > 0)
+		if (--gBacklightCountdown == 0)
+			if (gEeprom.BACKLIGHT < 5)
+				GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);   // turn backlight off
+			
 	if (gKeypadLocked)
 		if (--gKeypadLocked == 0)
 			gUpdateDisplay = true;
@@ -1325,11 +1330,6 @@ void APP_TimeSlice500ms(void)
 		{
 			if ((gFM_ScanState == FM_SCAN_OFF || gAskToSave) && gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF)
 			{
-				if (gBacklightCountdown)
-					if (--gBacklightCountdown == 0)
-						if (gEeprom.BACKLIGHT < 5)
-							GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);   // turn backlight off
-
 				#ifndef DISABLE_AIRCOPY
 					if (gScreenToDisplay != DISPLAY_AIRCOPY && (gScreenToDisplay != DISPLAY_SCANNER || gScanCssState >= SCAN_CSS_STATE_FOUND))
 				#else
