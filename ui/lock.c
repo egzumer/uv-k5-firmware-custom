@@ -36,11 +36,11 @@ static void Render(void)
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 
 	strcpy(String, "LOCK");
-	UI_PrintString(String, 0, 127, 1, 10, true);
+	UI_PrintString(String, 0, 127, 1, 10);
 	for (i = 0; i < 6; i++)
 		String[i] = (gInputBox[i] == 10) ? '-' : '*';
 	String[6] = 0;
-	UI_PrintString(String, 0, 127, 3, 12, true);
+	UI_PrintString(String, 0, 127, 3, 12);
 
 	ST7565_BlitStatusLine();
 	ST7565_BlitFullScreen();

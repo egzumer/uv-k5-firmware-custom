@@ -60,10 +60,9 @@ void UI_DisplayWelcome(void)
 			EEPROM_ReadBuffer(0x0EC0, WelcomeString1, 16);
 		}
 
-		// UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Line, uint8_t Width, bool bCentered);
-		UI_PrintString(WelcomeString0, 0, 127, 0, 10, true);
-		UI_PrintString(WelcomeString1, 0, 127, 2, 10, true);
-		UI_PrintString(Version,        0, 127, 5, 10, true);
+		UI_PrintString(WelcomeString0, 0, 127, 0, 10);
+		UI_PrintString(WelcomeString1, 0, 127, 2, 10);
+		UI_PrintString(Version,        0, 127, 5, 10);
 
 		ST7565_BlitStatusLine();
 		ST7565_BlitFullScreen();

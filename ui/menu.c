@@ -270,7 +270,7 @@ void UI_DisplayMenu(void)
 	for (i = 0; i < 3; i++)
 		if (gMenuCursor || i)
 			if ((gMenuListCount - 1) != gMenuCursor || i != 2)
-				UI_PrintString(MenuList[gMenuCursor + i - 1], 0, 127, i * 2, 8, false);
+				UI_PrintString(MenuList[gMenuCursor + i - 1], 0, 0, i * 2, 8);
 
 	for (i = 0; i < 48; i++)
 	{
@@ -539,38 +539,38 @@ void UI_DisplayMenu(void)
 
 	if (gMenuCursor == MENU_AM)
 	{	// the radio doesn't really do AM
-		UI_PrintString(String, 50, 127, 1, 8, true);
+		UI_PrintString(String, 50, 127, 1, 8);
 		if (gSubMenuSelection > 0)
 		{
-			UI_PrintString("not", 50, 127, 3, 8, true);
-			UI_PrintString("really", 50, 127, 5, 8, true);
+			UI_PrintString("not",    50, 127, 3, 8);
+			UI_PrintString("really", 50, 127, 5, 8);
 		}
 	}
 	else
 	if (gMenuCursor == MENU_VOL)
 	{	// 2nd text line .. percentage
-		UI_PrintString(String, 50, 127, 1, 8, true);
+		UI_PrintString(String, 50, 127, 1, 8);
 		const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
 		                       (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
 		                        gBatteryVoltageAverage;
 		sprintf(String, "%u%%", (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
-		UI_PrintString(String, 50, 127, 3, 8, true);
+		UI_PrintString(String, 50, 127, 3, 8);
 	}
 	else
 	if (gMenuCursor == MENU_OFFSET)
 	{
-		UI_PrintString(String, 50, 127, 1, 8, true);
-		UI_PrintString("MHz",  50, 127, 3, 8, true);
+		UI_PrintString(String, 50, 127, 1, 8);
+		UI_PrintString("MHz",  50, 127, 3, 8);
 	}
 	else
 	{
-		UI_PrintString(String, 50, 127, 2, 8, true);
+		UI_PrintString(String, 50, 127, 2, 8);
 	}
 
 	if ((gMenuCursor == MENU_RESET || gMenuCursor == MENU_MEM_CH || gMenuCursor == MENU_DEL_CH) && gAskForConfirmation)
 	{	// display confirmation
 		strcpy(String, (gAskForConfirmation == 1) ? "SURE?" : "WAIT!");
-		UI_PrintString(String, 50, 127, 4, 8, true);
+		UI_PrintString(String, 50, 127, 4, 8);
 	}
 	else
 	if ((gMenuCursor == MENU_MEM_CH || gMenuCursor == MENU_DEL_CH) && !gAskForConfirmation)
@@ -599,27 +599,27 @@ void UI_DisplayMenu(void)
 					s[i] = 0;
 				}
 			}
-			UI_PrintString(s, 50, 127, 4, 8, true);
+			UI_PrintString(s, 50, 127, 4, 8);
 		}
 	}
 
 	if ((gMenuCursor == MENU_R_CTCS || gMenuCursor == MENU_R_DCS) && gCssScanMode != CSS_SCAN_MODE_OFF)
-		UI_PrintString("SCAN", 50, 127, 4, 8, true);
+		UI_PrintString("SCAN", 50, 127, 4, 8);
 
 	if (gMenuCursor == MENU_UPCODE)
 		if (strlen(gEeprom.DTMF_UP_CODE) > 8)
-			UI_PrintString(gEeprom.DTMF_UP_CODE + 8, 50, 127, 4, 8, true);
+			UI_PrintString(gEeprom.DTMF_UP_CODE + 8, 50, 127, 4, 8);
 
 	if (gMenuCursor == MENU_DWCODE)
 		if (strlen(gEeprom.DTMF_DOWN_CODE) > 8)
-			UI_PrintString(gEeprom.DTMF_DOWN_CODE + 8, 50, 127, 4, 8, true);
+			UI_PrintString(gEeprom.DTMF_DOWN_CODE + 8, 50, 127, 4, 8);
 
 	if (gMenuCursor == MENU_D_LIST && gIsDtmfContactValid)
 	{
 		Contact[11] = 0;
 		memcpy(&gDTMF_ID, Contact + 8, 4);
 		sprintf(String, "ID:%s", Contact + 8);
-		UI_PrintString(String, 50, 127, 4, 8, true);
+		UI_PrintString(String, 50, 127, 4, 8);
 	}
 
 	if (gMenuCursor == MENU_R_CTCS ||
@@ -645,22 +645,22 @@ void UI_DisplayMenu(void)
 
 		if (gSubMenuSelection == 0xFF || !gEeprom.SCAN_LIST_ENABLED[i])
 		{
-			UI_PrintString(String, 50, 127, 2, 8, 1);
+			UI_PrintString(String, 50, 127, 2, 8);
 		}
 		else
 		{
-			UI_PrintString(String, 50, 127, 0, 8, 1);
+			UI_PrintString(String, 50, 127, 0, 8);
 
 			if (IS_MR_CHANNEL(gEeprom.SCANLIST_PRIORITY_CH1[i]))
 			{
 				sprintf(String, "PRI1:%d", gEeprom.SCANLIST_PRIORITY_CH1[i] + 1);
-				UI_PrintString(String, 50, 127, 2, 8, 1);
+				UI_PrintString(String, 50, 127, 2, 8);
 			}
 
 			if (IS_MR_CHANNEL(gEeprom.SCANLIST_PRIORITY_CH2[i]))
 			{
 				sprintf(String, "PRI2:%d", gEeprom.SCANLIST_PRIORITY_CH2[i] + 1);
-				UI_PrintString(String, 50, 127, 4, 8, 1);
+				UI_PrintString(String, 50, 127, 4, 8);
 			}
 		}
 	}

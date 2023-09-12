@@ -62,12 +62,12 @@ void UI_GenerateChannelStringEx(char *pString, const bool bShowPrefix, const uin
 		sprintf(pString, "%03d", ChannelNumber + 1);
 }
 
-void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Line, uint8_t Width, bool bCentered)
+void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Line, uint8_t Width)
 {
 	size_t i;
 	size_t Length = strlen(pString);
 
-	if (bCentered)
+	if (End > Start)
 		Start += (((End - Start) - (Length * Width)) + 1) / 2;
 
 	for (i = 0; i < Length; i++)
@@ -82,12 +82,12 @@ void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Lin
 	}
 }
 
-void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_t Line, bool bCentered)
+void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_t Line)
 {
 	const size_t Length = strlen(pString);
 	size_t       i;
 
-	if (bCentered)
+	if (End > Start)
 		Start += (((End - Start) - (Length * 8)) + 1) / 2;
 
 	#if 1

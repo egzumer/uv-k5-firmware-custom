@@ -30,15 +30,16 @@
 
 void UI_DisplayMain(void)
 {
-	char         String[16];
-	unsigned int vfo_num;
+	const unsigned int display_width = 128;
+	char               String[16];
+	unsigned int       vfo_num;
 
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 
 	if (gEeprom.KEY_LOCK && gKeypadLocked)
 	{
-		UI_PrintString("Long Press #", 0, 127, 1, 8, true);
-		UI_PrintString("To Unlock",    0, 127, 3, 8, true);
+		UI_PrintString("Long press #", 0, display_width - 1, 1, 8);
+		UI_PrintString("to unlock",    0, display_width - 1, 3, 8);
 		ST7565_BlitFullScreen();
 		return;
 	}
@@ -51,18 +52,17 @@ void UI_DisplayMain(void)
 	
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
-		uint8_t  Channel      = gEeprom.TX_CHANNEL;
-		bool     bIsSameVfo   = !!(Channel == vfo_num);
-		uint8_t  Line         = (vfo_num == 0) ? 0 : 4;
-		uint8_t *pLine0       = gFrameBuffer[Line + 0];
-		uint8_t *pLine1       = gFrameBuffer[Line + 1];
-		uint32_t frequency_Hz = 0;
+		uint8_t  Channel    = gEeprom.TX_CHANNEL;
+		bool     bIsSameVfo = !!(Channel == vfo_num);
+		uint8_t  Line       = (vfo_num == 0) ? 0 : 4;
+		uint8_t *pLine0     = gFrameBuffer[Line + 0];
+		uint8_t *pLine1     = gFrameBuffer[Line + 1];
 		
 		if (single_vfo)
-		{	// we're in single VFO mode
+		{	// we're in single VFO mode - screen is dedicated to just one VFO
 
 			if (!bIsSameVfo)
-				continue;  // skip the unused vfo .. screen is dedicated to just a single VFO
+				continue;  // skip the unused vfo
 
 			//Line   = 1;
 			//pLine0 = gFrameBuffer[Line + 0];
@@ -93,7 +93,7 @@ void UI_DisplayMain(void)
 				}
 				else
 					sprintf(String, ">%s", gDTMF_InputBox);
-				UI_PrintString(String, 2, 127, vfo_num * 3, 8, false);
+				UI_PrintString(String, 2, 0, vfo_num * 3, 8);
 
 				memset(String,  0, sizeof(String));
 				if (!gDTMF_InputMode)
@@ -108,7 +108,7 @@ void UI_DisplayMain(void)
 					if (gDTMF_IsTx)
 						sprintf(String, ">%s", gDTMF_String);
 				}
-				UI_PrintString(String, 2, 127, 2 + (vfo_num * 3), 8, false);
+				UI_PrintString(String, 2, 0, 2 + (vfo_num * 3), 8);
 
 				continue;
 			}
@@ -116,14 +116,16 @@ void UI_DisplayMain(void)
 			// highlight the selected/used VFO with a marker
 			if (!single_vfo && bIsSameVfo)
 				memcpy(pLine0 + 2, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
+			//else
+			//	memcpy(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 		else
 		if (!single_vfo)
 		{	// highlight the selected/used VFO with a marker
 			if (bIsSameVfo)
 				memcpy(pLine0 + 2, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
-			//else
-				//memcpy(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
+			else
+				memcpy(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 
 		uint32_t SomeValue = 0;
@@ -148,7 +150,7 @@ void UI_DisplayMain(void)
 			}
 		}
 		else
-		{	// show the RX symbol
+		{	// receiving .. show the RX symbol
 			SomeValue = 2;
 			if ((gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR) && gEeprom.RX_CHANNEL == vfo_num)
 				memcpy(pLine0 + 14, BITMAP_RX, sizeof(BITMAP_RX));
@@ -157,29 +159,32 @@ void UI_DisplayMain(void)
 		if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 		{	// channel mode
 	
-			// show the memory symbol
-			memcpy(pLine1 + 2, BITMAP_M, sizeof(BITMAP_M));
+			const unsigned int x = 2;
+
+			// show the memory channel symbol
+			memcpy(pLine1 + x, BITMAP_M, sizeof(BITMAP_M));
 	
 			// show the memory channel number
 			if (gInputBoxIndex == 0 || gEeprom.TX_CHANNEL != vfo_num)
 				NUMBER_ToDigits(gEeprom.ScreenChannel[vfo_num] + 1, String);
 			else
 				memcpy(String + 5, gInputBox, 3);
-			UI_DisplaySmallDigits(3, String + 5, 10, Line + 1);
+			UI_DisplaySmallDigits(3, String + 5, x + sizeof(BITMAP_M), Line + 1);
 		}
 		else
 		if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 		{
+			const unsigned int x = 2;	// was 14
 			// show the frequency band number
 			char c;
-			memcpy(pLine1 + 14, BITMAP_F, sizeof(BITMAP_F));
+			memcpy(pLine1 + x, BITMAP_FB, sizeof(BITMAP_FB));
 			c = (gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST) + 1;
-			UI_DisplaySmallDigits(1, &c, 22, Line + 1);
+			UI_DisplaySmallDigits(1, &c, x + sizeof(BITMAP_FB), Line + 1);
 		}
 		else
 		{
-			// show the 'N' narrow band symbol
-			memcpy(pLine1 + 7, BITMAP_NarrowBand, sizeof(BITMAP_NarrowBand));
+			// show the 'N' narrow band symbol - why do we do that here ?
+			//memcpy(pLine1 + 7, BITMAP_NarrowBand, sizeof(BITMAP_NarrowBand));
 
 			if (gInputBoxIndex == 0 || gEeprom.TX_CHANNEL != vfo_num)
 			{
@@ -193,6 +198,8 @@ void UI_DisplayMain(void)
 			UI_DisplaySmallDigits(2, String + 6, 15, Line + 1);
 		}
 
+		// ************
+		
 		uint8_t State = VfoState[vfo_num];
 
 		#ifndef DISABLE_ALARM
@@ -206,12 +213,14 @@ void UI_DisplayMain(void)
 
 		if (State != VFO_STATE_NORMAL)
 		{
-			uint8_t Width = 10;
+			//uint8_t Width = 10;
 
 			memset(String, 0, sizeof(String));
 
 			switch (State)
 			{
+				//case VFO_STATE_NORMAL:
+				//	break;
 				case VFO_STATE_BUSY:
 					strcpy(String, "BUSY");
 					//Width = 15;
@@ -230,15 +239,14 @@ void UI_DisplayMain(void)
 					break;
 				case VFO_STATE_VOLTAGE_HIGH:
 					sprintf(String, "VOLT HIGH");
-					Width = 8;
+					//Width = 8;
 					break;
 			}
 
 			#if 0
-				UI_PrintString(String, 31, 111, Line, Width, true);
+				UI_PrintString(String, 31, 111, Line, Width);		// centered text
 			#else
-				(void)Width;
-				UI_PrintString(String, 31, 111, Line, 8, false);
+				UI_PrintString(String, 34, 0, Line, 8);				// left aligned text
 			#endif
 		}
 		else
@@ -250,17 +258,17 @@ void UI_DisplayMain(void)
 			}
 			else
 			{
-				if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
-				{	// channel mode#
-			
-					frequency_Hz = gEeprom.VfoInfo[vfo_num].pRX->Frequency;
-					if (gCurrentFunction == FUNCTION_TRANSMIT)
-					{	// transmitting
-						Channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
-						if (Channel == vfo_num)
-							frequency_Hz = gEeprom.VfoInfo[vfo_num].pTX->Frequency;
-					}
+				uint32_t frequency_Hz = gEeprom.VfoInfo[vfo_num].pRX->Frequency;
+				if (gCurrentFunction == FUNCTION_TRANSMIT)
+				{	// transmitting
+					Channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+					if (Channel == vfo_num)
+						frequency_Hz = gEeprom.VfoInfo[vfo_num].pTX->Frequency;
+				}
 
+				if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
+				{	// channel mode
+			
 					{	// show the scanlist symbols
 						const uint8_t Attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
 						if (Attributes & MR_CH_SCANLIST1)
@@ -281,15 +289,13 @@ void UI_DisplayMain(void)
 							#else
 								// show the frequency in the main font
 								sprintf(String, "%9.5f", frequency_Hz * 0.00001);
-								UI_PrintString(String, 31, 112, Line, 8, true);
+								UI_PrintString(String, 31, 112, Line, 8);
 							#endif
-
-							frequency_Hz = 0;
 							break;
 
 						case MDF_CHANNEL:	// show the channel number
 							sprintf(String, "CH-%03d", gEeprom.ScreenChannel[vfo_num] + 1);
-							UI_PrintString(String, 31, 112, Line, 8, true);
+							UI_PrintString(String, 31, 112, Line, 8);
 							frequency_Hz = 0;
 							break;
 
@@ -297,13 +303,12 @@ void UI_DisplayMain(void)
 							if (gEeprom.VfoInfo[vfo_num].Name[0] == 0 || gEeprom.VfoInfo[vfo_num].Name[0] == 0xFF)
 							{	// no channel name, show the channel number instead
 								sprintf(String, "CH-%03d", gEeprom.ScreenChannel[vfo_num] + 1);
-								UI_PrintString(String, 31, 112, Line, 8, true);
+								UI_PrintString(String, 31, 112, Line, 8);
 							}
 							else
 							{	// channel name
-								UI_PrintString(gEeprom.VfoInfo[vfo_num].Name, 31, 112, Line, 8, true);
+								UI_PrintString(gEeprom.VfoInfo[vfo_num].Name, 31, 112, Line, 8);
 							}
-							frequency_Hz = 0;
 							break;
 
 						#ifdef CHAN_NAME_FREQ
@@ -311,14 +316,24 @@ void UI_DisplayMain(void)
 								if (gEeprom.VfoInfo[vfo_num].Name[0] == 0 || gEeprom.VfoInfo[vfo_num].Name[0] == 0xFF)
 								{	// no channel name, show channel number instead
 									sprintf(String, "CH-%03d", gEeprom.ScreenChannel[vfo_num] + 1);
-									UI_PrintStringSmall(gEeprom.VfoInfo[vfo_num].Name, 31 + 8, 0, Line, false);
+									UI_PrintStringSmall(gEeprom.VfoInfo[vfo_num].Name, 31 + 8, 0, Line);
 								}
 								else
 								{	// channel name
 									memset(String, 0, sizeof(String));
 									memcpy(String, gEeprom.VfoInfo[vfo_num].Name, 8);
-									UI_PrintStringSmall(gEeprom.VfoInfo[vfo_num].Name, 31 + 8, 0, Line, false);
+									UI_PrintStringSmall(gEeprom.VfoInfo[vfo_num].Name, 31 + 8, 0, Line);
 								}
+
+								// show the channel frequency below the channel number/name
+								#if 1
+									NUMBER_ToDigits(frequency_Hz, String);  // 8 digits
+									UI_DisplayFrequencySmall(String, 31 + 8, Line + 1, false);
+								#else
+									sprintf(String, "%9.5f", frequency_Hz * 0.00001);
+									UI_PrintStringSmall(String, 31 + 8, 0, Line + 1);
+								#endif
+
 								break;
 						#endif
 					}
@@ -326,14 +341,6 @@ void UI_DisplayMain(void)
 				else
 				{	// frequency mode
 			
-					frequency_Hz = gEeprom.VfoInfo[vfo_num].pRX->Frequency;
-					if (gCurrentFunction == FUNCTION_TRANSMIT)
-					{	// transmitting
-						Channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
-						if (Channel == vfo_num)
-							frequency_Hz = gEeprom.VfoInfo[vfo_num].pTX->Frequency;
-					}
-
 					#ifndef DISABLE_BIG_FREQ
 						NUMBER_ToDigits(frequency_Hz, String);  // 8 digits
 						// show the main large frequency digits
@@ -343,13 +350,13 @@ void UI_DisplayMain(void)
 					#else
 						// show the frequency in the main font
 						sprintf(String, "%9.5f", frequency_Hz * 0.00001);
-						UI_PrintString(String, 31, 112, Line, 8, true);
+						UI_PrintString(String, 38, 112, Line, 8);
 					#endif
-					
-					frequency_Hz = 0;
 				}
 			}
 		}
+
+		// ************
 
 		{	// show the TX/RX level
 
@@ -379,38 +386,41 @@ void UI_DisplayMain(void)
 	
 			if (Level >= 1)
 			{
-					memcpy(pLine1 + 128 +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna));
-					memcpy(pLine1 + 128 +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
+					memcpy(pLine1 + display_width +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna));
+					memcpy(pLine1 + display_width +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
 				if (Level >= 2)
-					memcpy(pLine1 + 128 +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
+					memcpy(pLine1 + display_width +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
 				if (Level >= 3)
-					memcpy(pLine1 + 128 + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
+					memcpy(pLine1 + display_width + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
 				if (Level >= 4)
-					memcpy(pLine1 + 128 + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
+					memcpy(pLine1 + display_width + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
 				if (Level >= 5)
-					memcpy(pLine1 + 128 + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
+					memcpy(pLine1 + display_width + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
 				if (Level >= 6)
-					memcpy(pLine1 + 128 + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
+					memcpy(pLine1 + display_width + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
 			}
 		}
 		
+		// ************
+
 		if (gEeprom.VfoInfo[vfo_num].IsAM)
 		{	// show the AM symbol
-			memcpy(pLine1 + 128 + 27, BITMAP_AM, sizeof(BITMAP_AM));
+			memcpy(pLine1 + display_width + 27, BITMAP_AM, sizeof(BITMAP_AM));
 		}
 		else
 		{	// show the CTCSS or DCS symbol
 			const FREQ_Config_t *pConfig = (SomeValue == 1) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
 			switch (pConfig->CodeType)
 			{
+				default:
+				case CODE_TYPE_OFF:
+					break;
 				case CODE_TYPE_CONTINUOUS_TONE:	// CTCSS
-					memcpy(pLine1 + 128 + 27, BITMAP_CT, sizeof(BITMAP_CT));
+					memcpy(pLine1 + display_width + 27, BITMAP_CT, sizeof(BITMAP_CT));
 					break;
 				case CODE_TYPE_DIGITAL:
 				case CODE_TYPE_REVERSE_DIGITAL:	// DCS
-					memcpy(pLine1 + 128 + 24, BITMAP_DCS, sizeof(BITMAP_DCS));
-					break;
-				default:
+					memcpy(pLine1 + display_width + 24, BITMAP_DCS, sizeof(BITMAP_DCS));
 					break;
 			}
 		}
@@ -418,52 +428,39 @@ void UI_DisplayMain(void)
 		switch (gEeprom.VfoInfo[vfo_num].OUTPUT_POWER)
 		{	// show the TX power level symbol
 			case OUTPUT_POWER_LOW:
-				memcpy(pLine1 + 128 + 44, BITMAP_PowerLow,  sizeof(BITMAP_PowerLow));
+				memcpy(pLine1 + display_width + 44, BITMAP_PowerLow,  sizeof(BITMAP_PowerLow));
 				break;
 			case OUTPUT_POWER_MID:
-				memcpy(pLine1 + 128 + 44, BITMAP_PowerMid,  sizeof(BITMAP_PowerMid));
+				memcpy(pLine1 + display_width + 44, BITMAP_PowerMid,  sizeof(BITMAP_PowerMid));
 				break;
 			case OUTPUT_POWER_HIGH:
-				memcpy(pLine1 + 128 + 44, BITMAP_PowerHigh, sizeof(BITMAP_PowerHigh));
+				memcpy(pLine1 + display_width + 44, BITMAP_PowerHigh, sizeof(BITMAP_PowerHigh));
 				break;
 		}
 
 		if (gEeprom.VfoInfo[vfo_num].ConfigRX.Frequency != gEeprom.VfoInfo[vfo_num].ConfigTX.Frequency)
 		{	// show the TX offset symbol
 			if (gEeprom.VfoInfo[vfo_num].FREQUENCY_DEVIATION_SETTING == FREQUENCY_DEVIATION_ADD)
-				memcpy(pLine1 + 128 + 54, BITMAP_Add, sizeof(BITMAP_Add));
+				memcpy(pLine1 + display_width + 54, BITMAP_Add, sizeof(BITMAP_Add));
 			if (gEeprom.VfoInfo[vfo_num].FREQUENCY_DEVIATION_SETTING == FREQUENCY_DEVIATION_SUB)
-				memcpy(pLine1 + 128 + 54, BITMAP_Sub, sizeof(BITMAP_Sub));
+				memcpy(pLine1 + display_width + 54, BITMAP_Sub, sizeof(BITMAP_Sub));
 		}
 
 		// show the TX/RX reverse symbol
 		if (gEeprom.VfoInfo[vfo_num].FrequencyReverse)
-			memcpy(pLine1 + 128 + 64, BITMAP_ReverseMode, sizeof(BITMAP_ReverseMode));
+			memcpy(pLine1 + display_width + 64, BITMAP_ReverseMode, sizeof(BITMAP_ReverseMode));
 
 		// show the narrow band symbol
 		if (gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH == BANDWIDTH_NARROW)
-			memcpy(pLine1 + 128 + 74, BITMAP_NarrowBand, sizeof(BITMAP_NarrowBand));
+			memcpy(pLine1 + display_width + 74, BITMAP_NarrowBand, sizeof(BITMAP_NarrowBand));
 
 		// show the DTMF decoding symbol
 		if (gEeprom.VfoInfo[vfo_num].DTMF_DECODING_ENABLE || gSetting_KILLED)
-			memcpy(pLine1 + 128 + 84, BITMAP_DTMF, sizeof(BITMAP_DTMF));
+			memcpy(pLine1 + display_width + 84, BITMAP_DTMF, sizeof(BITMAP_DTMF));
 
 		// show the audio scramble symbol
 		if (gEeprom.VfoInfo[vfo_num].SCRAMBLING_TYPE && gSetting_ScrambleEnable)
-			memcpy(pLine1 + 128 + 110, BITMAP_Scramble, sizeof(BITMAP_Scramble));
-		
-		#ifdef CHAN_NAME_FREQ
-			if (frequency_Hz > 0)
-			{	// show the channel frequency below the channel number/name
-				#if 1
-					NUMBER_ToDigits(frequency_Hz, String);  // 8 digits
-					UI_DisplayFrequencySmall(String, 31 + 8, Line + 1, false);
-				#else
-					sprintf(String, "%9.5f", frequency_Hz * 0.00001);
-					UI_PrintStringSmall(String, 31 + 8, 0, Line + 1, false);
-				#endif
-			}
-		#endif
+			memcpy(pLine1 + display_width + 110, BITMAP_Scramble, sizeof(BITMAP_Scramble));
 	}
 
 	ST7565_BlitFullScreen();

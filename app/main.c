@@ -99,10 +99,9 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			NUMBER_Get(gInputBox, &Frequency);
 
-			if (gSetting_350EN || (4999990 < (Frequency - 35000000)))
+			if (gSetting_350EN || Frequency < 35000000 || Frequency >= 40000000) 
 			{
 				unsigned int i;
-
 				for (i = 0; i < 7; i++)
 				{
 					if (Frequency <= gUpperLimitFrequencyBandTable[i] && (gLowerLimitFrequencyBandTable[i] <= Frequency))
@@ -110,6 +109,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 						#ifndef DISABLE_VOICE
 							gAnotherVoiceID = (VOICE_ID_t)Key;
 						#endif
+
 						if (gTxVfo->Band != i)
 						{
 							gTxVfo->Band               = i;
@@ -117,15 +117,13 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 							gEeprom.FreqChannel[Vfo]   = i + FREQ_CHANNEL_FIRST;
 
 							SETTINGS_SaveVfoIndices();
+
 							RADIO_ConfigureChannel(Vfo, 2);
 						}
 
 						Frequency += 75;
 
-						gTxVfo->ConfigRX.Frequency = FREQUENCY_FloorToStep(
-								Frequency,
-								gTxVfo->StepFrequency,
-								gLowerLimitFrequencyBandTable[gTxVfo->Band]);
+						gTxVfo->ConfigRX.Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, gLowerLimitFrequencyBandTable[gTxVfo->Band]);
 
 						gRequestSaveChannel = 1;
 						return;

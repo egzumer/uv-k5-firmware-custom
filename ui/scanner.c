@@ -38,7 +38,7 @@ void UI_DisplayScanner(void)
 	} else {
 		sprintf(String, "FREQ:**.*****");
 	}
-	UI_PrintString(String, 2, 127, 1, 8, 0);
+	UI_PrintString(String, 2, 0, 1, 8);
 	memset(String, 0, sizeof(String));
 
 	if (gScanCssState < SCAN_CSS_STATE_FOUND || !gScanUseCssResult) {
@@ -49,7 +49,7 @@ void UI_DisplayScanner(void)
 		sprintf(String, "DCS:D%03oN", DCS_Options[gScanCssResultCode]);
 	}
 
-	UI_PrintString(String, 2, 127, 3, 8, 0);
+	UI_PrintString(String, 2, 0, 3, 8);
 	memset(String, 0, sizeof(String));
 
 	if (gScannerEditState == 2) {
@@ -74,7 +74,8 @@ void UI_DisplayScanner(void)
 		bCentered = 0;
 	}
 
-	UI_PrintString(String, Start, 127, 5, 8, bCentered);
+	UI_PrintString(String, Start, bCentered ? 127 : 0, 5, 8);
+	
 	ST7565_BlitFullScreen();
 }
 

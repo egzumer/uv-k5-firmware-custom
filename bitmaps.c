@@ -408,7 +408,7 @@ const uint8_t BITMAP_M[] =
 	0b01111111
 };
 
-const uint8_t BITMAP_F[] =
+const uint8_t BITMAP_FB[] =
 {
 	0b00000000,
 	0b01111111,
@@ -417,7 +417,16 @@ const uint8_t BITMAP_F[] =
 	0b00001001,
 	0b00001001,
 	0b00001001,
-	0b00000001
+	0b00000001,
+	
+	0b00000000,
+	0b01111111,
+	0b01001001,
+	0b01001001,
+	0b01001001,
+	0b01001001,
+	0b01001001,
+	0b00110110	
 };
 
 const uint8_t BITMAP_ReverseMode[] =
