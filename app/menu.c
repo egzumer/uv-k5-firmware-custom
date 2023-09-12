@@ -160,7 +160,7 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 		case MENU_TXP:
 		case MENU_SFT_D:
 		case MENU_TDR:
-		case MENU_WX:
+		case MENU_XB:
 		#ifndef DISABLE_VOICE
 			case MENU_VOICE:
 		#endif
@@ -419,7 +419,7 @@ void MENU_AcceptSetting(void)
 			gUpdateStatus        = true;
 			return;
 	
-		case MENU_WX:
+		case MENU_XB:
 			#ifndef DISABLE_NOAA
 				if (IS_NOAA_CHANNEL(gEeprom.ScreenChannel[0]))
 					return;
@@ -767,7 +767,7 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gEeprom.DUAL_WATCH;
 			break;
 	
-		case MENU_WX:
+		case MENU_XB:
 			gSubMenuSelection = gEeprom.CROSS_BAND_RX_TX;
 			break;
 	

@@ -104,7 +104,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				unsigned int i;
 				for (i = 0; i < 7; i++)
 				{
-					if (Frequency <= gUpperLimitFrequencyBandTable[i] && (gLowerLimitFrequencyBandTable[i] <= Frequency))
+					if (Frequency >= gLowerLimitFrequencyBandTable[i] && Frequency <= gUpperLimitFrequencyBandTable[i])
 					{
 						#ifndef DISABLE_VOICE
 							gAnotherVoiceID = (VOICE_ID_t)Key;
@@ -129,6 +129,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 						return;
 					}
 				}
+
 			}
 		}
 		#ifndef DISABLE_NOAA

@@ -18,9 +18,16 @@
 #include "misc.h"
 #include "settings.h"
 
+const uint32_t bx_min_Hz = 1800000;		// 18MHz
+const uint32_t bx_max_Hz = 130000000;	// 1300MHz
+
 const uint32_t LowerLimitFrequencyBandTable[7] =
 {
-	 5000000,
+	#ifndef RX_ANY_FREQ
+		5000000,
+	#else
+		1800000,
+	#endif
 	10800000,
 	13600000,
 	17400000,
@@ -48,7 +55,11 @@ const uint32_t UpperLimitFrequencyBandTable[7] =
 	34999990,
 	39999990,
 	46999990,
-	60000000
+	#ifndef RX_ANY_FREQ
+		60000000
+	#else
+		130000000
+	#endif
 };
 
 #ifndef DISABLE_NOAA
@@ -91,23 +102,27 @@ const uint32_t UpperLimitFrequencyBandTable[7] =
 
 FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency)
 {
-	if (Frequency >=  5000000 && Frequency < 10800000)
-		return BAND1_50MHz;
-	if (Frequency >= 10800000 && Frequency < 13600000)
-		return BAND2_108MHz;
-	if (Frequency >= 13600000 && Frequency < 17400000)
-		return BAND3_136MHz;
-	if (Frequency >= 17400000 && Frequency < 35000000)
-		return BAND4_174MHz;
-	if (Frequency >= 35000000 && Frequency < 40000000)
-		return BAND5_350MHz;
-	if (Frequency >= 40000000 && Frequency < 47000000)
-		return BAND6_400MHz;
-	if (Frequency >= 47000000 && Frequency < 60000000)
+//	if (Frequency >= 60000000 && Frequency <= bx_max_Hz)
+//		return BAND7_470MHz;
+	if (Frequency >= 47000000)
 		return BAND7_470MHz;
+	if (Frequency >= 40000000)
+		return BAND6_400MHz;
+	if (Frequency >= 35000000)
+		return BAND5_350MHz;
+	if (Frequency >= 17400000)
+		return BAND4_174MHz;
+	if (Frequency >= 13600000)
+		return BAND3_136MHz;
+	if (Frequency >= 10800000)
+		return BAND2_108MHz;
+//	if (Frequency >=  5000000)
+//		return BAND1_50MHz;
+//	if (Frequency >= bx_min_Hz)
+		return BAND1_50MHz;
 
 	// TODO: Double check the assembly
-	return BAND6_400MHz;
+//	return BAND6_400MHz;
 }
 
 uint8_t FREQUENCY_CalculateOutputPower(uint8_t TxpLow, uint8_t TxpMid, uint8_t TxpHigh, int32_t LowerLimit, int32_t Middle, int32_t UpperLimit, int32_t Frequency)

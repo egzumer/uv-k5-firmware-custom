@@ -20,36 +20,38 @@
 #include "dcs.h"
 #include "driver/keyboard.h"
 
-enum SCAN_CssState_t {
-	SCAN_CSS_STATE_OFF      = 0U,
-	SCAN_CSS_STATE_SCANNING = 1U,
-	SCAN_CSS_STATE_FOUND    = 2U,
-	SCAN_CSS_STATE_FAILED   = 3U,
+enum SCAN_CssState_t
+{
+	SCAN_CSS_STATE_OFF = 0,
+	SCAN_CSS_STATE_SCANNING,
+	SCAN_CSS_STATE_FOUND,
+	SCAN_CSS_STATE_FAILED
 };
 
 typedef enum SCAN_CssState_t SCAN_CssState_t;
 
-enum {
-	SCAN_OFF = 0U,
+enum
+{
+	SCAN_OFF = 0,
 };
 
-extern DCS_CodeType_t gScanCssResultType;
-extern uint8_t gScanCssResultCode;
-extern bool gFlagStartScan;
-extern bool gFlagStopScan;
-extern bool gScanSingleFrequency;
-extern uint8_t gScannerEditState;
-extern uint8_t gScanChannel;
-extern uint32_t gScanFrequency;
-extern bool gScanPauseMode;
-extern SCAN_CssState_t gScanCssState;
-extern volatile bool gScheduleScanListen;
+extern DCS_CodeType_t    gScanCssResultType;
+extern uint8_t           gScanCssResultCode;
+extern bool              gFlagStartScan;
+extern bool              gFlagStopScan;
+extern bool              gScanSingleFrequency;
+extern uint8_t           gScannerEditState;
+extern uint8_t           gScanChannel;
+extern uint32_t          gScanFrequency;
+extern bool              gScanPauseMode;
+extern SCAN_CssState_t   gScanCssState;
+extern volatile bool     gScheduleScanListen;
 extern volatile uint16_t ScanPauseDelayIn10msec;
-extern uint8_t gScanProgressIndicator;
-extern uint8_t gScanHitCount;
-extern bool gScanUseCssResult;
-extern uint8_t gScanState;
-extern bool bScanKeepFrequency;
+extern uint8_t           gScanProgressIndicator;
+extern uint8_t           gScanHitCount;
+extern bool              gScanUseCssResult;
+extern uint8_t           gScanState;
+extern bool              bScanKeepFrequency;
 
 void SCANNER_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 void SCANNER_Start(void);

@@ -18,6 +18,7 @@ You can edit those changes by (currently) editing the MakeFile, look for these l
 * CFLAGS  += -DDISABLE_ALARM        .. remove the ALARM transmit option from the firmware
 * CFLAGS  += -DKEEP_MEM_NAME        .. keep the memory channels name when re-saving a channel
 * CFLAGS  += -DCHAN_NAME_FREQ       .. show the channel frequency (as well as channel number/name)
+* CFLAGS  += -DRX_ANY_FREQ          .. allow RX on any frequency from 18MHz to 1300MHz
 * #CFLAGS += -DENABLE_TX_WHEN_AM    .. enable TX when radio set to AM (radio does NOT do AM, the adverts are false)
 * #CFLAGS += -DSINGLE_VFO_CHAN      .. (not yet implemented) show a single VFO/CHANNEL if dual-watch/cross-band are disabled
 * #CFLAGS += -DBAND_SCOPE           .. (not yet implemented) add a band scope/spectrum/panadapter option

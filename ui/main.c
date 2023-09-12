@@ -126,6 +126,7 @@ void UI_DisplayMain(void)
 			if (bIsSameVfo)
 				memcpy(pLine0 + 2, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			else
+			//if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)
 				memcpy(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 

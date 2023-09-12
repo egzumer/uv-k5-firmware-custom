@@ -351,6 +351,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 	else
 	if (Channel >= FREQ_CHANNEL_FIRST)
 		Frequency = FREQUENCY_FloorToStep(Frequency, gEeprom.VfoInfo[VFO].StepFrequency, gLowerLimitFrequencyBandTable[Band]);
+
 	pRadio->ConfigRX.Frequency = Frequency;
 
 	if (Frequency >= 10800000 && Frequency < 13600000)
@@ -438,15 +439,14 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 
 	EEPROM_ReadBuffer(0x1ED0 + (Band * 16) + (pInfo->OUTPUT_POWER * 3), Txp, 3);
 
-	pInfo->TXP_CalculatedSetting =
-	    FREQUENCY_CalculateOutputPower(
-	        Txp[0],
-	        Txp[1],
-	        Txp[2],
-	        LowerLimitFrequencyBandTable[Band],
-	        MiddleFrequencyBandTable[Band],
-	        UpperLimitFrequencyBandTable[Band],
-	        pInfo->pTX->Frequency);
+	pInfo->TXP_CalculatedSetting = FREQUENCY_CalculateOutputPower(
+		Txp[0],
+		Txp[1],
+		Txp[2],
+		LowerLimitFrequencyBandTable[Band],
+		MiddleFrequencyBandTable[Band],
+		UpperLimitFrequencyBandTable[Band],
+		pInfo->pTX->Frequency);
 }
 
 void RADIO_ApplyOffset(VFO_Info_t *pInfo)

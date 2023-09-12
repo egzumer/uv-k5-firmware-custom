@@ -13,19 +13,27 @@ extern const uint8_t BITMAP_BatteryLevel4[18];
 extern const uint8_t BITMAP_BatteryLevel5[18];
 
 extern const uint8_t BITMAP_USB_C[9];
+
 extern const uint8_t BITMAP_KeyLock[9];
 
 extern const uint8_t BITMAP_F_Key[10];
 
 extern const uint8_t BITMAP_VOX[18];
 
-extern const uint8_t BITMAP_WX[12];
+#if 0
+	extern const uint8_t BITMAP_WX[12];
+#else
+	extern const uint8_t BITMAP_XB[12];
+#endif
+
 extern const uint8_t BITMAP_TDR[12];
+
 #ifndef DISABLE_VOICE
 	extern const uint8_t BITMAP_VoicePrompt[9];
 #endif
 
 extern const uint8_t BITMAP_FM[12];
+
 #ifndef DISABLE_NOAA
 	extern const uint8_t BITMAP_NOAA[12];
 #endif
@@ -54,6 +62,7 @@ extern const uint8_t BITMAP_ReverseMode[8];
 extern const uint8_t BITMAP_NarrowBand[8];
 
 extern const uint8_t BITMAP_DTMF[24];
+
 extern const uint8_t BITMAP_Scramble[18];
 
 extern const uint8_t BITMAP_Add[8];

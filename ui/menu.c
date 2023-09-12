@@ -438,7 +438,7 @@ void UI_DisplayMenu(void)
 			break;
 	
 		case MENU_TDR:
-		case MENU_WX:
+		case MENU_XB:
 			strcpy(String, gSubMenu_CHAN[gSubMenuSelection]);
 			break;
 	
