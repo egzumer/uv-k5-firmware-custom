@@ -77,7 +77,7 @@ extern bool gDTMF_IsTx;
 extern uint8_t gDTMF_TxStopCountdown;
 
 bool DTMF_ValidateCodes(char *pCode, uint8_t Size);
-bool DTMF_GetContact(uint8_t Index, char *pContact);
+bool DTMF_GetContact(const int Index, char *pContact);
 bool DTMF_FindContact(const char *pContact, char *pResult);
 char DTMF_GetCharacter(uint8_t Code);
 bool DTMF_CompareMessage(const char *pDTMF, const char *pTemplate, uint8_t Size, bool bFlag);

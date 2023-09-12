@@ -55,7 +55,7 @@ bool              gDTMF_IsGroupCall;
 
 bool DTMF_ValidateCodes(char *pCode, uint8_t Size)
 {
-	uint8_t i;
+	unsigned int i;
 
 	if (pCode[0] == 0xFF || pCode[0] == 0)
 		return false;
@@ -75,19 +75,26 @@ bool DTMF_ValidateCodes(char *pCode, uint8_t Size)
 	return true;
 }
 
-bool DTMF_GetContact(uint8_t Index, char *pContact)
+bool DTMF_GetContact(const int Index, char *pContact)
 {
-	EEPROM_ReadBuffer(0x1C00 + (Index * 16), pContact, 16);
-	return ((pContact[0] - ' ') >= 0x5F) ? false : true;
+	int i = -1;
+	if (Index >= 0 && Index < 16 && pContact != NULL)  // max 16 DTMF contacts
+	{
+		EEPROM_ReadBuffer(0x1C00 + (Index * 16), pContact, 16);
+		i = (int)pContact[0] - ' ';
+	}
+	return (i < 0 || i >= 95) ? false : true;
 }
 
 bool DTMF_FindContact(const char *pContact, char *pResult)
 {
 	char Contact [16];
-	uint8_t i, j;
+	unsigned int i;
 
 	for (i = 0; i < 16; i++)
 	{
+		unsigned int j;
+
 		if (!DTMF_GetContact(i, Contact))
 			return false;
 
@@ -139,7 +146,7 @@ char DTMF_GetCharacter(uint8_t Code)
 
 bool DTMF_CompareMessage(const char *pMsg, const char *pTemplate, uint8_t Size, bool bCheckGroup)
 {
-	uint8_t i;
+	unsigned int i;
 
 	for (i = 0; i < Size; i++)
 	{

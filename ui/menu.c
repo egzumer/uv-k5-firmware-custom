@@ -509,10 +509,9 @@ void UI_DisplayMenu(void)
 			break;
 	
 		case MENU_D_LIST:
-			gIsDtmfContactValid = DTMF_GetContact((uint8_t)gSubMenuSelection - 1, Contact);
+			gIsDtmfContactValid = DTMF_GetContact((int)gSubMenuSelection - 1, Contact);
 			if (!gIsDtmfContactValid)
-				// Ghidra being weird again...
-				memcpy(String, "NULL\0\0\0", 8);
+				strcpy(String, "NULL");
 			else
 				memcpy(String, Contact, 8);
 			break;
