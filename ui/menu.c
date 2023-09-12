@@ -33,68 +33,68 @@
 static const char MenuList[][7] =
 {
 	"SQL",
-    "STEP",
-    "TX-PWR",    // was "TXP"
-    "R-DCS",     // was "R_DCS"
-	"R-CTCS",    // was "R_CTCS"
-	"T-DCS",     // was "T_DCS"
-	"T-CTCS",    // was "T_CTCS"
-	"SFT-D",
-	"OFFSET",
+    "Step",
+    "Tx-Pwr",    // was "TXP"
+    "RxDCS",     // was "R_DCS"
+	"RxCTCS",    // was "R_CTCS"
+	"TxDCS",     // was "T_DCS"
+	"TxCTCS",    // was "T_CTCS"
+	"SFTDir",
+	"Offset",
 	"W/N",
-	"SCRAM",     // was "SCR"
-    "BCL",
-	"MEM-CH",
-	"B-SAVE",    // was "SAVE"
+	"Scram",     // was "SCR"
+    "BusyCL",    // was "BCL"
+	"MemSav",    // was "MEM-CH"
+	"BatSav",    // was "SAVE"
     "VOX",
-    "BAK-LT",    // was "ABR"
-	"DUAL-W",    // was "TDR"
-    "CROS-B",    // was "WX"
-	"BEEP",
-	"TOT",
+    "BackLt",    // was "ABR"
+	"Dual-W",    // was "TDR"
+    "CrossB",    // was "WX"
+	"Beep",
+	"TxTOut",    // was "TOT"
 	#ifndef DISABLE_VOICE
-		"VOICE",
+		"Voice",
 	#endif
-	"SC-REV",
+	"SC-Rev",
 	"MDF",
-    "AUTOLK",
-	"S-ADD1",
-	"S-ADD2",
+    "KeyLoc",    // was "AUTOLk"
+	"S-Add1",
+	"S-Add2",
 	"STE",
     "RP-STE",
-	"MIC",
-    "1-CALL",
-	"S-LIST",
-	"SLIST1",
-	"SLIST2",
+	"Mic",
+    "1-Call",
+	"S-List",
+	"SList1",
+	"SList2",
 	#ifndef DISABLE_ALARM
-		"AL-MOD",
+		"AL-Mod",
 	#endif
 	"ANI-ID",
-	"UPCODE",
-	"DWCODE",
+	"UpCode",
+	"DwCode",
 	"D-ST",
     "D-RSP",
-	"D-HOLD",
-	"D-PRE",
+	"D-Hold",
+	"D-Pre",
 	"PTT-ID",
 	"D-DCD",
-	"D-LIST",
-	"PONMSG",
-	"ROGER",
-	"BATVOL",    // was "VOL"
-	"MODE",      // was "AM"
+	"D-List",
+	"PonMsg",
+	"Roger",
+	"BatVol",    // was "VOL"
+	"Mode",      // was "AM"
 	#ifndef DISABLE_NOAA
 		"NOAA_S",
 	#endif
-	"DEL-CH",
-	"RESET",
+	"MemDel",    // was "Del-CH"
+	"Reset",
 
 	// normally hidden menu items from here on.
 	// enabled if pressing PTT and side button below PTT at power-on.
 
 	"350-TX",    // was "350TX"
-	"F-LOCK",
+	"F-Lock",
 	"200-TX",    // was "200TX"
 	"500-TX",    // was "500TX"
 	"350-EN",    // was "350EN"
@@ -405,9 +405,12 @@ void UI_DisplayMenu(void)
 			strcpy(String, (gSubMenuSelection == 0) ? "FM" : "AM");
 			break;
 			
+		case MENU_AUTOLK:
+			strcpy(String, (gSubMenuSelection == 0) ? "OFF" : "AUTO");
+			break;
+
 		case MENU_BCL:
 		case MENU_BEEP:
-		case MENU_AUTOLK:
 		case MENU_S_ADD1:
 		case MENU_S_ADD2:
 		case MENU_STE:

@@ -113,14 +113,15 @@ uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScan
 void RADIO_InitInfo(VFO_Info_t *pInfo, uint8_t ChannelSave, uint8_t Band, uint32_t Frequency)
 {
 	memset(pInfo, 0, sizeof(*pInfo));
+
 	pInfo->Band                    = Band;
 	pInfo->SCANLIST1_PARTICIPATION = true;
 	pInfo->SCANLIST2_PARTICIPATION = true;
-	pInfo->STEP_SETTING            = STEP_12_5kHz;  // STEP_25_0kHz;
+	pInfo->STEP_SETTING            = STEP_12_5kHz;
 	pInfo->StepFrequency           = 2500;
 	pInfo->CHANNEL_SAVE            = ChannelSave;
 	pInfo->FrequencyReverse        = false;
-	pInfo->OUTPUT_POWER            = OUTPUT_POWER_HIGH;
+	pInfo->OUTPUT_POWER            = OUTPUT_POWER_LOW;
 	pInfo->ConfigRX.Frequency      = Frequency;
 	pInfo->ConfigTX.Frequency      = Frequency;
 	pInfo->pRX                     = &pInfo->ConfigRX;
@@ -157,16 +158,16 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 			if (Channel >= NOAA_CHANNEL_FIRST)
 			{
 				RADIO_InitInfo(pRadio, gEeprom.ScreenChannel[VFO], 2, NoaaFrequencyTable[Channel - NOAA_CHANNEL_FIRST]);
-	
+
 				if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF)
 					return;
-	
+
 				gUpdateStatus            = true;
 				gEeprom.CROSS_BAND_RX_TX = CROSS_BAND_OFF;
 				return;
 			}
 		#endif
-		
+
 		if (IS_MR_CHANNEL(Channel))
 		{
 			Channel = RADIO_FindNextChannel(Channel, RADIO_CHANNEL_UP, false, VFO);
@@ -192,7 +193,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 
 		if (IS_MR_CHANNEL(Channel))
 		{
-			Channel = gEeprom.FreqChannel[VFO];
+			Channel                    = gEeprom.FreqChannel[VFO];
 			gEeprom.ScreenChannel[VFO] = gEeprom.FreqChannel[VFO];
 		}
 
@@ -280,6 +281,12 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		Tmp = Data[1];
 		switch (gEeprom.VfoInfo[VFO].ConfigTX.CodeType)
 		{
+			default:
+			case CODE_TYPE_OFF:
+				gEeprom.VfoInfo[VFO].ConfigTX.CodeType = CODE_TYPE_OFF;
+				Tmp = 0;
+				break;
+
 			case CODE_TYPE_CONTINUOUS_TONE:
 				if (Tmp >= 50)
 					Tmp = 0;
@@ -289,11 +296,6 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 			case CODE_TYPE_REVERSE_DIGITAL:
 				if (Tmp >= 104)
 					Tmp = 0;
-				break;
-
-			default:
-				gEeprom.VfoInfo[VFO].ConfigTX.CodeType = CODE_TYPE_OFF;
-				Tmp = 0;
 				break;
 		}
 		gEeprom.VfoInfo[VFO].ConfigTX.Code = Tmp;
@@ -332,12 +334,9 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		} __attribute__((packed)) Info;
 
 		EEPROM_ReadBuffer(Base, &Info, sizeof(Info));
-
 		pRadio->ConfigRX.Frequency = Info.Frequency;
-
 		if (Info.Offset >= 100000000)
 			Info.Offset = 1000000;
-
 		gEeprom.VfoInfo[VFO].FREQUENCY_OF_DEVIATION = Info.Offset;
 	}
 
@@ -363,7 +362,6 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 	RADIO_ApplyOffset(pRadio);
 
 	memset(gEeprom.VfoInfo[VFO].Name, 0, sizeof(gEeprom.VfoInfo[VFO].Name));
-
 	if (IS_MR_CHANNEL(Channel))
 	{	// 16 bytes allocated to the channel name but only 12 used
 		EEPROM_ReadBuffer(0x0F50 + (Channel * 16), gEeprom.VfoInfo[VFO].Name + 0, 8);
@@ -384,12 +382,12 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 	if (!gSetting_350EN)
 	{
 		FREQ_Config_t *pConfig = gEeprom.VfoInfo[VFO].pRX;
-		if (pConfig->Frequency < (35000000 + 4999991))
-			pConfig->Frequency = 41001250;
+		if (pConfig->Frequency >= 35000000 && pConfig->Frequency < 40000000)
+			pConfig->Frequency = 43300000;
 	}
 
 //	if (gEeprom.VfoInfo[VFO].Band == BAND2_108MHz && gEeprom.VfoInfo[VFO].AM_CHANNEL_MODE)
-	if (gEeprom.VfoInfo[VFO].AM_CHANNEL_MODE) // allow AM on any frequency/band
+	if (gEeprom.VfoInfo[VFO].AM_CHANNEL_MODE) // allow AM on any frequency
 	{
 		gEeprom.VfoInfo[VFO].IsAM                 = true;
 		gEeprom.VfoInfo[VFO].SCRAMBLING_TYPE      = 0;
@@ -428,11 +426,11 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 		EEPROM_ReadBuffer(Base + 0x40, &pInfo->SquelchCloseGlitchThresh, 1);
 		EEPROM_ReadBuffer(Base + 0x50, &pInfo->SquelchOpenGlitchThresh,  1);
 
-		if (pInfo->SquelchOpenNoiseThresh >= 0x80)
-			pInfo->SquelchOpenNoiseThresh = 0x7F;
+		if (pInfo->SquelchOpenNoiseThresh > 127)
+			pInfo->SquelchOpenNoiseThresh = 127;
 
-		if (pInfo->SquelchCloseNoiseThresh >= 0x80)
-			pInfo->SquelchCloseNoiseThresh = 0x7F;
+		if (pInfo->SquelchCloseNoiseThresh > 127)
+			pInfo->SquelchCloseNoiseThresh = 127;
 	}
 
 	Band = FREQUENCY_GetBand(pInfo->pTX->Frequency);
@@ -594,7 +592,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 						| BK4819_REG_3F_SQUELCH_FOUND
 						| BK4819_REG_3F_SQUELCH_LOST;
 					break;
-					
+
 				case CODE_TYPE_DIGITAL:
 				case CODE_TYPE_REVERSE_DIGITAL:
 					BK4819_SetCDCSSCodeWord(DCS_GetGolayCodeWord(CodeType, Code));
@@ -635,7 +633,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 				| BK4819_REG_3F_SQUELCH_LOST;
 		}
 	#endif
-	
+
 	#ifndef DISABLE_NOAA
 		if (gEeprom.VOX_SWITCH && !gFmRadioMode && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && !gCurrentVfo->IsAM)
 	#else
@@ -671,9 +669,9 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 	void RADIO_ConfigureNOAA(void)
 	{
 		uint8_t ChanAB;
-	
+
 		gUpdateStatus = true;
-	
+
 		if (gEeprom.NOAA_AUTO_SCAN)
 		{
 			if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
@@ -689,14 +687,14 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 				}
 				else
 					ChanAB = 0;
-	
+
 				if (!gIsNoaaMode)
 					gNoaaChannel = gEeprom.VfoInfo[ChanAB].CHANNEL_SAVE - NOAA_CHANNEL_FIRST;
-	
+
 				gIsNoaaMode = true;
 				return;
 			}
-	
+
 			if (gRxVfo->CHANNEL_SAVE >= NOAA_CHANNEL_FIRST)
 			{
 				gIsNoaaMode     = true;
@@ -835,20 +833,20 @@ void RADIO_PrepareTX(void)
 		}
 		else
 			State = VFO_STATE_TX_DISABLE;
-	
+
 		RADIO_SetVfoState(State);
 
 		#ifndef DISABLE_ALARM
 			gAlarmState = ALARM_STATE_OFF;
 		#endif
-		
+
 		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 
 		gDTMF_ReplyState = DTMF_REPLY_NONE;
 
 		return;
 	}
-	
+
 Skip:
 	if (gDTMF_ReplyState == DTMF_REPLY_ANI)
 	{
@@ -872,7 +870,7 @@ Skip:
 	#else
 		gTxTimerCountdown = gEeprom.TX_TIMEOUT_TIMER * 120;
 	#endif
-	
+
 	gTxTimeoutReached    = false;
 	gFlagEndTransmission = false;
 	gRTTECountdown       = 0;
@@ -885,12 +883,12 @@ void RADIO_EnableCxCSS(void)
 	{
 		case CODE_TYPE_OFF:
 			break;
-			
+
 		case CODE_TYPE_CONTINUOUS_TONE:
 			BK4819_EnableCTCSS();
 			SYSTEM_DelayMs(200);
 			break;
-			
+
 		case CODE_TYPE_DIGITAL:
 		case CODE_TYPE_REVERSE_DIGITAL:
 			BK4819_EnableCDCSS();
