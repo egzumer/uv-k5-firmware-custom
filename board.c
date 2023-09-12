@@ -44,8 +44,10 @@ void BOARD_FLASH_Init(void)
 	FLASH_Init(FLASH_READ_MODE_1_CYCLE);
 	FLASH_ConfigureTrimValues();
 	SYSTEM_ConfigureClocks();
-	overlay_FLASH_MainClock = 48000000;
+	
+	overlay_FLASH_MainClock       = 48000000;
 	overlay_FLASH_ClockMultiplier = 48;
+	
 	FLASH_Init(FLASH_READ_MODE_2_CYCLE);
 }
 
@@ -55,30 +57,24 @@ void BOARD_GPIO_Init(void)
 		| GPIO_DIR_10_BITS_OUTPUT
 		| GPIO_DIR_11_BITS_OUTPUT
 		| GPIO_DIR_12_BITS_OUTPUT
-		| GPIO_DIR_13_BITS_OUTPUT
-		;
+		| GPIO_DIR_13_BITS_OUTPUT;
 	GPIOA->DIR &= ~(0
 		| GPIO_DIR_3_MASK
 		| GPIO_DIR_4_MASK
 		| GPIO_DIR_5_MASK
-		| GPIO_DIR_6_MASK
-		);
+		| GPIO_DIR_6_MASK);
 	GPIOB->DIR |= 0
 		| GPIO_DIR_6_BITS_OUTPUT
 		| GPIO_DIR_9_BITS_OUTPUT
 		| GPIO_DIR_11_BITS_OUTPUT
-		| GPIO_DIR_15_BITS_OUTPUT
-		;
+		| GPIO_DIR_15_BITS_OUTPUT;
 	GPIOC->DIR |= 0
 		| GPIO_DIR_0_BITS_OUTPUT
 		| GPIO_DIR_1_BITS_OUTPUT
 		| GPIO_DIR_2_BITS_OUTPUT
 		| GPIO_DIR_3_BITS_OUTPUT
-		| GPIO_DIR_4_BITS_OUTPUT
-		;
-	GPIOC->DIR &= ~(0
-		| GPIO_DIR_5_MASK
-		);
+		| GPIO_DIR_4_BITS_OUTPUT;
+	GPIOC->DIR &= ~(GPIO_DIR_5_MASK);
 
 	GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BK1080);
 }
@@ -93,27 +89,23 @@ void BOARD_PORTCON_Init(void)
 		| PORTCON_PORTA_SEL0_A0_MASK
 		| PORTCON_PORTA_SEL0_A1_MASK
 		| PORTCON_PORTA_SEL0_A2_MASK
-		| PORTCON_PORTA_SEL0_A7_MASK
-		;
+		| PORTCON_PORTA_SEL0_A7_MASK;
 	PORTCON_PORTA_SEL0 |= 0
 		| PORTCON_PORTA_SEL0_A0_BITS_GPIOA0
 		| PORTCON_PORTA_SEL0_A1_BITS_GPIOA1
 		| PORTCON_PORTA_SEL0_A2_BITS_GPIOA2
-		| PORTCON_PORTA_SEL0_A7_BITS_UART1_TX
-		;
+		| PORTCON_PORTA_SEL0_A7_BITS_UART1_TX;
 
 	PORTCON_PORTA_SEL1 &= 0
 		| PORTCON_PORTA_SEL1_A8_MASK
 		| PORTCON_PORTA_SEL1_A9_MASK
 		| PORTCON_PORTA_SEL1_A14_MASK
-		| PORTCON_PORTA_SEL1_A15_MASK
-		;
+		| PORTCON_PORTA_SEL1_A15_MASK;
 	PORTCON_PORTA_SEL1 |= 0
 		| PORTCON_PORTA_SEL1_A8_BITS_UART1_RX
 		| PORTCON_PORTA_SEL1_A9_BITS_SARADC_CH4
 		| PORTCON_PORTA_SEL1_A14_BITS_SARADC_CH9
-		| PORTCON_PORTA_SEL1_A15_BITS_GPIOA15
-		;
+		| PORTCON_PORTA_SEL1_A15_BITS_GPIOA15;
 
 	// PORT B pin selection
 
@@ -123,8 +115,7 @@ void BOARD_PORTCON_Init(void)
 		| PORTCON_PORTB_SEL0_B2_MASK
 		| PORTCON_PORTB_SEL0_B3_MASK
 		| PORTCON_PORTB_SEL0_B4_MASK
-		| PORTCON_PORTB_SEL0_B5_MASK
-		;
+		| PORTCON_PORTB_SEL0_B5_MASK;
 	PORTCON_PORTB_SEL0 |= 0
 		| PORTCON_PORTB_SEL0_B0_BITS_GPIOB0
 		| PORTCON_PORTB_SEL0_B1_BITS_GPIOB1
@@ -132,30 +123,26 @@ void BOARD_PORTCON_Init(void)
 		| PORTCON_PORTB_SEL0_B3_BITS_GPIOB3
 		| PORTCON_PORTB_SEL0_B4_BITS_GPIOB4
 		| PORTCON_PORTB_SEL0_B5_BITS_GPIOB5
-		| PORTCON_PORTB_SEL0_B7_BITS_SPI0_SSN
-		;
+		| PORTCON_PORTB_SEL0_B7_BITS_SPI0_SSN;
 
 	PORTCON_PORTB_SEL1 &= 0
 		| PORTCON_PORTB_SEL1_B8_MASK
 		| PORTCON_PORTB_SEL1_B10_MASK
 		| PORTCON_PORTB_SEL1_B12_MASK
-		| PORTCON_PORTB_SEL1_B13_MASK
-		;
+		| PORTCON_PORTB_SEL1_B13_MASK;
 	PORTCON_PORTB_SEL1 |= 0
 		| PORTCON_PORTB_SEL1_B8_BITS_SPI0_CLK
 		| PORTCON_PORTB_SEL1_B10_BITS_SPI0_MOSI
 		| PORTCON_PORTB_SEL1_B11_BITS_SWDIO
 		| PORTCON_PORTB_SEL1_B12_BITS_GPIOB12
 		| PORTCON_PORTB_SEL1_B13_BITS_GPIOB13
-		| PORTCON_PORTB_SEL1_B14_BITS_SWCLK
-		;
+		| PORTCON_PORTB_SEL1_B14_BITS_SWCLK;
 
 	// PORT C pin selection
 
 	PORTCON_PORTC_SEL0 &= 0
 		| PORTCON_PORTC_SEL0_C6_MASK
-		| PORTCON_PORTC_SEL0_C7_MASK
-		;
+		| PORTCON_PORTC_SEL0_C7_MASK;
 
 	// PORT A pin configuration
 
@@ -164,27 +151,23 @@ void BOARD_PORTCON_Init(void)
 		| PORTCON_PORTA_IE_A4_BITS_ENABLE
 		| PORTCON_PORTA_IE_A5_BITS_ENABLE
 		| PORTCON_PORTA_IE_A6_BITS_ENABLE
-		| PORTCON_PORTA_IE_A8_BITS_ENABLE
-		;
+		| PORTCON_PORTA_IE_A8_BITS_ENABLE;
 	PORTCON_PORTA_IE &= ~(0
 		| PORTCON_PORTA_IE_A10_MASK
 		| PORTCON_PORTA_IE_A11_MASK
 		| PORTCON_PORTA_IE_A12_MASK
-		| PORTCON_PORTA_IE_A13_MASK
-		);
+		| PORTCON_PORTA_IE_A13_MASK);
 
 	PORTCON_PORTA_PU |= 0
 		| PORTCON_PORTA_PU_A3_BITS_ENABLE
 		| PORTCON_PORTA_PU_A4_BITS_ENABLE
 		| PORTCON_PORTA_PU_A5_BITS_ENABLE
-		| PORTCON_PORTA_PU_A6_BITS_ENABLE
-		;
+		| PORTCON_PORTA_PU_A6_BITS_ENABLE;
 	PORTCON_PORTA_PU &= ~(0
 		| PORTCON_PORTA_PU_A10_MASK
 		| PORTCON_PORTA_PU_A11_MASK
 		| PORTCON_PORTA_PU_A12_MASK
-		| PORTCON_PORTA_PU_A13_MASK
-		);
+		| PORTCON_PORTA_PU_A13_MASK);
 
 	PORTCON_PORTA_PD &= ~(0
 		| PORTCON_PORTA_PD_A3_MASK
@@ -194,86 +177,73 @@ void BOARD_PORTCON_Init(void)
 		| PORTCON_PORTA_PD_A10_MASK
 		| PORTCON_PORTA_PD_A11_MASK
 		| PORTCON_PORTA_PD_A12_MASK
-		| PORTCON_PORTA_PD_A13_MASK
-		);
+		| PORTCON_PORTA_PD_A13_MASK);
 
 	PORTCON_PORTA_OD |= 0
 		| PORTCON_PORTA_OD_A3_BITS_ENABLE
 		| PORTCON_PORTA_OD_A4_BITS_ENABLE
 		| PORTCON_PORTA_OD_A5_BITS_ENABLE
-		| PORTCON_PORTA_OD_A6_BITS_ENABLE
-		;
+		| PORTCON_PORTA_OD_A6_BITS_ENABLE;
 	PORTCON_PORTA_OD &= ~(0
 		| PORTCON_PORTA_OD_A10_MASK
 		| PORTCON_PORTA_OD_A11_MASK
 		| PORTCON_PORTA_OD_A12_MASK
-		| PORTCON_PORTA_OD_A13_MASK
-		);
+		| PORTCON_PORTA_OD_A13_MASK);
 
 	// PORT B pin configuration
 
 	PORTCON_PORTB_IE |= 0
-		| PORTCON_PORTB_IE_B14_BITS_ENABLE
-		;
+		| PORTCON_PORTB_IE_B14_BITS_ENABLE;
 	PORTCON_PORTB_IE &= ~(0
 		| PORTCON_PORTB_IE_B6_MASK
 		| PORTCON_PORTB_IE_B7_MASK
 		| PORTCON_PORTB_IE_B8_MASK
 		| PORTCON_PORTB_IE_B9_MASK
 		| PORTCON_PORTB_IE_B10_MASK
-		| PORTCON_PORTB_IE_B15_MASK
-		);
+		| PORTCON_PORTB_IE_B15_MASK);
 
 	PORTCON_PORTB_PU &= ~(0
 		| PORTCON_PORTB_PU_B6_MASK
 		| PORTCON_PORTB_PU_B9_MASK
 		| PORTCON_PORTB_PU_B11_MASK
 		| PORTCON_PORTB_PU_B14_MASK
-		| PORTCON_PORTB_PU_B15_MASK
-		);
+		| PORTCON_PORTB_PU_B15_MASK);
 
 	PORTCON_PORTB_PD &= ~(0
 		| PORTCON_PORTB_PD_B6_MASK
 		| PORTCON_PORTB_PD_B9_MASK
 		| PORTCON_PORTB_PD_B11_MASK
 		| PORTCON_PORTB_PD_B14_MASK
-		| PORTCON_PORTB_PD_B15_MASK
-		);
+		| PORTCON_PORTB_PD_B15_MASK);
 
 	PORTCON_PORTB_OD &= ~(0
 		| PORTCON_PORTB_OD_B6_MASK
 		| PORTCON_PORTB_OD_B9_MASK
 		| PORTCON_PORTB_OD_B11_MASK
-		| PORTCON_PORTB_OD_B15_MASK
-		);
+		| PORTCON_PORTB_OD_B15_MASK);
 
 	PORTCON_PORTB_OD |= 0
-		| PORTCON_PORTB_OD_B14_BITS_ENABLE
-		;
+		| PORTCON_PORTB_OD_B14_BITS_ENABLE;
 
 	// PORT C pin configuration
 
 	PORTCON_PORTC_IE |= 0
-		| PORTCON_PORTC_IE_C5_BITS_ENABLE
-		;
+		| PORTCON_PORTC_IE_C5_BITS_ENABLE;
 	PORTCON_PORTC_IE &= ~(0
 		| PORTCON_PORTC_IE_C0_MASK
 		| PORTCON_PORTC_IE_C1_MASK
 		| PORTCON_PORTC_IE_C2_MASK
 		| PORTCON_PORTC_IE_C3_MASK
-		| PORTCON_PORTC_IE_C4_MASK
-		);
+		| PORTCON_PORTC_IE_C4_MASK);
 
 	PORTCON_PORTC_PU |= 0
-		| PORTCON_PORTC_PU_C5_BITS_ENABLE
-		;
+		| PORTCON_PORTC_PU_C5_BITS_ENABLE;
 	PORTCON_PORTC_PU &= ~(0
 		| PORTCON_PORTC_PU_C0_MASK
 		| PORTCON_PORTC_PU_C1_MASK
 		| PORTCON_PORTC_PU_C2_MASK
 		| PORTCON_PORTC_PU_C3_MASK
-		| PORTCON_PORTC_PU_C4_MASK
-		);
+		| PORTCON_PORTC_PU_C4_MASK);
 
 	PORTCON_PORTC_PD &= ~(0
 		| PORTCON_PORTC_PD_C0_MASK
@@ -281,19 +251,16 @@ void BOARD_PORTCON_Init(void)
 		| PORTCON_PORTC_PD_C2_MASK
 		| PORTCON_PORTC_PD_C3_MASK
 		| PORTCON_PORTC_PD_C4_MASK
-		| PORTCON_PORTC_PD_C5_MASK
-		);
+		| PORTCON_PORTC_PD_C5_MASK);
 
 	PORTCON_PORTC_OD &= ~(0
 		| PORTCON_PORTC_OD_C0_MASK
 		| PORTCON_PORTC_OD_C1_MASK
 		| PORTCON_PORTC_OD_C2_MASK
 		| PORTCON_PORTC_OD_C3_MASK
-		| PORTCON_PORTC_OD_C4_MASK
-		);
+		| PORTCON_PORTC_OD_C4_MASK);
 	PORTCON_PORTC_OD |= 0
-		| PORTCON_PORTC_OD_C5_BITS_ENABLE
-		;
+		| PORTCON_PORTC_OD_C5_BITS_ENABLE;
 }
 
 void BOARD_ADC_Init(void)
@@ -351,14 +318,14 @@ void BOARD_EEPROM_Init(void)
 	// 0E70..0E77
 	EEPROM_ReadBuffer(0x0E70, Data, 8);
 	gEeprom.CHAN_1_CALL      = IS_MR_CHANNEL(Data[0]) ? Data[0] : MR_CHANNEL_FIRST;
-	gEeprom.SQUELCH_LEVEL    = (Data[1] < 10) ? Data[1] : 4;
-	gEeprom.TX_TIMEOUT_TIMER = (Data[2] < 11) ? Data[2] : 2;
+	gEeprom.SQUELCH_LEVEL    = (Data[1] < 10) ? Data[1] : 1;
+	gEeprom.TX_TIMEOUT_TIMER = (Data[2] < 11) ? Data[2] : 1;
 	#ifndef DISABLE_NOAA
-		gEeprom.NOAA_AUTO_SCAN   = (Data[3] <  2) ? Data[3] : true;
+		gEeprom.NOAA_AUTO_SCAN   = (Data[3] <  2) ? Data[3] : false;
 	#endif
 	gEeprom.KEY_LOCK         = (Data[4] <  2) ? Data[4] : false;
 	gEeprom.VOX_SWITCH       = (Data[5] <  2) ? Data[5] : false;
-	gEeprom.VOX_LEVEL        = (Data[6] < 10) ? Data[6] : 5;
+	gEeprom.VOX_LEVEL        = (Data[6] < 10) ? Data[6] : 1;
 	gEeprom.MIC_SENSITIVITY  = (Data[7] <  5) ? Data[7] : 4;
 
 	// 0E78..0E7F
@@ -371,8 +338,8 @@ void BOARD_EEPROM_Init(void)
 	gEeprom.CROSS_BAND_RX_TX      = (Data[2] < 3) ? Data[2] : CROSS_BAND_OFF;
 	gEeprom.BATTERY_SAVE          = (Data[3] < 5) ? Data[3] : 4;
 	gEeprom.DUAL_WATCH            = (Data[4] < 3) ? Data[4] : DUAL_WATCH_CHAN_A;
-	gEeprom.BACKLIGHT             = (Data[5] < 6) ? Data[5] : 5;
-	gEeprom.TAIL_NOTE_ELIMINATION = (Data[6] < 2) ? Data[6] : true;
+	gEeprom.BACKLIGHT             = (Data[5] < 6) ? Data[5] : 4;
+	gEeprom.TAIL_NOTE_ELIMINATION = (Data[6] < 2) ? Data[6] : false;
 	gEeprom.VFO_OPEN              = (Data[7] < 2) ? Data[7] : true;
 
 	// 0E80..0E87
@@ -388,40 +355,41 @@ void BOARD_EEPROM_Init(void)
 		gEeprom.NoaaChannel[1] = IS_NOAA_CHANNEL(Data[7])  ? Data[7] : NOAA_CHANNEL_FIRST;
 	#endif
 	
-	// 0E88..0E8F
-	struct
-	{
-		uint16_t SelectedFrequency;
-		uint8_t SelectedChannel;
-		uint8_t IsMrMode;
-		uint8_t Padding[8];
-	} FM;
+	{	// 0E88..0E8F
+		struct
+		{
+			uint16_t SelectedFrequency;
+			uint8_t  SelectedChannel;
+			uint8_t  IsMrMode;
+			uint8_t  Padding[8];
+		} __attribute__((packed)) FM;
+	
+		EEPROM_ReadBuffer(0x0E88, &FM, 8);
+		gEeprom.FM_LowerLimit = 760;
+		gEeprom.FM_UpperLimit = 1080;
+		if (FM.SelectedFrequency < gEeprom.FM_LowerLimit || FM.SelectedFrequency > gEeprom.FM_UpperLimit)
+			gEeprom.FM_SelectedFrequency = 960;
+		else
+			gEeprom.FM_SelectedFrequency = FM.SelectedFrequency;
 
-	EEPROM_ReadBuffer(0x0E88, &FM, 8);
-	gEeprom.FM_LowerLimit = 760;
-	gEeprom.FM_UpperLimit = 1080;
-	if (FM.SelectedFrequency < gEeprom.FM_LowerLimit || FM.SelectedFrequency > gEeprom.FM_UpperLimit)
-		gEeprom.FM_SelectedFrequency = 760;
-	else
-		gEeprom.FM_SelectedFrequency = FM.SelectedFrequency;
-
-	gEeprom.FM_SelectedChannel = FM.SelectedChannel;
-	gEeprom.FM_IsMrMode = (FM.IsMrMode < 2) ? FM.IsMrMode : false;
-
+		gEeprom.FM_SelectedChannel = FM.SelectedChannel;
+		gEeprom.FM_IsMrMode        = (FM.IsMrMode < 2) ? FM.IsMrMode : false;
+	}
+	
 	// 0E40..0E67
 	EEPROM_ReadBuffer(0x0E40, gFM_Channels, sizeof(gFM_Channels));
 	FM_ConfigureChannelState();
 
 	// 0E90..0E97
 	EEPROM_ReadBuffer(0x0E90, Data, 8);
-	gEeprom.BEEP_CONTROL             = (Data[0] < 2) ? Data[0] : true;
-	gEeprom.KEY_1_SHORT_PRESS_ACTION = (Data[1] < 9) ? Data[1] : 3;
-	gEeprom.KEY_1_LONG_PRESS_ACTION  = (Data[2] < 9) ? Data[2] : 8;
-	gEeprom.KEY_2_SHORT_PRESS_ACTION = (Data[3] < 9) ? Data[3] : 1;
-	gEeprom.KEY_2_LONG_PRESS_ACTION  = (Data[4] < 9) ? Data[4] : 6;
-	gEeprom.SCAN_RESUME_MODE         = (Data[5] < 3) ? Data[5] : SCAN_RESUME_CO;
-	gEeprom.AUTO_KEYPAD_LOCK         = (Data[6] < 2) ? Data[6] : true;
-	gEeprom.POWER_ON_DISPLAY_MODE    = (Data[7] < 3) ? Data[7] : POWER_ON_DISPLAY_MODE_MESSAGE;
+	gEeprom.BEEP_CONTROL             = (Data[0] < 2)              ? Data[0] : true;
+	gEeprom.KEY_1_SHORT_PRESS_ACTION = (Data[1] < ACTION_OPT_LEN) ? Data[1] : ACTION_OPT_MONITOR;
+	gEeprom.KEY_1_LONG_PRESS_ACTION  = (Data[2] < ACTION_OPT_LEN) ? Data[2] : ACTION_OPT_FLASHLIGHT;
+	gEeprom.KEY_2_SHORT_PRESS_ACTION = (Data[3] < ACTION_OPT_LEN) ? Data[3] : ACTION_OPT_SCAN;
+	gEeprom.KEY_2_LONG_PRESS_ACTION  = (Data[4] < ACTION_OPT_LEN) ? Data[4] : ACTION_OPT_FM;
+	gEeprom.SCAN_RESUME_MODE         = (Data[5] < 3)              ? Data[5] : SCAN_RESUME_CO;
+	gEeprom.AUTO_KEYPAD_LOCK         = (Data[6] < 2)              ? Data[6] : false;
+	gEeprom.POWER_ON_DISPLAY_MODE    = (Data[7] < 3)              ? Data[7] : POWER_ON_DISPLAY_MODE_MESSAGE;
 
 	// 0E98..0E9F
 	EEPROM_ReadBuffer(0x0E98, Data, 8);
@@ -497,9 +465,7 @@ void BOARD_EEPROM_Init(void)
 
 	// 0F18..0F1F
 	EEPROM_ReadBuffer(0x0F18, Data, 8);
-
 	gEeprom.SCAN_LIST_DEFAULT = (Data[0] < 2) ? Data[0] : false;
-
 	for (i = 0; i < 2; i++)
 	{
 		const unsigned int j = 1 + (i * 3);

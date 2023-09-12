@@ -246,6 +246,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					gVfoConfigureMode          = VFO_CONFIGURE_RELOAD;
 					break;
 				}
+
 				Channel = RADIO_FindNextChannel(gEeprom.MrChannel[gEeprom.TX_CHANNEL], 1, false, 0);
 				if (Channel != 0xFF)
 				{
@@ -260,6 +261,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					break;
 				}
 			}
+
 			gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 			break;
 	
@@ -277,7 +279,9 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			// TODO: something wrong here !!
 			#ifndef DISABLE_NOAA
 				if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
+				{
 					gEeprom.ScreenChannel[Vfo] = gEeprom.NoaaChannel[gEeprom.TX_CHANNEL];
+				}
 				else
 				{
 					gEeprom.ScreenChannel[Vfo] = gEeprom.FreqChannel[gEeprom.TX_CHANNEL];

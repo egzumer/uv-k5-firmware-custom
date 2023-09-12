@@ -220,7 +220,7 @@ void UI_DisplayMain(void)
 					strcpy(String, "BAT LOW");
 					break;
 				case VFO_STATE_TX_DISABLE:
-					strcpy(String, "DISABLE");
+					strcpy(String, "TX DISABLE");
 					break;
 				case VFO_STATE_TIMEOUT:
 					strcpy(String, "TIMEOUT");
@@ -228,13 +228,18 @@ void UI_DisplayMain(void)
 				case VFO_STATE_ALARM:
 					strcpy(String, "ALARM");
 					break;
-				case VFO_STATE_VOL_HIGH:
-					sprintf(String, "VOL HIGH");
+				case VFO_STATE_VOLTAGE_HIGH:
+					sprintf(String, "VOLT HIGH");
 					Width = 8;
 					break;
 			}
 
-			UI_PrintString(String, 31, 111, Line, Width, true);
+			#if 0
+				UI_PrintString(String, 31, 111, Line, Width, true);
+			#else
+				(void)Width;
+				UI_PrintString(String, 31, 111, Line, 8, false);
+			#endif
 		}
 		else
 		{	// normal state

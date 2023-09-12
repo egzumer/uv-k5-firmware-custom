@@ -258,6 +258,12 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		Tmp = Data[0];
 		switch (gEeprom.VfoInfo[VFO].ConfigRX.CodeType)
 		{
+			default:
+			case CODE_TYPE_OFF:
+				gEeprom.VfoInfo[VFO].ConfigRX.CodeType = CODE_TYPE_OFF;
+				Tmp = 0;
+				break;
+
 			case CODE_TYPE_CONTINUOUS_TONE:
 				if (Tmp >= 50)
 					Tmp = 0;
@@ -267,11 +273,6 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 			case CODE_TYPE_REVERSE_DIGITAL:
 				if (Tmp >= 104)
 					Tmp = 0;
-				break;
-
-			default:
-				gEeprom.VfoInfo[VFO].ConfigRX.CodeType = CODE_TYPE_OFF;
-				Tmp = 0;
 				break;
 		}
 		gEeprom.VfoInfo[VFO].ConfigRX.Code = Tmp;
@@ -342,7 +343,6 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 
 	Frequency = pRadio->ConfigRX.Frequency;
 
-	// TODO: FIX-ME !!!
 	if (Frequency < gLowerLimitFrequencyBandTable[Band])
 		Frequency = gLowerLimitFrequencyBandTable[Band];
 	else
@@ -585,6 +585,16 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 			switch (CodeType)
 			{
+				default:
+				case CODE_TYPE_OFF:
+					BK4819_SetCTCSSFrequency(670);
+					BK4819_Set55HzTailDetection();
+					InterruptMask = 0
+						| BK4819_REG_3F_CxCSS_TAIL
+						| BK4819_REG_3F_SQUELCH_FOUND
+						| BK4819_REG_3F_SQUELCH_LOST;
+					break;
+					
 				case CODE_TYPE_DIGITAL:
 				case CODE_TYPE_REVERSE_DIGITAL:
 					BK4819_SetCDCSSCodeWord(DCS_GetGolayCodeWord(CodeType, Code));
@@ -603,15 +613,6 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 						| BK4819_REG_3F_CxCSS_TAIL
 						| BK4819_REG_3F_CTCSS_FOUND
 						| BK4819_REG_3F_CTCSS_LOST
-						| BK4819_REG_3F_SQUELCH_FOUND
-						| BK4819_REG_3F_SQUELCH_LOST;
-					break;
-
-				default:
-					BK4819_SetCTCSSFrequency(670);
-					BK4819_Set55HzTailDetection();
-					InterruptMask = 0
-						| BK4819_REG_3F_CxCSS_TAIL
 						| BK4819_REG_3F_SQUELCH_FOUND
 						| BK4819_REG_3F_SQUELCH_LOST;
 					break;
@@ -773,9 +774,9 @@ void RADIO_SetVfoState(VfoState_t State)
 	}
 	else
 	{
-		if (State == VFO_STATE_VOL_HIGH)
+		if (State == VFO_STATE_VOLTAGE_HIGH)
 		{
-			VfoState[0] = VFO_STATE_VOL_HIGH;
+			VfoState[0] = VFO_STATE_VOLTAGE_HIGH;
 			VfoState[1] = VFO_STATE_TX_DISABLE;
 		}
 		else
@@ -827,8 +828,8 @@ void RADIO_PrepareTX(void)
 			if (gBatteryDisplayLevel == 0)
 				State = VFO_STATE_BAT_LOW;
 			else
-			if (gBatteryDisplayLevel == 6)
-				State = VFO_STATE_VOL_HIGH;
+			if (gBatteryDisplayLevel >= 6)
+				State = VFO_STATE_VOLTAGE_HIGH;
 			else
 				goto Skip;
 		}

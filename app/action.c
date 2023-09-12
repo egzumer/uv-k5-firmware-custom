@@ -224,8 +224,8 @@ void ACTION_FM(void)
 
 void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
-	uint8_t Short;
-	uint8_t Long;
+	uint8_t Short = ACTION_OPT_NONE;
+	uint8_t Long  = ACTION_OPT_NONE;
 
 	if (gScreenToDisplay == DISPLAY_MAIN && gDTMF_InputMode)
 	{
@@ -260,6 +260,7 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		Long  = gEeprom.KEY_1_LONG_PRESS_ACTION;
 	}
 	else
+	if (Key == KEY_SIDE2)
 	{
 		Short = gEeprom.KEY_2_SHORT_PRESS_ACTION;
 		Long  = gEeprom.KEY_2_LONG_PRESS_ACTION;
@@ -277,36 +278,39 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			return;
 
 		Short = Long;
+
 		if (!bKeyPressed)
 			return;
 	}
 
 	switch (Short)
 	{
-		case 1:
+		default:
+			break;
+		case ACTION_OPT_FLASHLIGHT:
 			ACTION_FlashLight();
 			break;
-		case 2:
+		case ACTION_OPT_POWER:
 			ACTION_Power();
 			break;
-		case 3:
+		case ACTION_OPT_MONITOR:
 			ACTION_Monitor();
 			break;
-		case 4:
+		case ACTION_OPT_SCAN:
 			ACTION_Scan(true);
 			break;
-		case 5:
+		case ACTION_OPT_VOX:
 			ACTION_Vox();
 			break;
-		case 6:
+		case ACTION_OPT_ALARM:
 			#ifndef DISABLE_ALARM
 				ACTION_AlarmOr1750(false);
 			#endif
 			break;
-		case 7:
+		case ACTION_OPT_FM:
 			ACTION_FM();
 			break;
-		case 8:
+		case ACTION_OPT_1750:
 			#ifndef DISABLE_ALARM
 				ACTION_AlarmOr1750(true);
 			#endif

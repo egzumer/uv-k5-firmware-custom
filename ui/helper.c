@@ -77,7 +77,7 @@ void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Lin
 			const unsigned int Index = pString[i] - ' ';
 			const unsigned int ofs   = (unsigned int)Start + (i * Width);
 			memcpy(gFrameBuffer[Line + 0] + ofs, &gFontBig[Index][0], 8);
-			memcpy(gFrameBuffer[Line + 1] + ofs, &gFontBig[Index][8], 8);
+			memcpy(gFrameBuffer[Line + 1] + ofs, &gFontBig[Index][8], 7);
 		}
 	}
 }

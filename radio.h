@@ -81,7 +81,7 @@ enum VfoState_t
 	VFO_STATE_TX_DISABLE,
 	VFO_STATE_TIMEOUT,
 	VFO_STATE_ALARM,
-	VFO_STATE_VOL_HIGH
+	VFO_STATE_VOLTAGE_HIGH
 };
 
 typedef enum VfoState_t VfoState_t;
