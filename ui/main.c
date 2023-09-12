@@ -116,8 +116,9 @@ void UI_DisplayMain(void)
 			// highlight the selected/used VFO with a marker
 			if (!single_vfo && bIsSameVfo)
 				memcpy(pLine0 + 2, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
-			//else
-			//	memcpy(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
+			else
+			if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)
+				memcpy(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 		else
 		if (!single_vfo)
@@ -169,7 +170,7 @@ void UI_DisplayMain(void)
 				NUMBER_ToDigits(gEeprom.ScreenChannel[vfo_num] + 1, String);
 			else
 				memcpy(String + 5, gInputBox, 3);
-			UI_DisplaySmallDigits(3, String + 5, x + sizeof(BITMAP_M), Line + 1);
+			UI_DisplaySmallDigits(3, String + 5, x + sizeof(BITMAP_M), Line + 1, false);
 		}
 		else
 		if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
@@ -179,7 +180,7 @@ void UI_DisplayMain(void)
 			char c;
 			memcpy(pLine1 + x, BITMAP_FB, sizeof(BITMAP_FB));
 			c = (gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST) + 1;
-			UI_DisplaySmallDigits(1, &c, x + sizeof(BITMAP_FB), Line + 1);
+			UI_DisplaySmallDigits(1, &c, x + sizeof(BITMAP_FB), Line + 1, false);
 		}
 		else
 		{
@@ -195,7 +196,7 @@ void UI_DisplayMain(void)
 				String[6] = gInputBox[0];
 				String[7] = gInputBox[1];
 			}
-			UI_DisplaySmallDigits(2, String + 6, 15, Line + 1);
+			UI_DisplaySmallDigits(2, String + 6, 15, Line + 1, true);
 		}
 
 		// ************
@@ -285,7 +286,7 @@ void UI_DisplayMain(void)
 								// show the main large frequency digits
 								UI_DisplayFrequency(String, 31, Line, false, false);
 								// show the remaining 2 small frequency digits
-								UI_DisplaySmallDigits(2, String + 6, 112, Line + 1);
+								UI_DisplaySmallDigits(2, String + 6, 112, Line + 1, true);
 							#else
 								// show the frequency in the main font
 								sprintf(String, "%9.5f", frequency_Hz * 0.00001);
@@ -346,7 +347,7 @@ void UI_DisplayMain(void)
 						// show the main large frequency digits
 						UI_DisplayFrequency(String, 31, Line, false, false);
 						// show the remaining 2 small frequency digits
-						UI_DisplaySmallDigits(2, String + 6, 112, Line + 1);
+						UI_DisplaySmallDigits(2, String + 6, 112, Line + 1, true);
 					#else
 						// show the frequency in the main font
 						sprintf(String, "%9.5f", frequency_Hz * 0.00001);

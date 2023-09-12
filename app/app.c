@@ -421,7 +421,6 @@ void APP_StartListening(FUNCTION_Type_t Function)
 
 		#ifndef DISABLE_VOICE
 			if (gVoiceWriteIndex == 0)
-//				BK4819_SetAF(gRxVfo->IsAM ? BK4819_AF_AM : BK4819_AF_OPEN);
 		#endif
 				BK4819_SetAF(gRxVfo->IsAM ? BK4819_AF_AM : BK4819_AF_OPEN);
 
@@ -685,7 +684,11 @@ static void APP_HandleVox(void)
 			gVoxPauseCountdown = 0;
 		}
 
-		if (gCurrentFunction != FUNCTION_RECEIVE && gCurrentFunction != FUNCTION_MONITOR && gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && !gFmRadioMode)
+		if (gCurrentFunction != FUNCTION_RECEIVE  &&
+		    gCurrentFunction != FUNCTION_MONITOR  &&
+		    gScanState       == SCAN_OFF          &&
+		    gCssScanMode     == CSS_SCAN_MODE_OFF &&
+		   !gFmRadioMode)
 		{
 			if (gVOX_NoiseDetected)
 			{
@@ -704,6 +707,7 @@ static void APP_HandleVox(void)
 					else
 					{
 						APP_EndTransmission();
+
 						if (gEeprom.REPEATER_TAIL_TONE_ELIMINATION == 0)
 							FUNCTION_Select(FUNCTION_FOREGROUND);
 						else
@@ -727,7 +731,9 @@ static void APP_HandleVox(void)
 				if (gCurrentFunction != FUNCTION_TRANSMIT)
 				{
 					gDTMF_ReplyState = DTMF_REPLY_NONE;
+
 					RADIO_PrepareTX();
+
 					gUpdateDisplay = true;
 				}
 			}
@@ -749,9 +755,13 @@ void APP_Update(void)
 	{
 		gTxTimeoutReached    = false;
 		gFlagEndTransmission = true;
+
 		APP_EndTransmission();
+
 		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP);
+
 		RADIO_SetVfoState(VFO_STATE_TIMEOUT);
+
 		GUI_DisplayScreen();
 	}
 
@@ -809,6 +819,7 @@ void APP_Update(void)
 		{
 			NOAA_IncreaseChannel();
 			RADIO_SetupRegisters(false);
+
 			gScheduleNOAA   = false;
 			gNOAA_Countdown = 7;
 		}
@@ -840,7 +851,11 @@ void APP_Update(void)
 		}
 	}
 
-	if (gFM_ScanState != FM_SCAN_OFF && gScheduleFM && gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_RECEIVE && gCurrentFunction != FUNCTION_TRANSMIT)
+	if (gFM_ScanState    != FM_SCAN_OFF      &&
+	    gScheduleFM                          &&
+	    gCurrentFunction != FUNCTION_MONITOR &&
+	    gCurrentFunction != FUNCTION_RECEIVE &&
+	    gCurrentFunction != FUNCTION_TRANSMIT)
 	{
 		FM_Play();
 		gScheduleFM = false;
@@ -852,7 +867,14 @@ void APP_Update(void)
 	if (gSchedulePowerSave)
 	{
 		#ifndef DISABLE_NOAA
-			if (gEeprom.BATTERY_SAVE == 0 || gScanState != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF || gFmRadioMode || gPttIsPressed || gScreenToDisplay != DISPLAY_MAIN || gKeyBeingHeld || gDTMF_CallState != DTMF_CALL_STATE_NONE)
+			if (gEeprom.BATTERY_SAVE == 0         ||
+			    gScanState != SCAN_OFF            ||
+			    gCssScanMode != CSS_SCAN_MODE_OFF ||
+			    gFmRadioMode                      ||
+			    gPttIsPressed                     ||
+			    gScreenToDisplay != DISPLAY_MAIN  ||
+			    gKeyBeingHeld                     ||
+			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
 				gBatterySaveCountdown = 1000;
 			else
 			if ((IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
@@ -860,7 +882,14 @@ void APP_Update(void)
 			else
 				gBatterySaveCountdown = 1000;
 		#else
-			if (gEeprom.BATTERY_SAVE == 0 || gScanState != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF || gFmRadioMode || gPttIsPressed || gScreenToDisplay != DISPLAY_MAIN || gKeyBeingHeld || gDTMF_CallState != DTMF_CALL_STATE_NONE)
+			if (gEeprom.BATTERY_SAVE == 0         ||
+			    gScanState != SCAN_OFF            ||
+			    gCssScanMode != CSS_SCAN_MODE_OFF ||
+			    gFmRadioMode                      ||
+			    gPttIsPressed                     ||
+			    gScreenToDisplay != DISPLAY_MAIN  ||
+			    gKeyBeingHeld                     ||
+			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
 				gBatterySaveCountdown = 1000;
 			else
 				FUNCTION_Select(FUNCTION_POWER_SAVE);
@@ -889,6 +918,7 @@ void APP_Update(void)
 			}
 
 			FUNCTION_Init();
+
 			gBatterySave = 10;
 			gRxIdleMode  = false;
 		}
@@ -923,7 +953,7 @@ void APP_Update(void)
 // called every 10ms
 void APP_CheckKeys(void)
 {
-	const uint16_t key_repeat_delay = 70;   // 700ms
+	const uint16_t key_repeat_delay = 60;   // 600ms
 	KEY_Code_t     Key;
 
 	#ifndef DISABLE_AIRCOPY

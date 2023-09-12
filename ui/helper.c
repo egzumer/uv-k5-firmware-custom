@@ -217,11 +217,21 @@ void UI_DisplayFrequencySmall(const char *pDigits, uint8_t X, uint8_t Y, bool bD
 	}
 }
 
-void UI_DisplaySmallDigits(uint8_t Size, const char *pString, uint8_t X, uint8_t Y)
+void UI_DisplaySmallDigits(const uint8_t size, const char *str, const uint8_t x, const uint8_t y, const bool display_leading_zeros)
 {
 	const unsigned int char_width  = 7;
-	unsigned int       x = X;
+	bool               display     = display_leading_zeros;
+	unsigned int       xx;
 	unsigned int       i;
-	for (i = 0; i < Size; i++, x += char_width)
-		memcpy(gFrameBuffer[Y] + x, gFontSmallDigits[(unsigned int)pString[i]], char_width);
+	for (i = 0, xx = x; i < size; i++)
+	{
+		const unsigned int c = (unsigned int)str[i];
+		if (c > 0)
+			display = true;
+		if (display && c < ARRAY_SIZE(gFontSmallDigits))
+		{
+			memcpy(gFrameBuffer[y] + xx, gFontSmallDigits[c], char_width);
+			xx += char_width;
+		}
+	}
 }

@@ -74,6 +74,7 @@ static void ACTION_Monitor(void)
 		
 		RADIO_SetupRegisters(true);
 		APP_StartListening(FUNCTION_MONITOR);
+
 		return;
 	}
 
@@ -88,7 +89,7 @@ static void ACTION_Monitor(void)
 		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gIsNoaaMode)
 		{
 			gNOAA_Countdown = 500;
-			gScheduleNOAA = false;
+			gScheduleNOAA   = false;
 		}
 	#endif
 	
@@ -207,6 +208,7 @@ void ACTION_FM(void)
 		if (gFmRadioMode)
 		{
 			FM_TurnOff();
+
 			gInputBoxIndex        = 0;
 			gVoxResumeCountdown   = 80;
 			gFlagReconfigureVfos  = true;
@@ -216,7 +218,9 @@ void ACTION_FM(void)
 
 		RADIO_SelectVfos();
 		RADIO_SetupRegisters(true);
+
 		FM_Start();
+
 		gInputBoxIndex        = 0;
 		gRequestDisplayScreen = DISPLAY_FM;
 	}
@@ -246,6 +250,7 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			#ifndef DISABLE_VOICE
 				gAnotherVoiceID   = VOICE_ID_CANCEL;
 			#endif
+
 			gRequestDisplayScreen = DISPLAY_MAIN;
 			gDTMF_InputMode       = false;
 		}
@@ -286,6 +291,7 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	switch (Short)
 	{
 		default:
+		case ACTION_OPT_NONE:
 			break;
 		case ACTION_OPT_FLASHLIGHT:
 			ACTION_FlashLight();

@@ -74,6 +74,9 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 		#ifdef DISABLE_VOICE
 			gMenuListCount--;
 		#endif
+		#ifdef DISABLE_ALARM
+			gMenuListCount--;
+		#endif
 		#ifdef DISABLE_NOAA
 			gMenuListCount--;
 		#endif

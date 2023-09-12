@@ -34,22 +34,22 @@ static const char MenuList[][7] =
 {
 	"SQL",
     "STEP",
-    "TX-PWR",
-    "R_DCS",
-	"R_CTCS",
-	"T_DCS",
-	"T_CTCS",
+    "TX-PWR",    // was "TXP"
+    "R-DCS",     // was "R_DCS"
+	"R-CTCS",    // was "R_CTCS"
+	"T-DCS",     // was "T_DCS"
+	"T-CTCS",    // was "T_CTCS"
 	"SFT-D",
 	"OFFSET",
 	"W/N",
-	"SCRAM",
+	"SCRAM",     // was "SCR"
     "BCL",
 	"MEM-CH",
-	"B-SAVE",
+	"B-SAVE",    // was "SAVE"
     "VOX",
-    "BAK-LT",
-	"TDR",
-    "CROS-B",
+    "BAK-LT",    // was "ABR"
+	"DUAL-W",    // was "TDR"
+    "CROS-B",    // was "WX"
 	"BEEP",
 	"TOT",
 	#ifndef DISABLE_VOICE
@@ -82,8 +82,8 @@ static const char MenuList[][7] =
 	"D-LIST",
 	"PONMSG",
 	"ROGER",
-	"BATVOL",
-	"MODE",
+	"BATVOL",    // was "VOL"
+	"MODE",      // was "AM"
 	#ifndef DISABLE_NOAA
 		"NOAA_S",
 	#endif
@@ -93,12 +93,12 @@ static const char MenuList[][7] =
 	// normally hidden menu items from here on.
 	// enabled if pressing PTT and side button below PTT at power-on.
 
-	"350TX",
+	"350-TX",    // was "350TX"
 	"F-LOCK",
-	"200TX",
-	"500TX",
-	"350EN",
-	"SCREN"
+	"200-TX",    // was "200TX"
+	"500-TX",    // was "500TX"
+	"350-EN",    // was "350EN"
+	"SCR-EN"     // was "SCREN"
 };
 
 #if 0
@@ -293,7 +293,7 @@ void UI_DisplayMenu(void)
 	#endif
 	
 	NUMBER_ToDigits(gMenuCursor + 1, String);
-	UI_DisplaySmallDigits(2, String + 6, 33, 6);
+	UI_DisplaySmallDigits(2, String + 6, 33, 6, false);
 
 	if (gIsInSubMenu)
 		memcpy(gFrameBuffer[0] + 50, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));
@@ -628,10 +628,10 @@ void UI_DisplayMenu(void)
 	    gMenuCursor == MENU_T_DCS  ||
 	    gMenuCursor == MENU_D_LIST)
 	{
-		uint8_t Offset;
+		unsigned int Offset;
 		NUMBER_ToDigits((uint8_t)gSubMenuSelection, String);
 		Offset = (gMenuCursor == MENU_D_LIST) ? 2 : 3;
-		UI_DisplaySmallDigits(Offset, String + (8 - Offset), 105, 0);
+		UI_DisplaySmallDigits(Offset, String + (8 - Offset), 105, 0, false);
 	}
 
 	if (gMenuCursor == MENU_SLIST1 || gMenuCursor == MENU_SLIST2)
