@@ -432,7 +432,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 		if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 		{
 			gRxVfoIsActive      = true;
-			
+
 			gDualWatchCountdown = dual_watch_count_after_2;
 			gScheduleDualWatch  = false;
 		}
@@ -650,7 +650,7 @@ void APP_CheckRadioInterrupts(void)
 				if (gCurrentFunction == FUNCTION_POWER_SAVE && !gRxIdleMode)
 				{
 					gBatterySave                 = 20;
-					gBatterySaveCountdownExpired = 0;
+					gBatterySaveCountdownExpired = false;
 				}
 
 				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && (gScheduleDualWatch || gDualWatchCountdown < dual_watch_count_after_vox))
@@ -926,12 +926,12 @@ void APP_Update(void)
 			    gCssScanMode != CSS_SCAN_MODE_OFF ||
 			    gScreenToDisplay != DISPLAY_MAIN  ||
 			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
-				gBatterySaveCountdown = 1000;
+				gBatterySaveCountdown = battery_save_count;
 			else
 			if ((IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
 				FUNCTION_Select(FUNCTION_POWER_SAVE);
 			else
-				gBatterySaveCountdown = 1000;
+				gBatterySaveCountdown = battery_save_count;
 		#else
 			if (gFmRadioMode                      ||
 			    gPttIsPressed                     ||
@@ -941,7 +941,7 @@ void APP_Update(void)
 			    gCssScanMode != CSS_SCAN_MODE_OFF ||
 			    gScreenToDisplay != DISPLAY_MAIN  ||
 			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
-				gBatterySaveCountdown = 1000;
+				gBatterySaveCountdown = battery_save_count;
 			else
 				FUNCTION_Select(FUNCTION_POWER_SAVE);
 		#endif
@@ -1435,9 +1435,9 @@ void APP_TimeSlice500ms(void)
 				if (gEeprom.AUTO_KEYPAD_LOCK && gKeyLockCountdown > 0 && !gDTMF_InputMode)
 				{
 					if (--gKeyLockCountdown == 0)
-						gEeprom.KEY_LOCK = true;
+						gEeprom.KEY_LOCK = true;     // lock the keyboard
 
-					gUpdateStatus = true;
+					gUpdateStatus = true;            // lock symbol needs showing
 				}
 
 				if (gVoltageMenuCountdown > 0)
@@ -1453,6 +1453,7 @@ void APP_TimeSlice500ms(void)
 
 							RADIO_ConfigureChannel(0, 2);
 							RADIO_ConfigureChannel(1, 2);
+
 							RADIO_SetupRegisters(true);
 						}
 
@@ -1644,10 +1645,10 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	if (gCurrentFunction == FUNCTION_POWER_SAVE)
 		FUNCTION_Select(FUNCTION_FOREGROUND);
 
-	gBatterySaveCountdown = 1000;
+	gBatterySaveCountdown = battery_save_count;
 
 	if (gEeprom.AUTO_KEYPAD_LOCK)
-		gKeyLockCountdown = 30;
+		gKeyLockCountdown = 30;     // 15 seconds
 
 	if (!bKeyPressed)
 	{
@@ -1698,41 +1699,32 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	}
 
 	if (gEeprom.KEY_LOCK && gCurrentFunction != FUNCTION_TRANSMIT && Key != KEY_PTT)
-	{
+	{	// keyboard is locked
+
 		if (Key == KEY_F)
-		{
-			if (!bKeyHeld)
-			{
-				if (!bKeyPressed)
-					return;
-
-				if (bKeyHeld)
-					return;
-
-				AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
-
-				gKeypadLocked = 4;
-
-				gUpdateDisplay = true;
-				return;
-			}
+		{	// function/key-lock key
 
 			if (!bKeyPressed)
 				return;
+
+			if (!bKeyHeld)
+			{
+				// keypad is locked, tell the user
+				AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
+				gKeypadLocked  = 4;
+				gUpdateDisplay = true;
+				return;
+			}
 		}
 		else
 		if (Key != KEY_SIDE1 && Key != KEY_SIDE2)
 		{
-			if (!bKeyPressed)
+			if (!bKeyPressed || bKeyHeld)
 				return;
 
-			if (bKeyHeld)
-				return;
-
+			// keypad is locked, tell the user
 			AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
-
-			gKeypadLocked = 4;
-
+			gKeypadLocked  = 4;
 			gUpdateDisplay = true;
 			return;
 		}

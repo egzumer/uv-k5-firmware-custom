@@ -83,6 +83,8 @@ extern const uint16_t        gMin_bat_v;
 
 extern const uint8_t         gMicGain_dB2[5];
 
+extern const uint16_t        battery_save_count;
+
 extern const uint16_t        dual_watch_count_after_tx;
 extern const uint16_t        dual_watch_count_after_rx;
 extern const uint16_t        dual_watch_count_after_1;

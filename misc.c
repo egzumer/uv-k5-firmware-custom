@@ -30,6 +30,8 @@ const uint32_t    gDefaultAesKey[4] = {0x4AA5CC60, 0x0312CC5F, 0xFFD2DABB, 0x6BB
 
 const uint8_t     gMicGain_dB2[5] = {3, 8, 16, 24, 31};
 
+const uint16_t    battery_save_count = 10000 / 10;          // 10 seconds
+
 // 10ms count down resolution
 const uint16_t    dual_watch_count_after_tx  = 3600 / 10;   // 3.6 sec after TX ends
 const uint16_t    dual_watch_count_after_rx  = 1000 / 10;   // 1 sec after RX ends ?
@@ -65,13 +67,14 @@ uint16_t          gEEPROM_1F8C;
 uint8_t           gMR_ChannelAttributes[207];
 
 volatile bool     gNextTimeslice500ms;
-volatile uint16_t gBatterySaveCountdown = 1000;
+volatile uint16_t gBatterySaveCountdown = battery_save_count;
 volatile uint16_t gDualWatchCountdown;
 volatile uint16_t gTxTimerCountdown;
 volatile uint16_t gTailNoteEliminationCountdown;
 #ifndef DISABLE_NOAA
 	volatile uint16_t gNOAA_Countdown;
 #endif
+
 bool              gEnableSpeaker;
 uint8_t           gKeyLockCountdown;
 uint8_t           gRTTECountdown;
@@ -148,10 +151,11 @@ uint8_t           gNeverUsed;
 	uint8_t       gNoaaChannel;
 #endif
 
-volatile bool     gNextTimeslice;
 bool              gUpdateDisplay;
 bool              gF_LOCK;
 uint8_t           gShowChPrefix;
+
+volatile bool     gNextTimeslice;
 volatile uint16_t gSystickCountdown2;
 volatile uint8_t  gFoundCDCSSCountdown;
 volatile uint8_t  gFoundCTCSSCountdown;

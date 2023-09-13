@@ -36,7 +36,7 @@ void UI_DisplayMain(void)
 
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 
-	if (gEeprom.KEY_LOCK && gKeypadLocked)
+	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
 	{
 		UI_PrintString("Long press #", 0, display_width - 1, 1, 8);
 		UI_PrintString("to unlock",    0, display_width - 1, 3, 8);

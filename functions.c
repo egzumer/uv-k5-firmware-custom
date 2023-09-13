@@ -184,7 +184,8 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			break;
 	}
 	
-	gBatterySaveCountdown = 1000;
+	gBatterySaveCountdown = battery_save_count;
 	gSchedulePowerSave    = false;
+
 	gFM_RestoreCountdown  = Countdown;
 }
