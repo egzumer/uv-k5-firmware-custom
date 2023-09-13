@@ -261,6 +261,16 @@ void BK4819_SetCTCSSFrequency(uint32_t FreqControlWord)
 {
 	uint16_t Config;
 
+	// REG_51 <15>  0                                 1 = Enable TxCTCSS/CDCSS           0 = Disable
+	// REG_51 <14>  0                                 1 = GPIO0Input for CDCSS           0 = Normal Mode.(for BK4819v3)
+	// REG_51 <13>  0                                 1 = Transmit negative CDCSS code   0 = Transmit positive CDCSScode
+	// REG_51 <12>  0 CTCSS/CDCSS mode selection      1 = CTCSS                          0 = CDCSS
+	// REG_51 <11>  0 CDCSS 24/23bit selection        1 = 24bit                          0 = 23bit
+	// REG_51 <10>  0 1050HzDetectionMode             1 = 1050/4 Detect Enable, CTC1 should be set to 1050/4 Hz
+	// REG_51 <9>   0 Auto CDCSS Bw Mode              1 = Disable                        0 = Enable.
+	// REG_51 <8>   0 Auto CTCSS Bw Mode              0 = Enable                         1 = Disable
+	// REG_51 <6:0> 0 CTCSS/CDCSS Tx Gain1 Tuning     0 = min                            127 = max
+
 	if (FreqControlWord == 2625)
 	{	// Enables 1050Hz detection mode
 		// Enable TxCTCSS
@@ -269,7 +279,7 @@ void BK4819_SetCTCSSFrequency(uint32_t FreqControlWord)
 		// Enable Auto CDCSS Bw Mode
 		// Enable Auto CTCSS Bw Mode
 		// CTCSS/CDCSS Tx Gain1 Tuning = 74
-		Config = 0x944A;
+		Config = 0x944A;   // 1 0 0 1 0 1 0 0 0 1001010
 	}
 	else
 	{	// Enable TxCTCSS
@@ -277,16 +287,38 @@ void BK4819_SetCTCSSFrequency(uint32_t FreqControlWord)
 		// Enable Auto CDCSS Bw Mode
 		// Enable Auto CTCSS Bw Mode
 		// CTCSS/CDCSS Tx Gain1 Tuning = 74
-		Config = 0x904A;
+		Config = 0x904A;   // 1 0 0 1 0 0 0 0 0 1001010
 	}
 	BK4819_WriteRegister(BK4819_REG_51, Config);
 	
+	// REG_07 <15:0>
+	//
+	// When <13> = 0 for CTC1
+	// <12:0> = CTC1 frequencycontrolword = freq(Hz)*20.64888 for XTAL 13M/26M or = freq(Hz)*20.97152 for XTAL 12.8M/19.2M/25.6M/38.4M
+	//
+	// When <13> = 1 for CTC2(Tail 55Hz Rx detection)
+	// <12:0> = CTC2 (should below 100Hz) frequencycontrolword = 25391/freq(Hz) for XTAL 13M/26M or = 25000/freq(Hz) for XTAL 12.8M/19.2M/25.6M/38.4M
+	//
+	// When <13> = 2 for CDCSS 134.4Hz
+	// <12:0> = CDCSS baud rate frequency (134.4Hz) controlword = freq(Hz)*20.64888 for XTAL 13M/26M or = freq(Hz)*20.97152 for XTAL 12.8M/19.2M/25.6M/38.4M
+
 	// CTC1 Frequency Control Word
 	BK4819_WriteRegister(BK4819_REG_07, BK4819_REG_07_MODE_CTC1 | ((FreqControlWord * 2065) / 1000) << BK4819_REG_07_SHIFT_FREQUENCY);
 }
 
 void BK4819_Set55HzTailDetection(void)
 {
+	// REG_07 <15:0>
+	//
+	// When <13> = 0 for CTC1
+	// <12:0> = CTC1 frequencycontrolword = freq(Hz)*20.64888 for XTAL 13M/26M or = freq(Hz)*20.97152 for XTAL 12.8M/19.2M/25.6M/38.4M
+	//
+	// When <13> = 1 for CTC2(Tail 55Hz Rx detection)
+	// <12:0> = CTC2 (should below 100Hz) frequencycontrolword = 25391/freq(Hz) for XTAL 13M/26M or = 25000/freq(Hz) for XTAL 12.8M/19.2M/25.6M/38.4M
+	//
+	// When <13> = 2 for CDCSS 134.4Hz
+	// <12:0> = CDCSS baud rate frequency (134.4Hz) controlword = freq(Hz)*20.64888 for XTAL 13M/26M or = freq(Hz)*20.97152 for XTAL 12.8M/19.2M/25.6M/38.4M
+
 	// CTC2 Frequency Control Word = round_nearest(25391 / 55) = 462
 	const unsigned int ctcss_Hz = 55;
 	BK4819_WriteRegister(BK4819_REG_07, (1u << 13) | ((25391 + (ctcss_Hz / 2)) / ctcss_Hz));  // with rounding
