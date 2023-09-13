@@ -288,7 +288,8 @@ void BK4819_SetCTCSSFrequency(uint32_t FreqControlWord)
 void BK4819_Set55HzTailDetection(void)
 {
 	// CTC2 Frequency Control Word = round_nearest(25391 / 55) = 462
-	BK4819_WriteRegister(BK4819_REG_07, (1u << 13) | 462);
+	const unsigned int ctcss_Hz = 55;
+	BK4819_WriteRegister(BK4819_REG_07, (1u << 13) | ((25391 + (ctcss_Hz / 2)) / ctcss_Hz));  // with rounding
 }
 
 void BK4819_EnableVox(uint16_t VoxEnableThreshold, uint16_t VoxDisableThreshold)
@@ -757,13 +758,13 @@ void BK4819_GenTail(uint8_t Tail)
 
 void BK4819_EnableCDCSS(void)
 {
-	BK4819_GenTail(0); // CTC134
+	BK4819_GenTail(0);           // CTC134
 	BK4819_WriteRegister(BK4819_REG_51, 0x804A);
 }
 
 void BK4819_EnableCTCSS(void)
 {
-	BK4819_GenTail(4); // CTC55
+	BK4819_GenTail(4);           // CTC55
 	BK4819_WriteRegister(BK4819_REG_51, 0x904A);
 }
 
