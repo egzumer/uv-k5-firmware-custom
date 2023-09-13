@@ -71,9 +71,8 @@ void SystickHandler(void)
 		DECREMENT_AND_TRIGGER(gBatterySave, gBatterySaveCountdownExpired);
 
 	if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
-		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
-			if (gCurrentFunction != FUNCTION_RECEIVE)
-				DECREMENT_AND_TRIGGER(gDualWatchCountdown, gScheduleDualWatch);
+		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE)
+			DECREMENT_AND_TRIGGER(gDualWatchCountdown, gScheduleDualWatch);
 
 	#ifndef DISABLE_NOAA
 		if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH == DUAL_WATCH_OFF)

@@ -30,6 +30,15 @@ const uint32_t    gDefaultAesKey[4] = {0x4AA5CC60, 0x0312CC5F, 0xFFD2DABB, 0x6BB
 
 const uint8_t     gMicGain_dB2[5] = {3, 8, 16, 24, 31};
 
+// 10ms count down resolution
+const uint16_t    dual_watch_count_after_tx  = 3600 / 10;   // 3.6 sec after TX ends
+const uint16_t    dual_watch_count_after_rx  = 1000 / 10;   // 1 sec after RX ends ?
+const uint16_t    dual_watch_count_after_1   = 5000 / 10;   // 5 sec
+const uint16_t    dual_watch_count_after_2   = 3600 / 10;   // 3.6 sec
+const uint16_t    dual_watch_count_toggle    =  100 / 10;   // 100ms between VFO toggles
+const uint16_t    dual_watch_count_noaa      =   70 / 10;   // 70ms
+const uint16_t    dual_watch_count_after_vox =  200 / 10;   // 200ms
+
 bool              gSetting_350TX;
 bool              gSetting_KILLED;
 bool              gSetting_200TX;

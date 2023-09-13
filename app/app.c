@@ -91,7 +91,7 @@ static void APP_CheckForIncoming(void)
 			return;
 		}
 
-		gDualWatchCountdown = 100;
+		gDualWatchCountdown = dual_watch_count_after_rx;
 		gScheduleDualWatch  = false;
 	}
 	else
@@ -156,7 +156,7 @@ static void APP_HandleIncoming(void)
 			{
 				if (gRxReceptionMode == RX_MODE_DETECTED)
 				{
-					gDualWatchCountdown = 500;
+					gDualWatchCountdown = dual_watch_count_after_1;
 					gScheduleDualWatch  = false;
 					gRxReceptionMode    = RX_MODE_LISTENING;
 					return;
@@ -432,7 +432,8 @@ void APP_StartListening(FUNCTION_Type_t Function)
 		if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 		{
 			gRxVfoIsActive      = true;
-			gDualWatchCountdown = 360;
+			
+			gDualWatchCountdown = dual_watch_count_after_2;
 			gScheduleDualWatch  = false;
 		}
 
@@ -572,17 +573,17 @@ static void DUALWATCH_Alternate(void)
 		}
 		else
 	#endif
-	{
-		gEeprom.RX_CHANNEL = 1 - gEeprom.RX_CHANNEL;
+	{	// toggle between VFO's
+		gEeprom.RX_CHANNEL = (1 - gEeprom.RX_CHANNEL) & 1;
 		gRxVfo             = &gEeprom.VfoInfo[gEeprom.RX_CHANNEL];
 	}
 
 	RADIO_SetupRegisters(false);
 
 	#ifndef DISABLE_NOAA
-		gDualWatchCountdown = gIsNoaaMode ? 7 : 10;
+		gDualWatchCountdown = gIsNoaaMode ? dual_watch_count_noaa : dual_watch_count_toggle;
 	#else
-		gDualWatchCountdown = 10;
+		gDualWatchCountdown = dual_watch_count_toggle;
 	#endif
 }
 
@@ -592,14 +593,17 @@ void APP_CheckRadioInterrupts(void)
 		return;
 
 	while (BK4819_ReadRegister(BK4819_REG_0C) & 1u)
-	{
-		uint16_t Mask;
+	{	// BK chip interrupt request
 
+		uint16_t interrupt_status_bits;
+
+		// reset the interrupt ?
 		BK4819_WriteRegister(BK4819_REG_02, 0);
 
-		Mask = BK4819_ReadRegister(BK4819_REG_02);
+		// fetch the interrupt status bits
+		interrupt_status_bits = BK4819_ReadRegister(BK4819_REG_02);
 
-		if (Mask & BK4819_REG_02_DTMF_5TONE_FOUND)
+		if (interrupt_status_bits & BK4819_REG_02_DTMF_5TONE_FOUND)
 		{
 			gDTMF_RequestPending = true;
 			gDTMF_RecvTimeout    = 5;
@@ -618,25 +622,25 @@ void APP_CheckRadioInterrupts(void)
 				DTMF_HandleRequest();
 		}
 
-		if (Mask & BK4819_REG_02_CxCSS_TAIL)
+		if (interrupt_status_bits & BK4819_REG_02_CxCSS_TAIL)
 			g_CxCSS_TAIL_Found = true;
 
-		if (Mask & BK4819_REG_02_CDCSS_LOST)
+		if (interrupt_status_bits & BK4819_REG_02_CDCSS_LOST)
 		{
 			g_CDCSS_Lost = true;
 			gCDCSSCodeType = BK4819_GetCDCSSCodeType();
 		}
 
-		if (Mask & BK4819_REG_02_CDCSS_FOUND)
+		if (interrupt_status_bits & BK4819_REG_02_CDCSS_FOUND)
 			g_CDCSS_Lost = false;
 
-		if (Mask & BK4819_REG_02_CTCSS_LOST)
+		if (interrupt_status_bits & BK4819_REG_02_CTCSS_LOST)
 			g_CTCSS_Lost = true;
 
-		if (Mask & BK4819_REG_02_CTCSS_FOUND)
+		if (interrupt_status_bits & BK4819_REG_02_CTCSS_FOUND)
 			g_CTCSS_Lost = false;
 
-		if (Mask & BK4819_REG_02_VOX_LOST)
+		if (interrupt_status_bits & BK4819_REG_02_VOX_LOST)
 		{
 			g_VOX_Lost         = true;
 			gVoxPauseCountdown = 10;
@@ -649,34 +653,37 @@ void APP_CheckRadioInterrupts(void)
 					gBatterySaveCountdownExpired = 0;
 				}
 
-				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && (gScheduleDualWatch || gDualWatchCountdown < 20))
+				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && (gScheduleDualWatch || gDualWatchCountdown < dual_watch_count_after_vox))
 				{
-					gDualWatchCountdown = 20;
+					gDualWatchCountdown = dual_watch_count_after_vox;
 					gScheduleDualWatch  = false;
 				}
 			}
 		}
 
-		if (Mask & BK4819_REG_02_VOX_FOUND)
+		if (interrupt_status_bits & BK4819_REG_02_VOX_FOUND)
 		{
 			g_VOX_Lost         = false;
 			gVoxPauseCountdown = 0;
 		}
 
-		if (Mask & BK4819_REG_02_SQUELCH_LOST)
+		if (interrupt_status_bits & BK4819_REG_02_SQUELCH_LOST)
 		{
 			g_SquelchLost = true;
 			BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_GREEN, true);
 		}
 
-		if (Mask & BK4819_REG_02_SQUELCH_FOUND)
+		if (interrupt_status_bits & BK4819_REG_02_SQUELCH_FOUND)
 		{
 			g_SquelchLost = false;
 			BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_GREEN, false);
 		}
 
 		#ifndef DISABLE_AIRCOPY
-			if (Mask & BK4819_REG_02_FSK_FIFO_ALMOST_FULL && gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState == AIRCOPY_TRANSFER && gAirCopyIsSendMode == 0)
+			if (interrupt_status_bits & BK4819_REG_02_FSK_FIFO_ALMOST_FULL &&
+			    gScreenToDisplay == DISPLAY_AIRCOPY &&
+			    gAircopyState == AIRCOPY_TRANSFER &&
+			    gAirCopyIsSendMode == 0)
 			{
 				unsigned int i;
 				for (i = 0; i < 4; i++)
@@ -692,16 +699,17 @@ void APP_EndTransmission(void)
 	RADIO_SendEndOfTransmission();
 
 	if (gCurrentVfo->pTX->CodeType != CODE_TYPE_OFF)
-	{	// CTCSS/CDCSS is enabled
+	{	// CTCSS/DCS is enabled
 
 		//if (gEeprom.TAIL_NOTE_ELIMINATION && gEeprom.REPEATER_TAIL_TONE_ELIMINATION > 0)
 		if (gEeprom.TAIL_NOTE_ELIMINATION)
-		{	// send the tail tone
+		{	// send the CTCSS/DCS tail tone - allows the receivers to mute the usual FM squelch tail/crash
 			RADIO_EnableCxCSS();
 		}
 		#if 0
 			else
-			{	// TX a short blank carrier - gives the receivers time to mute RX audio before we drop carrier
+			{	// TX a short blank carrier
+				// this gives the receivers time to mute RX audio before we drop carrier
 				BK4819_ExitSubAu();
 				SYSTEM_DelayMs(200);
 			}
@@ -879,15 +887,16 @@ void APP_Update(void)
 			{
 				if (!gPttIsPressed && !gFmRadioMode && gDTMF_CallState == DTMF_CALL_STATE_NONE && gCurrentFunction != FUNCTION_POWER_SAVE)
 				{
-					DUALWATCH_Alternate();
+					gScheduleDualWatch = false;
+
+					DUALWATCH_Alternate();    // toggle between the two VFO's
 
 					if (gRxVfoIsActive && gScreenToDisplay == DISPLAY_MAIN)
 						GUI_SelectNextDisplay(DISPLAY_MAIN);
 
-					gRxVfoIsActive     = false;
-					gScanPauseMode     = false;
-					gRxReceptionMode   = RX_MODE_NONE;
-					gScheduleDualWatch = false;
+					gRxVfoIsActive   = false;
+					gScanPauseMode   = false;
+					gRxReceptionMode = RX_MODE_NONE;
 				}
 			}
 		}
@@ -955,7 +964,7 @@ void APP_Update(void)
 
 			if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF)
 			{
-				DUALWATCH_Alternate();
+				DUALWATCH_Alternate();    // toggle between the two VFO's
 				gUpdateRSSI = false;
 			}
 
@@ -982,7 +991,7 @@ void APP_Update(void)
 		}
 		else
 		{
-			DUALWATCH_Alternate();
+			DUALWATCH_Alternate();    // toggle between the two VFO's
 
 			gUpdateRSSI  = true;
 			gBatterySave = 10;

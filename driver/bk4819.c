@@ -604,6 +604,16 @@ void BK4819_TxOn_Beep(void)
 
 void BK4819_ExitSubAu(void)
 {
+	// REG_51 <15>  0                                 1 = Enable TxCTCSS/CDCSS           0 = Disable
+	// REG_51 <14>  0                                 1 = GPIO0Input for CDCSS           0 = Normal Mode.(for BK4819v3)
+	// REG_51 <13>  0                                 1 = Transmit negative CDCSS code   0 = Transmit positive CDCSScode
+	// REG_51 <12>  0 CTCSS/CDCSS mode selection      1 = CTCSS                          0 = CDCSS
+	// REG_51 <11>  0 CDCSS 24/23bit selection        1 = 24bit                          0 = 23bit
+	// REG_51 <10>  0 1050HzDetectionMode             1 = 1050/4 Detect Enable, CTC1 should be set to 1050/4 Hz
+	// REG_51 <9>   0 Auto CDCSS Bw Mode              1 = Disable                        0 = Enable.
+	// REG_51 <8>   0 Auto CTCSS Bw Mode              0 = Enable                         1 = Disable
+	// REG_51 <6:0> 0 CTCSS/CDCSS Tx Gain1 Tuning     0 = min                            127 = max
+
 	BK4819_WriteRegister(BK4819_REG_51, 0x0000);
 }
 
@@ -853,6 +863,17 @@ void BK4819_EnableFrequencyScan(void)
 void BK4819_SetScanFrequency(uint32_t Frequency)
 {
 	BK4819_SetFrequency(Frequency);
+
+	// REG_51 <15>  0                                 1 = Enable TxCTCSS/CDCSS           0 = Disable
+	// REG_51 <14>  0                                 1 = GPIO0 Input for CDCSS          0 = Normal Mode.(for BK4819v3)
+	// REG_51 <13>  0                                 1 = Transmit negative CDCSS code   0 = Transmit positive CDCSScode
+	// REG_51 <12>  0 CTCSS/CDCSS mode selection      1 = CTCSS                          0 = CDCSS
+	// REG_51 <11>  0 CDCSS 24/23bit selection        1 = 24bit                          0 = 23bit
+	// REG_51 <10>  0 1050HzDetectionMode             1 = 1050/4 Detect Enable, CTC1 should be set to 1050/4 Hz
+	// REG_51 <9>   0 Auto CDCSS Bw Mode              1 = Disable                        0 = Enable.
+	// REG_51 <8>   0 Auto CTCSS Bw Mode              0 = Enable                         1 = Disable
+	// REG_51 <6:0> 0 CTCSS/CDCSS Tx Gain1 Tuning     0 = min                            127 = max
+
 	BK4819_WriteRegister(BK4819_REG_51, 0
 		| BK4819_REG_51_DISABLE_CxCSS
 		| BK4819_REG_51_GPIO6_PIN2_NORMAL
@@ -862,6 +883,7 @@ void BK4819_SetScanFrequency(uint32_t Frequency)
 		| BK4819_REG_51_1050HZ_NO_DETECTION
 		| BK4819_REG_51_AUTO_CDCSS_BW_DISABLE
 		| BK4819_REG_51_AUTO_CTCSS_BW_DISABLE);
+
 	BK4819_RX_TurnOn();
 }
 

@@ -83,6 +83,14 @@ extern const uint16_t        gMin_bat_v;
 
 extern const uint8_t         gMicGain_dB2[5];
 
+extern const uint16_t        dual_watch_count_after_tx;
+extern const uint16_t        dual_watch_count_after_rx;
+extern const uint16_t        dual_watch_count_after_1;
+extern const uint16_t        dual_watch_count_after_2;
+extern const uint16_t        dual_watch_count_toggle;
+extern const uint16_t        dual_watch_count_noaa;
+extern const uint16_t        dual_watch_count_after_vox;
+
 extern bool                  gSetting_350TX;
 extern bool                  gSetting_KILLED;
 extern bool                  gSetting_200TX;

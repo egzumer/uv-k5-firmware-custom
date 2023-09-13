@@ -799,8 +799,9 @@ void RADIO_PrepareTX(void)
 {
 	if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 	{
-		gDualWatchCountdown = 360;
+		gDualWatchCountdown = dual_watch_count_after_tx;
 		gScheduleDualWatch  = false;
+
 		if (!gRxVfoIsActive)
 		{
 			gEeprom.RX_CHANNEL = gEeprom.TX_CHANNEL;
