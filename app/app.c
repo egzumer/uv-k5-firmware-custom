@@ -1418,7 +1418,7 @@ void APP_TimeSlice500ms(void)
 			UI_UpdateRSSI(gCurrentRSSI);
 		}
 
-		if ((gFM_ScanState == FM_SCAN_OFF || gAskToSave) && gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF)
+		if ((gFM_ScanState == FM_SCAN_OFF || gAskToSave) && gCssScanMode == CSS_SCAN_MODE_OFF)
 		{
 
 			if (gBacklightCountdown > 0)
@@ -1427,9 +1427,9 @@ void APP_TimeSlice500ms(void)
 						GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);   // turn backlight off
 
 			#ifndef DISABLE_AIRCOPY
-				if (gScreenToDisplay != DISPLAY_AIRCOPY && (gScreenToDisplay != DISPLAY_SCANNER || gScanCssState >= SCAN_CSS_STATE_FOUND))
+				if (gScanState == SCAN_OFF && gScreenToDisplay != DISPLAY_AIRCOPY && (gScreenToDisplay != DISPLAY_SCANNER || gScanCssState >= SCAN_CSS_STATE_FOUND))
 			#else
-				if (gScreenToDisplay != DISPLAY_SCANNER || gScanCssState >= SCAN_CSS_STATE_FOUND)
+				if (gScanState == SCAN_OFF && (gScreenToDisplay != DISPLAY_SCANNER || gScanCssState >= SCAN_CSS_STATE_FOUND))
 			#endif
 			{
 				if (gEeprom.AUTO_KEYPAD_LOCK && gKeyLockCountdown > 0 && !gDTMF_InputMode)

@@ -23,7 +23,7 @@ const uint8_t     g_scan_delay = 21;   // 210ms
 
 const uint8_t     g_menu_timeout = 2 * 30;  // 30 seconds
 
-const uint16_t    gMax_bat_v = 840;   // 8.4V
+const uint16_t    gMax_bat_v = 843;   // 8.43V
 const uint16_t    gMin_bat_v = 660;   // 6.6V
 
 const uint32_t    gDefaultAesKey[4] = {0x4AA5CC60, 0x0312CC5F, 0xFFD2DABB, 0x6BBA7F92};
