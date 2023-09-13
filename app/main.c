@@ -104,7 +104,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				unsigned int i;
 				for (i = 0; i < 7; i++)
 				{
-					if (Frequency >= gLowerLimitFrequencyBandTable[i] && Frequency <= gUpperLimitFrequencyBandTable[i])
+					if (Frequency >= LowerLimitFrequencyBandTable[i] && Frequency <= UpperLimitFrequencyBandTable[i])
 					{
 						#ifndef DISABLE_VOICE
 							gAnotherVoiceID = (VOICE_ID_t)Key;
@@ -123,7 +123,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 						Frequency += 75;
 
-						gTxVfo->ConfigRX.Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, gLowerLimitFrequencyBandTable[gTxVfo->Band]);
+						gTxVfo->ConfigRX.Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, LowerLimitFrequencyBandTable[gTxVfo->Band]);
 
 						gRequestSaveChannel = 1;
 						return;

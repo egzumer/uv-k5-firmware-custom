@@ -34,19 +34,7 @@ To enable the custom option just uncomment the line by removing the starting '#'
 * AM RX now allowed everywhere, although the radio really doesn't do AM, the adverts are a con !
 * Finer RSSI bar steps
 * Nicer/cleaner big numeric font than original QS big numeric font
-*
-* "MEM-CH" and "DEL-CH" menus now include channel name
-* "STEP" menu, added 1.25kHz option, removed 5kHz option
-* "TXP" menu, renamed to "TX-PWR"
-* "SAVE" menu, renamed to "B-SAVE"
-* "WX" menu, renamed to "CROS-B" ('WX' means weather here in the UK)
-* "ABR" menu, renamed to "BAK-LT", extended times, includes always ON option
-* "SCR" menu, renamed to "SCRAM"
-* "MIC" menu, shows mic gain in dB's, includes max mic gain possible (+15.5dB)
-* "VOL" menu, renamed to "BATVOL", added percentage level
-* "AM" menu, renamed to "MODE", shows RX modulation mode
-
-Menu renames are to try and reduce 'WTF does that mean ?'
+* Various menu re-wordings - to try and reduce 'WTH does that mean ?'
 
 # Compiler
 

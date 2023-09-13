@@ -34,17 +34,17 @@ void UI_DisplayScanner(void)
 
 	memset(String, 0, sizeof(String));
 	if (gScanSingleFrequency || (gScanCssState != SCAN_CSS_STATE_OFF && gScanCssState != SCAN_CSS_STATE_FAILED))
-		sprintf(String, "FREQ:%.5f", gScanFrequency * 1e-05);
+		sprintf(String, "FREQ:%u.%05u", gScanFrequency / 100000, gScanFrequency % 100000);
 	else
-		sprintf(String, "FREQ:**.*****");
+		strcpy(String, "FREQ:**.*****");
 	UI_PrintString(String, 2, 0, 1, 8);
 
 	memset(String, 0, sizeof(String));
 	if (gScanCssState < SCAN_CSS_STATE_FOUND || !gScanUseCssResult)
-		sprintf(String, "CTC:******");
+		strcpy(String, "CTC:******");
 	else
 	if (gScanCssResultType == CODE_TYPE_CONTINUOUS_TONE)
-		sprintf(String, "CTC:%.1fHz", CTCSS_Options[gScanCssResultCode] * 0.1);
+		sprintf(String, "CTC:%u.%uHz", CTCSS_Options[gScanCssResultCode] / 10, CTCSS_Options[gScanCssResultCode] % 10);
 	else
 		sprintf(String, "DCS:D%03oN", DCS_Options[gScanCssResultCode]);
 	UI_PrintString(String, 2, 0, 3, 8);

@@ -240,7 +240,7 @@ void UI_DisplayMain(void)
 					strcpy(String, "ALARM");
 					break;
 				case VFO_STATE_VOLTAGE_HIGH:
-					sprintf(String, "VOLT HIGH");
+					strcpy(String, "VOLT HIGH");
 					//Width = 8;
 					break;
 			}
@@ -290,13 +290,13 @@ void UI_DisplayMain(void)
 								UI_DisplaySmallDigits(2, String + 6, 112, Line + 1, true);
 							#else
 								// show the frequency in the main font
-								sprintf(String, "%9.5f", frequency_Hz * 0.00001);
+								sprintf(String, "%03u.%05u", frequency_Hz / 100000, frequency_Hz % 100000);
 								UI_PrintString(String, 31, 112, Line, 8);
 							#endif
 							break;
 
 						case MDF_CHANNEL:	// show the channel number
-							sprintf(String, "CH-%03d", gEeprom.ScreenChannel[vfo_num] + 1);
+							sprintf(String, "CH-%03u", gEeprom.ScreenChannel[vfo_num] + 1);
 							UI_PrintString(String, 31, 112, Line, 8);
 							frequency_Hz = 0;
 							break;
@@ -304,7 +304,7 @@ void UI_DisplayMain(void)
 						case MDF_NAME:		// show the channel name
 							if (gEeprom.VfoInfo[vfo_num].Name[0] == 0 || gEeprom.VfoInfo[vfo_num].Name[0] == 0xFF)
 							{	// no channel name, show the channel number instead
-								sprintf(String, "CH-%03d", gEeprom.ScreenChannel[vfo_num] + 1);
+								sprintf(String, "CH-%03u", gEeprom.ScreenChannel[vfo_num] + 1);
 								UI_PrintString(String, 31, 112, Line, 8);
 							}
 							else
@@ -317,7 +317,7 @@ void UI_DisplayMain(void)
 							case MDF_NAME_FREQ:	// show the channel name and frequency
 								if (gEeprom.VfoInfo[vfo_num].Name[0] == 0 || gEeprom.VfoInfo[vfo_num].Name[0] == 0xFF)
 								{	// no channel name, show channel number instead
-									sprintf(String, "CH-%03d", gEeprom.ScreenChannel[vfo_num] + 1);
+									sprintf(String, "CH-%03u", gEeprom.ScreenChannel[vfo_num] + 1);
 									UI_PrintStringSmall(gEeprom.VfoInfo[vfo_num].Name, 31 + 8, 0, Line);
 								}
 								else
@@ -332,7 +332,7 @@ void UI_DisplayMain(void)
 									NUMBER_ToDigits(frequency_Hz, String);  // 8 digits
 									UI_DisplayFrequencySmall(String, 31 + 8, Line + 1, false);
 								#else
-									sprintf(String, "%9.5f", frequency_Hz * 0.00001);
+									sprintf(String, "%03u.%05u", frequency_Hz / 100000, frequency_Hz % 100000);
 									UI_PrintStringSmall(String, 31 + 8, 0, Line + 1);
 								#endif
 
@@ -351,7 +351,7 @@ void UI_DisplayMain(void)
 						UI_DisplaySmallDigits(2, String + 6, 112, Line + 1, true);
 					#else
 						// show the frequency in the main font
-						sprintf(String, "%9.5f", frequency_Hz * 0.00001);
+						sprintf(String, "%03u.%05u", frequency_Hz / 100000, frequency_Hz % 100000);
 						UI_PrintString(String, 38, 112, Line, 8);
 					#endif
 				}

@@ -14,6 +14,8 @@
  *     limitations under the License.
  */
 
+#include <string.h>
+
 #include "app/app.h"
 #include "app/fm.h"
 #include "app/generic.h"
@@ -174,7 +176,7 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 						else
 							gDTMF_CallMode = DTMF_CALL_MODE_DTMF;
 
-						sprintf(gDTMF_String, "%s", gDTMF_InputBox);
+						strcpy(gDTMF_String, gDTMF_InputBox);
 
 						gDTMF_PreviousIndex = gDTMF_InputIndex;
 						gDTMF_ReplyState    = DTMF_REPLY_ANI;

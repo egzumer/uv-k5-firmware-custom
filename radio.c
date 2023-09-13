@@ -128,6 +128,12 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, uint8_t ChannelSave, uint8_t Band, uint32
 	pInfo->pTX                     = &pInfo->ConfigTX;
 	pInfo->FREQUENCY_OF_DEVIATION  = 1000000;
 
+	if (ChannelSave == (FREQ_CHANNEL_FIRST + BAND2_108MHz))
+	{
+		pInfo->AM_CHANNEL_MODE = true;
+		pInfo->IsAM            = true;
+	}
+
 	RADIO_ConfigureSquelchAndOutputPower(pInfo);
 }
 
@@ -199,7 +205,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 
 		Index = Channel - FREQ_CHANNEL_FIRST;
 
-		RADIO_InitInfo(pRadio, Channel, Index, gLowerLimitFrequencyBandTable[Index]);
+		RADIO_InitInfo(pRadio, Channel, Index, LowerLimitFrequencyBandTable[Index]);
 		return;
 	}
 
@@ -342,14 +348,14 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 
 	Frequency = pRadio->ConfigRX.Frequency;
 
-	if (Frequency < gLowerLimitFrequencyBandTable[Band])
-		Frequency = gLowerLimitFrequencyBandTable[Band];
+	if (Frequency < LowerLimitFrequencyBandTable[Band])
+		Frequency = LowerLimitFrequencyBandTable[Band];
 	else
-	if (Frequency > gUpperLimitFrequencyBandTable[Band])
-		Frequency = gUpperLimitFrequencyBandTable[Band];
+	if (Frequency > UpperLimitFrequencyBandTable[Band])
+		Frequency = UpperLimitFrequencyBandTable[Band];
 	else
 	if (Channel >= FREQ_CHANNEL_FIRST)
-		Frequency = FREQUENCY_FloorToStep(Frequency, gEeprom.VfoInfo[VFO].StepFrequency, gLowerLimitFrequencyBandTable[Band]);
+		Frequency = FREQUENCY_FloorToStep(Frequency, gEeprom.VfoInfo[VFO].StepFrequency, LowerLimitFrequencyBandTable[Band]);
 
 	pRadio->ConfigRX.Frequency = Frequency;
 

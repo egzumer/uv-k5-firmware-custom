@@ -53,10 +53,10 @@ void UI_DisplayAircopy(void)
 
 	memset(String, 0, sizeof(String));
 	if (gAirCopyIsSendMode == 0)
-		sprintf(String, "RCV:%d E:%d", gAirCopyBlockNumber, gErrorsDuringAirCopy);
+		sprintf(String, "RCV:%u E:%u", gAirCopyBlockNumber, gErrorsDuringAirCopy);
 	else
 	if (gAirCopyIsSendMode == 1)
-		sprintf(String, "SND:%d", gAirCopyBlockNumber);
+		sprintf(String, "SND:%u", gAirCopyBlockNumber);
 	UI_PrintString(String, 2, 127, 4, 8);
 
 	ST7565_BlitFullScreen();

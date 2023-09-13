@@ -49,9 +49,10 @@ void UI_DisplayWelcome(void)
 			                       (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
 		                            gBatteryVoltageAverage;
 
-			sprintf(WelcomeString0, "VOLTAGE");
-			sprintf(WelcomeString1, "%.2fV %u%%",
-				gBatteryVoltageAverage * 0.01,        // argh, floating point :(
+			strcpy(WelcomeString0, "VOLTAGE");
+			sprintf(WelcomeString1, "%u.%02uV %u%%",
+				gBatteryVoltageAverage / 100,
+				gBatteryVoltageAverage % 100,
 				(100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
 		}
 		else

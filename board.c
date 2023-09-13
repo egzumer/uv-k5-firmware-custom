@@ -39,6 +39,15 @@
 #include "settings.h"
 #include "sram-overlay.h"
 
+static const uint32_t gDefaultFrequencyTable[] =
+{
+	14502500,
+	14552500,
+	43477500,
+	43502500,
+	43697500
+};
+
 void BOARD_FLASH_Init(void)
 {
 	FLASH_Init(FLASH_READ_MODE_1_CYCLE);
@@ -389,7 +398,7 @@ void BOARD_EEPROM_Init(void)
 	gEeprom.KEY_2_LONG_PRESS_ACTION  = (Data[4] < ACTION_OPT_LEN) ? Data[4] : ACTION_OPT_FM;
 	gEeprom.SCAN_RESUME_MODE         = (Data[5] < 3)              ? Data[5] : SCAN_RESUME_CO;
 	gEeprom.AUTO_KEYPAD_LOCK         = (Data[6] < 2)              ? Data[6] : false;
-	gEeprom.POWER_ON_DISPLAY_MODE    = (Data[7] < 3)              ? Data[7] : POWER_ON_DISPLAY_MODE_MESSAGE;
+	gEeprom.POWER_ON_DISPLAY_MODE    = (Data[7] < 3)              ? Data[7] : POWER_ON_DISPLAY_MODE_VOLTAGE;
 
 	// 0E98..0E9F
 	EEPROM_ReadBuffer(0x0E98, Data, 8);
@@ -477,9 +486,6 @@ void BOARD_EEPROM_Init(void)
 	// 0F40..0F47
 	EEPROM_ReadBuffer(0x0F40, Data, 8);
 	gSetting_F_LOCK         = (Data[0] < 6) ? Data[0] : F_LOCK_OFF;
-
-	gUpperLimitFrequencyBandTable = UpperLimitFrequencyBandTable;
-	gLowerLimitFrequencyBandTable = LowerLimitFrequencyBandTable;
 
 	gSetting_350TX          = (Data[1] < 2) ? Data[1] : false;  // was true
 	gSetting_KILLED         = (Data[2] < 2) ? Data[2] : false;
@@ -585,6 +591,19 @@ void BOARD_FactoryReset(bool bIsAll)
 				!(i >= 0x0E88 && i < 0x0E90)))      // FM settings
 			) {
 			EEPROM_WriteBuffer(i, Template);
+		}
+	}
+
+	if (bIsAll)
+	{
+		RADIO_InitInfo(gRxVfo, FREQ_CHANNEL_FIRST + 5, 5, 43300000);
+		for (i = 0; i < 5; i++)
+		{
+			const uint32_t Frequency   = gDefaultFrequencyTable[i];
+			gRxVfo->ConfigRX.Frequency = Frequency;
+			gRxVfo->ConfigTX.Frequency = Frequency;
+			gRxVfo->Band               = FREQUENCY_GetBand(Frequency);
+			SETTINGS_SaveChannel(MR_CHANNEL_FIRST + i, 0, gRxVfo, 2);
 		}
 	}
 }

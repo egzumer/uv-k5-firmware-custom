@@ -84,9 +84,6 @@ extern const uint16_t    gMin_bat_v;
 
 extern const uint8_t     gMicGain_dB2[5];
 
-extern const uint32_t   *gUpperLimitFrequencyBandTable;
-extern const uint32_t   *gLowerLimitFrequencyBandTable;
-
 extern bool              gSetting_350TX;
 extern bool              gSetting_KILLED;
 extern bool              gSetting_200TX;

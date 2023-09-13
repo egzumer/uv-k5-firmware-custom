@@ -136,7 +136,7 @@ static void AIRCOPY_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 		for (i = 0; i < 7; i++)
 		{
-			if (Frequency >= gLowerLimitFrequencyBandTable[i] && Frequency <= gUpperLimitFrequencyBandTable[i])
+			if (Frequency >= LowerLimitFrequencyBandTable[i] && Frequency <= UpperLimitFrequencyBandTable[i])
 			{
 				#ifndef DISABLE_VOICE
 					gAnotherVoiceID        = (VOICE_ID_t)Key;
