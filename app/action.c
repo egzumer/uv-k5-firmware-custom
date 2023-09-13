@@ -80,7 +80,7 @@ static void ACTION_Monitor(void)
 
 	if (gScanState != SCAN_OFF)
 	{
-		ScanPauseDelayIn10msec = 500;
+		ScanPauseDelayIn10msec = 500;     // 5 seconds
 		gScheduleScanListen    = false;
 		gScanPauseMode         = true;
 	}

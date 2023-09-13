@@ -102,7 +102,7 @@ static void APP_CheckForIncoming(void)
 			return;
 		}
 
-		ScanPauseDelayIn10msec = 20;
+		ScanPauseDelayIn10msec = 20;     // 200ms
 		gScheduleScanListen    = false;
 	}
 
@@ -139,7 +139,9 @@ static void APP_HandleIncoming(void)
 	}
 
 	if (g_CDCSS_Lost && gCDCSSCodeType == CDCSS_POSITIVE_CODE && (gCurrentCodeType == CODE_TYPE_DIGITAL || gCurrentCodeType == CODE_TYPE_REVERSE_DIGITAL))
+	{
 		gFoundCDCSS = false;
+	}
 	else
 	if (!bFlag)
 		return;
@@ -168,13 +170,11 @@ static void APP_HandleIncoming(void)
 
 static void APP_HandleReceive(void)
 {
-	uint8_t Mode;
-
 	#define END_OF_RX_MODE_SKIP 0
 	#define END_OF_RX_MODE_END  1
 	#define END_OF_RX_MODE_TTE  2
 
-	Mode = END_OF_RX_MODE_SKIP;
+	uint8_t Mode = END_OF_RX_MODE_SKIP;
 
 	if (gFlagTteComplete)
 	{
@@ -193,6 +193,10 @@ static void APP_HandleReceive(void)
 
 	switch (gCurrentCodeType)
 	{
+		default:
+		case CODE_TYPE_OFF:
+			break;
+
 		case CODE_TYPE_CONTINUOUS_TONE:
 			if (gFoundCTCSS && gFoundCTCSSCountdown == 0)
 			{
@@ -202,6 +206,7 @@ static void APP_HandleReceive(void)
 				goto Skip;
 			}
 			break;
+
 		case CODE_TYPE_DIGITAL:
 		case CODE_TYPE_REVERSE_DIGITAL:
 			if (gFoundCDCSS && gFoundCDCSSCountdown == 0)
@@ -211,8 +216,6 @@ static void APP_HandleReceive(void)
 				Mode        = END_OF_RX_MODE_END;
 				goto Skip;
 			}
-			break;
-		default:
 			break;
 	}
 
@@ -259,7 +262,9 @@ static void APP_HandleReceive(void)
 				case CODE_TYPE_DIGITAL:
 				case CODE_TYPE_REVERSE_DIGITAL:
 					if (g_CDCSS_Lost && gCDCSSCodeType == CDCSS_POSITIVE_CODE)
+					{
 						gFoundCDCSS = false;
+					}
 					else
 					if (!gFoundCDCSS)
 					{
@@ -276,16 +281,18 @@ static void APP_HandleReceive(void)
 					}
 
 					break;
-
-				default:
-					break;
 			}
 		}
 	}
 	else
 		Mode = END_OF_RX_MODE_END;
 
-	if (!gEndOfRxDetectedMaybe && Mode == END_OF_RX_MODE_SKIP && gNextTimeslice40ms && gEeprom.TAIL_NOTE_ELIMINATION && (gCurrentCodeType == CODE_TYPE_DIGITAL || gCurrentCodeType == CODE_TYPE_REVERSE_DIGITAL) && BK4819_GetCTCType() == 1)
+	if (!gEndOfRxDetectedMaybe         &&
+	     Mode == END_OF_RX_MODE_SKIP   &&
+	     gNextTimeslice40ms            &&
+	     gEeprom.TAIL_NOTE_ELIMINATION &&
+	    (gCurrentCodeType == CODE_TYPE_DIGITAL || gCurrentCodeType == CODE_TYPE_REVERSE_DIGITAL) &&
+	     BK4819_GetCTCType() == 1)
 		Mode = END_OF_RX_MODE_TTE;
 	else
 		gNextTimeslice40ms = false;
@@ -293,6 +300,9 @@ static void APP_HandleReceive(void)
 Skip:
 	switch (Mode)
 	{
+		case END_OF_RX_MODE_SKIP:
+			break;
+
 		case END_OF_RX_MODE_END:
 			RADIO_SetupRegisters(true);
 
@@ -307,21 +317,27 @@ Skip:
 			{
 				switch (gEeprom.SCAN_RESUME_MODE)
 				{
+					case SCAN_RESUME_TO:
+						break;
+
 					case SCAN_RESUME_CO:
 						ScanPauseDelayIn10msec = 360;
 						gScheduleScanListen    = false;
 						break;
+
 					case SCAN_RESUME_SE:
 						SCANNER_Stop();
 						break;
 				}
 			}
+
 			break;
 
 		case END_OF_RX_MODE_TTE:
 			if (gEeprom.TAIL_NOTE_ELIMINATION)
 			{
 				GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+
 				gTailNoteEliminationCountdown = 20;
 				gFlagTteComplete              = false;
 				gEnableSpeaker                = false;
@@ -338,17 +354,24 @@ static void APP_HandleFunction(void)
 		case FUNCTION_FOREGROUND:
 			APP_CheckForIncoming();
 			break;
-		case FUNCTION_POWER_SAVE:
-			if (!gRxIdleMode)
-				APP_CheckForIncoming();
+
+		case FUNCTION_TRANSMIT:
 			break;
+
+		case FUNCTION_MONITOR:
+			break;
+
 		case FUNCTION_INCOMING:
 			APP_HandleIncoming();
 			break;
+
 		case FUNCTION_RECEIVE:
 			APP_HandleReceive();
 			break;
-		default:
+
+		case FUNCTION_POWER_SAVE:
+			if (!gRxIdleMode)
+				APP_CheckForIncoming();
 			break;
 	}
 }
@@ -363,6 +386,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 		gVFO_RSSI_Level[gEeprom.RX_CHANNEL == 0] = 0;
 
 		GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+
 		gEnableSpeaker = true;
 
 		BACKLIGHT_TurnOn();
@@ -379,6 +403,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 						gScanPauseMode         = true;
 					}
 					break;
+
 				case SCAN_RESUME_CO:
 				case SCAN_RESUME_SE:
 					ScanPauseDelayIn10msec = 0;
@@ -445,7 +470,7 @@ void APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
 	else
 	if (Frequency > UpperLimitFrequencyBandTable[pInfo->Band])
 		Frequency = LowerLimitFrequencyBandTable[pInfo->Band];
-	
+
 	pInfo->ConfigRX.Frequency = Frequency;
 }
 
@@ -851,8 +876,8 @@ void APP_Update(void)
 		}
 	}
 
-	if (gFM_ScanState    != FM_SCAN_OFF      &&
-	    gScheduleFM                          &&
+	if (gScheduleFM                          &&
+	    gFM_ScanState    != FM_SCAN_OFF      &&
 	    gCurrentFunction != FUNCTION_MONITOR &&
 	    gCurrentFunction != FUNCTION_RECEIVE &&
 	    gCurrentFunction != FUNCTION_TRANSMIT)
@@ -867,13 +892,13 @@ void APP_Update(void)
 	if (gSchedulePowerSave)
 	{
 		#ifndef DISABLE_NOAA
-			if (gEeprom.BATTERY_SAVE == 0         ||
+			if (gFmRadioMode                      ||
+			    gPttIsPressed                     ||
+			    gKeyBeingHeld                     ||
+				gEeprom.BATTERY_SAVE == 0         ||
 			    gScanState != SCAN_OFF            ||
 			    gCssScanMode != CSS_SCAN_MODE_OFF ||
-			    gFmRadioMode                      ||
-			    gPttIsPressed                     ||
 			    gScreenToDisplay != DISPLAY_MAIN  ||
-			    gKeyBeingHeld                     ||
 			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
 				gBatterySaveCountdown = 1000;
 			else
@@ -882,13 +907,13 @@ void APP_Update(void)
 			else
 				gBatterySaveCountdown = 1000;
 		#else
-			if (gEeprom.BATTERY_SAVE == 0         ||
+			if (gFmRadioMode                      ||
+			    gPttIsPressed                     ||
+			    gKeyBeingHeld                     ||
+				gEeprom.BATTERY_SAVE == 0         ||
 			    gScanState != SCAN_OFF            ||
 			    gCssScanMode != CSS_SCAN_MODE_OFF ||
-			    gFmRadioMode                      ||
-			    gPttIsPressed                     ||
 			    gScreenToDisplay != DISPLAY_MAIN  ||
-			    gKeyBeingHeld                     ||
 			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
 				gBatterySaveCountdown = 1000;
 			else
@@ -968,34 +993,47 @@ void APP_CheckKeys(void)
 	{
 		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
 		{	// PTT released
-
-			// denoise the PTT
-			unsigned int i     = 6;   // test the PTT button for 6ms
-			unsigned int count = 0;
-			while (i-- > 0)
-			{
-				SYSTEM_DelayMs(1);
-				if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
-					count++;   // PTT still released
-				else
-				if (count > 0)
-					count--;   // no it's not
-			}
-
-			if (count >= 3)
-			{	// good enough to end transmission
-				APP_ProcessKey(KEY_PTT, false, false);
-				gPttIsPressed = false;
-				if (gKeyReading1 != KEY_INVALID)
-					gPttWasReleased = true;
-			}
+			#if 0
+				// denoise the PTT
+				unsigned int i     = 6;   // test the PTT button for 6ms
+				unsigned int count = 0;
+				while (i-- > 0)
+				{
+					SYSTEM_DelayMs(1);
+					if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
+					{	// PTT pressed
+						if (count > 0)
+							count--;
+						continue;
+					}
+					if (++count < 3)
+						continue;
+					// stop transmitting
+					APP_ProcessKey(KEY_PTT, false, false);
+					gPttIsPressed = false;
+					if (gKeyReading1 != KEY_INVALID)
+						gPttWasReleased = true;
+					break;
+				}
+			#else
+				if (++gPttDebounceCounter >= 3)	    // 30ms
+				{	// stop transmitting
+					APP_ProcessKey(KEY_PTT, false, false);
+					gPttIsPressed = false;
+					if (gKeyReading1 != KEY_INVALID)
+						gPttWasReleased = true;
+				}
+			#endif
 		}
+		else
+			gPttDebounceCounter = 0;
 	}
 	else
 	if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
 	{	// PTT pressed
-		if (++gPttDebounceCounter >= 4)	    // 40ms
-		{	// lets start transmitting
+		if (++gPttDebounceCounter >= 3)	    // 30ms
+		{	// start transmitting
+			gPttDebounceCounter = 0;
 			gPttIsPressed = true;
 			APP_ProcessKey(KEY_PTT, true, false);
 		}
@@ -1184,7 +1222,7 @@ void APP_TimeSlice10ms(void)
 		BK4819_CssScanResult_t ScanResult;
 		uint16_t               CtcssFreq;
 
-		if (gScanDelay)
+		if (gScanDelay > 0)
 		{
 			gScanDelay--;
 			APP_CheckKeys();
@@ -1203,7 +1241,7 @@ void APP_TimeSlice10ms(void)
 				if (!BK4819_GetFrequencyScanResult(&Result))
 					break;
 
-				Delta = Result - gScanFrequency;
+				Delta          = Result - gScanFrequency;
 				gScanFrequency = Result;
 
 				if (Delta < 0)
@@ -1371,26 +1409,26 @@ void APP_TimeSlice500ms(void)
 				{
 					if (--gKeyLockCountdown == 0)
 						gEeprom.KEY_LOCK = true;
-		
+
 					gUpdateStatus = true;
 				}
-		
+
 				if (gVoltageMenuCountdown > 0)
 				{
 					if (--gVoltageMenuCountdown == 0)
 					{
 						if (gInputBoxIndex || gDTMF_InputMode || gScreenToDisplay == DISPLAY_MENU)
 							AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
-		
+
 						if (gScreenToDisplay == DISPLAY_SCANNER)
 						{
 							BK4819_StopScan();
-		
+
 							RADIO_ConfigureChannel(0, 2);
 							RADIO_ConfigureChannel(1, 2);
 							RADIO_SetupRegisters(true);
 						}
-		
+
 						gWasFKeyPressed  = false;
 						gUpdateStatus    = true;
 						gInputBoxIndex   = 0;
@@ -1398,7 +1436,7 @@ void APP_TimeSlice500ms(void)
 						gDTMF_InputIndex = 0;
 						gAskToSave       = false;
 						gAskToDelete     = false;
-		
+
 						if (gFmRadioMode && gCurrentFunction != FUNCTION_RECEIVE && gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
 							GUI_SelectNextDisplay(DISPLAY_FM);
 						else

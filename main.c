@@ -35,14 +35,7 @@
 #include "settings.h"
 #include "ui/lock.h"
 #include "ui/welcome.h"
-
-#ifdef GIT_HASH
-	static const char Version[] = "UV-K5 Firmware, Open Edition, OEFW-"GIT_HASH"\r\n";
-#else
-	#include "version.h"
-	static const char Version1[] = "UV-K5 Firmware, Open Edition, ";
-	static const char Version2[] = "\r\n";
-#endif
+#include "version.h"
 
 void _putchar(char c)
 {
@@ -66,15 +59,7 @@ void Main(void)
 	BOARD_Init();
 	UART_Init();
 	
-	#ifdef GIT_HASH
-		UART_Send(Version, sizeof(Version));
-	#else
-	{
-		UART_Send(Version1, sizeof(Version1));
-		UART_Send(Version,  strlen(Version));
-		UART_Send(Version2, sizeof(Version2));
-	}
-	#endif
+	UART_Send(UART_Version, strlen(UART_Version));
 
 	// Not implementing authentic device checks
 

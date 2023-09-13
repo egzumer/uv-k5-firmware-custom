@@ -18,7 +18,8 @@
 
 #include "misc.h"
 
-const uint8_t     g_scan_delay = 21;   // 21
+const uint8_t     g_scan_delay = 21;   // 210ms
+//const uint8_t     g_scan_delay = 2;     // 20ms
 
 const uint8_t     g_menu_timeout = 2 * 30;  // 30 seconds
 

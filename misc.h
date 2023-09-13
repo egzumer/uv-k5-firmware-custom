@@ -24,10 +24,8 @@
 #define IS_FREQ_CHANNEL(x)         ((x) >= FREQ_CHANNEL_FIRST && (x) <= FREQ_CHANNEL_LAST)
 #define IS_VALID_CHANNEL(x)        ((x) <= NOAA_CHANNEL_LAST)
 
-#ifndef DISABLE_NOAA
-	#define IS_NOAA_CHANNEL(x)     ((x) >= NOAA_CHANNEL_FIRST && (x) <= NOAA_CHANNEL_LAST)
-	#define IS_NOT_NOAA_CHANNEL(x) ((x) >= MR_CHANNEL_FIRST   && (x) <= FREQ_CHANNEL_LAST)
-#endif
+#define IS_NOAA_CHANNEL(x)         ((x) >= NOAA_CHANNEL_FIRST && (x) <= NOAA_CHANNEL_LAST)
+#define IS_NOT_NOAA_CHANNEL(x)     ((x) >= MR_CHANNEL_FIRST   && (x) <= FREQ_CHANNEL_LAST)
 
 enum {
 	MR_CHANNEL_FIRST   = 0,
@@ -67,155 +65,150 @@ enum ReceptionMode_t {
 
 typedef enum ReceptionMode_t ReceptionMode_t;
 
-enum CssScanMode_t {
+enum CssScanMode_t
+{
 	CSS_SCAN_MODE_OFF = 0,
 	CSS_SCAN_MODE_SCANNING,
 	CSS_SCAN_MODE_FOUND,
 };
 
-typedef enum CssScanMode_t CssScanMode_t;
+typedef enum CssScanMode_t   CssScanMode_t;
 
-extern const uint8_t     g_scan_delay;
+extern const uint8_t         g_scan_delay;
 
-extern const uint8_t     g_menu_timeout;
+extern const uint8_t         g_menu_timeout;
 
-extern const uint16_t    gMax_bat_v;
-extern const uint16_t    gMin_bat_v;
+extern const uint16_t        gMax_bat_v;
+extern const uint16_t        gMin_bat_v;
 
-extern const uint8_t     gMicGain_dB2[5];
+extern const uint8_t         gMicGain_dB2[5];
 
-extern bool              gSetting_350TX;
-extern bool              gSetting_KILLED;
-extern bool              gSetting_200TX;
-extern bool              gSetting_500TX;
-extern bool              gSetting_350EN;
-extern uint8_t           gSetting_F_LOCK;
-extern bool              gSetting_ScrambleEnable;
-extern uint8_t           gSetting_F_LOCK;
+extern bool                  gSetting_350TX;
+extern bool                  gSetting_KILLED;
+extern bool                  gSetting_200TX;
+extern bool                  gSetting_500TX;
+extern bool                  gSetting_350EN;
+extern uint8_t               gSetting_F_LOCK;
+extern bool                  gSetting_ScrambleEnable;
 
-extern const uint32_t    gDefaultAesKey[4];
-extern uint32_t          gCustomAesKey[4];
-extern bool              bHasCustomAesKey;
-extern uint32_t          gChallenge[4];
-extern uint8_t           gTryCount;
+extern const uint32_t        gDefaultAesKey[4];
+extern uint32_t              gCustomAesKey[4];
+extern bool                  bHasCustomAesKey;
+extern uint32_t              gChallenge[4];
+extern uint8_t               gTryCount;
 
-extern uint8_t           gEEPROM_1EC0_0[8];
-extern uint8_t           gEEPROM_1EC0_1[8];
-extern uint8_t           gEEPROM_1EC0_2[8];
-extern uint8_t           gEEPROM_1EC0_3[8];
+extern uint8_t               gEEPROM_1EC0_0[8];
+extern uint8_t               gEEPROM_1EC0_1[8];
+extern uint8_t               gEEPROM_1EC0_2[8];
+extern uint8_t               gEEPROM_1EC0_3[8];
 
-extern uint16_t          gEEPROM_RSSI_CALIB[3][4];
+extern uint16_t              gEEPROM_RSSI_CALIB[3][4];
 
-extern uint16_t          gEEPROM_1F8A;
-extern uint16_t          gEEPROM_1F8C;
+extern uint16_t              gEEPROM_1F8A;
+extern uint16_t              gEEPROM_1F8C;
 
-extern uint8_t           gMR_ChannelAttributes[207];
+extern uint8_t               gMR_ChannelAttributes[207];
 
-extern volatile bool     gNextTimeslice500ms;
-extern volatile uint16_t gBatterySaveCountdown;
-extern volatile uint16_t gDualWatchCountdown;
-extern volatile uint16_t gTxTimerCountdown;
-extern volatile uint16_t gTailNoteEliminationCountdown;
-extern volatile uint16_t gFmPlayCountdown;
+extern volatile bool         gNextTimeslice500ms;
+extern volatile uint16_t     gBatterySaveCountdown;
+extern volatile uint16_t     gDualWatchCountdown;
+extern volatile uint16_t     gTxTimerCountdown;
+extern volatile uint16_t     gTailNoteEliminationCountdown;
+extern volatile uint16_t     gFmPlayCountdown;
 #ifndef DISABLE_NOAA
 	extern volatile uint16_t gNOAA_Countdown;
 #endif
-extern bool              gEnableSpeaker;
-extern uint8_t           gKeyLockCountdown;
-extern uint8_t           gRTTECountdown;
-extern bool              bIsInLockScreen;
-extern uint8_t           gUpdateStatus;
-extern uint8_t           gFoundCTCSS;
-extern uint8_t           gFoundCDCSS;
-extern bool              gEndOfRxDetectedMaybe;
-extern uint8_t           gVFO_RSSI_Level[2];
-extern uint8_t           gReducedService;
-extern uint8_t           gBatteryVoltageIndex;
-extern CssScanMode_t     gCssScanMode;
-extern bool              gUpdateRSSI;
-extern AlarmState_t      gAlarmState;
-extern uint8_t           gVoltageMenuCountdown;
-extern bool              gPttWasReleased;
-extern bool              gPttWasPressed;
-extern bool              gFlagReconfigureVfos;
-extern uint8_t           gVfoConfigureMode;
-extern bool              gFlagResetVfos;
-extern bool              gRequestSaveVFO;
-extern uint8_t           gRequestSaveChannel;
-extern bool              gRequestSaveSettings;
-extern bool              gRequestSaveFM;
-extern uint8_t           gKeypadLocked;
-extern bool              gFlagPrepareTX;
-extern bool              gFlagAcceptSetting;
-extern bool              gFlagRefreshSetting;
-extern bool              gFlagSaveVfo;
-extern bool              gFlagSaveSettings;
-extern bool              gFlagSaveChannel;
-extern bool              gFlagSaveFM;
-extern uint8_t           gDTMF_RequestPending;
-extern bool              g_CDCSS_Lost;
-extern uint8_t           gCDCSSCodeType;
-extern bool              g_CTCSS_Lost;
-extern bool              g_CxCSS_TAIL_Found;
-extern bool              g_VOX_Lost;
-extern bool              g_SquelchLost;
-extern uint8_t           gFlashLightState;
-extern bool              gVOX_NoiseDetected;
-extern uint16_t          gVoxResumeCountdown;
-extern uint16_t          gVoxPauseCountdown;
-extern volatile uint16_t gFlashLightBlinkCounter;
-extern bool              gFlagEndTransmission;
-extern uint16_t          gLowBatteryCountdown;
-extern uint8_t           gNextMrChannel;
-extern ReceptionMode_t   gRxReceptionMode;
-extern uint8_t           gRestoreMrChannel;
-extern uint8_t           gCurrentScanList;
-extern uint8_t           gPreviousMrChannel;
-extern uint32_t          gRestoreFrequency;
-extern uint8_t           gRxVfoIsActive;
-extern uint8_t           gAlarmToneCounter;
-extern uint16_t          gAlarmRunningCounter;
-extern bool              gKeyBeingHeld;
-extern bool              gPttIsPressed;
-extern uint8_t           gPttDebounceCounter;
-extern uint8_t           gMenuListCount;
-extern uint8_t           gBackupCROSS_BAND_RX_TX;
-extern uint8_t           gScanDelay;
+extern bool                  gEnableSpeaker;
+extern uint8_t               gKeyLockCountdown;
+extern uint8_t               gRTTECountdown;
+extern bool                  bIsInLockScreen;
+extern uint8_t               gUpdateStatus;
+extern uint8_t               gFoundCTCSS;
+extern uint8_t               gFoundCDCSS;
+extern bool                  gEndOfRxDetectedMaybe;
+extern uint8_t               gVFO_RSSI_Level[2];
+extern uint8_t               gReducedService;
+extern uint8_t               gBatteryVoltageIndex;
+extern CssScanMode_t         gCssScanMode;
+extern bool                  gUpdateRSSI;
+extern AlarmState_t          gAlarmState;
+extern uint8_t               gVoltageMenuCountdown;
+extern bool                  gPttWasReleased;
+extern bool                  gPttWasPressed;
+extern bool                  gFlagReconfigureVfos;
+extern uint8_t               gVfoConfigureMode;
+extern bool                  gFlagResetVfos;
+extern bool                  gRequestSaveVFO;
+extern uint8_t               gRequestSaveChannel;
+extern bool                  gRequestSaveSettings;
+extern bool                  gRequestSaveFM;
+extern uint8_t               gKeypadLocked;
+extern bool                  gFlagPrepareTX;
+extern bool                  gFlagAcceptSetting;
+extern bool                  gFlagRefreshSetting;
+extern bool                  gFlagSaveVfo;
+extern bool                  gFlagSaveSettings;
+extern bool                  gFlagSaveChannel;
+extern bool                  gFlagSaveFM;
+extern uint8_t               gDTMF_RequestPending;
+extern bool                  g_CDCSS_Lost;
+extern uint8_t               gCDCSSCodeType;
+extern bool                  g_CTCSS_Lost;
+extern bool                  g_CxCSS_TAIL_Found;
+extern bool                  g_VOX_Lost;
+extern bool                  g_SquelchLost;
+extern uint8_t               gFlashLightState;
+extern bool                  gVOX_NoiseDetected;
+extern uint16_t              gVoxResumeCountdown;
+extern uint16_t              gVoxPauseCountdown;
+extern volatile uint16_t     gFlashLightBlinkCounter;
+extern bool                  gFlagEndTransmission;
+extern uint16_t              gLowBatteryCountdown;
+extern uint8_t               gNextMrChannel;
+extern ReceptionMode_t       gRxReceptionMode;
+extern uint8_t               gRestoreMrChannel;
+extern uint8_t               gCurrentScanList;
+extern uint8_t               gPreviousMrChannel;
+extern uint32_t              gRestoreFrequency;
+extern uint8_t               gRxVfoIsActive;
+extern uint8_t               gAlarmToneCounter;
+extern uint16_t              gAlarmRunningCounter;
+extern bool                  gKeyBeingHeld;
+extern bool                  gPttIsPressed;
+extern uint8_t               gPttDebounceCounter;
+extern uint8_t               gMenuListCount;
+extern uint8_t               gBackupCROSS_BAND_RX_TX;
+extern uint8_t               gScanDelay;
 #ifndef DISABLE_AIRCOPY
-	extern uint8_t       gAircopySendCountdown;
+	extern uint8_t           gAircopySendCountdown;
 #endif
-extern uint8_t           gFSKWriteIndex;
-extern uint8_t           gNeverUsed;
-
+extern uint8_t               gFSKWriteIndex;
+extern uint8_t               gNeverUsed;
 #ifndef DISABLE_NOAA
-	extern bool          gIsNoaaMode;
-	extern uint8_t       gNoaaChannel;
-#endif                   
-extern volatile bool     gNextTimeslice;
-extern bool              gUpdateDisplay;
-extern uint8_t           gFM_ChannelPosition;
-extern bool              gF_LOCK;
-extern uint8_t           gShowChPrefix;
-extern volatile uint16_t gSystickCountdown2;
-extern volatile uint8_t  gFoundCDCSSCountdown;
-extern volatile uint8_t  gFoundCTCSSCountdown;
-extern volatile uint16_t gVoxStopCountdown;
-extern volatile bool     gTxTimeoutReached;
-extern volatile bool     gNextTimeslice40ms;
-extern volatile bool     gSchedulePowerSave;
-extern volatile bool     gBatterySaveCountdownExpired;
-extern volatile bool     gScheduleDualWatch;
-#ifndef DISABLE_NOAA
-	extern volatile bool gScheduleNOAA;
+	extern bool              gIsNoaaMode;
+	extern uint8_t           gNoaaChannel;
 #endif
-extern volatile bool     gFlagTteComplete;
-extern volatile bool     gScheduleFM;
-
-extern uint16_t          gCurrentRSSI;
-
-extern uint8_t           gIsLocked;
-
-// --------
+extern volatile bool         gNextTimeslice;
+extern bool                  gUpdateDisplay;
+extern uint8_t               gFM_ChannelPosition;
+extern bool                  gF_LOCK;
+extern uint8_t               gShowChPrefix;
+extern volatile uint16_t     gSystickCountdown2;
+extern volatile uint8_t      gFoundCDCSSCountdown;
+extern volatile uint8_t      gFoundCTCSSCountdown;
+extern volatile uint16_t     gVoxStopCountdown;
+extern volatile bool         gTxTimeoutReached;
+extern volatile bool         gNextTimeslice40ms;
+extern volatile bool         gSchedulePowerSave;
+extern volatile bool         gBatterySaveCountdownExpired;
+extern volatile bool         gScheduleDualWatch;
+#ifndef DISABLE_NOAA
+	extern volatile bool     gScheduleNOAA;
+#endif
+extern volatile bool         gFlagTteComplete;
+extern volatile bool         gScheduleFM;
+extern uint16_t              gCurrentRSSI;
+extern uint8_t               gIsLocked;
 
 void    NUMBER_Get(char *pDigits, uint32_t *pInteger);
 void    NUMBER_ToDigits(uint32_t Value, char *pDigits);

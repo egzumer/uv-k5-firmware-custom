@@ -195,7 +195,7 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 	
 		VoiceID = gVoiceID[0];
 	
-		if (gEeprom.VOICE_PROMPT != VOICE_PROMPT_OFF && gVoiceWriteIndex)
+		if (gEeprom.VOICE_PROMPT != VOICE_PROMPT_OFF && gVoiceWriteIndex > 0)
 		{
 			if (gEeprom.VOICE_PROMPT == VOICE_PROMPT_CHINESE)
 			{	// Chinese
