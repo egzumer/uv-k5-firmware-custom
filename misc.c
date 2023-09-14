@@ -18,13 +18,16 @@
 
 #include "misc.h"
 
-const uint8_t     g_scan_delay = 21;   // 210ms
-//const uint8_t     g_scan_delay = 2;     // 20ms
+const uint16_t    key_repeat_delay = 40;    // 400ms
+const uint16_t    key_repeat       = 8;     // was 15 (150ms) .. MUST be less than 'key_repeat_delay'
+const uint16_t    key_debounce     = 2;     // 20ms
+
+const uint8_t     g_scan_delay = 21;        // 210ms
 
 const uint8_t     g_menu_timeout = 2 * 30;  // 30 seconds
 
-const uint16_t    gMax_bat_v = 843;   // 8.43V
-const uint16_t    gMin_bat_v = 660;   // 6.6V
+const uint16_t    gMax_bat_v = 843;         // 8.43V
+const uint16_t    gMin_bat_v = 660;         // 6.6V
 
 const uint32_t    gDefaultAesKey[4] = {0x4AA5CC60, 0x0312CC5F, 0xFFD2DABB, 0x6BBA7F92};
 

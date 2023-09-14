@@ -81,7 +81,7 @@ void UI_DisplayFM(void)
 	UI_PrintString(String, 0, 127, 2, 10);
 
 	memset(String, 0, sizeof(String));
-	if (gAskToSave || (gEeprom.FM_IsMrMode && gInputBoxIndex))
+	if (gAskToSave || (gEeprom.FM_IsMrMode && gInputBoxIndex > 0))
 	{
 		UI_GenerateChannelString(String, gFM_ChannelPosition);
 	}

@@ -24,6 +24,7 @@ You can edit those changes by (currently) editing the MakeFile, look for these l
 * ENABLE_WIDE_RX                := 1       enable the RX in the full 18MHz to 1300MHz (though frontend is not tuned for full range)
 * ENABLE_TX_WHEN_AM             := 0       allow TX when RX set to AM
 * ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       use CTCSS tail phase shift rather than QS's 55Hz tone method 
+* ENABLE_MAIN_KEY_HOLD          := 1       keys 0-9 can be held down to bypass having to press the F-key
 * #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented
 * #ENABLE_BAND_SCOPE            := 1       not yet implemented
 

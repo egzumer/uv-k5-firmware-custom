@@ -45,7 +45,7 @@ void UI_GenerateChannelString(char *pString, const uint8_t Channel)
 
 void UI_GenerateChannelStringEx(char *pString, const bool bShowPrefix, const uint8_t ChannelNumber)
 {
-	if (gInputBoxIndex)
+	if (gInputBoxIndex > 0)
 	{
 		unsigned int i;
 		for (i = 0; i < 3; i++)

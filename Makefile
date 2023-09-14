@@ -14,14 +14,15 @@ ENABLE_CHAN_NAME_FREQ         := 1
 ENABLE_WIDE_RX                := 1
 ENABLE_TX_WHEN_AM             := 0
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1
+ENABLE_MAIN_KEY_HOLD          := 1
 #ENABLE_SINGLE_VFO_CHAN       := 1
 #ENABLE_BAND_SCOPE            := 1
 
 TARGET = firmware
 
 BSP_DEFINITIONS := $(wildcard hardware/*/*.def)
-BSP_HEADERS := $(patsubst hardware/%,bsp/%,$(BSP_DEFINITIONS))
-BSP_HEADERS := $(patsubst %.def,%.h,$(BSP_HEADERS))
+BSP_HEADERS     := $(patsubst hardware/%,bsp/%,$(BSP_DEFINITIONS))
+BSP_HEADERS     := $(patsubst %.def,%.h,$(BSP_HEADERS))
 
 OBJS =
 # Startup files
@@ -129,7 +130,9 @@ ifeq ($(ENABLE_OVERLAY),1)
 	ASFLAGS += -DENABLE_OVERLAY
 endif
 
-CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
+#CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
+#CFLAGS = -O2 -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD -fdata-sections -ffunction-sections
+CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD -fdata-sections -ffunction-sections
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
 ifeq ($(ENABLE_AIRCOPY),1)
@@ -171,6 +174,9 @@ endif
 ifeq ($(ENABLE_CTCSS_TAIL_PHASE_SHIFT),1)
 	CFLAGS  += -DENABLE_CTCSS_TAIL_PHASE_SHIFT
 endif
+ifeq ($(ENABLE_MAIN_KEY_HOLD),1)
+	CFLAGS  += -DENABLE_MAIN_KEY_HOLD
+endif
 ifeq ($(ENABLE_SINGLE_VFO_CHAN),1)
 	CFLAGS  += -DENABLE_SINGLE_VFO_CHAN
 endif
@@ -179,6 +185,7 @@ ifeq ($(ENABLE_BAND_SCOPE),1)
 endif
 
 LDFLAGS = -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld
+#LDFLAGS = -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld,--gc-sections
 
 ifeq ($(DEBUG),1)
 	ASFLAGS += -g

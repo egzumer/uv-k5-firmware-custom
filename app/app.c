@@ -1031,8 +1031,7 @@ void APP_Update(void)
 // called every 10ms
 void APP_CheckKeys(void)
 {
-	const uint16_t key_repeat_delay = 60;   // 600ms
-	KEY_Code_t     Key;
+	KEY_Code_t Key;
 
 	#ifdef ENABLE_AIRCOPY
 		if (gSetting_KILLED || (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState != AIRCOPY_READY))
@@ -1088,30 +1087,32 @@ void APP_CheckKeys(void)
 		if (++gPttDebounceCounter >= 3)	    // 30ms
 		{	// start transmitting
 			gPttDebounceCounter = 0;
-			gPttIsPressed = true;
+			gPttIsPressed       = true;
 			APP_ProcessKey(KEY_PTT, true, false);
 		}
 	}
 	else
 		gPttDebounceCounter = 0;
 
+	// *****************
+
+	// scan the hardware keys
 	Key = KEYBOARD_Poll();
 
 	if (gKeyReading0 != Key)
-	{
+	{	// new key pressed
+
 		if (gKeyReading0 != KEY_INVALID && Key != KEY_INVALID)
-			APP_ProcessKey(gKeyReading1, false, gKeyBeingHeld);
+			APP_ProcessKey(gKeyReading1, false, gKeyBeingHeld);  // key pressed without releasing previous key
 
-		gKeyReading0 = Key;
-
+		gKeyReading0     = Key;
 		gDebounceCounter = 0;
 		return;
 	}
 
-	gDebounceCounter++;
+	if (++gDebounceCounter == key_debounce)
+	{	// debounced new key pressed
 
-	if (gDebounceCounter == 2)
-	{
 		if (Key == KEY_INVALID)
 		{
 			if (gKeyReading1 != KEY_INVALID)
@@ -1127,23 +1128,36 @@ void APP_CheckKeys(void)
 		}
 
 		gKeyBeingHeld = false;
+		return;
 	}
-	else
+
+	// key is being held pressed
+	
 	if (gDebounceCounter == key_repeat_delay)
-	{
-		if (Key == KEY_STAR || Key == KEY_F || Key == KEY_SIDE2 || Key == KEY_SIDE1 || Key == KEY_UP || Key == KEY_DOWN)
+	{	// initial delay after pressed
+		if (Key == KEY_STAR  ||
+			Key == KEY_F     ||
+			Key == KEY_SIDE2 ||
+			Key == KEY_SIDE1 ||
+			Key == KEY_UP    ||
+			Key == KEY_DOWN
+			#ifdef ENABLE_MAIN_KEY_HOLD
+				|| Key <= KEY_9		// keys 0-9 can be held down to bypass pressing the F-Key
+			#endif
+			)
 		{
 			gKeyBeingHeld = true;
 			APP_ProcessKey(Key, true, true);
 		}
+		return;
 	}
-	else
+
 	if (gDebounceCounter > key_repeat_delay)
-	{
+	{	// key repeat
 		if (Key == KEY_UP || Key == KEY_DOWN)
 		{
 			gKeyBeingHeld = true;
-			if ((gDebounceCounter & 15) == 0)
+			if ((gDebounceCounter % key_repeat) == 0)
 				APP_ProcessKey(Key, true, true);
 		}
 
@@ -1151,6 +1165,7 @@ void APP_CheckKeys(void)
 			return;
 
 		gDebounceCounter = key_repeat_delay;
+		return;
 	}
 }
 
@@ -1481,7 +1496,7 @@ void APP_TimeSlice500ms(void)
 				{
 					if (--gVoltageMenuCountdown == 0)
 					{
-						if (gInputBoxIndex || gDTMF_InputMode || gScreenToDisplay == DISPLAY_MENU)
+						if (gInputBoxIndex > 0 || gDTMF_InputMode || gScreenToDisplay == DISPLAY_MENU)
 							AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 
 						if (gScreenToDisplay == DISPLAY_SCANNER)

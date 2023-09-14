@@ -22,8 +22,8 @@
 
 KEY_Code_t gKeyReading0 = KEY_INVALID;
 KEY_Code_t gKeyReading1 = KEY_INVALID;
-uint16_t gDebounceCounter;
-bool gWasFKeyPressed;
+uint16_t   gDebounceCounter;
+bool       gWasFKeyPressed;
 
 KEY_Code_t KEYBOARD_Poll(void)
 {
@@ -36,6 +36,7 @@ KEY_Code_t KEYBOARD_Poll(void)
 
 	SYSTICK_DelayUs(1);
 
+	// *****************
 	// Keys connected to gnd
 
 	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0))
@@ -52,7 +53,9 @@ KEY_Code_t KEYBOARD_Poll(void)
 
 	// Original doesn't do PTT
 
+	// *****************
 	// First row
+
 	GPIO_ClearBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_4);
 	SYSTICK_DelayUs(1);
 
@@ -80,7 +83,9 @@ KEY_Code_t KEYBOARD_Poll(void)
 		goto Bye;
 	}
 
+	// *****************
 	// Second row
+
 	GPIO_ClearBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_5);
 	SYSTICK_DelayUs(1);
 
@@ -111,7 +116,9 @@ KEY_Code_t KEYBOARD_Poll(void)
 		goto Bye;
 	}
 
+	// *****************
 	// Third row
+
 	GPIO_ClearBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_4);
 	SYSTICK_DelayUs(1);
 
@@ -148,7 +155,9 @@ KEY_Code_t KEYBOARD_Poll(void)
 		goto Bye;
 	}
 
+	// *****************
 	// Fourth row
+
 	GPIO_ClearBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_7);
 	SYSTICK_DelayUs(1);
 
@@ -178,6 +187,8 @@ KEY_Code_t KEYBOARD_Poll(void)
 		Key = KEY_F;
 		goto Bye;
 	}
+
+	// *****************
 
 Bye:
 	GPIO_SetBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_4);

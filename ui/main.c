@@ -170,11 +170,10 @@ void UI_DisplayMain(void)
 			// show the memory channel symbol
 			memcpy(pLine1 + x, BITMAP_M, sizeof(BITMAP_M));
 	
-			// show the memory channel number
 			if (gInputBoxIndex == 0 || gEeprom.TX_CHANNEL != vfo_num)
-				NUMBER_ToDigits(gEeprom.ScreenChannel[vfo_num] + 1, String);
+				NUMBER_ToDigits(gEeprom.ScreenChannel[vfo_num] + 1, String);  // show the memory channel number
 			else
-				memcpy(String + 5, gInputBox, 3);
+				memcpy(String + 5, gInputBox, 3);                             // show the input text
 			UI_DisplaySmallDigits(3, String + 5, x + sizeof(BITMAP_M), Line + 1, false);
 		}
 		else
@@ -258,7 +257,7 @@ void UI_DisplayMain(void)
 		else
 		{	// normal state
 
-			if (gInputBoxIndex && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_CHANNEL == vfo_num)
+			if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_CHANNEL == vfo_num)
 			{	// user is entering a new frequency
 				UI_DisplayFrequency(gInputBox, 31, Line, true, false);
 			}

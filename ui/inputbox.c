@@ -15,18 +15,20 @@
  */
 
 #include <string.h>
+
 #include "ui/inputbox.h"
 
-char gInputBox[8];
+char    gInputBox[8];
 uint8_t gInputBoxIndex;
 
 void INPUTBOX_Append(char Digit)
 {
-	if (gInputBoxIndex == 0) {
+	if (gInputBoxIndex == 0)
 		memset(gInputBox, 10, sizeof(gInputBox));
-	} else if (gInputBoxIndex >= sizeof(gInputBox)) {
+	else
+	if (gInputBoxIndex >= sizeof(gInputBox))
 		return;
-	}
+
 	gInputBox[gInputBoxIndex++] = Digit;
 }
 

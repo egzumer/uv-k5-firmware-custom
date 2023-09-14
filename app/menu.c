@@ -977,9 +977,9 @@ static void MENU_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				return;
 			}
 
-			gInputBoxIndex    = 0;
+			gInputBoxIndex = 0;
 			NUMBER_Get(gInputBox, &Frequency);
-			Frequency        += 75;
+			Frequency += 75;
 			#ifdef ENABLE_VOICE
 				gAnotherVoiceID = (VOICE_ID_t)Key;
 			#endif

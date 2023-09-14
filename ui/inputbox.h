@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 
-extern char gInputBox[8];
+extern char    gInputBox[8];
 extern uint8_t gInputBoxIndex;
 
 void INPUTBOX_Append(char Digit);

@@ -62,11 +62,12 @@ void UI_DisplayLock(void)
 		// TODO: Original code doesn't do the below, but is needed for proper key debounce
 
 		gNextTimeslice = false;
-		Key            = KEYBOARD_Poll();
+
+		Key = KEYBOARD_Poll();
 
 		if (gKeyReading0 == Key)
 		{
-			if (++gDebounceCounter == 2)
+			if (++gDebounceCounter == key_debounce)
 			{
 				if (Key == KEY_INVALID)
 				{
@@ -89,7 +90,8 @@ void UI_DisplayLock(void)
 						case KEY_8:
 						case KEY_9:
 							INPUTBOX_Append(Key - KEY_0);
-							if (gInputBoxIndex < 6)
+
+							if (gInputBoxIndex < 6)   // 6 frequency digits
 							{
 								Beep = BEEP_1KHZ_60MS_OPTIONAL;
 							}
@@ -118,7 +120,7 @@ void UI_DisplayLock(void)
 							break;
 
 						case KEY_EXIT:
-							if (gInputBoxIndex)
+							if (gInputBoxIndex > 0)
 							{
 								gInputBox[--gInputBoxIndex] = 10;
 								gUpdateDisplay = true;

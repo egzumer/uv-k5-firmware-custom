@@ -102,7 +102,7 @@ static void SCANNER_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 				break;
 
 			case 1:
-				if (gInputBoxIndex)
+				if (gInputBoxIndex > 0)
 				{
 					gInputBox[--gInputBoxIndex] = 10;
 					gRequestDisplayScreen       = DISPLAY_SCANNER;

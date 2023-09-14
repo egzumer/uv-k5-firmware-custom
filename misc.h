@@ -74,6 +74,10 @@ enum CssScanMode_t
 
 typedef enum CssScanMode_t   CssScanMode_t;
 
+extern const uint16_t        key_repeat_delay;
+extern const uint16_t        key_repeat;
+extern const uint16_t        key_debounce;
+
 extern const uint8_t         g_scan_delay;
 
 extern const uint8_t         g_menu_timeout;

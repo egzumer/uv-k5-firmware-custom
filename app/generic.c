@@ -35,7 +35,7 @@
 
 void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 {
-	if (gInputBoxIndex)
+	if (gInputBoxIndex > 0)
 	{
 		if (!bKeyHeld && bKeyPressed)
 			gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
