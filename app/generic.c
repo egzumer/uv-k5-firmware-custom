@@ -17,7 +17,9 @@
 #include <string.h>
 
 #include "app/app.h"
-#include "app/fm.h"
+#ifdef ENABLE_FMRADIO
+	#include "app/fm.h"
+#endif
 #include "app/generic.h"
 #include "app/menu.h"
 #include "app/scanner.h"
@@ -50,7 +52,7 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 			if (!bKeyPressed)
 				return;
 
-			#ifndef DISABLE_VOICE
+			#ifdef ENABLE_VOICE
 				gAnotherVoiceID = gEeprom.KEY_LOCK ? VOICE_ID_UNLOCK : VOICE_ID_LOCK;
 			#endif
 
@@ -59,12 +61,17 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 		}
 		else
 		{
-			if ((gFmRadioMode || gScreenToDisplay != DISPLAY_MAIN) && gScreenToDisplay != DISPLAY_FM)
-				return;
+			#ifdef ENABLE_FMRADIO
+				if ((gFmRadioMode || gScreenToDisplay != DISPLAY_MAIN) && gScreenToDisplay != DISPLAY_FM)
+					return;
+			#else
+				if (gScreenToDisplay != DISPLAY_MAIN)
+					return;
+			#endif
 
 			gWasFKeyPressed = !gWasFKeyPressed;
 
-			#ifndef DISABLE_VOICE
+			#ifdef ENABLE_VOICE
 				if (!gWasFKeyPressed)
 					gAnotherVoiceID = VOICE_ID_CANCEL;
 			#endif
@@ -79,12 +86,14 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 			return;
 		}
-
-		if (gFM_ScanState == FM_SCAN_OFF)
-		{
-			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-			return;
-		}
+	
+		#ifdef ENABLE_FMRADIO
+			if (gFM_ScanState == FM_SCAN_OFF)
+			{
+				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+				return;
+			}
+		#endif
 
 		gBeepToPlay     = BEEP_440HZ_500MS;
 		gPttWasReleased = true;
@@ -139,11 +148,17 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 		return;
 	}
 
-	if (gFM_ScanState == FM_SCAN_OFF)
+	#ifdef ENABLE_FMRADIO
+		if (gFM_ScanState == FM_SCAN_OFF)
+	#endif
 	{
 		if (gCssScanMode == CSS_SCAN_MODE_OFF)
 		{
-			if (gScreenToDisplay == DISPLAY_MENU || gScreenToDisplay == DISPLAY_FM)
+			#ifdef ENABLE_FMRADIO
+				if (gScreenToDisplay == DISPLAY_MENU || gScreenToDisplay == DISPLAY_FM)
+			#else
+				if (gScreenToDisplay == DISPLAY_MENU)
+			#endif
 			{
 				gRequestDisplayScreen = DISPLAY_MAIN;
 				gInputBoxIndex        = 0;
@@ -210,13 +225,15 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 			gRequestDisplayScreen = DISPLAY_MENU;
 		}
 	}
-	else
-	{
-		FM_PlayAndUpdate();
-		gRequestDisplayScreen = DISPLAY_FM;
-	}
-
-	#ifndef DISABLE_VOICE
+	#ifdef ENABLE_FMRADIO
+		else
+		{
+			FM_PlayAndUpdate();
+			gRequestDisplayScreen = DISPLAY_FM;
+		}
+	#endif
+	
+	#ifdef ENABLE_VOICE
 		gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
 	#endif
 

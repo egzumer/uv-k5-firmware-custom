@@ -16,7 +16,9 @@
 
 #include <string.h>
 
-#include "app/fm.h"
+#ifdef ENABLE_FMRADIO
+	#include "app/fm.h"
+#endif
 #include "app/uart.h"
 #include "board.h"
 #include "bsp/dp32g030/dma.h"
@@ -215,7 +217,9 @@ static void CMD_0514(const uint8_t *pBuffer)
 	const CMD_0514_t *pCmd = (const CMD_0514_t *)pBuffer;
 
 	Timestamp = pCmd->Timestamp;
-	gFmRadioCountdown = 4;
+	#ifdef ENABLE_FMRADIO
+		gFmRadioCountdown = 4;
+	#endif
 	GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
 	SendVersion();
 }
@@ -230,7 +234,9 @@ static void CMD_051B(const uint8_t *pBuffer)
 		return;
 	}
 
-	gFmRadioCountdown = 4;
+	#ifdef ENABLE_FMRADIO
+		gFmRadioCountdown = 4;
+	#endif
 	memset(&Reply, 0, sizeof(Reply));
 	Reply.Header.ID = 0x051C;
 	Reply.Header.Size = pCmd->Size + 4;
@@ -261,7 +267,9 @@ static void CMD_051D(const uint8_t *pBuffer)
 
 	bReloadEeprom = false;
 
-	gFmRadioCountdown = 4;
+	#ifdef ENABLE_FMRADIO
+		gFmRadioCountdown = 4;
+	#endif
 	Reply.Header.ID = 0x051E;
 	Reply.Header.Size = sizeof(Reply.Data);
 	Reply.Data.Offset = pCmd->Offset;
@@ -326,7 +334,9 @@ static void CMD_052D(const uint8_t *pBuffer)
 	REPLY_052D_t Reply;
 	bool bIsLocked;
 
-	gFmRadioCountdown = 4;
+	#ifdef ENABLE_FMRADIO
+		gFmRadioCountdown = 4;
+	#endif
 	Reply.Header.ID = 0x052E;
 	Reply.Header.Size = sizeof(Reply.Data);
 
@@ -369,7 +379,7 @@ static void CMD_052F(const uint8_t *pBuffer)
 	gEeprom.VfoInfo[0].DTMF_PTT_ID_TX_MODE         = PTT_ID_OFF;
 	gEeprom.VfoInfo[0].DTMF_DECODING_ENABLE        = false;
 
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		gIsNoaaMode = false;
 	#endif
 

@@ -42,7 +42,7 @@ enum
 	MENU_XB,
 	MENU_BEEP,
 	MENU_TOT,
-	#ifndef DISABLE_VOICE
+	#ifdef ENABLE_VOICE
 		MENU_VOICE,
 	#endif
 	MENU_SC_REV,
@@ -57,7 +57,7 @@ enum
 	MENU_S_LIST,
 	MENU_SLIST1,
 	MENU_SLIST2,
-	#ifndef DISABLE_ALARM
+	#ifdef ENABLE_ALARM
 		MENU_AL_MOD,
 	#endif
 	MENU_ANI_ID,
@@ -74,7 +74,7 @@ enum
 	MENU_ROGER,
 	MENU_VOL,
 	MENU_AM,
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		MENU_NOAA_S,
 	#endif
 	MENU_DEL_CH,

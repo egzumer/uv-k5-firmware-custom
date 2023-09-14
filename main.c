@@ -37,6 +37,10 @@
 #include "ui/welcome.h"
 #include "version.h"
 
+#ifndef ARRAY_SIZE
+	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+#endif
+
 void _putchar(char c)
 {
 	UART_Send((uint8_t *)&c, 1);
@@ -85,7 +89,7 @@ void Main(void)
 
 	{
 		unsigned int i;
-		for (i = 0; i < 4; i++)
+		for (i = 0; i < ARRAY_SIZE(gBatteryVoltages); i++)
 			BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[i], &gBatteryCurrent);
 	}
 	
@@ -113,13 +117,13 @@ void Main(void)
 		SYSTEM_DelayMs(2000);
 
 		gMenuListCount = 51;
-		#ifdef DISABLE_ALARM
+		#ifndef ENABLE_ALARM
 			gMenuListCount--;
 		#endif
-		#ifdef DISABLE_VOICE
+		#ifndef ENABLE_VOICE
 			gMenuListCount--;
 		#endif
-		#ifdef DISABLE_NOAA
+		#ifndef ENABLE_NOAA
 			gMenuListCount--;
 		#endif
 		
@@ -138,7 +142,7 @@ void Main(void)
 
 		gUpdateStatus = true;
 
-		#ifndef DISABLE_VOICE
+		#ifdef ENABLE_VOICE
 		{
 			uint8_t Channel;
 			
@@ -158,7 +162,7 @@ void Main(void)
 		}
 		#endif
 
-		#ifndef DISABLE_NOAA
+		#ifdef ENABLE_NOAA
 			RADIO_ConfigureNOAA();
 		#endif
 	}

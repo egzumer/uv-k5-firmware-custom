@@ -14,7 +14,7 @@
  *     limitations under the License.
  */
 
-#ifndef DISABLE_AIRCOPY
+#ifdef ENABLE_AIRCOPY
 
 #include <string.h>
 

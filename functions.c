@@ -17,10 +17,14 @@
 #include <string.h>
 
 #include "app/dtmf.h"
-#include "app/fm.h"
+#if defined(ENABLE_FMRADIO)
+	#include "app/fm.h"
+#endif
 #include "bsp/dp32g030/gpio.h"
 #include "dcs.h"
-#include "driver/bk1080.h"
+#if defined(ENABLE_FMRADIO)
+	#include "driver/bk1080.h"
+#endif
 #include "driver/bk4819.h"
 #include "driver/gpio.h"
 #include "driver/system.h"
@@ -36,7 +40,7 @@ FUNCTION_Type_t gCurrentFunction;
 
 void FUNCTION_Init(void)
 {
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
 	#endif
 	{
@@ -44,11 +48,11 @@ void FUNCTION_Init(void)
 		if (gCssScanMode == CSS_SCAN_MODE_OFF)
 			gCurrentCodeType = gRxVfo->IsAM ? CODE_TYPE_OFF : gRxVfo->pRX->CodeType;
 	}
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		else
 			gCurrentCodeType = CODE_TYPE_CONTINUOUS_TONE;
 	#endif
-	
+
 	gDTMF_RequestPending          = false;
 	gDTMF_WriteIndex              = 0;
 
@@ -73,7 +77,6 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 {
 	FUNCTION_Type_t PreviousFunction;
 	bool            bWasPowerSave;
-	uint16_t        Countdown = 0;
 
 	PreviousFunction = gCurrentFunction;
 	bWasPowerSave    = (PreviousFunction == FUNCTION_POWER_SAVE);
@@ -85,7 +88,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 		{
 			BK4819_Conditional_RX_TurnOn_and_GPIO6_Enable();
 			gRxIdleMode = false;
-			UI_DisplayStatus();
+			UI_DisplayStatus(false);
 		}
 	}
 
@@ -94,21 +97,23 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 		case FUNCTION_FOREGROUND:
 			if (gDTMF_ReplyState != DTMF_REPLY_NONE)
 				RADIO_PrepareCssTX();
-	
+
 			if (PreviousFunction == FUNCTION_TRANSMIT)
 			{
 				gVFO_RSSI_Level[0] = 0;
 				gVFO_RSSI_Level[1] = 0;
 			}
 			else
-			if (PreviousFunction == FUNCTION_RECEIVE)
-			{
+			if (PreviousFunction != FUNCTION_RECEIVE)
+				break;
+
+			#if defined(ENABLE_FMRADIO)
 				if (gFmRadioMode)
-					Countdown = 500;
-	
-				if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT || gDTMF_CallState == DTMF_CALL_STATE_RECEIVED)
-					gDTMF_AUTO_RESET_TIME = 1 + (gEeprom.DTMF_AUTO_RESET_TIME * 2);
-			}
+					gFM_RestoreCountdown = 500;
+			#endif
+
+			if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT || gDTMF_CallState == DTMF_CALL_STATE_RECEIVED)
+				gDTMF_AUTO_RESET_TIME = 1 + (gEeprom.DTMF_AUTO_RESET_TIME * 2);
 
 			return;
 	
@@ -120,22 +125,21 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 		case FUNCTION_POWER_SAVE:
 			gBatterySave = gEeprom.BATTERY_SAVE * 10;
 			gRxIdleMode  = true;
-
 			BK4819_DisableVox();
 			BK4819_Sleep();
 			BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, false);
-
 			gBatterySaveCountdownExpired = false;
-			gUpdateStatus                = true;
-
+			gUpdateStatus = true;
 			GUI_SelectNextDisplay(DISPLAY_MAIN);
 			return;
 	
 		case FUNCTION_TRANSMIT:
-			if (gFmRadioMode)
-				BK1080_Init(0, false);
-	
-			#ifndef DISABLE_ALARM
+			#if defined(ENABLE_FMRADIO)
+				if (gFmRadioMode)
+					BK1080_Init(0, false);
+			#endif
+
+			#ifdef ENABLE_ALARM
 				if (gAlarmState == ALARM_STATE_TXALARM && gEeprom.ALARM_MODE != ALARM_MODE_TONE)
 				{
 					gAlarmState = ALARM_STATE_ALARM;
@@ -154,22 +158,17 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			#endif
 			
 			GUI_DisplayScreen();
-
 			RADIO_SetTxParameters();
-
 			BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, true);
 	
 			DTMF_Reply();
 	
-			#ifndef DISABLE_ALARM
+			#ifdef ENABLE_ALARM
 				if (gAlarmState != ALARM_STATE_OFF)
 				{
 					BK4819_TransmitTone(true, (gAlarmState == ALARM_STATE_TX1750) ? 1750 : 500);
-		
 					SYSTEM_DelayMs(2);
-
 					GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
-					
 					gAlarmToneCounter = 0;
 					gEnableSpeaker    = true;
 					break;
@@ -180,12 +179,13 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 				BK4819_EnableScramble(gCurrentVfo->SCRAMBLING_TYPE - 1U);
 			else
 				BK4819_DisableScramble();
-	
+
 			break;
 	}
-	
+
 	gBatterySaveCountdown = battery_save_count;
 	gSchedulePowerSave    = false;
-
-	gFM_RestoreCountdown  = Countdown;
+	#if defined(ENABLE_FMRADIO)
+		gFM_RestoreCountdown = 0;
+	#endif
 }

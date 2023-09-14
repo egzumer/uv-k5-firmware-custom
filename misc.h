@@ -124,8 +124,10 @@ extern volatile uint16_t     gBatterySaveCountdown;
 extern volatile uint16_t     gDualWatchCountdown;
 extern volatile uint16_t     gTxTimerCountdown;
 extern volatile uint16_t     gTailNoteEliminationCountdown;
-extern volatile uint16_t     gFmPlayCountdown;
-#ifndef DISABLE_NOAA
+#ifdef ENABLE_FMRADIO
+	extern volatile uint16_t gFmPlayCountdown;
+#endif
+#ifdef ENABLE_NOAA
 	extern volatile uint16_t gNOAA_Countdown;
 #endif
 extern bool                  gEnableSpeaker;
@@ -151,7 +153,9 @@ extern bool                  gFlagResetVfos;
 extern bool                  gRequestSaveVFO;
 extern uint8_t               gRequestSaveChannel;
 extern bool                  gRequestSaveSettings;
-extern bool                  gRequestSaveFM;
+#ifdef ENABLE_FMRADIO
+	extern bool              gRequestSaveFM;
+#endif
 extern uint8_t               gKeypadLocked;
 extern bool                  gFlagPrepareTX;
 extern bool                  gFlagAcceptSetting;
@@ -159,7 +163,9 @@ extern bool                  gFlagRefreshSetting;
 extern bool                  gFlagSaveVfo;
 extern bool                  gFlagSaveSettings;
 extern bool                  gFlagSaveChannel;
-extern bool                  gFlagSaveFM;
+#ifdef ENABLE_FMRADIO
+	extern bool              gFlagSaveFM;
+#endif
 extern uint8_t               gDTMF_RequestPending;
 extern bool                  g_CDCSS_Lost;
 extern uint8_t               gCDCSSCodeType;
@@ -189,18 +195,20 @@ extern uint8_t               gPttDebounceCounter;
 extern uint8_t               gMenuListCount;
 extern uint8_t               gBackupCROSS_BAND_RX_TX;
 extern uint8_t               gScanDelay;
-#ifndef DISABLE_AIRCOPY
+#ifdef ENABLE_AIRCOPY
 	extern uint8_t           gAircopySendCountdown;
 #endif
 extern uint8_t               gFSKWriteIndex;
 extern uint8_t               gNeverUsed;
-#ifndef DISABLE_NOAA
+#ifdef ENABLE_NOAA
 	extern bool              gIsNoaaMode;
 	extern uint8_t           gNoaaChannel;
 #endif
 extern volatile bool         gNextTimeslice;
 extern bool                  gUpdateDisplay;
-extern uint8_t               gFM_ChannelPosition;
+#ifdef ENABLE_FMRADIO
+	extern uint8_t           gFM_ChannelPosition;
+#endif
 extern bool                  gF_LOCK;
 extern uint8_t               gShowChPrefix;
 extern volatile uint16_t     gSystickCountdown2;
@@ -212,11 +220,13 @@ extern volatile bool         gNextTimeslice40ms;
 extern volatile bool         gSchedulePowerSave;
 extern volatile bool         gBatterySaveCountdownExpired;
 extern volatile bool         gScheduleDualWatch;
-#ifndef DISABLE_NOAA
+#ifdef ENABLE_NOAA
 	extern volatile bool     gScheduleNOAA;
 #endif
 extern volatile bool         gFlagTteComplete;
-extern volatile bool         gScheduleFM;
+#ifdef ENABLE_FMRADIO
+	extern volatile bool     gScheduleFM;
+#endif
 extern uint16_t              gCurrentRSSI;
 extern uint8_t               gIsLocked;
 

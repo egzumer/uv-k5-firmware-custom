@@ -17,11 +17,15 @@
 #include "app/action.h"
 #include "app/app.h"
 #include "app/dtmf.h"
-#include "app/fm.h"
+#ifdef ENABLE_FMRADIO
+	#include "app/fm.h"
+#endif
 #include "app/scanner.h"
 #include "audio.h"
 #include "bsp/dp32g030/gpio.h"
-#include "driver/bk1080.h"
+#ifdef ENABLE_FMRADIO
+	#include "driver/bk1080.h"
+#endif
 #include "driver/bk4819.h"
 #include "driver/gpio.h"
 #include "functions.h"
@@ -54,7 +58,7 @@ void ACTION_Power(void)
 
 	gRequestSaveChannel   = 1;
 
-	#ifndef DISABLE_VOICE
+	#ifdef ENABLE_VOICE
 		gAnotherVoiceID   = VOICE_ID_POWER;
 	#endif
 
@@ -67,7 +71,7 @@ static void ACTION_Monitor(void)
 	{
 		RADIO_SelectVfos();
 
-		#ifndef DISABLE_NOAA
+		#ifdef ENABLE_NOAA
 			if (gRxVfo->CHANNEL_SAVE >= NOAA_CHANNEL_FIRST && gIsNoaaMode)
 				gNoaaChannel = gRxVfo->CHANNEL_SAVE - NOAA_CHANNEL_FIRST;
 		#endif
@@ -85,7 +89,7 @@ static void ACTION_Monitor(void)
 		gScanPauseMode         = true;
 	}
 
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gIsNoaaMode)
 		{
 			gNOAA_Countdown = 500;
@@ -95,64 +99,69 @@ static void ACTION_Monitor(void)
 	
 	RADIO_SetupRegisters(true);
 
-	if (gFmRadioMode)
-	{
-		FM_Start();
-		gRequestDisplayScreen = DISPLAY_FM;
-	}
-	else
+	#ifdef ENABLE_FMRADIO
+		if (gFmRadioMode)
+		{
+			FM_Start();
+			gRequestDisplayScreen = DISPLAY_FM;
+		}
+		else
+	#endif
 		gRequestDisplayScreen = gScreenToDisplay;
 }
 
 void ACTION_Scan(bool bRestart)
 {
-	if (gFmRadioMode)
-	{
-		if (gCurrentFunction != FUNCTION_RECEIVE && gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
+	#ifdef ENABLE_FMRADIO
+		if (gFmRadioMode)
 		{
-			GUI_SelectNextDisplay(DISPLAY_FM);
-
-			if (gFM_ScanState != FM_SCAN_OFF)
+			if (gCurrentFunction != FUNCTION_RECEIVE && gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
 			{
-				FM_PlayAndUpdate();
-
-				#ifndef DISABLE_VOICE
-					gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
-				#endif
-			}
-			else
-			{
-				uint16_t Frequency;
-
-				if (bRestart)
+				GUI_SelectNextDisplay(DISPLAY_FM);
+	
+				if (gFM_ScanState != FM_SCAN_OFF)
 				{
-					gFM_AutoScan        = true;
-					gFM_ChannelPosition = 0;
-					FM_EraseChannels();
-					Frequency           = gEeprom.FM_LowerLimit;
+					FM_PlayAndUpdate();
+	
+					#ifdef ENABLE_VOICE
+						gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
+					#endif
 				}
 				else
 				{
-					gFM_AutoScan        = false;
-					gFM_ChannelPosition = 0;
-					Frequency           = gEeprom.FM_FrequencyPlaying;
+					uint16_t Frequency;
+	
+					if (bRestart)
+					{
+						gFM_AutoScan        = true;
+						gFM_ChannelPosition = 0;
+						FM_EraseChannels();
+						Frequency           = gEeprom.FM_LowerLimit;
+					}
+					else
+					{
+						gFM_AutoScan        = false;
+						gFM_ChannelPosition = 0;
+						Frequency           = gEeprom.FM_FrequencyPlaying;
+					}
+	
+					BK1080_GetFrequencyDeviation(Frequency);
+					FM_Tune(Frequency, 1, bRestart);
+	
+					#ifdef ENABLE_VOICE
+						gAnotherVoiceID = VOICE_ID_SCANNING_BEGIN;
+					#endif
 				}
-
-				BK1080_GetFrequencyDeviation(Frequency);
-				FM_Tune(Frequency, 1, bRestart);
-
-				#ifndef DISABLE_VOICE
-					gAnotherVoiceID = VOICE_ID_SCANNING_BEGIN;
-				#endif
 			}
+			return;
 		}
-	}
-	else
+	#endif
+
 	if (gScreenToDisplay != DISPLAY_SCANNER)
 	{
 		RADIO_SelectVfos();
 
-		#ifndef DISABLE_NOAA
+		#ifdef ENABLE_NOAA
 			if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
 		#endif
 		{
@@ -162,7 +171,7 @@ void ACTION_Scan(bool bRestart)
 			{
 				SCANNER_Stop();
 
-				#ifndef DISABLE_VOICE
+				#ifdef ENABLE_VOICE
 					gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
 				#endif
 			}
@@ -170,7 +179,7 @@ void ACTION_Scan(bool bRestart)
 			{
 				CHANNEL_Next(true, 1);
 
-				#ifndef DISABLE_VOICE
+				#ifdef ENABLE_VOICE
 					AUDIO_SetVoiceID(0, VOICE_ID_SCANNING_BEGIN);
 					AUDIO_PlaySingleVoice(true);
 				#endif
@@ -184,13 +193,13 @@ void ACTION_Vox(void)
 	gEeprom.VOX_SWITCH   = !gEeprom.VOX_SWITCH;
 	gRequestSaveSettings = true;
 	gFlagReconfigureVfos = true;
-	#ifndef DISABLE_VOICE
+	#ifdef ENABLE_VOICE
 		gAnotherVoiceID  = VOICE_ID_VOX;
 	#endif
 	gUpdateStatus        = true;
 }
 
-#ifndef DISABLE_ALARM
+#ifdef ENABLE_ALARM
 	static void ACTION_AlarmOr1750(bool b1750)
 	{
 		gInputBoxIndex        = 0;
@@ -201,30 +210,32 @@ void ACTION_Vox(void)
 	}
 #endif
 
-void ACTION_FM(void)
-{
-	if (gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_MONITOR)
+#ifdef ENABLE_FMRADIO
+	void ACTION_FM(void)
 	{
-		if (gFmRadioMode)
+		if (gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_MONITOR)
 		{
-			FM_TurnOff();
-
+			if (gFmRadioMode)
+			{
+				FM_TurnOff();
+	
+				gInputBoxIndex        = 0;
+				gVoxResumeCountdown   = 80;
+				gFlagReconfigureVfos  = true;
+				gRequestDisplayScreen = DISPLAY_MAIN;
+				return;
+			}
+			
+			RADIO_SelectVfos();
+			RADIO_SetupRegisters(true);
+	
+			FM_Start();
+	
 			gInputBoxIndex        = 0;
-			gVoxResumeCountdown   = 80;
-			gFlagReconfigureVfos  = true;
-			gRequestDisplayScreen = DISPLAY_MAIN;
-			return;
+			gRequestDisplayScreen = DISPLAY_FM;
 		}
-
-		RADIO_SelectVfos();
-		RADIO_SetupRegisters(true);
-
-		FM_Start();
-
-		gInputBoxIndex        = 0;
-		gRequestDisplayScreen = DISPLAY_FM;
 	}
-}
+#endif
 
 void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
@@ -247,7 +258,7 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				}
 			}
 			
-			#ifndef DISABLE_VOICE
+			#ifdef ENABLE_VOICE
 				gAnotherVoiceID   = VOICE_ID_CANCEL;
 			#endif
 
@@ -309,15 +320,17 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			ACTION_Vox();
 			break;
 		case ACTION_OPT_ALARM:
-			#ifndef DISABLE_ALARM
+			#ifdef ENABLE_ALARM
 				ACTION_AlarmOr1750(false);
 			#endif
 			break;
-		case ACTION_OPT_FM:
-			ACTION_FM();
-			break;
+		#ifdef ENABLE_FMRADIO
+			case ACTION_OPT_FM:
+				ACTION_FM();
+				break;
+		#endif
 		case ACTION_OPT_1750:
-			#ifndef DISABLE_ALARM
+			#ifdef ENABLE_ALARM
 				ACTION_AlarmOr1750(true);
 			#endif
 			break;

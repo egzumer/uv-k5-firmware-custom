@@ -14,6 +14,8 @@
  *     limitations under the License.
  */
 
+#ifdef ENABLE_FMRADIO
+
 #include <string.h>
 
 #include "app/action.h"
@@ -284,7 +286,7 @@ static void FM_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 					gEeprom.FM_SelectedFrequency = (uint16_t)Frequency;
 
-					#ifndef DISABLE_VOICE
+					#ifdef ENABLE_VOICE
 						gAnotherVoiceID = (VOICE_ID_t)Key;
 					#endif
 
@@ -306,7 +308,7 @@ static void FM_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				{
 					if (FM_CheckValidChannel(Channel))
 					{
-						#ifndef DISABLE_VOICE
+						#ifdef ENABLE_VOICE
 							gAnotherVoiceID = (VOICE_ID_t)Key;
 						#endif
 						gEeprom.FM_SelectedChannel = Channel;
@@ -319,7 +321,7 @@ static void FM_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				else
 				if (Channel < 20)
 				{
-					#ifndef DISABLE_VOICE
+					#ifdef ENABLE_VOICE
 						gAnotherVoiceID = (VOICE_ID_t)Key;
 					#endif
 					gRequestDisplayScreen = DISPLAY_FM;
@@ -332,7 +334,7 @@ static void FM_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				return;
 			}
 
-			#ifndef DISABLE_VOICE
+			#ifdef ENABLE_VOICE
 				gAnotherVoiceID = (VOICE_ID_t)Key;
 			#endif
 
@@ -422,14 +424,14 @@ static void FM_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 			gInputBoxIndex = 0;
 		}
 
-		#ifndef DISABLE_VOICE
+		#ifdef ENABLE_VOICE
 			gAnotherVoiceID = VOICE_ID_CANCEL;
 		#endif
 	}
 	else
 	{
 		FM_PlayAndUpdate();
-		#ifndef DISABLE_VOICE
+		#ifdef ENABLE_VOICE
 			gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
 		#endif
 	}
@@ -660,3 +662,5 @@ void FM_Start(void)
 	gEnableSpeaker       = true;
 	gUpdateStatus        = true;
 }
+
+#endif

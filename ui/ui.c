@@ -17,14 +17,18 @@
 #include <string.h>
 
 #include "app/dtmf.h"
-#include "app/fm.h"
+#ifdef ENABLE_FMRADIO
+	#include "app/fm.h"
+#endif
 #include "app/scanner.h"
 #include "driver/keyboard.h"
 #include "misc.h"
-#ifndef DISABLE_AIRCOPY
+#ifdef ENABLE_AIRCOPY
 	#include "ui/aircopy.h"
 #endif
-#include "ui/fmradio.h"
+#ifdef ENABLE_FMRADIO
+	#include "ui/fmradio.h"
+#endif
 #include "ui/inputbox.h"
 #include "ui/main.h"
 #include "ui/menu.h"
@@ -46,10 +50,12 @@ void GUI_DisplayScreen(void)
 			UI_DisplayMain();
 			break;
 
-		case DISPLAY_FM:
-			UI_DisplayFM();
-			break;
-
+		#ifdef ENABLE_FMRADIO
+			case DISPLAY_FM:
+				UI_DisplayFM();
+				break;
+		#endif
+		
 		case DISPLAY_MENU:
 			UI_DisplayMenu();
 			break;
@@ -58,7 +64,7 @@ void GUI_DisplayScreen(void)
 			UI_DisplayScanner();
 			break;
 
-		#ifndef DISABLE_AIRCOPY
+		#ifdef ENABLE_AIRCOPY
 			case DISPLAY_AIRCOPY:
 				UI_DisplayAircopy();
 				break;
@@ -79,7 +85,9 @@ void GUI_SelectNextDisplay(GUI_DisplayType_t Display)
 			gIsInSubMenu        = false;
 			gCssScanMode        = CSS_SCAN_MODE_OFF;
 			gScanState          = SCAN_OFF;
-			gFM_ScanState       = FM_SCAN_OFF;
+			#ifdef ENABLE_FMRADIO
+				gFM_ScanState   = FM_SCAN_OFF;
+			#endif
 			gAskForConfirmation = 0;
 			gDTMF_InputMode     = false;
 			gDTMF_InputIndex    = 0;

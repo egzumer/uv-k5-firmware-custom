@@ -41,7 +41,7 @@ extern const uint32_t         LowerLimitFrequencyBandTable[7];
 extern const uint32_t         MiddleFrequencyBandTable[7];
 extern const uint32_t         UpperLimitFrequencyBandTable[7];
 
-#ifndef DISABLE_NOAA
+#ifdef ENABLE_NOAA
 	extern const uint32_t     NoaaFrequencyTable[10];
 #endif
 

@@ -28,6 +28,10 @@
 #include "ui/inputbox.h"
 #include "ui/main.h"
 
+//#ifndef ARRAY_SIZE
+//	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+//#endif
+
 void UI_DisplayMain(void)
 {
 	const unsigned int display_width = 128;
@@ -135,7 +139,7 @@ void UI_DisplayMain(void)
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
 		{	// transmitting
 	
-			#ifndef DISABLE_ALARM
+			#ifdef ENABLE_ALARM
 				if (gAlarmState == ALARM_STATE_ALARM)
 				{
 					SomeValue = 2;
@@ -204,7 +208,7 @@ void UI_DisplayMain(void)
 		
 		uint8_t State = VfoState[vfo_num];
 
-		#ifndef DISABLE_ALARM
+		#ifdef ENABLE_ALARM
 			if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_ALARM)
 			{
 				Channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
@@ -282,7 +286,7 @@ void UI_DisplayMain(void)
 					switch (gEeprom.CHANNEL_DISPLAY_MODE)
 					{
 						case MDF_FREQUENCY:	// show the channel frequency
-							#ifndef DISABLE_BIG_FREQ
+							#ifdef ENABLE_BIG_FREQ
 								NUMBER_ToDigits(frequency_Hz, String);
 								// show the main large frequency digits
 								UI_DisplayFrequency(String, 31, Line, false, false);
@@ -313,7 +317,7 @@ void UI_DisplayMain(void)
 							}
 							break;
 
-						#ifdef CHAN_NAME_FREQ
+						#ifdef ENABLE_CHAN_NAME_FREQ
 							case MDF_NAME_FREQ:	// show the channel name and frequency
 								if (gEeprom.VfoInfo[vfo_num].Name[0] == 0 || gEeprom.VfoInfo[vfo_num].Name[0] == 0xFF)
 								{	// no channel name, show channel number instead
@@ -343,7 +347,7 @@ void UI_DisplayMain(void)
 				else
 				{	// frequency mode
 			
-					#ifndef DISABLE_BIG_FREQ
+					#ifdef ENABLE_BIG_FREQ
 						NUMBER_ToDigits(frequency_Hz, String);  // 8 digits
 						// show the main large frequency digits
 						UI_DisplayFrequency(String, 31, Line, false, false);

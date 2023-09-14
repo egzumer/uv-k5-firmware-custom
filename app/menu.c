@@ -34,7 +34,7 @@
 #include "ui/menu.h"
 #include "ui/ui.h"
 
-#ifndef DISABLE_VOICE
+#ifdef ENABLE_VOICE
 	static const VOICE_ID_t MenuVoices[] =
 	{
 		VOICE_ID_SQUELCH,
@@ -57,7 +57,7 @@
 		VOICE_ID_INVALID,
 		VOICE_ID_BEEP_PROMPT,
 		VOICE_ID_TRANSMIT_OVER_TIME,
-//		#ifndef DISABLE_VOICE
+//		#ifdef ENABLE_VOICE
 			VOICE_ID_VOICE_PROMPT,
 //		#endif
 		VOICE_ID_INVALID,
@@ -72,7 +72,7 @@
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
-		#ifndef DISABLE_ALARM
+		#ifdef ENABLE_ALARM
 			VOICE_ID_INVALID,
 		#endif
 		VOICE_ID_ANI_CODE,
@@ -89,7 +89,7 @@
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
-		#ifndef DISABLE_NOAA
+		#ifdef ENABLE_NOAA
 			VOICE_ID_INVALID,
 		#endif
 		VOICE_ID_DELETE_CHANNEL,
@@ -149,7 +149,7 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 			break;
 			
 		case MENU_MDF:
-			#ifdef CHAN_NAME_FREQ
+			#ifdef ENABLE_CHAN_NAME_FREQ
 				*pMin = 0;
 				*pMax = 3;
 				break;
@@ -161,7 +161,7 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 		case MENU_SFT_D:
 		case MENU_TDR:
 		case MENU_XB:
-		#ifndef DISABLE_VOICE
+		#ifdef ENABLE_VOICE
 			case MENU_VOICE:
 		#endif
 		case MENU_SC_REV:
@@ -190,13 +190,13 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 		case MENU_S_ADD1:
 		case MENU_S_ADD2:
 		case MENU_STE:
-		#ifndef DISABLE_ALARM
+		#ifdef ENABLE_ALARM
 			case MENU_AL_MOD:
 		#endif
 		case MENU_D_ST:
 		case MENU_D_DCD:
 		case MENU_AM:
-		#ifndef DISABLE_NOAA
+		#ifdef ENABLE_NOAA
 			case MENU_NOAA_S:
 		#endif
 		case MENU_RESET:
@@ -420,7 +420,7 @@ void MENU_AcceptSetting(void)
 			return;
 	
 		case MENU_XB:
-			#ifndef DISABLE_NOAA
+			#ifdef ENABLE_NOAA
 				if (IS_NOAA_CHANNEL(gEeprom.ScreenChannel[0]))
 					return;
 				if (IS_NOAA_CHANNEL(gEeprom.ScreenChannel[1]))
@@ -441,7 +441,7 @@ void MENU_AcceptSetting(void)
 			gEeprom.TX_TIMEOUT_TIMER = gSubMenuSelection;
 			break;
 	
-		#ifndef DISABLE_VOICE
+		#ifdef ENABLE_VOICE
 			case MENU_VOICE:
 				gEeprom.VOICE_PROMPT = gSubMenuSelection;
 				gRequestSaveSettings = true;
@@ -499,7 +499,7 @@ void MENU_AcceptSetting(void)
 			gEeprom.SCAN_LIST_DEFAULT = gSubMenuSelection - 1;
 			break;
 	
-		#ifndef DISABLE_ALARM
+		#ifdef ENABLE_ALARM
 			case MENU_AL_MOD:
 				gEeprom.ALARM_MODE = gSubMenuSelection;
 				break;
@@ -556,7 +556,7 @@ void MENU_AcceptSetting(void)
 			gRequestSaveChannel     = 2;
 			return;
 	
-		#ifndef DISABLE_NOAA
+		#ifdef ENABLE_NOAA
 			case MENU_NOAA_S:
 				gEeprom.NOAA_AUTO_SCAN = gSubMenuSelection;
 				gRequestSaveSettings   = true;
@@ -779,7 +779,7 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gEeprom.TX_TIMEOUT_TIMER;
 			break;
 	
-		#ifndef DISABLE_VOICE
+		#ifdef ENABLE_VOICE
 			case MENU_VOICE:
 				gSubMenuSelection = gEeprom.VOICE_PROMPT;
 				break;
@@ -833,7 +833,7 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = RADIO_FindNextChannel(0, 1, true, 1);
 			break;
 	
-		#ifndef DISABLE_ALARM
+		#ifdef ENABLE_ALARM
 			case MENU_AL_MOD:
 				gSubMenuSelection = gEeprom.ALARM_MODE;
 				break;
@@ -879,7 +879,7 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gTxVfo->AM_CHANNEL_MODE;
 			break;
 	
-		#ifndef DISABLE_NOAA
+		#ifdef ENABLE_NOAA
 			case MENU_NOAA_S:
 				gSubMenuSelection = gEeprom.NOAA_AUTO_SCAN;
 				break;
@@ -971,7 +971,7 @@ static void MENU_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			if (gInputBoxIndex < 6)
 			{
-				#ifndef DISABLE_VOICE
+				#ifdef ENABLE_VOICE
 					gAnotherVoiceID = (VOICE_ID_t)Key;
 				#endif
 				return;
@@ -980,7 +980,7 @@ static void MENU_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			gInputBoxIndex    = 0;
 			NUMBER_Get(gInputBox, &Frequency);
 			Frequency        += 75;
-			#ifndef DISABLE_VOICE
+			#ifdef ENABLE_VOICE
 				gAnotherVoiceID = (VOICE_ID_t)Key;
 			#endif
 			gSubMenuSelection = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, 0);
@@ -991,7 +991,7 @@ static void MENU_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		{
 			if (gInputBoxIndex < 3)
 			{
-				#ifndef DISABLE_VOICE
+				#ifdef ENABLE_VOICE
 					gAnotherVoiceID   = (VOICE_ID_t)Key;
 				#endif
 				gRequestDisplayScreen = DISPLAY_MENU;
@@ -1004,7 +1004,7 @@ static void MENU_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			if (IS_MR_CHANNEL(Value))
 			{
-				#ifndef DISABLE_VOICE
+				#ifdef ENABLE_VOICE
 					gAnotherVoiceID = (VOICE_ID_t)Key;
 				#endif
 				gSubMenuSelection = Value;
@@ -1066,7 +1066,7 @@ static void MENU_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 					gIsInSubMenu        = false;
 					gInputBoxIndex      = 0;
 					gFlagRefreshSetting = true;
-					#ifndef DISABLE_VOICE
+					#ifdef ENABLE_VOICE
 						gAnotherVoiceID = VOICE_ID_CANCEL;
 					#endif
 				}
@@ -1077,7 +1077,7 @@ static void MENU_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 				return;
 			}
 
-			#ifndef DISABLE_VOICE
+			#ifdef ENABLE_VOICE
 				gAnotherVoiceID = VOICE_ID_CANCEL;
 			#endif
 			gRequestDisplayScreen = DISPLAY_MAIN;
@@ -1085,7 +1085,7 @@ static void MENU_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 		else
 		{
 			MENU_StopCssScan();
-			#ifndef DISABLE_VOICE
+			#ifdef ENABLE_VOICE
 				gAnotherVoiceID   = VOICE_ID_SCANNING_STOP;
 			#endif
 			gRequestDisplayScreen = DISPLAY_MENU;
@@ -1104,7 +1104,7 @@ static void MENU_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 		
 		if (!gIsInSubMenu)
 		{
-			#ifndef DISABLE_VOICE
+			#ifdef ENABLE_VOICE
 				if (gMenuCursor != MENU_SCR)
 					gAnotherVoiceID = MenuVoices[gMenuCursor];
 			#endif
@@ -1128,7 +1128,7 @@ static void MENU_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 
 						if (gMenuCursor == MENU_RESET)
 						{
-							#ifndef DISABLE_VOICE
+							#ifdef ENABLE_VOICE
 								AUDIO_SetVoiceID(0, VOICE_ID_CONFIRM);
 								AUDIO_PlaySingleVoice(true);
 							#endif
@@ -1149,7 +1149,7 @@ static void MENU_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 			
 			gCssScanMode = CSS_SCAN_MODE_OFF;
 			
-			#ifndef DISABLE_VOICE
+			#ifdef ENABLE_VOICE
 				if (gMenuCursor == MENU_SCR)
 					gAnotherVoiceID = (gSubMenuSelection == 0) ? VOICE_ID_SCRAMBLER_OFF : VOICE_ID_SCRAMBLER_ON;
 				else
@@ -1169,7 +1169,7 @@ static void MENU_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 
 		RADIO_SelectVfos();
 
-		#ifndef DISABLE_NOAA
+		#ifdef ENABLE_NOAA
 			if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && !gRxVfo->IsAM)
 		#else
 			if (!gRxVfo->IsAM)
@@ -1181,7 +1181,7 @@ static void MENU_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 				{
 					MENU_StartCssScan(1);
 					gRequestDisplayScreen = DISPLAY_MENU;
-					#ifndef DISABLE_VOICE
+					#ifdef ENABLE_VOICE
 						AUDIO_SetVoiceID(0, VOICE_ID_SCANNING_BEGIN);
 						AUDIO_PlaySingleVoice(1);
 					#endif
@@ -1190,7 +1190,7 @@ static void MENU_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 				{
 					MENU_StopCssScan();
 					gRequestDisplayScreen = DISPLAY_MENU;
-					#ifndef DISABLE_VOICE
+					#ifdef ENABLE_VOICE
 						gAnotherVoiceID       = VOICE_ID_SCANNING_STOP;
 					#endif
 				}

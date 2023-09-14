@@ -35,7 +35,7 @@ extern BEEP_Type_t       gBeepToPlay;
 
 void AUDIO_PlayBeep(BEEP_Type_t Beep);
 
-#ifndef DISABLE_VOICE
+#ifdef ENABLE_VOICE
 
 	enum
 	{

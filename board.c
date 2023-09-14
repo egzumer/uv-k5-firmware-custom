@@ -18,14 +18,18 @@
 #include <string.h>
 
 #include "app/dtmf.h"
-#include "app/fm.h"
+#ifdef ENABLE_FMRADIO
+	#include "app/fm.h"
+#endif
 #include "board.h"
 #include "bsp/dp32g030/gpio.h"
 #include "bsp/dp32g030/portcon.h"
 #include "bsp/dp32g030/saradc.h"
 #include "bsp/dp32g030/syscon.h"
 #include "driver/adc.h"
-#include "driver/bk1080.h"
+#ifdef ENABLE_FMRADIO
+	#include "driver/bk1080.h"
+#endif
 #include "driver/bk4819.h"
 #include "driver/crc.h"
 #include "driver/eeprom.h"
@@ -300,9 +304,7 @@ void BOARD_ADC_Init(void)
 void BOARD_ADC_GetBatteryInfo(uint16_t *pVoltage, uint16_t *pCurrent)
 {
 	ADC_Start();
-
 	while (!ADC_CheckEndOfConversion(ADC_CH9)) {}
-
 	*pVoltage = ADC_GetValue(ADC_CH4);
 	*pCurrent = ADC_GetValue(ADC_CH9);
 }
@@ -313,7 +315,9 @@ void BOARD_Init(void)
 	BOARD_GPIO_Init();
 	BOARD_ADC_Init();
 	ST7565_Init();
-	BK1080_Init(0, false);
+	#ifdef ENABLE_FMRADIO
+		BK1080_Init(0, false);
+	#endif
 	CRC_Init();
 }
 
@@ -329,7 +333,7 @@ void BOARD_EEPROM_Init(void)
 	gEeprom.CHAN_1_CALL      = IS_MR_CHANNEL(Data[0]) ? Data[0] : MR_CHANNEL_FIRST;
 	gEeprom.SQUELCH_LEVEL    = (Data[1] < 10) ? Data[1] : 1;
 	gEeprom.TX_TIMEOUT_TIMER = (Data[2] < 11) ? Data[2] : 1;
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		gEeprom.NOAA_AUTO_SCAN   = (Data[3] <  2) ? Data[3] : false;
 	#endif
 	gEeprom.KEY_LOCK         = (Data[4] <  2) ? Data[4] : false;
@@ -339,7 +343,7 @@ void BOARD_EEPROM_Init(void)
 
 	// 0E78..0E7F
 	EEPROM_ReadBuffer(0x0E78, Data, 8);
-	#ifndef CHAN_NAME_FREQ
+	#ifndef ENABLE_CHAN_NAME_FREQ
 		gEeprom.CHANNEL_DISPLAY_MODE  = (Data[1] < 3) ? Data[1] : MDF_FREQUENCY;
 	#else
 		gEeprom.CHANNEL_DISPLAY_MODE  = (Data[1] < 4) ? Data[1] : MDF_FREQUENCY;
@@ -353,17 +357,18 @@ void BOARD_EEPROM_Init(void)
 
 	// 0E80..0E87
 	EEPROM_ReadBuffer(0x0E80, Data, 8);
-	gEeprom.ScreenChannel[0]   = IS_VALID_CHANNEL(Data[0]) ? Data[0] : (FREQ_CHANNEL_FIRST + 5);
-	gEeprom.ScreenChannel[1]   = IS_VALID_CHANNEL(Data[3]) ? Data[3] : (FREQ_CHANNEL_FIRST + 5);
+	gEeprom.ScreenChannel[0]   = IS_VALID_CHANNEL(Data[0]) ? Data[0] : (FREQ_CHANNEL_FIRST + BAND6_400MHz);
+	gEeprom.ScreenChannel[1]   = IS_VALID_CHANNEL(Data[3]) ? Data[3] : (FREQ_CHANNEL_FIRST + BAND6_400MHz);
 	gEeprom.MrChannel[0]       = IS_MR_CHANNEL(Data[1])    ? Data[1] : MR_CHANNEL_FIRST;
 	gEeprom.MrChannel[1]       = IS_MR_CHANNEL(Data[4])    ? Data[4] : MR_CHANNEL_FIRST;
-	gEeprom.FreqChannel[0]     = IS_FREQ_CHANNEL(Data[2])  ? Data[2] : (FREQ_CHANNEL_FIRST + 5);
-	gEeprom.FreqChannel[1]     = IS_FREQ_CHANNEL(Data[5])  ? Data[5] : (FREQ_CHANNEL_FIRST + 5);
-	#ifndef DISABLE_NOAA
+	gEeprom.FreqChannel[0]     = IS_FREQ_CHANNEL(Data[2])  ? Data[2] : (FREQ_CHANNEL_FIRST + BAND6_400MHz);
+	gEeprom.FreqChannel[1]     = IS_FREQ_CHANNEL(Data[5])  ? Data[5] : (FREQ_CHANNEL_FIRST + BAND6_400MHz);
+	#ifdef ENABLE_NOAA
 		gEeprom.NoaaChannel[0] = IS_NOAA_CHANNEL(Data[6])  ? Data[6] : NOAA_CHANNEL_FIRST;
 		gEeprom.NoaaChannel[1] = IS_NOAA_CHANNEL(Data[7])  ? Data[7] : NOAA_CHANNEL_FIRST;
 	#endif
 	
+#ifdef ENABLE_FMRADIO
 	{	// 0E88..0E8F
 		struct
 		{
@@ -388,31 +393,35 @@ void BOARD_EEPROM_Init(void)
 	// 0E40..0E67
 	EEPROM_ReadBuffer(0x0E40, gFM_Channels, sizeof(gFM_Channels));
 	FM_ConfigureChannelState();
+#endif
 
 	// 0E90..0E97
 	EEPROM_ReadBuffer(0x0E90, Data, 8);
-	gEeprom.BEEP_CONTROL             = (Data[0] < 2)              ? Data[0] : true;
-	gEeprom.KEY_1_SHORT_PRESS_ACTION = (Data[1] < ACTION_OPT_LEN) ? Data[1] : ACTION_OPT_MONITOR;
-	gEeprom.KEY_1_LONG_PRESS_ACTION  = (Data[2] < ACTION_OPT_LEN) ? Data[2] : ACTION_OPT_FLASHLIGHT;
-	gEeprom.KEY_2_SHORT_PRESS_ACTION = (Data[3] < ACTION_OPT_LEN) ? Data[3] : ACTION_OPT_SCAN;
-	gEeprom.KEY_2_LONG_PRESS_ACTION  = (Data[4] < ACTION_OPT_LEN) ? Data[4] : ACTION_OPT_FM;
-	gEeprom.SCAN_RESUME_MODE         = (Data[5] < 3)              ? Data[5] : SCAN_RESUME_CO;
-	gEeprom.AUTO_KEYPAD_LOCK         = (Data[6] < 2)              ? Data[6] : false;
-	gEeprom.POWER_ON_DISPLAY_MODE    = (Data[7] < 3)              ? Data[7] : POWER_ON_DISPLAY_MODE_VOLTAGE;
+	gEeprom.BEEP_CONTROL                 = (Data[0] < 2)              ? Data[0] : true;
+	gEeprom.KEY_1_SHORT_PRESS_ACTION     = (Data[1] < ACTION_OPT_LEN) ? Data[1] : ACTION_OPT_MONITOR;
+	gEeprom.KEY_1_LONG_PRESS_ACTION      = (Data[2] < ACTION_OPT_LEN) ? Data[2] : ACTION_OPT_FLASHLIGHT;
+	gEeprom.KEY_2_SHORT_PRESS_ACTION     = (Data[3] < ACTION_OPT_LEN) ? Data[3] : ACTION_OPT_SCAN;
+	#ifdef ENABLE_FMRADIO
+		gEeprom.KEY_2_LONG_PRESS_ACTION  = (Data[4] < ACTION_OPT_LEN) ? Data[4] : ACTION_OPT_NONE;
+	#else
+		gEeprom.SCAN_RESUME_MODE         = (Data[5] < 3)              ? Data[5] : SCAN_RESUME_CO;
+	#endif
+	gEeprom.AUTO_KEYPAD_LOCK             = (Data[6] < 2)              ? Data[6] : false;
+	gEeprom.POWER_ON_DISPLAY_MODE        = (Data[7] < 3)              ? Data[7] : POWER_ON_DISPLAY_MODE_VOLTAGE;
 
 	// 0E98..0E9F
 	EEPROM_ReadBuffer(0x0E98, Data, 8);
 	memcpy(&gEeprom.POWER_ON_PASSWORD, Data, 4);
 
 	// 0EA0..0EA7
-	#ifndef DISABLE_VOICE
+	#ifdef ENABLE_VOICE
 		EEPROM_ReadBuffer(0x0EA0, Data, 8);
 		gEeprom.VOICE_PROMPT = (Data[0] < 3) ? Data[0] : VOICE_PROMPT_ENGLISH;
 	#endif
 	
 	// 0EA8..0EAF
 	EEPROM_ReadBuffer(0x0EA8, Data, 8);
-	#ifndef DISABLE_ALARM
+	#ifdef ENABLE_ALARM
 		gEeprom.ALARM_MODE                 = (Data[0] <  2) ? Data[0] : true;
 	#endif
 	gEeprom.ROGER                          = (Data[1] <  3) ? Data[1] : ROGER_MODE_OFF;
@@ -588,7 +597,8 @@ void BOARD_FactoryReset(bool bIsAll)
 				!(i >= 0x0F18 && i < 0x0F30) &&     // Scan List
 				!(i >= 0x0F50 && i < 0x1C00) &&     // MR Channel Names
 				!(i >= 0x0E40 && i < 0x0E70) &&     // FM Channels
-				!(i >= 0x0E88 && i < 0x0E90)))      // FM settings
+				!(i >= 0x0E88 && i < 0x0E90)        // FM settings
+				))
 			) {
 			EEPROM_WriteBuffer(i, Template);
 		}

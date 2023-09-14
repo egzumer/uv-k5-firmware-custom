@@ -52,7 +52,7 @@ static const char MenuList[][7] =
     "TxVFO",     // was "WX"
 	"Beep",
 	"TxTOut",    // was "TOT"
-	#ifndef DISABLE_VOICE
+	#ifdef ENABLE_VOICE
 		"Voice",
 	#endif
 	"SC-Rev",
@@ -67,7 +67,7 @@ static const char MenuList[][7] =
 	"S-List",
 	"SList1",
 	"SList2",
-	#ifndef DISABLE_ALARM
+	#ifdef ENABLE_ALARM
 		"AL-Mod",
 	#endif
 	"ANI-ID",
@@ -84,7 +84,7 @@ static const char MenuList[][7] =
 	"Roger",
 	"BatVol",    // was "VOL"
 	"Mode",      // was "AM"
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		"NOAA_S",
 	#endif
 	"MemDel",    // was "Del-CH"
@@ -167,7 +167,7 @@ static const char gSubMenu_CHAN[3][7] =
 	"CHAN_B",
 };
 
-#ifndef DISABLE_VOICE
+#ifdef ENABLE_VOICE
 	static const char gSubMenu_VOICE[3][4] =
 	{
 		"OFF",
@@ -183,7 +183,7 @@ static const char gSubMenu_SC_REV[3][3] =
 	"SE",
 };
 
-#ifndef CHAN_NAME_FREQ
+#ifndef ENABLE_CHAN_NAME_FREQ
 	static const char gSubMenu_MDF[3][5] =
 	{
 		"FREQ",
@@ -200,7 +200,7 @@ static const char gSubMenu_SC_REV[3][3] =
 	};
 #endif
 
-#ifndef DISABLE_ALARM
+#ifdef ENABLE_ALARM
 	static const char gSubMenu_AL_MOD[2][5] =
 	{
 		"SITE",
@@ -414,7 +414,7 @@ void UI_DisplayMenu(void)
 		case MENU_STE:
 		case MENU_D_ST:
 		case MENU_D_DCD:
-		#ifndef DISABLE_NOAA
+		#ifdef ENABLE_NOAA
 			case MENU_NOAA_S:
 		#endif
 		case MENU_350TX:
@@ -450,7 +450,7 @@ void UI_DisplayMenu(void)
 				sprintf(String, "%umin", gSubMenuSelection);
 			break;
 	
-		#ifndef DISABLE_VOICE
+		#ifdef ENABLE_VOICE
 			case MENU_VOICE:
 				strcpy(String, gSubMenu_VOICE[gSubMenuSelection]);
 				break;
@@ -475,7 +475,7 @@ void UI_DisplayMenu(void)
 			sprintf(String, "LIST%u", gSubMenuSelection);
 			break;
 	
-		#ifndef DISABLE_ALARM
+		#ifdef ENABLE_ALARM
 			case MENU_AL_MOD:
 				sprintf(String, gSubMenu_AL_MOD[gSubMenuSelection]);
 				break;
@@ -556,6 +556,10 @@ void UI_DisplayMenu(void)
 		                        gBatteryVoltageAverage;
 		sprintf(String, "%u%%", (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
 		UI_PrintString(String, 50, 127, 3, 8);
+		#if 0
+			sprintf(String, "Curr %u", gBatteryCurrent);  // needs scaling into mA
+			UI_PrintString(String, 50, 127, 5, 8);
+		#endif
 	}
 	else
 	if (gMenuCursor == MENU_OFFSET)

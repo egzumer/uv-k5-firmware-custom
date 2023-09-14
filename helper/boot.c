@@ -14,7 +14,7 @@
  *     limitations under the License.
  */
 
-#ifndef DISABLE_AIRCOPY
+#ifdef ENABLE_AIRCOPY
 	#include "app/aircopy.h"
 #endif
 #include "bsp/dp32g030/gpio.h"
@@ -53,7 +53,7 @@ BOOT_Mode_t BOOT_GetMode(void)
 		if (Keys[0] == KEY_SIDE1)
 			return BOOT_MODE_F_LOCK;
 
-		#ifndef DISABLE_AIRCOPY
+		#ifdef ENABLE_AIRCOPY
 			if (Keys[0] == KEY_SIDE2)
 				return BOOT_MODE_AIRCOPY;
 		#endif
@@ -71,17 +71,17 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 		GUI_SelectNextDisplay(DISPLAY_MENU);
 		gF_LOCK            = true;
 		gMenuListCount     = 57;
-		#ifdef DISABLE_VOICE
+		#ifndef ENABLE_VOICE
 			gMenuListCount--;
 		#endif
-		#ifdef DISABLE_ALARM
+		#ifndef ENABLE_ALARM
 			gMenuListCount--;
 		#endif
-		#ifdef DISABLE_NOAA
+		#ifndef ENABLE_NOAA
 			gMenuListCount--;
 		#endif
 	}
-	#ifndef DISABLE_AIRCOPY
+	#ifdef ENABLE_AIRCOPY
 		else
 		if (Mode == BOOT_MODE_AIRCOPY)
 		{

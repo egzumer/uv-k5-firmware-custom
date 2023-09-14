@@ -9,21 +9,24 @@ Am amazing achievement if you ask me !
 # User customization
 
 This version you can customize at compile time by making various changes to the makefile.
-You can edit those changes by (currently) editing the MakeFile, look for these lines ..
+You can edit those changes by (currently) editing the MakeFile, look for these lines near the top of the file ..
 
-* CFLAGS  += -DDISABLE_BIG_FREQ     .. show frequencies using smaller font
-* CFLAGS  += -DDISABLE_NOAA         .. remove NOAA channels option from the firmware
-* CFLAGS  += -DDISABLE_VOICE        .. remove spoken VOICES option from the firmware
-* CFLAGS  += -DDISABLE_AIRCOPY      .. remove AIRCOPY option
-* CFLAGS  += -DDISABLE_ALARM        .. remove the ALARM transmit option from the firmware
-* CFLAGS  += -DKEEP_MEM_NAME        .. keep the memory channels name when re-saving a channel
-* CFLAGS  += -DCHAN_NAME_FREQ       .. show the channel frequency (as well as channel number/name)
-* CFLAGS  += -DRX_ANY_FREQ          .. allow RX on any frequency from 18MHz to 1300MHz
-* #CFLAGS += -DENABLE_TX_WHEN_AM    .. enable TX when radio set to AM (radio does NOT do AM, the adverts are false)
-* #CFLAGS += -DSINGLE_VFO_CHAN      .. (not yet implemented) show a single VFO/CHANNEL if dual-watch/cross-band are disabled
-* #CFLAGS += -DBAND_SCOPE           .. (not yet implemented) add a band scope/spectrum/panadapter option
+* ENABLE_AIRCOPY         := 0       aircopy
+* ENABLE_FMRADIO         := 0       FM band 2 radio
+* ENABLE_OVERLAY         := 1
+* ENABLE_UART            := 1       serial port
+* ENABLE_NOAA            := 0       NOAA channels
+* ENABLE_VOICE           := 0       voices
+* ENABLE_ALARM           := 0       TX alarms
+* ENABLE_BIG_FREQ        := 0       big font for the frequencies
+* ENABLE_KEEP_MEM_NAME   := 1       maintain the channels name when saving over it
+* ENABLE_CHAN_NAME_FREQ  := 1       show the channels frequency below the channels name/number
+* ENABLE_WIDE_RX         := 1       enable the RX in the full 18MHz to 1300MHz range
+* ENABLE_TX_WHEN_AM      := 0       allow TX when RX set to AM
+* #ENABLE_SINGLE_VFO_CHAN := 1      not yet implemented
+* #ENABLE_BAND_SCOPE      := 1      not yet implemented
 
-To enable the custom option just uncomment the line by removing the starting '#'.
+To enable the custom option, set the above option to '1'
 
 # Other changes made
 

@@ -1,5 +1,20 @@
 TARGET = firmware
 
+ENABLE_AIRCOPY         := 0
+ENABLE_FMRADIO         := 0
+ENABLE_OVERLAY         := 1
+ENABLE_UART            := 1
+ENABLE_NOAA            := 0
+ENABLE_VOICE           := 0
+ENABLE_ALARM           := 0
+ENABLE_BIG_FREQ        := 0
+ENABLE_KEEP_MEM_NAME   := 1
+ENABLE_CHAN_NAME_FREQ  := 1
+ENABLE_WIDE_RX         := 1
+ENABLE_TX_WHEN_AM      := 0
+#ENABLE_SINGLE_VFO_CHAN := 1
+#ENABLE_BAND_SCOPE      := 1
+
 BSP_DEFINITIONS := $(wildcard hardware/*/*.def)
 BSP_HEADERS := $(patsubst hardware/%,bsp/%,$(BSP_DEFINITIONS))
 BSP_HEADERS := $(patsubst %.def,%.h,$(BSP_HEADERS))
@@ -8,18 +23,28 @@ OBJS =
 # Startup files
 OBJS += start.o
 OBJS += init.o
-OBJS += sram-overlay.o
+ifeq ($(ENABLE_OVERLAY),1)
+	OBJS += sram-overlay.o
+endif
 OBJS += external/printf/printf.o
 
 # Drivers
 OBJS += driver/adc.o
-OBJS += driver/aes.o
+ifeq ($(ENABLE_UART),1)
+	OBJS += driver/aes.o
+endif
 OBJS += driver/backlight.o
-OBJS += driver/bk1080.o
+ifeq ($(ENABLE_FMRADIO),1)
+	OBJS += driver/bk1080.o
+endif
 OBJS += driver/bk4819.o
-OBJS += driver/crc.o
+ifeq ($(filter $(ENABLE_AIRCOPY) $(ENABLE_UART),1),1)
+	OBJS += driver/crc.o
+endif
 OBJS += driver/eeprom.o
+	ifeq ($(ENABLE_OVERLAY),1)
 OBJS += driver/flash.o
+endif
 OBJS += driver/gpio.o
 OBJS += driver/i2c.o
 OBJS += driver/keyboard.o
@@ -27,19 +52,27 @@ OBJS += driver/spi.o
 OBJS += driver/st7565.o
 OBJS += driver/system.o
 OBJS += driver/systick.o
-OBJS += driver/uart.o
+ifeq ($(ENABLE_UART),1)
+	OBJS += driver/uart.o
+endif
 
 # Main
 OBJS += app/action.o
-OBJS += app/aircopy.o
+ifeq ($(ENABLE_AIRCOPY),1)
+	OBJS += app/aircopy.o
+endif
 OBJS += app/app.o
 OBJS += app/dtmf.o
-OBJS += app/fm.o
+ifeq ($(ENABLE_FMRADIO),1)
+	OBJS += app/fm.o
+endif
 OBJS += app/generic.o
 OBJS += app/main.o
 OBJS += app/menu.o
 OBJS += app/scanner.o
-OBJS += app/uart.o
+ifeq ($(ENABLE_UART),1)
+	OBJS += app/uart.o
+endif
 OBJS += audio.o
 OBJS += bitmaps.o
 OBJS += board.o
@@ -53,9 +86,13 @@ OBJS += misc.o
 OBJS += radio.o
 OBJS += scheduler.o
 OBJS += settings.o
-OBJS += ui/aircopy.o
+ifeq ($(ENABLE_AIRCOPY),1)
+	OBJS += ui/aircopy.o
+endif
 OBJS += ui/battery.o
-OBJS += ui/fmradio.o
+ifeq ($(ENABLE_FMRADIO),1)
+	OBJS += ui/fmradio.o
+endif
 OBJS += ui/helper.o
 OBJS += ui/inputbox.o
 OBJS += ui/lock.o
@@ -76,38 +113,69 @@ else
 	TOP := $(shell pwd)
 endif
 
-AS      = arm-none-eabi-as
-CC      = arm-none-eabi-gcc
-LD      = arm-none-eabi-gcc
+AS = arm-none-eabi-gcc
+CC = arm-none-eabi-gcc
+LD = arm-none-eabi-gcc
 OBJCOPY = arm-none-eabi-objcopy
-SIZE    = arm-none-eabi-size
+SIZE = arm-none-eabi-size
 
-#GIT_HASH := $(shell git rev-parse --short HEAD)
+GIT_HASH := $(shell git rev-parse --short HEAD)
 
-ASFLAGS = -mcpu=cortex-m0
-CFLAGS  = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD -fdata-sections -ffunction-sections
+ASFLAGS = -c -mcpu=cortex-m0
+ifeq ($(ENABLE_OVERLAY),1)
+	ASFLAGS += -DENABLE_OVERLAY
+endif
+CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
-#CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
+CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
+ifeq ($(ENABLE_AIRCOPY),1)
+	CFLAGS += -DENABLE_AIRCOPY
+endif
+ifeq ($(ENABLE_FMRADIO),1)
+	CFLAGS += -DENABLE_FMRADIO
+endif
+ifeq ($(ENABLE_OVERLAY),1)
+	CFLAGS += -DENABLE_OVERLAY
+endif
+ifeq ($(ENABLE_UART),1)
+	CFLAGS += -DENABLE_UART
+endif
+ifeq ($(ENABLE_BIG_FREQ),1)
+	CFLAGS  += -DENABLE_BIG_FREQ
+endif
+ifeq ($(ENABLE_NOAA),1)
+	CFLAGS  += -DENABLE_NOAA
+endif
+ifeq ($(ENABLE_VOICE),1)
+	CFLAGS  += -DENABLE_VOICE
+endif
+ifeq ($(ENABLE_ALARM),1)
+	CFLAGS  += -DENABLE_ALARM
+endif
+ifeq ($(ENABLE_KEEP_MEM_NAME),1)
+	CFLAGS  += -DKEEP_MEM_NAME
+endif
+ifeq ($(ENABLE_CHAN_NAME_FREQ),1)
+	CFLAGS  += -DENABLE_CHAN_NAME_FREQ
+endif
+ifeq ($(ENABLE_WIDE_RX),1)
+	CFLAGS  += -DENABLE_WIDE_RX
+endif
+ifeq ($(ENABLE_TX_WHEN_AM),1)
+	CFLAGS  += -DENABLE_TX_WHEN_AM
+endif
+ifeq ($(ENABLE_SINGLE_VFO_CHAN),1)
+	CFLAGS  += -DENABLE_SINGLE_VFO_CHAN
+endif
+ifeq ($(ENABLE_BAND_SCOPE),1)
+	CFLAGS += -DENABLE_BAND_SCOPE
+endif
 
 LDFLAGS = -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld
-#LDFLAGS = -mcpu=cortex-m0 -nostartfiles -Wl,-gc-sections,-T,firmware.ld
-
-# compilation options
-CFLAGS  += -DDISABLE_BIG_FREQ
-CFLAGS  += -DDISABLE_NOAA
-CFLAGS  += -DDISABLE_VOICE
-CFLAGS  += -DDISABLE_AIRCOPY
-CFLAGS  += -DDISABLE_ALARM
-CFLAGS  += -DKEEP_MEM_NAME
-CFLAGS  += -DCHAN_NAME_FREQ
-CFLAGS  += -DRX_ANY_FREQ
-#CFLAGS  += -DENABLE_TX_WHEN_AM
-#CFLAGS  += -DSINGLE_VFO_CHAN
-#CFLAGS += -DBAND_SCOPE
 
 ifeq ($(DEBUG),1)
 	ASFLAGS += -g
-	CFLAGS  += -g
+	CFLAGS += -g
 	LDFLAGS += -g
 endif
 
@@ -151,4 +219,3 @@ bsp/dp32g030/%.h: hardware/dp32g030/%.def
 
 clean:
 	rm -f $(TARGET).bin $(TARGET) $(OBJS) $(DEPS)
-

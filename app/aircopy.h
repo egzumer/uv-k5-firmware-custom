@@ -17,7 +17,7 @@
 #ifndef APP_AIRCOPY_H
 #define APP_AIRCOPY_H
 
-#ifndef DISABLE_AIRCOPY
+#ifdef ENABLE_AIRCOPY
 
 #include "driver/keyboard.h"
 

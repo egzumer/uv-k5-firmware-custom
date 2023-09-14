@@ -14,7 +14,9 @@
  *     limitations under the License.
  */
 
-#include "app/fm.h"
+#ifdef ENABLE_FMRADIO
+	#include "app/fm.h"
+#endif
 #include "app/scanner.h"
 #include "audio.h"
 #include "functions.h"
@@ -74,7 +76,7 @@ void SystickHandler(void)
 		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE)
 			DECREMENT_AND_TRIGGER(gDualWatchCountdown, gScheduleDualWatch);
 
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH == DUAL_WATCH_OFF)
 			if (gIsNoaaMode && gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
 				if (gCurrentFunction != FUNCTION_RECEIVE)
@@ -87,13 +89,15 @@ void SystickHandler(void)
 
 	DECREMENT_AND_TRIGGER(gTailNoteEliminationCountdown, gFlagTteComplete);
 
-	#ifndef DISABLE_VOICE
+	#ifdef ENABLE_VOICE
 		DECREMENT_AND_TRIGGER(gCountdownToPlayNextVoice, gFlagPlayQueuedVoice);
 	#endif
 	
-	if (gFM_ScanState != FM_SCAN_OFF && gCurrentFunction != FUNCTION_MONITOR)
-		if (gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE)
-			DECREMENT_AND_TRIGGER(gFmPlayCountdown, gScheduleFM);
+	#ifdef ENABLE_FMRADIO
+		if (gFM_ScanState != FM_SCAN_OFF && gCurrentFunction != FUNCTION_MONITOR)
+			if (gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE)
+				DECREMENT_AND_TRIGGER(gFmPlayCountdown, gScheduleFM);
+	#endif
 
 	if (gVoxStopCountdown)
 		gVoxStopCountdown--;

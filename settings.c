@@ -16,7 +16,9 @@
 
 #include <string.h>
 
-#include "app/fm.h"
+#ifdef ENABLE_FMRADIO
+	#include "app/fm.h"
+#endif
 #include "driver/eeprom.h"
 #include "driver/uart.h"
 #include "misc.h"
@@ -24,29 +26,31 @@
 
 EEPROM_Config_t gEeprom;
 
-void SETTINGS_SaveFM(void)
-{
-	unsigned int i;
-
-	struct
+#ifdef ENABLE_FMRADIO
+	void SETTINGS_SaveFM(void)
 	{
-		uint16_t Frequency;
-		uint8_t  Channel;
-		bool     IsChannelSelected;
-		uint8_t  Padding[4];
-	} State;
-
-	UART_LogSend("sFm\r\n", 5);
-
-	memset(&State, 0xFF, sizeof(State));
-	State.Channel           = gEeprom.FM_SelectedChannel;
-	State.Frequency         = gEeprom.FM_SelectedFrequency;
-	State.IsChannelSelected = gEeprom.FM_IsMrMode;
-
-	EEPROM_WriteBuffer(0x0E88, &State);
-	for (i = 0; i < 5; i++)
-		EEPROM_WriteBuffer(0x0E40 + (i * 8), &gFM_Channels[i * 4]);
-}
+		unsigned int i;
+	
+		struct
+		{
+			uint16_t Frequency;
+			uint8_t  Channel;
+			bool     IsChannelSelected;
+			uint8_t  Padding[4];
+		} State;
+	
+		UART_LogSend("sFm\r\n", 5);
+	
+		memset(&State, 0xFF, sizeof(State));
+		State.Channel           = gEeprom.FM_SelectedChannel;
+		State.Frequency         = gEeprom.FM_SelectedFrequency;
+		State.IsChannelSelected = gEeprom.FM_IsMrMode;
+	
+		EEPROM_WriteBuffer(0x0E88, &State);
+		for (i = 0; i < 5; i++)
+			EEPROM_WriteBuffer(0x0E40 + (i * 8), &gFM_Channels[i * 4]);
+	}
+#endif
 
 void SETTINGS_SaveVfoIndices(void)
 {
@@ -60,7 +64,7 @@ void SETTINGS_SaveVfoIndices(void)
 	State[3] = gEeprom.ScreenChannel[1];
 	State[4] = gEeprom.MrChannel[1];
 	State[5] = gEeprom.FreqChannel[1];
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		State[6] = gEeprom.NoaaChannel[0];
 		State[7] = gEeprom.NoaaChannel[1];
 	#else
@@ -81,7 +85,7 @@ void SETTINGS_SaveSettings(void)
 	State[0] = gEeprom.CHAN_1_CALL;
 	State[1] = gEeprom.SQUELCH_LEVEL;
 	State[2] = gEeprom.TX_TIMEOUT_TIMER;
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		State[3] = gEeprom.NOAA_AUTO_SCAN;
 	#else
 		State[3] = false;
@@ -116,13 +120,13 @@ void SETTINGS_SaveSettings(void)
 	Password[0] = gEeprom.POWER_ON_PASSWORD;
 	EEPROM_WriteBuffer(0x0E98, State);
 
-	#ifndef DISABLE_VOICE
+	#ifdef ENABLE_VOICE
 		memset(State, 0xFF, sizeof(State));
 		State[0] = gEeprom.VOICE_PROMPT;
 		EEPROM_WriteBuffer(0x0EA0, State);
 	#endif
 
-	#ifndef DISABLE_ALARM
+	#ifdef ENABLE_ALARM
 		State[0] = gEeprom.ALARM_MODE;
 	#else
 		State[0] = false;
@@ -173,7 +177,7 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 {
 	UART_LogSend("schn\r\n", 6);
 
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		if (IS_NOT_NOAA_CHANNEL(Channel))
 	#endif
 	{
@@ -227,7 +231,7 @@ void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool bUpdat
 {
 	UART_LogSend("svalid\r\n", 8);
 
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		if (IS_NOT_NOAA_CHANNEL(Channel))
 	#endif
 	{

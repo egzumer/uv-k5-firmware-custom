@@ -17,7 +17,9 @@
 #include <string.h>
 
 #include "app/dtmf.h"
-#include "app/fm.h"
+#ifdef ENABLE_FMRADIO
+	#include "app/fm.h"
+#endif
 #include "audio.h"
 #include "bsp/dp32g030/gpio.h"
 #include "dcs.h"
@@ -160,7 +162,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 
 	if (IS_VALID_CHANNEL(Channel))
 	{
-		#ifndef DISABLE_NOAA
+		#ifdef ENABLE_NOAA
 			if (Channel >= NOAA_CHANNEL_FIRST)
 			{
 				RADIO_InitInfo(pRadio, gEeprom.ScreenChannel[VFO], 2, NoaaFrequencyTable[Channel - NOAA_CHANNEL_FIRST]);
@@ -546,7 +548,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 	// mic gain 0.5dB/step 0 to 31
 	BK4819_WriteRegister(BK4819_REG_7D, 0xE940 | (gEeprom.MIC_SENSITIVITY_TUNING & 0x1f));
 
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) || !gIsNoaaMode)
 			Frequency = gRxVfo->pRX->Frequency;
 		else
@@ -573,7 +575,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 	InterruptMask = 0 | BK4819_REG_3F_SQUELCH_FOUND | BK4819_REG_3F_SQUELCH_LOST;
 
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
 	#endif
 	{
@@ -628,7 +630,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 				BK4819_EnableScramble(gRxVfo->SCRAMBLING_TYPE - 1);
 		}
 	}
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		else
 		{
 			BK4819_SetCTCSSFrequency(2625);
@@ -640,10 +642,18 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 		}
 	#endif
 
-	#ifndef DISABLE_NOAA
-		if (gEeprom.VOX_SWITCH && !gFmRadioMode && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && !gCurrentVfo->IsAM)
+	#ifdef ENABLE_NOAA
+		#ifdef ENABLE_FMRADIO
+			if (gEeprom.VOX_SWITCH && !gFmRadioMode && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && !gCurrentVfo->IsAM)
+		#else
+			if (gEeprom.VOX_SWITCH && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && !gCurrentVfo->IsAM)
+		#endif
 	#else
-		if (gEeprom.VOX_SWITCH && !gFmRadioMode && !gCurrentVfo->IsAM)
+		#ifdef ENABLE_FMRADIO
+			if (gEeprom.VOX_SWITCH && !gFmRadioMode && !gCurrentVfo->IsAM)
+		#else
+			if (gEeprom.VOX_SWITCH && !gCurrentVfo->IsAM)
+		#endif
 	#endif
 	{
 		BK4819_EnableVox(gEeprom.VOX1_THRESHOLD, gEeprom.VOX0_THRESHOLD);
@@ -671,7 +681,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 		FUNCTION_Select(FUNCTION_FOREGROUND);
 }
 
-#ifndef DISABLE_NOAA
+#ifdef ENABLE_NOAA
 	void RADIO_ConfigureNOAA(void)
 	{
 		uint8_t ChanAB;
@@ -774,7 +784,9 @@ void RADIO_SetVfoState(VfoState_t State)
 		VfoState[0] = VFO_STATE_NORMAL;
 		VfoState[1] = VFO_STATE_NORMAL;
 
-		gFM_ResumeCountdown = 0;
+		#ifdef ENABLE_FMRADIO
+			gFM_ResumeCountdown = 0;
+		#endif
 	}
 	else
 	{
@@ -789,7 +801,9 @@ void RADIO_SetVfoState(VfoState_t State)
 			VfoState[Channel] = State;
 		}
 
-		gFM_ResumeCountdown = 5;
+		#ifdef ENABLE_FMRADIO
+			gFM_ResumeCountdown = 5;
+		#endif
 	}
 
 	gUpdateDisplay = true;
@@ -812,7 +826,7 @@ void RADIO_PrepareTX(void)
 
 	RADIO_SelectCurrentVfo();
 
-	#ifndef DISABLE_ALARM
+	#ifdef ENABLE_ALARM
 		if (gAlarmState == ALARM_STATE_OFF || gAlarmState == ALARM_STATE_TX1750 || (gAlarmState == ALARM_STATE_ALARM && gEeprom.ALARM_MODE == ALARM_MODE_TONE))
 	#endif
 	{
@@ -843,7 +857,7 @@ void RADIO_PrepareTX(void)
 
 		RADIO_SetVfoState(State);
 
-		#ifndef DISABLE_ALARM
+		#ifdef ENABLE_ALARM
 			gAlarmState = ALARM_STATE_OFF;
 		#endif
 
@@ -872,7 +886,7 @@ Skip:
 
 	FUNCTION_Select(FUNCTION_TRANSMIT);
 
-	#ifndef DISABLE_ALARM
+	#ifdef ENABLE_ALARM
 		gTxTimerCountdown = (gAlarmState == ALARM_STATE_OFF) ? gEeprom.TX_TIMEOUT_TIMER * 120 : 0;
 	#else
 		gTxTimerCountdown = gEeprom.TX_TIMEOUT_TIMER * 120;

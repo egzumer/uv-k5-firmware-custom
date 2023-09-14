@@ -28,13 +28,15 @@ extern const uint8_t BITMAP_VOX[18];
 
 extern const uint8_t BITMAP_TDR[12];
 
-#ifndef DISABLE_VOICE
+#ifdef ENABLE_VOICE
 	extern const uint8_t BITMAP_VoicePrompt[9];
 #endif
 
-extern const uint8_t BITMAP_FM[12];
+#ifdef ENABLE_FMRADIO
+	extern const uint8_t BITMAP_FM[12];
+#endif
 
-#ifndef DISABLE_NOAA
+#ifdef ENABLE_NOAA
 	extern const uint8_t BITMAP_NOAA[12];
 #endif
 

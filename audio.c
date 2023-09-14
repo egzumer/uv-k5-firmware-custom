@@ -14,10 +14,14 @@
  *     limitations under the License.
  */
 
-#include "app/fm.h"
+#ifdef ENABLE_FMRADIO
+	#include "app/fm.h"
+#endif
 #include "audio.h"
 #include "bsp/dp32g030/gpio.h"
-#include "driver/bk1080.h"
+#ifdef ENABLE_FMRADIO
+	#include "driver/bk1080.h"
+#endif
 #include "driver/bk4819.h"
 #include "driver/gpio.h"
 #include "driver/system.h"
@@ -27,7 +31,7 @@
 #include "settings.h"
 #include "ui/ui.h"
 
-#ifndef DISABLE_VOICE
+#ifdef ENABLE_VOICE
 
 	static const uint8_t VoiceClipLengthChinese[58] =
 	{
@@ -75,7 +79,7 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 	if (Beep != BEEP_500HZ_60MS_DOUBLE_BEEP && Beep != BEEP_440HZ_500MS && !gEeprom.BEEP_CONTROL)
 		return;
 
-	#ifndef DISABLE_AIRCOPY
+	#ifdef ENABLE_AIRCOPY
 		if (gScreenToDisplay == DISPLAY_AIRCOPY)
 			return;
 	#endif
@@ -93,9 +97,11 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 	if (gCurrentFunction == FUNCTION_POWER_SAVE && gRxIdleMode)
 		BK4819_RX_TurnOn();
 
-	if (gFmRadioMode)
-		BK1080_Mute(true);
-
+	#ifdef ENABLE_FMRADIO
+		if (gFmRadioMode)
+			BK1080_Mute(true);
+	#endif
+	
 	SYSTEM_DelayMs(20);
 
 	switch (Beep)
@@ -155,14 +161,16 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 	if (gEnableSpeaker)
 		GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 
-	if (gFmRadioMode)
-		BK1080_Mute(false);
-
+	#ifdef ENABLE_FMRADIO
+		if (gFmRadioMode)
+			BK1080_Mute(false);
+	#endif
+	
 	if (gCurrentFunction == FUNCTION_POWER_SAVE && gRxIdleMode)
 		BK4819_Sleep();
 }
 
-#ifndef DISABLE_VOICE
+#ifdef ENABLE_VOICE
 
 	void AUDIO_PlayVoice(uint8_t VoiceID)
 	{
@@ -217,9 +225,11 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 			if (gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR)
 				BK4819_SetAF(BK4819_AF_MUTE);
 	
-			if (gFmRadioMode)
-				BK1080_Mute(true);
-	
+			#ifdef ENABLE_FMRADIO
+				if (gFmRadioMode)
+					BK1080_Mute(true);
+			#endif
+			
 			GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 			gVoxResumeCountdown = 2000;
 			SYSTEM_DelayMs(5);
@@ -240,9 +250,11 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 						BK4819_SetAF(BK4819_AF_OPEN);
 				}
 	
-				if (gFmRadioMode)
-					BK1080_Mute(false);
-	
+				#ifdef ENABLE_FMRADIO
+					if (gFmRadioMode)
+						BK1080_Mute(false);
+				#endif
+				
 				if (!gEnableSpeaker)
 					GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 	
@@ -375,9 +387,11 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 				BK4819_SetAF(BK4819_AF_OPEN);
 		}
 	
-		if (gFmRadioMode)
-			BK1080_Mute(false);
-	
+		#ifdef ENABLE_FMRADIO
+			if (gFmRadioMode)
+				BK1080_Mute(false);
+		#endif
+		
 		if (!gEnableSpeaker)
 			GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 	

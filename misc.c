@@ -71,7 +71,7 @@ volatile uint16_t gBatterySaveCountdown = battery_save_count;
 volatile uint16_t gDualWatchCountdown;
 volatile uint16_t gTxTimerCountdown;
 volatile uint16_t gTailNoteEliminationCountdown;
-#ifndef DISABLE_NOAA
+#ifdef ENABLE_NOAA
 	volatile uint16_t gNOAA_Countdown;
 #endif
 
@@ -88,7 +88,7 @@ uint8_t           gReducedService;
 uint8_t           gBatteryVoltageIndex;
 CssScanMode_t     gCssScanMode;
 bool              gUpdateRSSI;
-#ifndef DISABLE_ALARM
+#ifdef ENABLE_ALARM
 	AlarmState_t  gAlarmState;
 #endif
 uint8_t           gVoltageMenuCountdown;
@@ -101,14 +101,18 @@ bool              gFlagResetVfos;
 bool              gRequestSaveVFO;
 uint8_t           gRequestSaveChannel;
 bool              gRequestSaveSettings;
-bool              gRequestSaveFM;
+#ifdef ENABLE_FMRADIO
+	bool          gRequestSaveFM;
+#endif
 bool              gFlagPrepareTX;
 bool              gFlagAcceptSetting;
 bool              gFlagRefreshSetting;
 bool              gFlagSaveVfo;
 bool              gFlagSaveSettings;
 bool              gFlagSaveChannel;
-bool              gFlagSaveFM;
+#ifdef ENABLE_FMRADIO
+	bool          gFlagSaveFM;
+#endif
 uint8_t           gDTMF_RequestPending;
 bool              g_CDCSS_Lost;
 uint8_t           gCDCSSCodeType;
@@ -130,7 +134,7 @@ uint8_t           gCurrentScanList;
 uint8_t           gPreviousMrChannel;
 uint32_t          gRestoreFrequency;
 uint8_t           gRxVfoIsActive;
-#ifndef DISABLE_ALARM
+#ifdef ENABLE_ALARM
 	uint8_t       gAlarmToneCounter;
 	uint16_t      gAlarmRunningCounter;
 #endif
@@ -140,13 +144,13 @@ uint8_t           gPttDebounceCounter;
 uint8_t           gMenuListCount;
 uint8_t           gBackupCROSS_BAND_RX_TX;
 uint8_t           gScanDelay;
-#ifndef DISABLE_AIRCOPY
+#ifdef ENABLE_AIRCOPY
 	uint8_t       gAircopySendCountdown;
 #endif
 uint8_t           gFSKWriteIndex;
 uint8_t           gNeverUsed;
 
-#ifndef DISABLE_NOAA
+#ifdef ENABLE_NOAA
 	bool          gIsNoaaMode;
 	uint8_t       gNoaaChannel;
 #endif
@@ -165,11 +169,13 @@ volatile bool     gNextTimeslice40ms;
 volatile bool     gSchedulePowerSave;
 volatile bool     gBatterySaveCountdownExpired;
 volatile bool     gScheduleDualWatch = true;
-#ifndef DISABLE_NOAA
+#ifdef ENABLE_NOAA
 	volatile bool gScheduleNOAA = true;
 #endif
 volatile bool     gFlagTteComplete;
-volatile bool     gScheduleFM;
+#ifdef ENABLE_FMRADIO
+	volatile bool     gScheduleFM;
+#endif
 
 uint16_t          gCurrentRSSI;
 

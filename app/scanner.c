@@ -57,7 +57,7 @@ static void SCANNER_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			if (gInputBoxIndex < 3)
 			{
-				#ifndef DISABLE_VOICE
+				#ifdef ENABLE_VOICE
 					gAnotherVoiceID = (VOICE_ID_t)Key;
 				#endif
 				return;
@@ -68,7 +68,7 @@ static void SCANNER_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			if (IS_MR_CHANNEL(Channel))
 			{
-				#ifndef DISABLE_VOICE
+				#ifdef ENABLE_VOICE
 					gAnotherVoiceID = (VOICE_ID_t)Key;
 				#endif
 				gShowChPrefix = RADIO_CheckValidChannel(Channel, false, 0);
@@ -96,7 +96,7 @@ static void SCANNER_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 				gFlagStopScan            = true;
 				gVfoConfigureMode        = VFO_CONFIGURE_RELOAD;
 				gFlagResetVfos           = true;
-				#ifndef DISABLE_VOICE
+				#ifdef ENABLE_VOICE
 					gAnotherVoiceID      = VOICE_ID_CANCEL;
 				#endif
 				break;
@@ -113,7 +113,7 @@ static void SCANNER_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 
 			case 2:
 				gScannerEditState     = 0;
-				#ifndef DISABLE_VOICE
+				#ifdef ENABLE_VOICE
 					gAnotherVoiceID   = VOICE_ID_CANCEL;
 				#endif
 				gRequestDisplayScreen = DISPLAY_SCANNER;
@@ -203,7 +203,7 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 			}
 
 			gScanCssState         = SCAN_CSS_STATE_FOUND;
-			#ifndef DISABLE_VOICE
+			#ifdef ENABLE_VOICE
 				gAnotherVoiceID   = VOICE_ID_MEMORY_CHANNEL;
 			#endif
 			gRequestDisplayScreen = DISPLAY_SCANNER;
@@ -256,7 +256,7 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 
 			gTxVfo->CHANNEL_SAVE                      = Channel;
 			gEeprom.ScreenChannel[gEeprom.TX_CHANNEL] = Channel;
-			#ifndef DISABLE_VOICE
+			#ifdef ENABLE_VOICE
 				gAnotherVoiceID                       = VOICE_ID_CONFIRM;
 			#endif
 			gRequestDisplayScreen                     = DISPLAY_SCANNER;
@@ -356,9 +356,9 @@ void SCANNER_Start(void)
 
 	RADIO_SelectVfos();
 
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
-			gRxVfo->CHANNEL_SAVE = FREQ_CHANNEL_FIRST + 5;
+			gRxVfo->CHANNEL_SAVE = FREQ_CHANNEL_FIRST + BAND6_400MHz;
 	#endif
 
 	BackupStep      = gRxVfo->STEP_SETTING;
@@ -371,7 +371,7 @@ void SCANNER_Start(void)
 
 	RADIO_SetupRegisters(true);
 
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		gIsNoaaMode = false;
 	#endif
 

@@ -17,7 +17,7 @@
 #ifndef UI_STATUS_H
 #define UI_STATUS_H
 
-void UI_DisplayStatus(void);
+void UI_DisplayStatus(const bool test_display);
 
 #endif
 

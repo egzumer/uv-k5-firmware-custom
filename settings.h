@@ -82,7 +82,7 @@ enum {
 	ACTION_OPT_LEN
 };
 
-#ifndef DISABLE_VOICE
+#ifdef ENABLE_VOICE
 	enum VOICE_Prompt_t
 	{
 		VOICE_PROMPT_OFF = 0,
@@ -121,7 +121,7 @@ typedef struct {
 	uint8_t               ScreenChannel[2];
 	uint8_t               FreqChannel[2];
 	uint8_t               MrChannel[2];
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		uint8_t           NoaaChannel[2];
 	#endif
 	uint8_t               RX_CHANNEL;
@@ -136,7 +136,7 @@ typedef struct {
 	bool                  KEY_LOCK;
 	bool                  VOX_SWITCH;
 	uint8_t               VOX_LEVEL;
-	#ifndef DISABLE_VOICE
+	#ifdef ENABLE_VOICE
 		VOICE_Prompt_t    VOICE_PROMPT;
 	#endif
 	bool                  BEEP_CONTROL;
@@ -158,18 +158,24 @@ typedef struct {
 
 	uint16_t              VOX1_THRESHOLD;
 	uint16_t              VOX0_THRESHOLD;
-	uint16_t              FM_SelectedFrequency;
-	uint8_t               FM_SelectedChannel;
-	bool                  FM_IsMrMode;
-	uint16_t              FM_FrequencyPlaying;
 
+	#ifdef ENABLE_FMRADIO
+		uint16_t              FM_SelectedFrequency;
+		uint8_t               FM_SelectedChannel;
+		bool                  FM_IsMrMode;
+		uint16_t              FM_FrequencyPlaying;
+	#endif
+	
 	uint8_t               field37_0x32;
 	uint8_t               field38_0x33;
 
-	uint16_t              FM_LowerLimit;
-	uint16_t              FM_UpperLimit;
+	#ifdef ENABLE_FMRADIO
+		uint16_t              FM_LowerLimit;
+		uint16_t              FM_UpperLimit;
+	#endif
+
 	bool                  AUTO_KEYPAD_LOCK;
-	#ifndef DISABLE_ALARM
+	#ifdef ENABLE_ALARM
 		ALARM_Mode_t      ALARM_MODE;
 	#endif
 	POWER_OnDisplayMode_t POWER_ON_DISPLAY_MODE;
@@ -207,7 +213,7 @@ typedef struct {
 	bool                  DTMF_SIDE_TONE;
 	bool                  PERMIT_REMOTE_KILL;
 	int16_t               BK4819_XTAL_FREQ_LOW;
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		bool              NOAA_AUTO_SCAN;
 	#endif
 	uint8_t               VOLUME_GAIN;
@@ -222,7 +228,9 @@ typedef struct {
 
 extern EEPROM_Config_t gEeprom;
 
-void SETTINGS_SaveFM(void);
+#ifdef ENABLE_FMRADIO
+	void SETTINGS_SaveFM(void);
+#endif
 void SETTINGS_SaveVfoIndices(void);
 void SETTINGS_SaveSettings(void);
 void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, uint8_t Mode);

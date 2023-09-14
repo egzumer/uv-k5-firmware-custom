@@ -244,7 +244,7 @@ const uint8_t BITMAP_TDR[] =
 	0b01111111
 };
 
-#ifndef DISABLE_VOICE
+#ifdef ENABLE_VOICE
 	const uint8_t BITMAP_VoicePrompt[] =
 	{
 		0b00000000,
@@ -259,24 +259,26 @@ const uint8_t BITMAP_TDR[] =
 	};
 #endif
 
-const uint8_t BITMAP_FM[] =
-{
-	0b00000000,
-	0b01111111,
-	0b00001001,
-	0b00001001,
-	0b00001001,
-	0b00000001,
+#ifdef ENABLE_FMRADIO
+	const uint8_t BITMAP_FM[] =
+	{
+		0b00000000,
+		0b01111111,
+		0b00001001,
+		0b00001001,
+		0b00001001,
+		0b00000001,
+	
+		0b00000000,
+		0b01111111,
+		0b00000010,
+		0b00001100,
+		0b00000010,
+		0b01111111
+	};
+#endif
 
-	0b00000000,
-	0b01111111,
-	0b00000010,
-	0b00001100,
-	0b00000010,
-	0b01111111
-};
-
-#ifndef DISABLE_NOAA
+#ifdef ENABLE_NOAA
 	const uint8_t BITMAP_NOAA[] =
 	{
 		0b00000000,

@@ -23,7 +23,7 @@ const uint32_t bx_max_Hz = 130000000;	// 1300MHz
 
 const uint32_t LowerLimitFrequencyBandTable[7] =
 {
-	#ifndef RX_ANY_FREQ
+	#ifndef ENABLE_WIDE_RX
 		5000000,
 	#else
 		1800000,
@@ -55,14 +55,14 @@ const uint32_t UpperLimitFrequencyBandTable[7] =
 	34999990,
 	39999990,
 	46999990,
-	#ifndef RX_ANY_FREQ
+	#ifndef ENABLE_WIDE_RX
 		60000000
 	#else
 		130000000
 	#endif
 };
 
-#ifndef DISABLE_NOAA
+#ifdef ENABLE_NOAA
 	const uint32_t NoaaFrequencyTable[10] =
 	{
 		16255000,
@@ -154,7 +154,7 @@ int FREQUENCY_Check(VFO_Info_t *pInfo)
 {
 	const uint32_t Frequency = pInfo->pTX->Frequency;
 
-	#ifndef DISABLE_NOAA
+	#ifdef ENABLE_NOAA
 		if (pInfo->CHANNEL_SAVE >= NOAA_CHANNEL_FIRST)
 			return -1;
 	#endif

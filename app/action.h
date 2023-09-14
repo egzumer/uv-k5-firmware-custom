@@ -24,10 +24,12 @@ void ACTION_Power(void);
 //static void ACTION_Monitor(void)
 void ACTION_Scan(bool bFlag);
 void ACTION_Vox(void);
-#ifndef DISABLE_ALARM
+#ifdef ENABLE_ALARM
 	//static void ACTION_AlarmOr1750(bool b1750)
 #endif
-void ACTION_FM(void);
+#ifdef ENABLE_FMRADIO
+	void ACTION_FM(void);
+#endif
 
 void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 

@@ -14,7 +14,7 @@
  *     limitations under the License.
  */
 
-#ifndef DISABLE_AIRCOPY
+#ifdef ENABLE_AIRCOPY
 
 #include "app/aircopy.h"
 #include "audio.h"
@@ -124,7 +124,7 @@ static void AIRCOPY_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		gRequestDisplayScreen = DISPLAY_AIRCOPY;
 		if (gInputBoxIndex < 6)
 		{
-			#ifndef DISABLE_VOICE
+			#ifdef ENABLE_VOICE
 				gAnotherVoiceID = (VOICE_ID_t)Key;
 			#endif
 			return;
@@ -138,7 +138,7 @@ static void AIRCOPY_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		{
 			if (Frequency >= LowerLimitFrequencyBandTable[i] && Frequency <= UpperLimitFrequencyBandTable[i])
 			{
-				#ifndef DISABLE_VOICE
+				#ifdef ENABLE_VOICE
 					gAnotherVoiceID        = (VOICE_ID_t)Key;
 				#endif
 				gRxVfo->Band               = i;
