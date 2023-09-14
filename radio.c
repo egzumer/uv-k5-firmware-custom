@@ -594,11 +594,36 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 				default:
 				case CODE_TYPE_OFF:
 					BK4819_SetCTCSSFrequency(670);
-					BK4819_Set55HzTailDetection();
+					
+					//#ifndef ENABLE_TAIL_CTCSS_PHASE_SHIFT
+						BK4819_SetTailDetection(550);		// QS's 55Hz tone method
+					//#else
+					//	BK4819_SetTailDetection(670);       // 67Hz
+					//#endif
+
 					InterruptMask = 0
 						| BK4819_REG_3F_CxCSS_TAIL
 						| BK4819_REG_3F_SQUELCH_FOUND
 						| BK4819_REG_3F_SQUELCH_LOST;
+
+					break;
+
+				case CODE_TYPE_CONTINUOUS_TONE:
+					BK4819_SetCTCSSFrequency(CTCSS_Options[Code]);
+
+					//#ifndef ENABLE_TAIL_CTCSS_PHASE_SHIFT
+						BK4819_SetTailDetection(550);		// QS's 55Hz tone method
+					//#else
+					//	BK4819_SetTailDetection(CTCSS_Options[Code]);
+					//#endif
+
+					InterruptMask = 0
+						| BK4819_REG_3F_CxCSS_TAIL
+						| BK4819_REG_3F_CTCSS_FOUND
+						| BK4819_REG_3F_CTCSS_LOST
+						| BK4819_REG_3F_SQUELCH_FOUND
+						| BK4819_REG_3F_SQUELCH_LOST;
+						
 					break;
 
 				case CODE_TYPE_DIGITAL:
@@ -608,17 +633,6 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 						| BK4819_REG_3F_CxCSS_TAIL
 						| BK4819_REG_3F_CDCSS_FOUND
 						| BK4819_REG_3F_CDCSS_LOST
-						| BK4819_REG_3F_SQUELCH_FOUND
-						| BK4819_REG_3F_SQUELCH_LOST;
-					break;
-
-				case CODE_TYPE_CONTINUOUS_TONE:
-					BK4819_SetCTCSSFrequency(CTCSS_Options[Code]);
-					BK4819_Set55HzTailDetection();
-					InterruptMask = 0
-						| BK4819_REG_3F_CxCSS_TAIL
-						| BK4819_REG_3F_CTCSS_FOUND
-						| BK4819_REG_3F_CTCSS_LOST
 						| BK4819_REG_3F_SQUELCH_FOUND
 						| BK4819_REG_3F_SQUELCH_LOST;
 					break;

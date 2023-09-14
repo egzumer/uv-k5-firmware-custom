@@ -9,22 +9,23 @@ Am amazing achievement if you ask me !
 # User customization
 
 This version you can customize at compile time by making various changes to the makefile.
-You can edit those changes by (currently) editing the MakeFile, look for these lines near the top of the file ..
+You can edit those changes by (currently) editing the MakeFile, look for these lines at the top of the file ..
 
-* ENABLE_AIRCOPY         := 0       aircopy
-* ENABLE_FMRADIO         := 0       FM band 2 radio
-* ENABLE_OVERLAY         := 1
-* ENABLE_UART            := 1       serial port
-* ENABLE_NOAA            := 0       NOAA channels
-* ENABLE_VOICE           := 0       voices
-* ENABLE_ALARM           := 0       TX alarms
-* ENABLE_BIG_FREQ        := 0       big font for the frequencies
-* ENABLE_KEEP_MEM_NAME   := 1       maintain the channels name when saving over it
-* ENABLE_CHAN_NAME_FREQ  := 1       show the channels frequency below the channels name/number
-* ENABLE_WIDE_RX         := 1       enable the RX in the full 18MHz to 1300MHz range
-* ENABLE_TX_WHEN_AM      := 0       allow TX when RX set to AM
-* #ENABLE_SINGLE_VFO_CHAN := 1      not yet implemented
-* #ENABLE_BAND_SCOPE      := 1      not yet implemented
+* ENABLE_AIRCOPY                := 0
+* ENABLE_FMRADIO                := 0       FM band 2 radio
+* ENABLE_OVERLAY                := 1
+* ENABLE_UART                   := 1       without this you can't configure the radio with your PC
+* ENABLE_NOAA                   := 0       NOAA channels
+* ENABLE_VOICE                  := 0       strange voices
+* ENABLE_ALARM                  := 0       TX alarms
+* ENABLE_BIG_FREQ               := 0       big font for the frequencies
+* ENABLE_KEEP_MEM_NAME          := 1       maintain the channel name when (re)saving a memory channel
+* ENABLE_CHAN_NAME_FREQ         := 1       show the channel frequency below the channel name/number
+* ENABLE_WIDE_RX                := 1       enable the RX in the full 18MHz to 1300MHz (though frontend is not tuned for full range)
+* ENABLE_TX_WHEN_AM             := 0       allow TX when RX set to AM
+* ENABLE_TAIL_CTCSS_PHASE_SHIFT := 1       use CTCSS tail phase shift rather than QS's 55Hz tone method 
+* #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented
+* #ENABLE_BAND_SCOPE            := 1       not yet implemented
 
 To enable the custom option, set the above option to '1'
 

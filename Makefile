@@ -1,19 +1,23 @@
-TARGET = firmware
 
-ENABLE_AIRCOPY         := 0
-ENABLE_FMRADIO         := 0
-ENABLE_OVERLAY         := 1
-ENABLE_UART            := 1
-ENABLE_NOAA            := 0
-ENABLE_VOICE           := 0
-ENABLE_ALARM           := 0
-ENABLE_BIG_FREQ        := 0
-ENABLE_KEEP_MEM_NAME   := 1
-ENABLE_CHAN_NAME_FREQ  := 1
-ENABLE_WIDE_RX         := 1
-ENABLE_TX_WHEN_AM      := 0
-#ENABLE_SINGLE_VFO_CHAN := 1
-#ENABLE_BAND_SCOPE      := 1
+# compile options
+# you can enable ('1') or disable ('0') any/all of these you like
+ENABLE_AIRCOPY                := 0
+ENABLE_FMRADIO                := 0
+ENABLE_OVERLAY                := 1
+ENABLE_UART                   := 1
+ENABLE_NOAA                   := 0
+ENABLE_VOICE                  := 0
+ENABLE_ALARM                  := 0
+ENABLE_BIG_FREQ               := 0
+ENABLE_KEEP_MEM_NAME          := 1
+ENABLE_CHAN_NAME_FREQ         := 1
+ENABLE_WIDE_RX                := 1
+ENABLE_TX_WHEN_AM             := 0
+ENABLE_TAIL_CTCSS_PHASE_SHIFT := 1
+#ENABLE_SINGLE_VFO_CHAN       := 1
+#ENABLE_BAND_SCOPE            := 1
+
+TARGET = firmware
 
 BSP_DEFINITIONS := $(wildcard hardware/*/*.def)
 BSP_HEADERS := $(patsubst hardware/%,bsp/%,$(BSP_DEFINITIONS))
@@ -42,8 +46,8 @@ ifeq ($(filter $(ENABLE_AIRCOPY) $(ENABLE_UART),1),1)
 	OBJS += driver/crc.o
 endif
 OBJS += driver/eeprom.o
-	ifeq ($(ENABLE_OVERLAY),1)
-OBJS += driver/flash.o
+ifeq ($(ENABLE_OVERLAY),1)
+	OBJS += driver/flash.o
 endif
 OBJS += driver/gpio.o
 OBJS += driver/i2c.o
@@ -104,7 +108,6 @@ OBJS += ui/status.o
 OBJS += ui/ui.o
 OBJS += ui/welcome.o
 OBJS += version.o
-
 OBJS += main.o
 
 ifeq ($(OS),Windows_NT)
@@ -125,6 +128,7 @@ ASFLAGS = -c -mcpu=cortex-m0
 ifeq ($(ENABLE_OVERLAY),1)
 	ASFLAGS += -DENABLE_OVERLAY
 endif
+
 CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
@@ -163,6 +167,9 @@ ifeq ($(ENABLE_WIDE_RX),1)
 endif
 ifeq ($(ENABLE_TX_WHEN_AM),1)
 	CFLAGS  += -DENABLE_TX_WHEN_AM
+endif
+ifeq ($(ENABLE_TAIL_CTCSS_PHASE_SHIFT),1)
+	CFLAGS  += -DENABLE_TAIL_CTCSS_PHASE_SHIFT
 endif
 ifeq ($(ENABLE_SINGLE_VFO_CHAN),1)
 	CFLAGS  += -DENABLE_SINGLE_VFO_CHAN
