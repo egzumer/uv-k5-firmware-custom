@@ -37,7 +37,7 @@
 //	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 //#endif
 
-static void processFKeyFunction(const KEY_Code_t Key)
+static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 {
 	uint8_t Band;
 	uint8_t Vfo = gEeprom.TX_CHANNEL;
@@ -73,8 +73,11 @@ static void processFKeyFunction(const KEY_Code_t Key)
 			gEeprom.FreqChannel[Vfo]   = FREQ_CHANNEL_FIRST + Band;
 			gRequestSaveVFO            = true;
 			gVfoConfigureMode          = VFO_CONFIGURE_RELOAD;
-			gBeepToPlay                = BEEP_1KHZ_60MS_OPTIONAL;
 			gRequestDisplayScreen      = DISPLAY_MAIN;
+
+			if (beep)
+				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+			
 			break;
 
 		case KEY_2:
@@ -95,7 +98,10 @@ static void processFKeyFunction(const KEY_Code_t Key)
 			gRequestSaveSettings  = 1;
 			gFlagReconfigureVfos  = true;
 			gRequestDisplayScreen = DISPLAY_MAIN;
-			gBeepToPlay           = BEEP_1KHZ_60MS_OPTIONAL;
+
+			if (beep)
+				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+			
 			break;
 
 		case KEY_3:
@@ -133,17 +139,22 @@ static void processFKeyFunction(const KEY_Code_t Key)
 				}
 			}
 
-			gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+			if (beep)
+				gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+			
 			break;
 
 		case KEY_4:
 			gWasFKeyPressed          = false;
 			gUpdateStatus            = true;
-			gBeepToPlay              = BEEP_1KHZ_60MS_OPTIONAL;
 			gFlagStartScan           = true;
 			gScanSingleFrequency     = false;
 			gBackupCROSS_BAND_RX_TX  = gEeprom.CROSS_BAND_RX_TX;
 			gEeprom.CROSS_BAND_RX_TX = CROSS_BAND_OFF;
+
+			if (beep)
+				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+		
 			break;
 
 		case KEY_5:
@@ -200,13 +211,16 @@ static void processFKeyFunction(const KEY_Code_t Key)
 				break;
 			}
 
-			gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+			if (beep)
+				gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 			break;
 
 		default:
-			gBeepToPlay     = BEEP_1KHZ_60MS_OPTIONAL;
 			gUpdateStatus   = true;
 			gWasFKeyPressed = false;
+
+			if (beep)
+				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 			break;
 	}
 }
@@ -229,7 +243,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					}
 					gWasFKeyPressed = false;
 					gUpdateStatus   = true;
-					processFKeyFunction(Key);
+					processFKeyFunction(Key, false);
 				}
 			}
 		#endif
@@ -237,14 +251,15 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		return;
 	}
 	
-	gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-
-//	if (!bKeyPressed)
-	if (bKeyPressed)   // wait till the key is released
-		return;
-
+	if (bKeyPressed)
+	{	// key is pressed
+		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;  // beep when key is pressed
+		return;                                 // don't use the key till it's released
+	}
+	
 	if (!gWasFKeyPressed)
-	{
+	{	// F-key wasn't pressed
+
 		uint8_t Vfo = gEeprom.TX_CHANNEL;
 
 		INPUTBOX_Append(Key);
@@ -374,7 +389,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	gWasFKeyPressed = false;
 	gUpdateStatus   = true;
 
-	processFKeyFunction(Key);
+	processFKeyFunction(Key, true);
 }
 
 static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
