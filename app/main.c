@@ -235,10 +235,10 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			{
 				if (gScreenToDisplay == DISPLAY_MAIN)
 				{	// we're going to go straight to the 0-9 key function
-					// without the F-key first being pressed
+					// without the need of the F-key
 					if (gInputBoxIndex > 0)
 					{	// delete any inputted chars
-						gInputBoxIndex = 0;
+						gInputBoxIndex        = 0;
 						gRequestDisplayScreen = DISPLAY_MAIN;
 					}
 					gWasFKeyPressed = false;
@@ -251,11 +251,18 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		return;
 	}
 	
-	if (bKeyPressed)
-	{	// key is pressed
-		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;  // beep when key is pressed
-		return;                                 // don't use the key till it's released
-	}
+	#ifdef ENABLE_MAIN_KEY_HOLD
+		if (bKeyPressed)
+		{	// key is pressed
+			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;  // beep when key is pressed
+			return;                                 // don't use the key till it's released
+		}
+	#else
+		if (!bKeyPressed)
+			return;
+		
+		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+	#endif
 	
 	if (!gWasFKeyPressed)
 	{	// F-key wasn't pressed

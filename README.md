@@ -11,22 +11,24 @@ Am amazing achievement if you ask me !
 This version you can customize at compile time by making various changes to the makefile.
 You can edit those changes by (currently) editing the MakeFile, look for these lines at the top of the file ..
 
-* ENABLE_AIRCOPY                := 0
-* ENABLE_FMRADIO                := 0       FM band 2 RX
-* ENABLE_OVERLAY                := 1
-* ENABLE_UART                   := 1       without this you ENABLE_TAIL_CTCSS_PHASE_SHIFTcan't configure the radio with your PC
-* ENABLE_NOAA                   := 0       NOAA channels
-* ENABLE_VOICE                  := 0       strange voices
-* ENABLE_ALARM                  := 0       TX alarms
-* ENABLE_BIG_FREQ               := 0       big font for the frequencies
-* ENABLE_KEEP_MEM_NAME          := 1       maintain the channel name when (re)saving a memory channel
-* ENABLE_CHAN_NAME_FREQ         := 1       show the channel frequency below the channel name/number
-* ENABLE_WIDE_RX                := 1       enable the RX in the full 18MHz to 1300MHz (though frontend is not tuned for full range)
-* ENABLE_TX_WHEN_AM             := 0       allow TX when RX set to AM
-* ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       use CTCSS tail phase shift rather than QS's 55Hz tone method 
-* ENABLE_MAIN_KEY_HOLD          := 1       keys 0-9 can be held down to bypass having to press the F-key
-* #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented
-* #ENABLE_BAND_SCOPE            := 1       not yet implemented
+```
+ENABLE_AIRCOPY                := 0       easier to just type frequency in
+ENABLE_FMRADIO                := 0       FM band 2 RX
+ENABLE_OVERLAY                := 1
+ENABLE_UART                   := 1       without this you can't configure the radio with your PC
+ENABLE_NOAA                   := 0       NOAA channels
+ENABLE_VOICE                  := 0       strange voices
+ENABLE_ALARM                  := 0       TX alarms
+ENABLE_BIG_FREQ               := 0       big font for the frequencies
+ENABLE_KEEP_MEM_NAME          := 1       maintain the channel name when (re)saving a memory channel
+ENABLE_CHAN_NAME_FREQ         := 1       show the channel frequency below the channel name/number
+ENABLE_WIDE_RX                := 1       enable the RX in the full 18MHz to 1300MHz (though frontend is not tuned for full range)
+ENABLE_TX_WHEN_AM             := 0       allow TX when RX set to AM
+ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       use CTCSS tail phase shift rather than QS's 55Hz tone method 
+ENABLE_MAIN_KEY_HOLD          := 1       keys 0-9 can be held down to bypass having to press the F-key
+#ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented
+#ENABLE_BAND_SCOPE            := 1       not yet implemented
+```
 
 To enable the custom option, set the above option to '1'
 
