@@ -220,10 +220,10 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			if (bKeyPressed)
 			{
 				if (gScreenToDisplay == DISPLAY_MAIN)
-				{	// we're going to go straight to the function key function
-					// without the F-key being first pressed
+				{	// we're going to go straight to the 0-9 key function
+					// without the F-key first being pressed
 					if (gInputBoxIndex > 0)
-					{	// delete last char inputted
+					{	// delete any inputted chars
 						gInputBoxIndex = 0;
 						gRequestDisplayScreen = DISPLAY_MAIN;
 					}
@@ -236,11 +236,12 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 		return;
 	}
-
-	if (!bKeyPressed)
-		return;
-
+	
 	gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
+//	if (!bKeyPressed)
+	if (bKeyPressed)   // wait till the key is released
+		return;
 
 	if (!gWasFKeyPressed)
 	{
