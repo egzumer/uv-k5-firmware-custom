@@ -654,7 +654,7 @@ void BK4819_ExitSubAu(void)
 	// REG_51 <9>   0 Auto CDCSS Bw Mode              1 = Disable                        0 = Enable.
 	// REG_51 <8>   0 Auto CTCSS Bw Mode              0 = Enable                         1 = Disable
 	// REG_51 <6:0> 0 CTCSS/CDCSS Tx Gain1 Tuning     0 = min                            127 = max
-
+	//
 	BK4819_WriteRegister(BK4819_REG_51, 0x0000);
 }
 
@@ -878,7 +878,7 @@ void BK4819_EnableCDCSS(void)
 
 void BK4819_EnableCTCSS(void)
 {
-	#ifdef ENABLE_TAIL_CTCSS_PHASE_SHIFT
+	#ifdef ENABLE_CTCSS_TAIL_PHASE_SHIFT
 		//BK4819_GenTail(1);     // 120° phase shift
 		BK4819_GenTail(2);       // 180° phase shift
 		//BK4819_GenTail(3);     // 240° phase shift

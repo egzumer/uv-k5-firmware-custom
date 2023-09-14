@@ -595,7 +595,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 				case CODE_TYPE_OFF:
 					BK4819_SetCTCSSFrequency(670);
 					
-					//#ifndef ENABLE_TAIL_CTCSS_PHASE_SHIFT
+					//#ifndef ENABLE_CTCSS_TAIL_PHASE_SHIFT
 						BK4819_SetTailDetection(550);		// QS's 55Hz tone method
 					//#else
 					//	BK4819_SetTailDetection(670);       // 67Hz
@@ -611,7 +611,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 				case CODE_TYPE_CONTINUOUS_TONE:
 					BK4819_SetCTCSSFrequency(CTCSS_Options[Code]);
 
-					//#ifndef ENABLE_TAIL_CTCSS_PHASE_SHIFT
+					//#ifndef ENABLE_CTCSS_TAIL_PHASE_SHIFT
 						BK4819_SetTailDetection(550);		// QS's 55Hz tone method
 					//#else
 					//	BK4819_SetTailDetection(CTCSS_Options[Code]);

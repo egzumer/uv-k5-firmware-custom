@@ -16,27 +16,17 @@
 
 #include "dcs.h"
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+#ifndef ARRAY_SIZE
+	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+#endif
 
 // CTCSS Hz * 10
 const uint16_t CTCSS_Options[50] = {
-	#if 0
-		   670,    693,    719, 0x02E8, 0x0302, 0x031D, 0x0339, 0x0356,
-		0x0375, 0x0393, 0x03B4, 0x03CE, 0x03E8, 0x040B, 0x0430, 0x0455,
-		0x047C, 0x04A4, 0x04CE, 0x04F9, 0x0526, 0x0555, 0x0585, 0x05B6,
-		0x05EA, 0x061F, 0x063E, 0x0656, 0x0677, 0x068F, 0x06B1, 0x06CA,
-		0x06ED, 0x0707, 0x072B, 0x0746, 0x076B, 0x0788, 0x07AE, 0x07CB,
-		0x07F3, 0x0811, 0x083B, 0x0885, 0x08D1, 0x08F3, 0x0920, 0x0972,
-		0x09C7, 0x09ED
-	#else
-		 670,  693,  719,  744,  770,  797,  825,  854,
-		 885,  915,  948,  974, 1000, 1035, 1072, 1109,
-		1148, 1188, 1230, 1273, 1318, 1365, 1413, 1462,
-		1514, 1567, 1598, 1622, 1655, 1679, 1713, 1738, 
-		1773, 1799, 1835, 1862, 1899, 1928, 1966, 1995, 
-		2035, 2065, 2107, 2181, 2257, 2291, 2336, 2418,
-		2503, 2541
-	#endif
+	 670,  693,  719,  744,  770,  797,  825,  854,  885,  915,
+	 948,  974, 1000, 1035, 1072, 1109, 1148, 1188, 1230, 1273,
+	1318, 1365, 1413, 1462, 1514, 1567, 1598, 1622, 1655, 1679,
+	1713, 1738, 1773, 1799, 1835, 1862, 1899, 1928, 1966, 1995,
+	2035, 2065, 2107, 2181, 2257, 2291, 2336, 2418, 2503, 2541
 };
 
 const uint16_t DCS_Options[104] = {
@@ -57,53 +47,44 @@ const uint16_t DCS_Options[104] = {
 
 static uint32_t DCS_CalculateGolay(uint32_t CodeWord)
 {
-	uint32_t Word;
-	uint8_t i;
-
-	Word = CodeWord;
-	for (i = 0; i < 12; i++) {
+	unsigned int i;
+	uint32_t Word = CodeWord;
+	for (i = 0; i < 12; i++)
+	{
 		Word <<= 1;
-		if (Word & 0x1000) {
+		if (Word & 0x1000)
 			Word ^= 0x08EA;
-		}
 	}
 	return CodeWord | ((Word & 0x0FFE) << 11);
 }
 
 uint32_t DCS_GetGolayCodeWord(DCS_CodeType_t CodeType, uint8_t Option)
 {
-	uint32_t Code;
-
-	Code = DCS_CalculateGolay(DCS_Options[Option] + 0x800U);
-	if (CodeType == CODE_TYPE_REVERSE_DIGITAL) {
+	uint32_t Code = DCS_CalculateGolay(DCS_Options[Option] + 0x800U);
+	if (CodeType == CODE_TYPE_REVERSE_DIGITAL)
 		Code ^= 0x7FFFFF;
-	}
-
 	return Code;
 }
 
 uint8_t DCS_GetCdcssCode(uint32_t Code)
 {
-	uint8_t i;
-
-	for (i = 0; i < 23; i++) {
+	unsigned int i;
+	for (i = 0; i < 23; i++)
+	{
 		uint32_t Shift;
 
-		if (((Code >> 9) & 0x7U) == 4) {
-			uint8_t j;
-
-			for (j = 0; j < ARRAY_SIZE(DCS_Options); j++) {
-				if (DCS_Options[j] == (Code & 0x1FF)) {
-					if (DCS_GetGolayCodeWord(2, j) == Code) {
+		if (((Code >> 9) & 0x7U) == 4)
+		{
+			unsigned int j;
+			for (j = 0; j < ARRAY_SIZE(DCS_Options); j++)
+				if (DCS_Options[j] == (Code & 0x1FF))
+					if (DCS_GetGolayCodeWord(2, j) == Code)
 						return j;
-					}
-				}
-			}
 		}
+
 		Shift = Code >> 1;
-		if (Code & 1U) {
+		if (Code & 1U)
 			Shift |= 0x400000U;
-		}
 		Code = Shift;
 	}
 
@@ -112,24 +93,21 @@ uint8_t DCS_GetCdcssCode(uint32_t Code)
 
 uint8_t DCS_GetCtcssCode(uint16_t Code)
 {
-	uint8_t i;
-	int Smallest;
-	uint8_t Result = 0xFF;
+	unsigned int i;
+	uint8_t      Result = 0xFF;
+	int          Smallest = ARRAY_SIZE(CTCSS_Options);
 
-	Smallest = ARRAY_SIZE(CTCSS_Options);
-	for (i = 0; i < ARRAY_SIZE(CTCSS_Options); i++) {
-		int Delta;
-
-		Delta = Code - CTCSS_Options[i];
-		if (Delta < 0) {
+	for (i = 0; i < ARRAY_SIZE(CTCSS_Options); i++)
+	{
+		int Delta = Code - CTCSS_Options[i];
+		if (Delta < 0)
 			Delta = -(Code - CTCSS_Options[i]);
-		}
-		if (Delta < Smallest) {
+		if (Smallest > Delta)
+		{
 			Smallest = Delta;
-			Result = i;
+			Result   = i;
 		}
 	}
 
 	return Result;
 }
-
