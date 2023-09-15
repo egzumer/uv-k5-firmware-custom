@@ -22,6 +22,7 @@
 #include "driver/eeprom.h"   // EEPROM_ReadBuffer()
 #include "driver/st7565.h"
 #include "external/printf/printf.h"
+#include "frequencies.h"
 #include "helper/battery.h"
 #include "misc.h"
 #include "settings.h"
@@ -29,6 +30,10 @@
 #include "ui/inputbox.h"
 #include "ui/menu.h"
 #include "ui/ui.h"
+
+#ifndef ARRAY_SIZE
+	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+#endif
 
 const char MenuList[][7] =
 {
@@ -105,30 +110,6 @@ const char MenuList[][7] =
 	
 	""           // end of list
 };
-
-#if 0
-	static const uint16_t gSubMenu_Step[] =
-	{
-		 250,
-		 500,
-		 625,
-		1000,
-		1250,
-		2500,
-		 833
-	};
-#else
-	static const uint16_t gSubMenu_Step[] =
-	{
-		 125,
-		 250,
-		 625,
-		1000,
-		1250,
-		2500,
-		 833
-	};
-#endif
 
 static const char gSubMenu_TXP[3][5] =
 {
@@ -325,7 +306,7 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_STEP:
-			sprintf(String, "%u.%02uKHz", gSubMenu_Step[gSubMenuSelection] / 100, gSubMenu_Step[gSubMenuSelection] % 100);
+			sprintf(String, "%u.%02uKHz", StepFrequencyTable[gSubMenuSelection] / 100, StepFrequencyTable[gSubMenuSelection] % 100);
 			break;
 	
 		case MENU_TXP:

@@ -79,24 +79,26 @@ const uint32_t UpperLimitFrequencyBandTable[7] =
 #endif
 
 #if 0
-	const uint16_t StepFrequencyTable[6] =
+	const uint16_t StepFrequencyTable[7] =
 	{
 		250,
 		500,
 		625,
 		1000,
 		1250,
-		2500
+		2500,
+		833
 	};
 #else
-	const uint16_t StepFrequencyTable[6] =
+	const uint16_t StepFrequencyTable[7] =
 	{
 		125,
 		250,
 		625,
 		1000,
 		1250,
-		2500
+		2500,
+		833
 	};
 #endif
 

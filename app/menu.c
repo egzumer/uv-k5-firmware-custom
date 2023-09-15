@@ -34,6 +34,10 @@
 #include "ui/menu.h"
 #include "ui/ui.h"
 
+#ifndef ARRAY_SIZE
+	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+#endif
+
 #ifdef ENABLE_VOICE
 	static const VOICE_ID_t MenuVoices[] =
 	{
@@ -133,14 +137,9 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 			break;
 
 		case MENU_STEP:
-			if (gTxVfo->Band == BAND2_108MHz)
-			{
-				*pMin = 0;
-				*pMax = 6;
-				break;
-			}
-
-			// Fallthrough
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(StepFrequencyTable) - 1;
+			break;
 
 		case MENU_ABR:
 		case MENU_F_LOCK:

@@ -34,6 +34,10 @@
 #include "radio.h"
 #include "settings.h"
 
+#ifndef ARRAY_SIZE
+	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+#endif
+
 VFO_Info_t    *gTxVfo;
 VFO_Info_t    *gRxVfo;
 VFO_Info_t    *gCurrentVfo;
@@ -254,8 +258,8 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		gEeprom.VfoInfo[VFO].AM_CHANNEL_MODE               = !!(Data[3] & 0x10);
 
 		Tmp = Data[6];
-		if (Tmp > STEP_8_33kHz)
-			Tmp = STEP_25_0kHz;
+		if (Tmp >= ARRAY_SIZE(StepFrequencyTable))
+			Tmp = STEP_12_5kHz;
 		gEeprom.VfoInfo[VFO].STEP_SETTING  = Tmp;
 		gEeprom.VfoInfo[VFO].StepFrequency = StepFrequencyTable[Tmp];
 
