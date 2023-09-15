@@ -196,13 +196,13 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 			uint8_t  State8[8];
 
 			State32[0] = pVFO->ConfigRX.Frequency;
-			State32[1] = pVFO->FREQUENCY_OF_DEVIATION;
+			State32[1] = pVFO->TX_OFFSET_FREQUENCY;
 			EEPROM_WriteBuffer(OffsetVFO + 0, State32);
 
 			State8[0] =  pVFO->ConfigRX.Code;
 			State8[1] =  pVFO->ConfigTX.Code;
 			State8[2] = (pVFO->ConfigTX.CodeType << 4) | pVFO->ConfigRX.CodeType;
-			State8[3] = (pVFO->AM_CHANNEL_MODE   << 4) | pVFO->FREQUENCY_DEVIATION_SETTING;
+			State8[3] = (pVFO->AM_CHANNEL_MODE   << 4) | pVFO->TX_OFFSET_FREQUENCY_DIRECTION;
 			State8[4] = 0
 				| (pVFO->BUSY_CHANNEL_LOCK << 4)
 				| (pVFO->OUTPUT_POWER      << 2)

@@ -128,7 +128,7 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, uint8_t ChannelSave, uint8_t Band, uint32
 	pInfo->ConfigTX.Frequency      = Frequency;
 	pInfo->pRX                     = &pInfo->ConfigRX;
 	pInfo->pTX                     = &pInfo->ConfigTX;
-	pInfo->FREQUENCY_OF_DEVIATION  = 1000000;
+	pInfo->TX_OFFSET_FREQUENCY     = 1000000;
 	#ifdef ENABLE_COMPANDER
 		pInfo->Compander           = false;
 	#endif
@@ -155,10 +155,10 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 	if (!gSetting_350EN)
 	{
 		if (gEeprom.FreqChannel[VFO] == 204)
-			gEeprom.FreqChannel[VFO] = 205;
+			gEeprom.FreqChannel[VFO]++;
 
 		if (gEeprom.ScreenChannel[VFO] == 204)
-			gEeprom.ScreenChannel[VFO] = 205;
+			gEeprom.ScreenChannel[VFO]++;
 	}
 
 	Channel = gEeprom.ScreenChannel[VFO];
@@ -250,8 +250,8 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		Tmp = Data[3] & 0x0F;
 		if (Tmp > 2)
 			Tmp = 0;
-		gEeprom.VfoInfo[VFO].FREQUENCY_DEVIATION_SETTING = Tmp;
-		gEeprom.VfoInfo[VFO].AM_CHANNEL_MODE             = !!(Data[3] & 0x10);
+		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY_DIRECTION = Tmp;
+		gEeprom.VfoInfo[VFO].AM_CHANNEL_MODE               = !!(Data[3] & 0x10);
 
 		Tmp = Data[6];
 		if (Tmp > STEP_8_33kHz)
@@ -321,10 +321,10 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		else
 		{
 			const uint8_t d4 = Data[4];
-			gEeprom.VfoInfo[VFO].FrequencyReverse  = !!(d4       & 0x01);
-			gEeprom.VfoInfo[VFO].CHANNEL_BANDWIDTH = !!(d4       & 0x02);
-			gEeprom.VfoInfo[VFO].OUTPUT_POWER      =   (d4 >> 2) & 0x03;
-			gEeprom.VfoInfo[VFO].BUSY_CHANNEL_LOCK = !!(d4       & 0x10);
+			gEeprom.VfoInfo[VFO].FrequencyReverse  = !!((d4 >> 0) & 1u);
+			gEeprom.VfoInfo[VFO].CHANNEL_BANDWIDTH = !!((d4 >> 1) & 1u);
+			gEeprom.VfoInfo[VFO].OUTPUT_POWER      =   ((d4 >> 2) & 3u);
+			gEeprom.VfoInfo[VFO].BUSY_CHANNEL_LOCK = !!((d4 >> 4) & 1u);
 		}
 
 		if (Data[5] == 0xFF)
@@ -334,8 +334,8 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		}
 		else
 		{
-			gEeprom.VfoInfo[VFO].DTMF_DECODING_ENABLE = !!(Data[5]       & 0x01);
-			gEeprom.VfoInfo[VFO].DTMF_PTT_ID_TX_MODE  =   (Data[5] >> 1) & 0x03;
+			gEeprom.VfoInfo[VFO].DTMF_DECODING_ENABLE = !!((Data[5] >> 0) & 1u);
+			gEeprom.VfoInfo[VFO].DTMF_PTT_ID_TX_MODE  =   ((Data[5] >> 1) & 3u);
 		}
 
 		struct
@@ -348,7 +348,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		pRadio->ConfigRX.Frequency = Info.Frequency;
 		if (Info.Offset >= 100000000)
 			Info.Offset = 1000000;
-		gEeprom.VfoInfo[VFO].FREQUENCY_OF_DEVIATION = Info.Offset;
+		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY = Info.Offset;
 	}
 
 	Frequency = pRadio->ConfigRX.Frequency;
@@ -365,10 +365,10 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 	pRadio->ConfigRX.Frequency = Frequency;
 
 	if (Frequency >= 10800000 && Frequency < 13600000)
-		gEeprom.VfoInfo[VFO].FREQUENCY_DEVIATION_SETTING = FREQUENCY_DEVIATION_OFF;
+		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY_DIRECTION = TX_OFFSET_FREQUENCY_DIRECTION_OFF;
 	else
 	if (!IS_MR_CHANNEL(Channel))
-		gEeprom.VfoInfo[VFO].FREQUENCY_OF_DEVIATION = FREQUENCY_FloorToStep(gEeprom.VfoInfo[VFO].FREQUENCY_OF_DEVIATION, gEeprom.VfoInfo[VFO].StepFrequency, 0);
+		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY = FREQUENCY_FloorToStep(gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY, gEeprom.VfoInfo[VFO].StepFrequency, 0);
 
 	RADIO_ApplyOffset(pRadio);
 
@@ -397,8 +397,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 			pConfig->Frequency = 43300000;
 	}
 
-//	if (gEeprom.VfoInfo[VFO].Band == BAND2_108MHz && gEeprom.VfoInfo[VFO].AM_CHANNEL_MODE)
-	if (gEeprom.VfoInfo[VFO].AM_CHANNEL_MODE) // allow AM on any frequency
+	if (gEeprom.VfoInfo[VFO].AM_CHANNEL_MODE)
 	{
 		gEeprom.VfoInfo[VFO].IsAM                 = true;
 		gEeprom.VfoInfo[VFO].SCRAMBLING_TYPE      = 0;
@@ -466,15 +465,15 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 {
 	uint32_t Frequency = pInfo->ConfigRX.Frequency;
 
-	switch (pInfo->FREQUENCY_DEVIATION_SETTING)
+	switch (pInfo->TX_OFFSET_FREQUENCY_DIRECTION)
 	{
-		case FREQUENCY_DEVIATION_OFF:
+		case TX_OFFSET_FREQUENCY_DIRECTION_OFF:
 			break;
-		case FREQUENCY_DEVIATION_ADD:
-			Frequency += pInfo->FREQUENCY_OF_DEVIATION;
+		case TX_OFFSET_FREQUENCY_DIRECTION_ADD:
+			Frequency += pInfo->TX_OFFSET_FREQUENCY;
 			break;
-		case FREQUENCY_DEVIATION_SUB:
-			Frequency -= pInfo->FREQUENCY_OF_DEVIATION;
+		case TX_OFFSET_FREQUENCY_DIRECTION_SUB:
+			Frequency -= pInfo->TX_OFFSET_FREQUENCY;
 			break;
 	}
 

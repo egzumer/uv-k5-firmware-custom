@@ -44,8 +44,8 @@
 		VOICE_ID_CTCSS,
 		VOICE_ID_DCS,
 		VOICE_ID_CTCSS,
-		VOICE_ID_FREQUENCY_DIRECTION,
-		VOICE_ID_OFFSET_FREQUENCY,
+		VOICE_ID_TX_OFFSET_FREQUENCY_DIRECTION,
+		VOICE_ID_TX_OFFSET_FREQUENCY,
 		VOICE_ID_CHANNEL_BANDWIDTH,
 		VOICE_ID_SCRAMBLER_ON,
 		VOICE_ID_BUSY_LOCKOUT,
@@ -367,13 +367,13 @@ void MENU_AcceptSetting(void)
 			return;
 	
 		case MENU_SFT_D:
-			gTxVfo->FREQUENCY_DEVIATION_SETTING = gSubMenuSelection;
-			gRequestSaveChannel                 = 1;
+			gTxVfo->TX_OFFSET_FREQUENCY_DIRECTION = gSubMenuSelection;
+			gRequestSaveChannel                   = 1;
 			return;
 	
 		case MENU_OFFSET:
-			gTxVfo->FREQUENCY_OF_DEVIATION = gSubMenuSelection;
-			gRequestSaveChannel            = 1;
+			gTxVfo->TX_OFFSET_FREQUENCY = gSubMenuSelection;
+			gRequestSaveChannel         = 1;
 			return;
 	
 		case MENU_W_N:
@@ -738,11 +738,11 @@ void MENU_ShowCurrentSetting(void)
 			break;
 	
 		case MENU_SFT_D:
-			gSubMenuSelection = gTxVfo->FREQUENCY_DEVIATION_SETTING;
+			gSubMenuSelection = gTxVfo->TX_OFFSET_FREQUENCY_DIRECTION;
 			break;
 	
 		case MENU_OFFSET:
-			gSubMenuSelection = gTxVfo->FREQUENCY_OF_DEVIATION;
+			gSubMenuSelection = gTxVfo->TX_OFFSET_FREQUENCY;
 			break;
 	
 		case MENU_W_N:

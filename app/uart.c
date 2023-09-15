@@ -368,16 +368,16 @@ static void CMD_052F(const uint8_t *pBuffer)
 {
 	const CMD_052F_t *pCmd = (const CMD_052F_t *)pBuffer;
 
-	gEeprom.DUAL_WATCH                             = DUAL_WATCH_OFF;
-	gEeprom.CROSS_BAND_RX_TX                       = CROSS_BAND_OFF;
-	gEeprom.RX_CHANNEL                             = 0;
-	gEeprom.DTMF_SIDE_TONE                         = false;
-	gEeprom.VfoInfo[0].FrequencyReverse            = false;
-	gEeprom.VfoInfo[0].pRX                         = &gEeprom.VfoInfo[0].ConfigRX;
-	gEeprom.VfoInfo[0].pTX                         = &gEeprom.VfoInfo[0].ConfigTX;
-	gEeprom.VfoInfo[0].FREQUENCY_DEVIATION_SETTING = FREQUENCY_DEVIATION_OFF;
-	gEeprom.VfoInfo[0].DTMF_PTT_ID_TX_MODE         = PTT_ID_OFF;
-	gEeprom.VfoInfo[0].DTMF_DECODING_ENABLE        = false;
+	gEeprom.DUAL_WATCH                               = DUAL_WATCH_OFF;
+	gEeprom.CROSS_BAND_RX_TX                         = CROSS_BAND_OFF;
+	gEeprom.RX_CHANNEL                               = 0;
+	gEeprom.DTMF_SIDE_TONE                           = false;
+	gEeprom.VfoInfo[0].FrequencyReverse              = false;
+	gEeprom.VfoInfo[0].pRX                           = &gEeprom.VfoInfo[0].ConfigRX;
+	gEeprom.VfoInfo[0].pTX                           = &gEeprom.VfoInfo[0].ConfigTX;
+	gEeprom.VfoInfo[0].TX_OFFSET_FREQUENCY_DIRECTION = TX_OFFSET_FREQUENCY_DIRECTION_OFF;
+	gEeprom.VfoInfo[0].DTMF_PTT_ID_TX_MODE           = PTT_ID_OFF;
+	gEeprom.VfoInfo[0].DTMF_DECODING_ENABLE          = false;
 
 	#ifdef ENABLE_NOAA
 		gIsNoaaMode = false;

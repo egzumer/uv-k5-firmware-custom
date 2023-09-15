@@ -43,14 +43,26 @@
 #include "settings.h"
 #include "sram-overlay.h"
 
+#ifndef ARRAY_SIZE
+	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+#endif
+
 static const uint32_t gDefaultFrequencyTable[] =
 {
-	14502500,
-	14552500,
-	43477500,
-	43502500,
-	43697500
+	14500000,    //
+	14550000,    //
+	43300000,    //
+	43320000,    // 
+	43350000     // 
 };
+
+// BAND1_50MHz
+// BAND2_108MHz
+// BAND3_136MHz
+// BAND4_174MHz
+// BAND5_350MHz
+// BAND6_400MHz
+// BAND7_470MHz
 
 void BOARD_FLASH_Init(void)
 {
@@ -330,16 +342,16 @@ void BOARD_EEPROM_Init(void)
 
 	// 0E70..0E77
 	EEPROM_ReadBuffer(0x0E70, Data, 8);
-	gEeprom.CHAN_1_CALL      = IS_MR_CHANNEL(Data[0]) ? Data[0] : MR_CHANNEL_FIRST;
-	gEeprom.SQUELCH_LEVEL    = (Data[1] < 10) ? Data[1] : 1;
-	gEeprom.TX_TIMEOUT_TIMER = (Data[2] < 11) ? Data[2] : 1;
+	gEeprom.CHAN_1_CALL          = IS_MR_CHANNEL(Data[0]) ? Data[0] : MR_CHANNEL_FIRST;
+	gEeprom.SQUELCH_LEVEL        = (Data[1] < 10) ? Data[1] : 1;
+	gEeprom.TX_TIMEOUT_TIMER     = (Data[2] < 11) ? Data[2] : 1;
 	#ifdef ENABLE_NOAA
 		gEeprom.NOAA_AUTO_SCAN   = (Data[3] <  2) ? Data[3] : false;
 	#endif
-	gEeprom.KEY_LOCK         = (Data[4] <  2) ? Data[4] : false;
-	gEeprom.VOX_SWITCH       = (Data[5] <  2) ? Data[5] : false;
-	gEeprom.VOX_LEVEL        = (Data[6] < 10) ? Data[6] : 1;
-	gEeprom.MIC_SENSITIVITY  = (Data[7] <  5) ? Data[7] : 4;
+	gEeprom.KEY_LOCK             = (Data[4] <  2) ? Data[4] : false;
+	gEeprom.VOX_SWITCH           = (Data[5] <  2) ? Data[5] : false;
+	gEeprom.VOX_LEVEL            = (Data[6] < 10) ? Data[6] : 1;
+	gEeprom.MIC_SENSITIVITY      = (Data[7] <  5) ? Data[7] : 4;
 
 	// 0E78..0E7F
 	EEPROM_ReadBuffer(0x0E78, Data, 8);
@@ -348,12 +360,12 @@ void BOARD_EEPROM_Init(void)
 	#else
 		gEeprom.CHANNEL_DISPLAY_MODE  = (Data[1] < 4) ? Data[1] : MDF_FREQUENCY;
 	#endif
-	gEeprom.CROSS_BAND_RX_TX      = (Data[2] < 3) ? Data[2] : CROSS_BAND_OFF;
-	gEeprom.BATTERY_SAVE          = (Data[3] < 5) ? Data[3] : 4;
-	gEeprom.DUAL_WATCH            = (Data[4] < 3) ? Data[4] : DUAL_WATCH_CHAN_A;
-	gEeprom.BACKLIGHT             = (Data[5] < 6) ? Data[5] : 4;
-	gEeprom.TAIL_NOTE_ELIMINATION = (Data[6] < 2) ? Data[6] : false;
-	gEeprom.VFO_OPEN              = (Data[7] < 2) ? Data[7] : true;
+	gEeprom.CROSS_BAND_RX_TX          = (Data[2] < 3) ? Data[2] : CROSS_BAND_OFF;
+	gEeprom.BATTERY_SAVE              = (Data[3] < 5) ? Data[3] : 4;
+	gEeprom.DUAL_WATCH                = (Data[4] < 3) ? Data[4] : DUAL_WATCH_CHAN_A;
+	gEeprom.BACKLIGHT                 = (Data[5] < 6) ? Data[5] : 4;
+	gEeprom.TAIL_NOTE_ELIMINATION     = (Data[6] < 2) ? Data[6] : false;
+	gEeprom.VFO_OPEN                  = (Data[7] < 2) ? Data[7] : true;
 
 	// 0E80..0E87
 	EEPROM_ReadBuffer(0x0E80, Data, 8);
@@ -515,7 +527,7 @@ void BOARD_EEPROM_Init(void)
 	// 0F30..0F3F
 	EEPROM_ReadBuffer(0x0F30, gCustomAesKey, sizeof(gCustomAesKey));
 	bHasCustomAesKey = false;
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < ARRAY_SIZE(gCustomAesKey); i++)
 	{
 		if (gCustomAesKey[i] != 0xFFFFFFFFu)
 		{
@@ -579,10 +591,11 @@ void BOARD_EEPROM_LoadMoreSettings(void)
 
 void BOARD_FactoryReset(bool bIsAll)
 {
-	uint8_t Template[8];
 	uint16_t i;
+	uint8_t  Template[8];
 
 	memset(Template, 0xFF, sizeof(Template));
+
 	for (i = 0x0C80; i < 0x1E00; i += 8)
 	{
 		if (
@@ -599,15 +612,18 @@ void BOARD_FactoryReset(bool bIsAll)
 				!(i >= 0x0E40 && i < 0x0E70) &&     // FM Channels
 				!(i >= 0x0E88 && i < 0x0E90)        // FM settings
 				))
-			) {
+			)
+		{
 			EEPROM_WriteBuffer(i, Template);
 		}
 	}
 
 	if (bIsAll)
 	{
-		RADIO_InitInfo(gRxVfo, FREQ_CHANNEL_FIRST + 5, 5, 43300000);
-		for (i = 0; i < 5; i++)
+		RADIO_InitInfo(gRxVfo, FREQ_CHANNEL_FIRST + BAND6_400MHz, BAND6_400MHz, 43350000);
+
+		// set the first few memory channels
+		for (i = 0; i < ARRAY_SIZE(gDefaultFrequencyTable); i++)
 		{
 			const uint32_t Frequency   = gDefaultFrequencyTable[i];
 			gRxVfo->ConfigRX.Frequency = Frequency;

@@ -32,7 +32,7 @@ enum FREQUENCY_Band_t
 	BAND4_174MHz,
 	BAND5_350MHz,
 	BAND6_400MHz,
-	BAND7_470MHz,
+	BAND7_470MHz
 };
 
 typedef enum FREQUENCY_Band_t FREQUENCY_Band_t;

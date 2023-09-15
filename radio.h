@@ -23,14 +23,14 @@
 #include "dcs.h"
 
 enum {
-	MR_CH_SCANLIST1 = (1U << 7),
-	MR_CH_SCANLIST2 = (1U << 6),
-	MR_CH_BAND_MASK = 0x0FU,
+	MR_CH_SCANLIST1 = (1u << 7),
+	MR_CH_SCANLIST2 = (1u << 6),
+	MR_CH_BAND_MASK = 0x0Fu
 };
 
 enum {
-	RADIO_CHANNEL_UP   = 0x01U,
-	RADIO_CHANNEL_DOWN = 0xFFU,
+	RADIO_CHANNEL_UP   = 0x01u,
+	RADIO_CHANNEL_DOWN = 0xFFu,
 };
 
 enum {
@@ -56,7 +56,7 @@ typedef enum PTT_ID_t PTT_ID_t;
 		STEP_10_0kHz,
 		STEP_12_5kHz,
 		STEP_25_0kHz,
-		STEP_8_33kHz,
+		STEP_8_33kHz
 	};
 #else
 	enum STEP_Setting_t
@@ -67,7 +67,7 @@ typedef enum PTT_ID_t PTT_ID_t;
 		STEP_10_0kHz,
 		STEP_12_5kHz,
 		STEP_25_0kHz,
-		STEP_8_33kHz,
+		STEP_8_33kHz
 	};
 #endif
 
@@ -100,10 +100,10 @@ typedef struct VFO_Info_t
 	FREQ_Config_t  ConfigTX;
 	FREQ_Config_t *pRX;
 	FREQ_Config_t *pTX;
-	uint32_t       FREQUENCY_OF_DEVIATION;
+	uint32_t       TX_OFFSET_FREQUENCY;
 	uint16_t       StepFrequency;
 	uint8_t        CHANNEL_SAVE;
-	uint8_t        FREQUENCY_DEVIATION_SETTING;
+	uint8_t        TX_OFFSET_FREQUENCY_DIRECTION;
 	uint8_t        SquelchOpenRSSIThresh;
 	uint8_t        SquelchOpenNoiseThresh;
 	uint8_t        SquelchCloseGlitchThresh;

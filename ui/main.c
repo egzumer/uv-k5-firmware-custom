@@ -445,9 +445,9 @@ void UI_DisplayMain(void)
 
 		if (gEeprom.VfoInfo[vfo_num].ConfigRX.Frequency != gEeprom.VfoInfo[vfo_num].ConfigTX.Frequency)
 		{	// show the TX offset symbol
-			if (gEeprom.VfoInfo[vfo_num].FREQUENCY_DEVIATION_SETTING == FREQUENCY_DEVIATION_ADD)
+			if (gEeprom.VfoInfo[vfo_num].TX_OFFSET_FREQUENCY_DIRECTION == TX_OFFSET_FREQUENCY_DIRECTION_ADD)
 				memcpy(pLine1 + display_width + 54, BITMAP_Add, sizeof(BITMAP_Add));
-			if (gEeprom.VfoInfo[vfo_num].FREQUENCY_DEVIATION_SETTING == FREQUENCY_DEVIATION_SUB)
+			if (gEeprom.VfoInfo[vfo_num].TX_OFFSET_FREQUENCY_DIRECTION == TX_OFFSET_FREQUENCY_DIRECTION_SUB)
 				memcpy(pLine1 + display_width + 54, BITMAP_Sub, sizeof(BITMAP_Sub));
 		}
 
