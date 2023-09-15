@@ -14,6 +14,8 @@
  *     limitations under the License.
  */
 
+#include <string.h>
+
 #ifdef ENABLE_AIRCOPY
 	#include "app/aircopy.h"
 #endif
@@ -31,16 +33,14 @@
 
 BOOT_Mode_t BOOT_GetMode(void)
 {
-	KEY_Code_t   Keys[2];
 	unsigned int i;
+	KEY_Code_t   Keys[2];
 
 	for (i = 0; i < 2; i++)
 	{
 		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
 			return BOOT_MODE_NORMAL;
-
 		Keys[i] = KEYBOARD_Poll();
-
 		SYSTEM_DelayMs(20);
 	}
 
@@ -66,20 +66,11 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 {
 	if (Mode == BOOT_MODE_F_LOCK)
 	{
+		gMenuListCount    += 6;               // enable the last 6 menu items
 		gMenuCursor        = MENU_350TX;
 		gSubMenuSelection  = gSetting_350TX;
 		GUI_SelectNextDisplay(DISPLAY_MENU);
 		gF_LOCK            = true;
-		gMenuListCount     = 57;
-		#ifndef ENABLE_VOICE
-			gMenuListCount--;
-		#endif
-		#ifndef ENABLE_ALARM
-			gMenuListCount--;
-		#endif
-		#ifndef ENABLE_NOAA
-			gMenuListCount--;
-		#endif
 	}
 	#ifdef ENABLE_AIRCOPY
 		else
@@ -113,5 +104,7 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 		}
 	#endif
 	else
+	{
 		GUI_SelectNextDisplay(DISPLAY_MAIN);
+	}
 }

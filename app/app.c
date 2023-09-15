@@ -16,6 +16,7 @@
 
 #include <string.h>
 
+#include "scheduler.h"
 #include "app/action.h"
 #ifdef ENABLE_AIRCOPY
 	#include "app/aircopy.h"
@@ -1172,6 +1173,12 @@ void APP_CheckKeys(void)
 void APP_TimeSlice10ms(void)
 {
 	gFlashLightBlinkCounter++;
+
+	#ifdef ENABLE_BOOT_BEEPS
+		if (boot_counter < 255)
+			if ((boot_counter % 25) == 0)
+				AUDIO_PlayBeep(BEEP_440HZ_40MS_OPTIONAL);
+	#endif
 
 	if (UART_IsCommandAvailable())
 	{

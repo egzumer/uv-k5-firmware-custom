@@ -68,7 +68,7 @@
 	
 #endif
 
-BEEP_Type_t gBeepToPlay;
+BEEP_Type_t gBeepToPlay = BEEP_NONE;
 
 void AUDIO_PlayBeep(BEEP_Type_t Beep)
 {
@@ -76,7 +76,9 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 	uint16_t ToneFrequency;
 	uint16_t Duration;
 
-	if (Beep != BEEP_500HZ_60MS_DOUBLE_BEEP && Beep != BEEP_440HZ_500MS && !gEeprom.BEEP_CONTROL)
+	if (Beep != BEEP_500HZ_60MS_DOUBLE_BEEP &&
+	    Beep != BEEP_440HZ_500MS &&
+		!gEeprom.BEEP_CONTROL)
 		return;
 
 	#ifdef ENABLE_AIRCOPY
@@ -106,6 +108,10 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 
 	switch (Beep)
 	{
+		default:
+		case BEEP_NONE:
+			ToneFrequency = 220;
+			break;
 		case BEEP_1KHZ_60MS_OPTIONAL:
 			ToneFrequency = 1000;
 			break;
@@ -113,7 +119,8 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 		case BEEP_500HZ_60MS_DOUBLE_BEEP:
 			ToneFrequency = 500;
 			break;
-		default:
+		case BEEP_440HZ_40MS_OPTIONAL:
+		case BEEP_440HZ_500MS:
 			ToneFrequency = 440;
 			break;
 	}
@@ -134,11 +141,19 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 			SYSTEM_DelayMs(60);
 			BK4819_EnterTxMute();
 			SYSTEM_DelayMs(20);
+
 			// Fallthrough
+
 		case BEEP_1KHZ_60MS_OPTIONAL:
 			BK4819_ExitTxMute();
 			Duration = 60;
 			break;
+
+		case BEEP_440HZ_40MS_OPTIONAL:
+			BK4819_ExitTxMute();
+			Duration = 40;
+			break;
+			
 		case BEEP_440HZ_500MS:
 		default:
 			BK4819_ExitTxMute();

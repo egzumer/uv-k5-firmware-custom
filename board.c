@@ -407,7 +407,7 @@ void BOARD_EEPROM_Init(void)
 		gEeprom.SCAN_RESUME_MODE         = (Data[5] < 3)              ? Data[5] : SCAN_RESUME_CO;
 	#endif
 	gEeprom.AUTO_KEYPAD_LOCK             = (Data[6] < 2)              ? Data[6] : false;
-	gEeprom.POWER_ON_DISPLAY_MODE        = (Data[7] < 3)              ? Data[7] : POWER_ON_DISPLAY_MODE_VOLTAGE;
+	gEeprom.POWER_ON_DISPLAY_MODE        = (Data[7] < 4)              ? Data[7] : POWER_ON_DISPLAY_MODE_VOLTAGE;
 
 	// 0E98..0E9F
 	EEPROM_ReadBuffer(0x0E98, Data, 8);

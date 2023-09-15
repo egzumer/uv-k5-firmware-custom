@@ -30,7 +30,7 @@
 #include "ui/menu.h"
 #include "ui/ui.h"
 
-static const char MenuList[][7] =
+const char MenuList[][7] =
 {
 	"SQL",
     "Step",
@@ -98,7 +98,9 @@ static const char MenuList[][7] =
 	"200-TX",    // was "200TX"
 	"500-TX",    // was "500TX"
 	"350-EN",    // was "350EN"
-	"SCR-EN"     // was "SCREN"
+	"SCR-EN",    // was "SCREN"
+	
+	""           // indicate end of list
 };
 
 #if 0
@@ -224,11 +226,12 @@ static const char gSubMenu_PTT_ID[4][5] =
 	"BOTH",
 };
 
-static const char gSubMenu_PONMSG[3][5] =
+static const char gSubMenu_PONMSG[4][5] =
 {
 	"FULL",
 	"MSG",
 	"VOL",
+	"NONE"
 };
 
 static const char gSubMenu_ROGER[3][6] =

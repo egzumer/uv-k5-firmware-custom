@@ -165,10 +165,14 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 			case MENU_VOICE:
 		#endif
 		case MENU_SC_REV:
-		case MENU_PONMSG:
 		case MENU_ROGER:
 			*pMin = 0;
 			*pMax = 2;
+			break;
+
+		case MENU_PONMSG:
+			*pMin = 0;
+			*pMax = 3;
 			break;
 
 		case MENU_R_DCS:

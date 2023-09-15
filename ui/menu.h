@@ -87,11 +87,13 @@ enum
 	MENU_SCREN
 };
 
-extern bool     gIsInSubMenu;
+extern const char MenuList[][7];
 
-extern uint8_t  gMenuCursor;
-extern int8_t   gMenuScrollDirection;
-extern uint32_t gSubMenuSelection;
+extern bool       gIsInSubMenu;
+
+extern uint8_t    gMenuCursor;
+extern int8_t     gMenuScrollDirection;
+extern uint32_t   gSubMenuSelection;
 
 void UI_DisplayMenu(void);
 

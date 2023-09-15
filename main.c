@@ -16,6 +16,7 @@
 
 #include <string.h>
 
+#include "scheduler.h"
 #include "app/app.h"
 #include "app/dtmf.h"
 #include "audio.h"
@@ -35,6 +36,7 @@
 #include "settings.h"
 #include "ui/lock.h"
 #include "ui/welcome.h"
+#include "ui/menu.h"
 #include "version.h"
 
 #ifndef ARRAY_SIZE
@@ -48,6 +50,8 @@ void _putchar(char c)
 
 void Main(void)
 {
+	unsigned int i;
+
 	// Enable clock gating of blocks we need
 	SYSCON_DEV_CLK_GATE = 0
 		| SYSCON_DEV_CLK_GATE_GPIOA_BITS_ENABLE
@@ -87,14 +91,13 @@ void Main(void)
 
 	RADIO_SetupRegisters(true);
 
-	{
-		unsigned int i;
-		for (i = 0; i < ARRAY_SIZE(gBatteryVoltages); i++)
-			BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[i], &gBatteryCurrent);
-	}
+	for (i = 0; i < ARRAY_SIZE(gBatteryVoltages); i++)
+		BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[i], &gBatteryCurrent);
 	
 	BATTERY_GetReadings(false);
 
+	gMenuListCount = 0;
+	
 	if (!gChargingWithTypeC && !gBatteryDisplayLevel)
 	{
 		FUNCTION_Select(FUNCTION_POWER_SAVE);
@@ -108,24 +111,26 @@ void Main(void)
 	}
 	else
 	{
-		BOOT_Mode_t BootMode;
+		BOOT_Mode_t  BootMode;
+
+		// count the number of menu list items
+		while (MenuList[gMenuListCount][0] != 0)
+			gMenuListCount++;
+		gMenuListCount -= 6;
 
 		UI_DisplayWelcome();
-
 		BACKLIGHT_TurnOn();
 
-		SYSTEM_DelayMs(2000);
-
-		gMenuListCount = 51;
-		#ifndef ENABLE_ALARM
-			gMenuListCount--;
-		#endif
-		#ifndef ENABLE_VOICE
-			gMenuListCount--;
-		#endif
-		#ifndef ENABLE_NOAA
-			gMenuListCount--;
-		#endif
+		if (gEeprom.POWER_ON_DISPLAY_MODE != POWER_ON_DISPLAY_MODE_NONE)
+		{	// 2.55 second boot-up screen
+			while (boot_counter < 255)
+			{
+				#ifdef ENABLE_BOOT_BEEPS
+					if ((boot_counter % 25) == 0)
+						AUDIO_PlayBeep(BEEP_440HZ_40MS_OPTIONAL);
+				#endif
+			}
+		}
 		
 		BootMode = BOOT_GetMode();
 

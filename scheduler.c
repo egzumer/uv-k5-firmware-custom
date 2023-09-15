@@ -14,6 +14,7 @@
  *     limitations under the License.
  */
 
+#include "scheduler.h"
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
@@ -38,6 +39,7 @@
 	} while(0)
 
 static volatile uint32_t gGlobalSysTickCounter;
+volatile uint8_t         boot_counter = 0;
 
 void SystickHandler(void);
 
@@ -45,7 +47,7 @@ void SystickHandler(void);
 void SystickHandler(void)
 {
 	gGlobalSysTickCounter++;
-
+	
 	gNextTimeslice = true;
 
 	if ((gGlobalSysTickCounter % 50) == 0)
@@ -101,4 +103,7 @@ void SystickHandler(void)
 
 	if (gVoxStopCountdown)
 		gVoxStopCountdown--;
+
+	if (boot_counter < 255)
+		boot_counter++;
 }
