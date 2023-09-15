@@ -161,8 +161,6 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			break;
 
 		case KEY_5:
-			// TODO: something wrong here !!
-
 			#ifdef ENABLE_NOAA
 				if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 				{
@@ -175,16 +173,9 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 						gAnotherVoiceID = VOICE_ID_FREQUENCY_MODE;
 					#endif
 				}
-			#else
-				//gEeprom.ScreenChannel[Vfo] = gEeprom.NoaaChannel[gEeprom.TX_CHANNEL];
-				gEeprom.ScreenChannel[Vfo] = gEeprom.FreqChannel[gEeprom.TX_CHANNEL];
-				#ifdef ENABLE_VOICE
-					gAnotherVoiceID = VOICE_ID_FREQUENCY_MODE;
-				#endif
+				gRequestSaveVFO   = true;
+				gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
 			#endif
-
-			gRequestSaveVFO   = true;
-			gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
 			break;
 
 		case KEY_6:

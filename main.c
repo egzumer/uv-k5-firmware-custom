@@ -128,7 +128,7 @@ void Main(void)
 			{
 				#ifdef ENABLE_BOOT_BEEPS
 					if ((boot_counter % 25) == 0)
-						AUDIO_PlayBeep(BEEP_440HZ_40MS_OPTIONAL);
+						AUDIO_PlayBeep(BEEP_880HZ_40MS_OPTIONAL);
 				#endif
 			}
 		}

@@ -36,11 +36,12 @@ To enable the custom option, set the above option to '1'
 
 # Some other changes made
 
-* Various bugs fixed that the QS firmware had
+* Various original QS firmware bugs fixed
 * Added new bugs
 * Finer RSSI bar steps
 * Nicer/cleaner big numeric font than original QS big numeric font
 * Various menu re-wordings - trying to reduce 'WTH does that mean ?'
+* Extra menu items (including hidden menu freq calibration)
 * plus others
 
 # Compiler

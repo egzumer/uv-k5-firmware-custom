@@ -475,9 +475,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 
 void APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
 {
-	uint32_t Frequency;
-
-	Frequency = pInfo->ConfigRX.Frequency + (Step * pInfo->StepFrequency);
+	uint32_t Frequency = pInfo->ConfigRX.Frequency + (Step * pInfo->StepFrequency);
 
 	if (pInfo->StepFrequency == 833)
 	{
@@ -493,12 +491,12 @@ void APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
 	}
 
 	if (Frequency > UpperLimitFrequencyBandTable[pInfo->Band])
-		pInfo->ConfigRX.Frequency = LowerLimitFrequencyBandTable[pInfo->Band];
+		Frequency = LowerLimitFrequencyBandTable[pInfo->Band];
 	else
 	if (Frequency < LowerLimitFrequencyBandTable[pInfo->Band])
-		pInfo->ConfigRX.Frequency = FREQUENCY_FloorToStep(UpperLimitFrequencyBandTable[pInfo->Band], pInfo->StepFrequency, LowerLimitFrequencyBandTable[pInfo->Band]);
-	else
-		pInfo->ConfigRX.Frequency = Frequency;
+		Frequency = FREQUENCY_FloorToStep(UpperLimitFrequencyBandTable[pInfo->Band], pInfo->StepFrequency, LowerLimitFrequencyBandTable[pInfo->Band]);
+
+	pInfo->ConfigRX.Frequency = Frequency;
 }
 
 static void FREQ_NextChannel(void)
@@ -1201,7 +1199,7 @@ void APP_TimeSlice10ms(void)
 	#ifdef ENABLE_BOOT_BEEPS
 		if (boot_counter < 255)
 			if ((boot_counter % 25) == 0)
-				AUDIO_PlayBeep(BEEP_440HZ_40MS_OPTIONAL);
+				AUDIO_PlayBeep(BEEP_880HZ_40MS_OPTIONAL);
 	#endif
 
 	if (UART_IsCommandAvailable())
