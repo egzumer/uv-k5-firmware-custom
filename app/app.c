@@ -475,15 +475,30 @@ void APP_StartListening(FUNCTION_Type_t Function)
 
 void APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
 {
-	uint32_t Frequency = pInfo->ConfigRX.Frequency + (Step * pInfo->StepFrequency);
+	uint32_t Frequency;
 
-	if (Frequency < LowerLimitFrequencyBandTable[pInfo->Band])
-		Frequency = FREQUENCY_FloorToStep(UpperLimitFrequencyBandTable[pInfo->Band], pInfo->StepFrequency, LowerLimitFrequencyBandTable[pInfo->Band]);
-	else
+	Frequency = pInfo->ConfigRX.Frequency + (Step * pInfo->StepFrequency);
+
+	if (pInfo->StepFrequency == 833)
+	{
+		const uint32_t Lower = LowerLimitFrequencyBandTable[pInfo->Band];
+		const uint32_t Delta = Frequency - Lower;
+		uint32_t       Base  = (Delta / 2500) * 2500;
+		const uint32_t Index = ((Delta - Base) % 2500) / 833;
+
+		if (Index == 2)
+			Base++;
+
+		Frequency = Lower + Base + (Index * 833);
+	}
+
 	if (Frequency > UpperLimitFrequencyBandTable[pInfo->Band])
-		Frequency = LowerLimitFrequencyBandTable[pInfo->Band];
-
-	pInfo->ConfigRX.Frequency = Frequency;
+		pInfo->ConfigRX.Frequency = LowerLimitFrequencyBandTable[pInfo->Band];
+	else
+	if (Frequency < LowerLimitFrequencyBandTable[pInfo->Band])
+		pInfo->ConfigRX.Frequency = FREQUENCY_FloorToStep(UpperLimitFrequencyBandTable[pInfo->Band], pInfo->StepFrequency, LowerLimitFrequencyBandTable[pInfo->Band]);
+	else
+		pInfo->ConfigRX.Frequency = Frequency;
 }
 
 static void FREQ_NextChannel(void)
@@ -614,6 +629,14 @@ void APP_CheckRadioInterrupts(void)
 		// fetch the interrupt status bits
 		interrupt_status_bits = BK4819_ReadRegister(BK4819_REG_02);
 
+		// 0 = no phase shift
+		// 1 = 120deg phase shift
+		// 2 = 180deg phase shift
+		// 3 = 240deg phase shift
+//		const uint8_t ctcss_shift = BK4819_GetCTCShift();
+//		if (ctcss_shift > 0)
+//			g_CTCSS_Lost = true;
+		
 		if (interrupt_status_bits & BK4819_REG_02_DTMF_5TONE_FOUND)
 		{
 			gDTMF_RequestPending = true;

@@ -1028,12 +1028,17 @@ uint8_t BK4819_GetDTMF_5TONE_Code(void)
 
 uint8_t BK4819_GetCDCSSCodeType(void)
 {
-	return (BK4819_ReadRegister(BK4819_REG_0C) >> 14) & 3;
+	return (BK4819_ReadRegister(BK4819_REG_0C) >> 14) & 3u;
+}
+
+uint8_t BK4819_GetCTCShift(void)
+{
+	return (BK4819_ReadRegister(BK4819_REG_0C) >> 12) & 3u;
 }
 
 uint8_t BK4819_GetCTCType(void)
 {
-	return (BK4819_ReadRegister(BK4819_REG_0C) >> 10) & 3;
+	return (BK4819_ReadRegister(BK4819_REG_0C) >> 10) & 3u;
 }
 
 void BK4819_SendFSKData(uint16_t *pData)

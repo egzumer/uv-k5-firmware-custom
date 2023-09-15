@@ -24,6 +24,8 @@
 #include "board.h"
 #include "bsp/dp32g030/gpio.h"
 #include "driver/backlight.h"
+#include "driver/bk4819.h"
+#include "driver/eeprom.h"
 #include "driver/gpio.h"
 #include "driver/keyboard.h"
 #include "frequencies.h"
@@ -61,9 +63,9 @@
 		VOICE_ID_INVALID,
 		VOICE_ID_BEEP_PROMPT,
 		VOICE_ID_TRANSMIT_OVER_TIME,
-//		#ifdef ENABLE_VOICE
+		#ifdef ENABLE_VOICE
 			VOICE_ID_VOICE_PROMPT,
-//		#endif
+		#endif
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
@@ -72,6 +74,9 @@
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
+		#ifdef ENABLE_COMPANDER
+			VOICE_ID_INVALID,
+		#endif
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
@@ -98,11 +103,16 @@
 		#endif
 		VOICE_ID_DELETE_CHANNEL,
 		VOICE_ID_INITIALISATION,
+
+		// hidden items
+		
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
+		VOICE_ID_INVALID,
+
 		VOICE_ID_INVALID
 	};
 #endif
@@ -127,7 +137,7 @@ void MENU_StopCssScan(void)
 	RADIO_SetupRegisters(true);
 }
 
-int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
+int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 {
 	switch (Cursor)
 	{
@@ -304,7 +314,12 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 			*pMin = 1;
 			*pMax = 16;
 			break;
-			
+
+		case MENU_F_CALI:
+			*pMin = -1000;
+			*pMax = +1000;
+			break;
+		
 		default:
 			return -1;
 	}
@@ -314,8 +329,8 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 
 void MENU_AcceptSetting(void)
 {
-	uint8_t        Min;
-	uint8_t        Max;
+	int32_t        Min;
+	int32_t        Max;
 	uint8_t        Code;
 	FREQ_Config_t *pConfig = &gTxVfo->ConfigRX;
 
@@ -656,7 +671,28 @@ void MENU_AcceptSetting(void)
 			gRequestSaveSettings    = true;
 			gFlagReconfigureVfos    = true;
 			return;
-	
+
+		case MENU_F_CALI:
+			gEeprom.BK4819_XTAL_FREQ_LOW = gSubMenuSelection;
+			BK4819_WriteRegister(BK4819_REG_3B, 22656 + gEeprom.BK4819_XTAL_FREQ_LOW);
+			{
+				struct
+				{
+					int16_t  BK4819_XtalFreqLow;
+					uint16_t EEPROM_1F8A;
+					uint16_t EEPROM_1F8C;
+					uint8_t  VOLUME_GAIN;
+					uint8_t  DAC_GAIN;
+				} __attribute__((packed)) Misc;
+		
+				// radio 1 .. 04 00 46 00 50 00 2C 0E
+				// radio 2 .. 05 00 46 00 50 00 2C 0E
+				EEPROM_ReadBuffer(0x1F88, &Misc, 8);
+				Misc.BK4819_XtalFreqLow = gEeprom.BK4819_XTAL_FREQ_LOW;
+				EEPROM_WriteBuffer(0x1F88, &Misc);
+			}
+			return;
+			
 		default:
 			return;
 	}
@@ -666,13 +702,14 @@ void MENU_AcceptSetting(void)
 
 void MENU_SelectNextCode(void)
 {
-	uint8_t UpperLimit;
+	int32_t UpperLimit;
 
 	if (gMenuCursor == MENU_R_DCS)
 		UpperLimit = 208;
+		//UpperLimit = ARRAY_SIZE(DCS_Options);
 	else
 	if (gMenuCursor == MENU_R_CTCS)
-		UpperLimit = 50;
+		UpperLimit = ARRAY_SIZE(CTCSS_Options) - 1;
 	else
 		return;
 
@@ -707,11 +744,11 @@ void MENU_SelectNextCode(void)
 
 static void MENU_ClampSelection(int8_t Direction)
 {
-	uint8_t Min;
-	uint8_t Max;
+	int32_t Min;
+	int32_t Max;
 	if (!MENU_GetLimits(gMenuCursor, &Min, &Max))
 	{
-		uint8_t Selection = gSubMenuSelection;
+		int32_t Selection = gSubMenuSelection;
 		if (Selection < Min) Selection = Min;
 		else
 		if (Selection > Max) Selection = Max;
@@ -976,6 +1013,10 @@ void MENU_ShowCurrentSetting(void)
 		case MENU_SCREN:
 			gSubMenuSelection = gSetting_ScrambleEnable;
 			break;
+
+		case MENU_F_CALI:
+			gSubMenuSelection = gEeprom.BK4819_XTAL_FREQ_LOW;
+			break;
 	}
 }
 
@@ -1073,8 +1114,8 @@ static void MENU_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		}
 		else
 		{
-			uint8_t Min;
-			uint8_t Max;
+			int32_t Min;
+			int32_t Max;
 
 			if (!MENU_GetLimits(gMenuCursor, &Min, &Max))
 			{
@@ -1322,12 +1363,16 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 		case MENU_1_CALL:
 			bCheckScanList = false;
 			break;
+
 		case MENU_SLIST2:
 			VFO = 1;
+
 			// Fallthrough
+
 		case MENU_SLIST1:
 			bCheckScanList = true;
 			break;
+
 		default:
 			MENU_ClampSelection(Direction);
 			gRequestDisplayScreen = DISPLAY_MENU;
@@ -1361,7 +1406,7 @@ void MENU_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			MENU_Key_MENU(bKeyPressed, bKeyHeld);
 			break;
 		case KEY_UP:
-			MENU_Key_UP_DOWN(bKeyPressed, bKeyHeld, 1);
+			MENU_Key_UP_DOWN(bKeyPressed, bKeyHeld,  1);
 			break;
 		case KEY_DOWN:
 			MENU_Key_UP_DOWN(bKeyPressed, bKeyHeld, -1);

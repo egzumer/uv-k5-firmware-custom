@@ -19,7 +19,7 @@
 
 #include "driver/keyboard.h"
 
-int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax);
+int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax);
 void MENU_AcceptSetting(void);
 void MENU_SelectNextCode(void);
 void MENU_ShowCurrentSetting(void);

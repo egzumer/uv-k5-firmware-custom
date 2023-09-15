@@ -15,10 +15,12 @@
  */
 
 #include <string.h>
+#include <stdlib.h>  // abs()
 
 #include "app/dtmf.h"
 #include "bitmaps.h"
 #include "dcs.h"
+#include "driver/bk4819.h"
 #include "driver/eeprom.h"   // EEPROM_ReadBuffer()
 #include "driver/st7565.h"
 #include "external/printf/printf.h"
@@ -107,7 +109,9 @@ const char MenuList[][7] =
 	"500-TX",    // was "500TX"
 	"350-EN",    // was "350EN"
 	"SCR-EN",    // was "SCREN"
-	
+
+	"F-CALI",    // reference xtal calibration
+
 	""           // end of list
 };
 
@@ -241,10 +245,10 @@ const char gSubMenu_F_LOCK[6][4] =
 	"438"
 };
 
-bool     gIsInSubMenu;
-uint8_t  gMenuCursor;
-int8_t   gMenuScrollDirection;
-uint32_t gSubMenuSelection;
+bool    gIsInSubMenu;
+uint8_t gMenuCursor;
+int8_t  gMenuScrollDirection;
+int32_t gSubMenuSelection;
 
 void UI_DisplayMenu(void)
 {
@@ -255,7 +259,7 @@ void UI_DisplayMenu(void)
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 
 	for (i = 0; i < 3; i++)
-		if (gMenuCursor || i)
+		if (gMenuCursor > 0 || i > 0)
 			if ((gMenuListCount - 1) != gMenuCursor || i != 2)
 				UI_PrintString(MenuList[gMenuCursor + i - 1], 0, 0, i * 2, 8);
 
@@ -274,7 +278,7 @@ void UI_DisplayMenu(void)
 			gFrameBuffer[i][49] = 0xFF;
 		}
 	#else
-		// a nicer less intense thinner dotted line
+		// a less intense thinner dotted line
 		for (i = 0; i < 6; i++)
 			gFrameBuffer[i][49] = 0xAA;
 	#endif
@@ -283,7 +287,7 @@ void UI_DisplayMenu(void)
 		NUMBER_ToDigits(1 + gMenuCursor, String);
 		UI_DisplaySmallDigits(2, String + 6, 33, 6, false);
 	#else
-		sprintf(String, "%2u.%u", 1u + gMenuCursor, gMenuListCount);
+		sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
 		UI_PrintStringSmall(String, 8, 0, 6);
 	#endif
 
@@ -295,7 +299,7 @@ void UI_DisplayMenu(void)
 	switch (gMenuCursor)
 	{
 		case MENU_SQL:
-			sprintf(String, "%u", gSubMenuSelection);
+			sprintf(String, "%d", gSubMenuSelection);
 			break;
 
 		case MENU_MIC:
@@ -306,13 +310,13 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_STEP:
-			sprintf(String, "%u.%02uKHz", StepFrequencyTable[gSubMenuSelection] / 100, StepFrequencyTable[gSubMenuSelection] % 100);
+			sprintf(String, "%d.%02uKHz", StepFrequencyTable[gSubMenuSelection] / 100, abs(StepFrequencyTable[gSubMenuSelection]) % 100);
 			break;
-	
+
 		case MENU_TXP:
 			strcpy(String, gSubMenu_TXP[gSubMenuSelection]);
 			break;
-	
+
 		case MENU_R_DCS:
 		case MENU_T_DCS:
 			if (gSubMenuSelection == 0)
@@ -323,7 +327,7 @@ void UI_DisplayMenu(void)
 			else
 				sprintf(String, "D%03oI", DCS_Options[gSubMenuSelection - 105]);
 			break;
-	
+
 		case MENU_R_CTCS:
 		case MENU_T_CTCS:
 			if (gSubMenuSelection == 0)
@@ -331,15 +335,15 @@ void UI_DisplayMenu(void)
 			else
 				sprintf(String, "%u.%uHz", CTCSS_Options[gSubMenuSelection - 1] / 10, CTCSS_Options[gSubMenuSelection - 1] % 10);
 			break;
-	
+
 		case MENU_SFT_D:
 			strcpy(String, gSubMenu_SFT_D[gSubMenuSelection]);
 			break;
-	
+
 		case MENU_OFFSET:
 			if (!gIsInSubMenu || gInputBoxIndex == 0)
 			{
-				sprintf(String, "%u.%05u", gSubMenuSelection / 100000, gSubMenuSelection % 100000);
+				sprintf(String, "%d.%05u", gSubMenuSelection / 100000, abs(gSubMenuSelection) % 100000);
 				break;
 			}
 
@@ -355,26 +359,26 @@ void UI_DisplayMenu(void)
 			String[11] = 0;
 
 			break;
-	
+
 		case MENU_W_N:
 			strcpy(String, gSubMenu_W_N[gSubMenuSelection]);
 			break;
-	
+
 		case MENU_SCR:
 		case MENU_VOX:
 			if (gSubMenuSelection == 0)
 				strcpy(String, "OFF");
 			else
-				sprintf(String, "%u", gSubMenuSelection);
+				sprintf(String, "%d", gSubMenuSelection);
 			break;
-	
+
 		case MENU_ABR:
 			#if 0
 				if (gSubMenuSelection == 0)
 					strcpy(String, "OFF");
 				else
 				if (gSubMenuSelection < 5)
-					sprintf(String, "%u sec", gSubMenuSelection * 10);
+					sprintf(String, "%d sec", gSubMenuSelection * 10);
 				else
 					strcpy(String, "ON");
 			#else
@@ -390,11 +394,11 @@ void UI_DisplayMenu(void)
 				}
 			#endif
 			break;
-	
+
 		case MENU_AM:
 			strcpy(String, (gSubMenuSelection == 0) ? "FM" : "AM");
 			break;
-			
+
 		case MENU_AUTOLK:
 			strcpy(String, (gSubMenuSelection == 0) ? "OFF" : "AUTO");
 			break;
@@ -419,91 +423,88 @@ void UI_DisplayMenu(void)
 		case MENU_SCREN:
 			strcpy(String, gSubMenu_OFF_ON[gSubMenuSelection]);
 			break;
-	
+
 		case MENU_MEM_CH:
 		case MENU_1_CALL:
 		case MENU_DEL_CH:
-			UI_GenerateChannelStringEx(
-				String,
-				RADIO_CheckValidChannel((uint16_t)gSubMenuSelection, false, 0),
-				(uint8_t)gSubMenuSelection);
+			UI_GenerateChannelStringEx(String, RADIO_CheckValidChannel(gSubMenuSelection, false, 0), gSubMenuSelection);
 			break;
-	
+
 		case MENU_SAVE:
 			strcpy(String, gSubMenu_SAVE[gSubMenuSelection]);
 			break;
-	
+
 		case MENU_TDR:
 		case MENU_XB:
 			strcpy(String, gSubMenu_CHAN[gSubMenuSelection]);
 			break;
-	
+
 		case MENU_TOT:
 			if (gSubMenuSelection == 0)
 				strcpy(String, "OFF");
 			else
-				sprintf(String, "%umin", gSubMenuSelection);
+				sprintf(String, "%dmin", gSubMenuSelection);
 			break;
-	
+
 		#ifdef ENABLE_VOICE
 			case MENU_VOICE:
 				strcpy(String, gSubMenu_VOICE[gSubMenuSelection]);
 				break;
 		#endif
-		
+
 		case MENU_SC_REV:
 			strcpy(String, gSubMenu_SC_REV[gSubMenuSelection]);
 			break;
-	
+
 		case MENU_MDF:
 			strcpy(String, gSubMenu_MDF[gSubMenuSelection]);
 			break;
-	
+
 		case MENU_RP_STE:
 			if (gSubMenuSelection == 0)
 				strcpy(String, "OFF");
 			else
-				sprintf(String, "%u*100ms", gSubMenuSelection);
+				sprintf(String, "%d*100ms", gSubMenuSelection);
 			break;
-	
+
 		case MENU_S_LIST:
 			sprintf(String, "LIST%u", gSubMenuSelection);
 			break;
-	
+
 		#ifdef ENABLE_ALARM
 			case MENU_AL_MOD:
 				sprintf(String, gSubMenu_AL_MOD[gSubMenuSelection]);
 				break;
 		#endif
-		
+
 		case MENU_ANI_ID:
 			strcpy(String, gEeprom.ANI_DTMF_ID);
 			break;
-	
+
 		case MENU_UPCODE:
 			strcpy(String, gEeprom.DTMF_UP_CODE);
 			break;
-	
+
 		case MENU_DWCODE:
 			strcpy(String, gEeprom.DTMF_DOWN_CODE);
 			break;
-	
+
 		case MENU_D_RSP:
 			strcpy(String, gSubMenu_D_RSP[gSubMenuSelection]);
 			break;
-	
+
 		case MENU_D_HOLD:
-			sprintf(String, "%us", gSubMenuSelection);
+			sprintf(String, "%ds", gSubMenuSelection);
 			break;
-	
+
 		case MENU_D_PRE:
-			sprintf(String, "%u*10ms", gSubMenuSelection);
+			sprintf(String, "%d*10ms", gSubMenuSelection);
 			break;
-	
+
 		case MENU_PTT_ID:
 			strcpy(String, gSubMenu_PTT_ID[gSubMenuSelection]);
 			break;
-	
+
 		case MENU_D_LIST:
 			gIsDtmfContactValid = DTMF_GetContact((int)gSubMenuSelection - 1, Contact);
 			if (!gIsDtmfContactValid)
@@ -511,25 +512,41 @@ void UI_DisplayMenu(void)
 			else
 				memcpy(String, Contact, 8);
 			break;
-	
+
 		case MENU_PONMSG:
 			strcpy(String, gSubMenu_PONMSG[gSubMenuSelection]);
 			break;
-	
+
 		case MENU_ROGER:
 			strcpy(String, gSubMenu_ROGER[gSubMenuSelection]);
 			break;
-	
+
 		case MENU_VOL:
 			sprintf(String, "%u.%02uV", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100);
 			break;
-	
+
 		case MENU_RESET:
 			strcpy(String, gSubMenu_RESET[gSubMenuSelection]);
 			break;
-	
+
 		case MENU_F_LOCK:
 			strcpy(String, gSubMenu_F_LOCK[gSubMenuSelection]);
+			break;
+
+		case MENU_F_CALI:
+			{
+				sprintf(String, "%d", gSubMenuSelection);
+				UI_PrintString(String, 50, 127, 1, 8);
+
+				const uint32_t value = 22656 + gSubMenuSelection;
+				//gEeprom.BK4819_XTAL_FREQ_LOW = gSubMenuSelection;
+				BK4819_WriteRegister(BK4819_REG_3B, value);
+
+				const uint32_t xtal_Hz = (0x4f0000u + value) * 5;
+				sprintf(String, "%u.%06u", xtal_Hz / 1000000, xtal_Hz % 1000000);
+				UI_PrintString(String, 50, 127, 3, 8);
+				UI_PrintString("MHz",  50, 127, 5, 8);
+			}
 			break;
 	}
 
@@ -565,6 +582,7 @@ void UI_DisplayMenu(void)
 		UI_PrintString("MHz",  50, 127, 3, 8);
 	}
 	else
+	if (gMenuCursor != MENU_F_CALI)
 	{
 		UI_PrintString(String, 50, 127, 2, 8);
 	}
@@ -631,7 +649,7 @@ void UI_DisplayMenu(void)
 	    gMenuCursor == MENU_D_LIST)
 	{
 		unsigned int Offset;
-		NUMBER_ToDigits((uint8_t)gSubMenuSelection, String);
+		NUMBER_ToDigits(gSubMenuSelection, String);
 		Offset = (gMenuCursor == MENU_D_LIST) ? 2 : 3;
 		UI_DisplaySmallDigits(Offset, String + (8 - Offset), 105, 0, false);
 	}
@@ -643,7 +661,7 @@ void UI_DisplayMenu(void)
 		if (gSubMenuSelection == 0xFF)
 			strcpy(String, "NULL");
 		else
-			UI_GenerateChannelStringEx(String, true, (uint8_t)gSubMenuSelection);
+			UI_GenerateChannelStringEx(String, true, gSubMenuSelection);
 
 		if (gSubMenuSelection == 0xFF || !gEeprom.SCAN_LIST_ENABLED[i])
 		{

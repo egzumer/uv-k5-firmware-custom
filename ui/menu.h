@@ -82,12 +82,17 @@ enum
 	#endif
 	MENU_DEL_CH,
 	MENU_RESET,
+
+	// items after here are normally hidden
+
 	MENU_350TX,
 	MENU_F_LOCK,
 	MENU_200TX,
 	MENU_500TX,
 	MENU_350EN,
-	MENU_SCREN
+	MENU_SCREN,
+
+	MENU_F_CALI   // reference xtal calibration
 };
 
 extern const char MenuList[][7];
@@ -121,9 +126,8 @@ extern bool       gIsInSubMenu;
 
 extern uint8_t    gMenuCursor;
 extern int8_t     gMenuScrollDirection;
-extern uint32_t   gSubMenuSelection;
+extern int32_t    gSubMenuSelection;
 
 void UI_DisplayMenu(void);
 
 #endif
-

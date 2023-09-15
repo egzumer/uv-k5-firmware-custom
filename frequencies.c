@@ -148,7 +148,22 @@ uint8_t FREQUENCY_CalculateOutputPower(uint8_t TxpLow, uint8_t TxpMid, uint8_t T
 
 uint32_t FREQUENCY_FloorToStep(uint32_t Upper, uint32_t Step, uint32_t Lower)
 {
-	const uint32_t Index = (Upper - Lower) / Step;
+	uint32_t Index;
+
+	if (Step == 833)
+	{
+		const uint32_t Delta = Upper - Lower;
+		uint32_t       Base  = (Delta / 2500) * 2500;
+		const uint32_t Index = ((Delta - Base) % 2500) / 833;
+
+		if (Index == 2)
+			Base++;
+
+		return Lower + Base + (Index * 833);
+	}
+
+	Index = (Upper - Lower) / Step;
+
 	return Lower + (Step * Index);
 }
 

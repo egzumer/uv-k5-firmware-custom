@@ -116,7 +116,8 @@ void Main(void)
 		// count the number of menu list items
 		while (MenuList[gMenuListCount][0] != 0)
 			gMenuListCount++;
-		gMenuListCount -= 6;
+		//gMenuListCount -= 6;
+		gMenuListCount -= 7;
 
 		UI_DisplayWelcome();
 		BACKLIGHT_TurnOn();

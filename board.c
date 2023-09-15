@@ -52,8 +52,8 @@ static const uint32_t gDefaultFrequencyTable[] =
 	14500000,    //
 	14550000,    //
 	43300000,    //
-	43320000,    // 
-	43350000     // 
+	43320000,    //
+	43350000     //
 };
 
 // BAND1_50MHz
@@ -69,10 +69,10 @@ void BOARD_FLASH_Init(void)
 	FLASH_Init(FLASH_READ_MODE_1_CYCLE);
 	FLASH_ConfigureTrimValues();
 	SYSTEM_ConfigureClocks();
-	
+
 	overlay_FLASH_MainClock       = 48000000;
 	overlay_FLASH_ClockMultiplier = 48;
-	
+
 	FLASH_Init(FLASH_READ_MODE_2_CYCLE);
 }
 
@@ -379,7 +379,7 @@ void BOARD_EEPROM_Init(void)
 		gEeprom.NoaaChannel[0] = IS_NOAA_CHANNEL(Data[6])  ? Data[6] : NOAA_CHANNEL_FIRST;
 		gEeprom.NoaaChannel[1] = IS_NOAA_CHANNEL(Data[7])  ? Data[7] : NOAA_CHANNEL_FIRST;
 	#endif
-	
+
 #ifdef ENABLE_FMRADIO
 	{	// 0E88..0E8F
 		struct
@@ -389,7 +389,7 @@ void BOARD_EEPROM_Init(void)
 			uint8_t  IsMrMode;
 			uint8_t  Padding[8];
 		} __attribute__((packed)) FM;
-	
+
 		EEPROM_ReadBuffer(0x0E88, &FM, 8);
 		gEeprom.FM_LowerLimit = 760;
 		gEeprom.FM_UpperLimit = 1080;
@@ -401,7 +401,7 @@ void BOARD_EEPROM_Init(void)
 		gEeprom.FM_SelectedChannel = FM.SelectedChannel;
 		gEeprom.FM_IsMrMode        = (FM.IsMrMode < 2) ? FM.IsMrMode : false;
 	}
-	
+
 	// 0E40..0E67
 	EEPROM_ReadBuffer(0x0E40, gFM_Channels, sizeof(gFM_Channels));
 	FM_ConfigureChannelState();
@@ -430,7 +430,7 @@ void BOARD_EEPROM_Init(void)
 		EEPROM_ReadBuffer(0x0EA0, Data, 8);
 		gEeprom.VOICE_PROMPT = (Data[0] < 3) ? Data[0] : VOICE_PROMPT_ENGLISH;
 	#endif
-	
+
 	// 0EA8..0EAF
 	EEPROM_ReadBuffer(0x0EA8, Data, 8);
 	#ifdef ENABLE_ALARM
@@ -568,25 +568,29 @@ void BOARD_EEPROM_LoadMoreSettings(void)
 	//gEeprom.MIC_SENSITIVITY_TUNING = (Mic < 32) ? Mic : 15;
 	gEeprom.MIC_SENSITIVITY_TUNING = gMicGain_dB2[gEeprom.MIC_SENSITIVITY];
 
-	struct
 	{
-		int16_t  BK4819_XtalFreqLow;
-		uint16_t EEPROM_1F8A;
-		uint16_t EEPROM_1F8C;
-		uint8_t  VOLUME_GAIN;
-		uint8_t  DAC_GAIN;
-	} Misc;
+		struct
+		{
+			int16_t  BK4819_XtalFreqLow;
+			uint16_t EEPROM_1F8A;
+			uint16_t EEPROM_1F8C;
+			uint8_t  VOLUME_GAIN;
+			uint8_t  DAC_GAIN;
+		} __attribute__((packed)) Misc;
 
-	EEPROM_ReadBuffer(0x1F88, &Misc, 8);
-	gEeprom.BK4819_XTAL_FREQ_LOW = ((Misc.BK4819_XtalFreqLow + 1000) < 2000) ? Misc.BK4819_XtalFreqLow : 0;
+		// radio 1 .. 04 00 46 00 50 00 2C 0E
+		// radio 2 .. 05 00 46 00 50 00 2C 0E
+		EEPROM_ReadBuffer(0x1F88, &Misc, 8);
 
-	gEEPROM_1F8A = Misc.EEPROM_1F8A & 0x01FF;
-	gEEPROM_1F8C = Misc.EEPROM_1F8C & 0x01FF;
+		gEeprom.BK4819_XTAL_FREQ_LOW = (Misc.BK4819_XtalFreqLow >= -1000 && Misc.BK4819_XtalFreqLow <= 1000) ? Misc.BK4819_XtalFreqLow : 0;
+		gEEPROM_1F8A                 = Misc.EEPROM_1F8A & 0x01FF;
+		gEEPROM_1F8C                 = Misc.EEPROM_1F8C & 0x01FF;
+		gEeprom.VOLUME_GAIN          = (Misc.VOLUME_GAIN < 64) ? Misc.VOLUME_GAIN : 58;
+		gEeprom.DAC_GAIN             = (Misc.DAC_GAIN    < 16) ? Misc.DAC_GAIN    : 8;
 
-	gEeprom.VOLUME_GAIN = (Misc.VOLUME_GAIN < 64) ? Misc.VOLUME_GAIN : 58;
-	gEeprom.DAC_GAIN    = (Misc.DAC_GAIN    < 16) ? Misc.DAC_GAIN    : 8;
-
-	BK4819_WriteRegister(BK4819_REG_3B, gEeprom.BK4819_XTAL_FREQ_LOW + 22656);
+		BK4819_WriteRegister(BK4819_REG_3B, 22656 + gEeprom.BK4819_XTAL_FREQ_LOW);
+//		BK4819_WriteRegister(BK4819_REG_3C, gEeprom.BK4819_XTAL_FREQ_HIGH);
+	}
 }
 
 void BOARD_FactoryReset(bool bIsAll)

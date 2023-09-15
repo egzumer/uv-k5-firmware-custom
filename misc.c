@@ -216,12 +216,15 @@ void NUMBER_ToDigits(uint32_t Value, char *pDigits)
 	pDigits[8] = 0;
 }
 
-uint8_t NUMBER_AddWithWraparound(uint8_t Base, int8_t Add, uint8_t LowerLimit, uint8_t UpperLimit)
+int32_t NUMBER_AddWithWraparound(int32_t Base, int32_t Add, int32_t LowerLimit, int32_t UpperLimit)
 {
 	Base += Add;
-	if (Base == 0xFF || Base < LowerLimit)
+
+	if (Base == 0x7fffffff || Base < LowerLimit)
 		return UpperLimit;
+
 	if (Base > UpperLimit)
 		return LowerLimit;
+
 	return Base;
 }

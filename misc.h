@@ -239,7 +239,7 @@ extern uint8_t               gIsLocked;
 
 void    NUMBER_Get(char *pDigits, uint32_t *pInteger);
 void    NUMBER_ToDigits(uint32_t Value, char *pDigits);
-uint8_t NUMBER_AddWithWraparound(uint8_t Base, int8_t Add, uint8_t LowerLimit, uint8_t UpperLimit);
+int32_t NUMBER_AddWithWraparound(int32_t Base, int32_t Add, int32_t LowerLimit, int32_t UpperLimit);
 
 #endif
 
