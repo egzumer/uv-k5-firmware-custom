@@ -162,6 +162,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 		case KEY_5:
 			// TODO: something wrong here !!
+
 			#ifdef ENABLE_NOAA
 				if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 				{
@@ -244,8 +245,10 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 						gInputBoxIndex        = 0;
 						gRequestDisplayScreen = DISPLAY_MAIN;
 					}
+
 					gWasFKeyPressed = false;
 					gUpdateStatus   = true;
+
 					processFKeyFunction(Key, false);
 				}
 			}
@@ -272,6 +275,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 		uint8_t Vfo = gEeprom.TX_CHANNEL;
 
+		gKeyInputCountdown = key_input_timeout;
 		INPUTBOX_Append(Key);
 
 		gRequestDisplayScreen = DISPLAY_MAIN;
@@ -418,6 +422,8 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 					return;
 				gInputBox[--gInputBoxIndex] = 10;
 
+				gKeyInputCountdown = key_input_timeout;
+
 				#ifdef ENABLE_VOICE
 					if (gInputBoxIndex == 0)
 						gAnotherVoiceID = VOICE_ID_CANCEL;
@@ -439,6 +445,21 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 		#ifdef ENABLE_FMRADIO
 			ACTION_FM();
 		#endif
+		
+		return;
+	}
+
+	if (bKeyHeld && bKeyPressed)
+	{
+		if (gInputBoxIndex > 0)
+		{	// cancel key input mode (channel/frequency entry)
+			gDTMF_InputMode       = false;
+			gDTMF_InputIndex      = 0;
+			memset(gDTMF_String, 0, sizeof(gDTMF_String));
+			gInputBoxIndex        = 0;
+			gRequestDisplayScreen = DISPLAY_MAIN;
+			gBeepToPlay           = BEEP_1KHZ_60MS_OPTIONAL;
+		}
 	}
 }
 
@@ -495,6 +516,7 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 			if (gScanState == SCAN_OFF)
 		#endif
 		{
+			gKeyInputCountdown    = key_input_timeout;
 			gDTMF_InputMode       = true;
 			memcpy(gDTMF_InputBox, gDTMF_String, 15);
 			gDTMF_InputIndex      = 0;
@@ -635,21 +657,26 @@ void MAIN_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		}
 	#endif
 
-	if (gDTMF_InputMode && !bKeyHeld && bKeyPressed)
+	if (gDTMF_InputMode && bKeyPressed)
 	{
-		const char Character = DTMF_GetCharacter(Key);
-		if (Character != 0xFF)
+		if (!bKeyHeld)
 		{
-			gBeepToPlay           = BEEP_1KHZ_60MS_OPTIONAL;
-			DTMF_Append(Character);
-			gRequestDisplayScreen = DISPLAY_MAIN;
-			gPttWasReleased       = true;
-			return;
+			const char Character = DTMF_GetCharacter(Key);
+			if (Character != 0xFF)
+			{	// add key to DTMF string
+				DTMF_Append(Character);
+
+				gKeyInputCountdown    = key_input_timeout;
+				gRequestDisplayScreen = DISPLAY_MAIN;
+				gPttWasReleased       = true;
+				gBeepToPlay           = BEEP_1KHZ_60MS_OPTIONAL;
+				return;
+			}
 		}
 	}
 
 	// TODO: ???
-	if (KEY_PTT < Key)
+	if (Key > KEY_PTT)
 	{
 		Key = KEY_SIDE2;
 	}

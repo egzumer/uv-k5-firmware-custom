@@ -161,18 +161,18 @@ typedef struct {
 	uint16_t              VOX0_THRESHOLD;
 
 	#ifdef ENABLE_FMRADIO
-		uint16_t              FM_SelectedFrequency;
-		uint8_t               FM_SelectedChannel;
-		bool                  FM_IsMrMode;
-		uint16_t              FM_FrequencyPlaying;
+		uint16_t          FM_SelectedFrequency;
+		uint8_t           FM_SelectedChannel;
+		bool              FM_IsMrMode;
+		uint16_t          FM_FrequencyPlaying;
 	#endif
 	
 	uint8_t               field37_0x32;
 	uint8_t               field38_0x33;
 
 	#ifdef ENABLE_FMRADIO
-		uint16_t              FM_LowerLimit;
-		uint16_t              FM_UpperLimit;
+		uint16_t          FM_LowerLimit;
+		uint16_t          FM_UpperLimit;
 	#endif
 
 	bool                  AUTO_KEYPAD_LOCK;

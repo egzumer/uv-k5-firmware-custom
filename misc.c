@@ -18,6 +18,8 @@
 
 #include "misc.h"
 
+const uint8_t     key_input_timeout = 10;   // 5 seconds
+
 const uint16_t    key_repeat_delay = 40;    // 400ms
 const uint16_t    key_repeat       = 8;     // was 15 (150ms) .. MUST be less than 'key_repeat_delay'
 const uint16_t    key_debounce     = 2;     // 20ms
@@ -79,6 +81,7 @@ volatile uint16_t gTailNoteEliminationCountdown;
 #endif
 
 bool              gEnableSpeaker;
+uint8_t           gKeyInputCountdown = 0;
 uint8_t           gKeyLockCountdown;
 uint8_t           gRTTECountdown;
 bool              bIsInLockScreen;

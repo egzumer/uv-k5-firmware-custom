@@ -1137,14 +1137,15 @@ void APP_CheckKeys(void)
 	if (gDebounceCounter == key_repeat_delay)
 	{	// initial delay after pressed
 		if (Key == KEY_STAR  ||
-			Key == KEY_F     ||
-			Key == KEY_SIDE2 ||
-			Key == KEY_SIDE1 ||
-			Key == KEY_UP    ||
-			Key == KEY_DOWN
-			#ifdef ENABLE_MAIN_KEY_HOLD
-				|| Key <= KEY_9		// keys 0-9 can be held down to bypass pressing the F-Key
-			#endif
+		    Key == KEY_F     ||
+		    Key == KEY_SIDE2 ||
+		    Key == KEY_SIDE1 ||
+		    Key == KEY_UP    ||
+		    Key == KEY_DOWN  ||
+		    Key == KEY_EXIT
+		    #ifdef ENABLE_MAIN_KEY_HOLD
+		        || Key <= KEY_9       // keys 0-9 can be held down to bypass pressing the F-Key
+		    #endif
 			)
 		{
 			gKeyBeingHeld = true;
@@ -1424,6 +1425,20 @@ void APP_TimeSlice10ms(void)
 	APP_CheckKeys();
 }
 
+void cancelUserInputModes(void)
+{
+	gKeyInputCountdown = 0;
+	if (gDTMF_InputMode || gInputBoxIndex > 0)
+	{
+		gDTMF_InputMode       = false;
+		gDTMF_InputIndex      = 0;
+		memset(gDTMF_String, 0, sizeof(gDTMF_String));
+		gInputBoxIndex        = 0;
+		gRequestDisplayScreen = DISPLAY_MAIN;
+		gBeepToPlay           = BEEP_1KHZ_60MS_OPTIONAL;
+	}
+}
+
 // this is called once every 500ms
 void APP_TimeSlice500ms(void)
 {
@@ -1453,6 +1468,10 @@ void APP_TimeSlice500ms(void)
 
 	gBatteryCheckCounter++;
 
+	if (gKeyInputCountdown > 0)
+		if (--gKeyInputCountdown == 0)
+			cancelUserInputModes();
+	
 	// Skipped authentic device check
 
 	if (gCurrentFunction != FUNCTION_TRANSMIT)
@@ -1479,7 +1498,6 @@ void APP_TimeSlice500ms(void)
 			if (gAskToSave && gCssScanMode == CSS_SCAN_MODE_OFF)
 		#endif
 		{
-
 			if (gBacklightCountdown > 0)
 				if (--gBacklightCountdown == 0)
 					if (gEeprom.BACKLIGHT < 5)
@@ -1705,7 +1723,7 @@ void CHANNEL_Next(bool bFlag, int8_t Direction)
 
 static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
-	bool bFlag;
+	bool bFlag = false;
 
 	if (gCurrentFunction == FUNCTION_POWER_SAVE)
 		FUNCTION_Select(FUNCTION_FOREGROUND);
@@ -1818,8 +1836,6 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 		return;
 	}
-
-	bFlag = false;
 
 	if (gPttWasPressed && Key == KEY_PTT)
 	{
@@ -1938,23 +1954,31 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			{
 				case DISPLAY_MAIN:
 					MAIN_ProcessKeys(Key, bKeyPressed, bKeyHeld);
+					#ifdef ENABLE_MAIN_KEY_HOLD
+						bKeyHeld = false;	// allow the channel setting to be saved
+					#endif
 					break;
+					
 				#ifdef ENABLE_FMRADIO
 					case DISPLAY_FM:
 						FM_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 						break;
 				#endif
+				
 				case DISPLAY_MENU:
 					MENU_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 					break;
+					
 				case DISPLAY_SCANNER:
 					SCANNER_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 					break;
+					
 				#ifdef ENABLE_AIRCOPY
 					case DISPLAY_AIRCOPY:
 						AIRCOPY_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 						break;
 				#endif
+				
 				case DISPLAY_INVALID:
 				default:
 					break;
@@ -1973,6 +1997,11 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		if (!bKeyHeld && bKeyPressed)
 			gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 	}
+	else
+	{
+		if (Key == KEY_EXIT && bKeyHeld)
+			cancelUserInputModes();
+	}
 
 Skip:
 	if (gBeepToPlay)
@@ -1984,6 +2013,7 @@ Skip:
 	if (gFlagAcceptSetting)
 	{
 		MENU_AcceptSetting();
+
 		gFlagRefreshSetting = true;
 		gFlagAcceptSetting  = false;
 	}
@@ -1991,12 +2021,13 @@ Skip:
 	if (gFlagStopScan)
 	{
 		BK4819_StopScan();
+
 		gFlagStopScan = false;
 	}
 
 	if (gRequestSaveSettings)
 	{
-		if (bKeyHeld == 0)
+		if (!bKeyHeld)
 			SETTINGS_SaveSettings();
 		else
 			gFlagSaveSettings = 1;

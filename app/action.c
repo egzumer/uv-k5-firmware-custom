@@ -57,7 +57,7 @@ void ACTION_Power(void)
 		gTxVfo->OUTPUT_POWER = OUTPUT_POWER_LOW;
 
 	//gRequestSaveChannel = 1;
-	gRequestSaveChannel = 2;     // TODO: fix me
+	gRequestSaveChannel = 2;
 
 	#ifdef ENABLE_VOICE
 		gAnotherVoiceID   = VOICE_ID_POWER;
@@ -248,10 +248,10 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		if (Key == KEY_SIDE1 && !bKeyHeld && bKeyPressed)
 		{
 			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-			if (gDTMF_InputIndex)
+			if (gDTMF_InputIndex > 0)
 			{
 				gDTMF_InputBox[--gDTMF_InputIndex] = '-';
-				if (gDTMF_InputIndex)
+				if (gDTMF_InputIndex > 0)
 				{
 					gPttWasReleased       = true;
 					gRequestDisplayScreen = DISPLAY_MAIN;

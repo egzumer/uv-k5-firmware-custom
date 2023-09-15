@@ -297,9 +297,14 @@ void UI_DisplayMenu(void)
 		for (i = 0; i < 6; i++)
 			gFrameBuffer[i][49] = 0xAA;
 	#endif
-	
-	NUMBER_ToDigits(gMenuCursor + 1, String);
-	UI_DisplaySmallDigits(2, String + 6, 33, 6, false);
+
+	#if 0
+		NUMBER_ToDigits(1 + gMenuCursor, String);
+		UI_DisplaySmallDigits(2, String + 6, 33, 6, false);
+	#else
+		sprintf(String, "%2u/%u", 1u + gMenuCursor, gMenuListCount);
+		UI_PrintStringSmall(String, 8, 0, 6);
+	#endif
 
 	if (gIsInSubMenu)
 		memcpy(gFrameBuffer[0] + 50, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));

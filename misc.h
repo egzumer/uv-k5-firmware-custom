@@ -74,6 +74,8 @@ enum CssScanMode_t
 
 typedef enum CssScanMode_t   CssScanMode_t;
 
+extern const uint8_t         key_input_timeout;
+
 extern const uint16_t        key_repeat_delay;
 extern const uint16_t        key_repeat;
 extern const uint16_t        key_debounce;
@@ -135,6 +137,7 @@ extern volatile uint16_t     gTailNoteEliminationCountdown;
 	extern volatile uint16_t gNOAA_Countdown;
 #endif
 extern bool                  gEnableSpeaker;
+extern uint8_t               gKeyInputCountdown;
 extern uint8_t               gKeyLockCountdown;
 extern uint8_t               gRTTECountdown;
 extern bool                  bIsInLockScreen;
