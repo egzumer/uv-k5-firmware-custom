@@ -92,6 +92,31 @@ enum
 
 extern const char MenuList[][7];
 
+extern const char gSubMenu_TXP[3][5];
+extern const char gSubMenu_SFT_D[3][4];
+extern const char gSubMenu_W_N[2][7];
+extern const char gSubMenu_OFF_ON[2][4];
+extern const char gSubMenu_SAVE[5][4];
+extern const char gSubMenu_CHAN[3][7];
+#ifdef ENABLE_VOICE
+	extern const char gSubMenu_VOICE[3][4];
+#endif
+extern const char gSubMenu_SC_REV[3][3];
+#ifndef ENABLE_CHAN_NAME_FREQ
+	extern const char gSubMenu_MDF[3][5];
+#else
+	extern const char gSubMenu_MDF[4][8];
+#endif
+#ifdef ENABLE_ALARM
+	extern const char gSubMenu_AL_MOD[2][5];
+#endif
+extern const char gSubMenu_D_RSP[4][6];
+extern const char gSubMenu_PTT_ID[4][5];
+extern const char gSubMenu_PONMSG[4][5];
+extern const char gSubMenu_ROGER[3][6];
+extern const char gSubMenu_RESET[2][4];
+extern const char gSubMenu_F_LOCK[6][4];
+
 extern bool       gIsInSubMenu;
 
 extern uint8_t    gMenuCursor;

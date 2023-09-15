@@ -1448,6 +1448,10 @@ void APP_TimeSlice500ms(void)
 		if (--gKeypadLocked == 0)
 			gUpdateDisplay = true;
 
+	if (gKeyInputCountdown > 0)
+		if (--gKeyInputCountdown == 0)
+			cancelUserInputModes();
+	
 	// Skipped authentic device check
 
 	#ifdef ENABLE_FMRADIO
@@ -1468,10 +1472,6 @@ void APP_TimeSlice500ms(void)
 
 	gBatteryCheckCounter++;
 
-	if (gKeyInputCountdown > 0)
-		if (--gKeyInputCountdown == 0)
-			cancelUserInputModes();
-	
 	// Skipped authentic device check
 
 	if (gCurrentFunction != FUNCTION_TRANSMIT)
@@ -1495,7 +1495,7 @@ void APP_TimeSlice500ms(void)
 		#ifdef ENABLE_FMRADIO
 			if ((gFM_ScanState == FM_SCAN_OFF || gAskToSave) && gCssScanMode == CSS_SCAN_MODE_OFF)
 		#else
-			if (gAskToSave && gCssScanMode == CSS_SCAN_MODE_OFF)
+			if (gCssScanMode == CSS_SCAN_MODE_OFF)
 		#endif
 		{
 			if (gBacklightCountdown > 0)

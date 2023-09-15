@@ -38,71 +38,71 @@
 const char MenuList[][7] =
 {
 	"SQL",
-    "Step",
-    "Tx-Pwr",    // was "TXP"
-    "RxDCS",     // was "R_DCS"
-	"RxCTCS",    // was "R_CTCS"
-	"TxDCS",     // was "T_DCS"
-	"TxCTCS",    // was "T_CTCS"
-	"TxDir",     // was "SFT_D"
-	"TxOffs",    // was "OFFSET"
+    "STEP",
+    "TXPWR",     // was "TXP"
+    "RXDCS",     // was "R_DCS"
+	"RXCTCS",    // was "R_CTCS"
+	"TXDCS",     // was "T_DCS"
+	"TXCTCS",    // was "T_CTCS"
+	"TXDIR",     // was "SFT_D"
+	"TXOFFS",    // was "OFFSET"
 	"W/N",
-	"Scram",     // was "SCR"
-    "BusyCL",    // was "BCL"
-	"MemSav",    // was "MEM-CH"
-	"BatSav",    // was "SAVE"
+	"SCRAM",     // was "SCR"
+    "BUSYCL",    // was "BCL"
+	"MEMSAV",    // was "MEM-CH"
+	"BATSAV",    // was "SAVE"
     "VOX",
-    "BackLt",    // was "ABR"
-	"DualRx",    // was "TDR"
-    "TxVFO",     // was "WX"
-	"Beep",
-	"TxTOut",    // was "TOT"
+    "BACKLT",    // was "ABR"
+	"DUALRX",    // was "TDR"
+    "TXVFO",     // was "WX"
+	"BEEP",
+	"TXTOUT",    // was "TOT"
 	#ifdef ENABLE_VOICE
-		"Voice",
+		"VOICE",
 	#endif
-	"SC-Rev",
-	"ChDisp",    // was "MDF"
-    "KeyLoc",    // was "AUTOLk"
-	"S-Add1",
-	"S-Add2",
+	"SC-REV",
+	"CHDISP",    // was "MDF"
+    "KEYLOC",    // was "AUTOLk"
+	"S-ADD1",
+	"S-ADD2",
 	"STE",
     "RP-STE",
-	"Mic",
+	"MIC",
 	#ifdef ENABLE_COMPANDER
-		"Compnd",
+		"COMPND",
 	#endif
-    "1-Call",
-	"S-List",
-	"SList1",
-	"SList2",
+    "1-CALL",
+	"SLIST",
+	"SLIST1",
+	"SLIST2",
 	#ifdef ENABLE_ALARM
-		"AL-Mod",
+		"AL-MOD",
 	#endif
 	"ANI-ID",
-	"UpCode",
-	"DwCode",
+	"UPCODE",
+	"DWCODE",
 	"D-ST",
     "D-RSP",
-	"D-Hold",
-	"D-Pre",
+	"D-HOLD",
+	"D-PRE",
 	"PTT-ID",
 	"D-DCD",
-	"D-List",
-	"POnMsg",
-	"Roger",
-	"BatVol",    // was "VOL"
-	"Mode",      // was "AM"
+	"D-LIST",
+	"PONMSG",
+	"ROGER",
+	"BATVOL",    // was "VOL"
+	"MODE",      // was "AM"
 	#ifdef ENABLE_NOAA
-		"NOAA_S",
+		"NOAA-S",
 	#endif
-	"MemDel",    // was "Del-CH"
-	"Reset",
+	"MEMDEL",    // was "Del-CH"
+	"RESET",
 
 	// normally hidden menu items from here on.
 	// enabled if pressing PTT and side button below PTT at power-on.
 
 	"350-TX",    // was "350TX"
-	"F-Lock",
+	"F-LOCK",
 	"200-TX",    // was "200TX"
 	"500-TX",    // was "500TX"
 	"350-EN",    // was "350EN"
@@ -111,73 +111,73 @@ const char MenuList[][7] =
 	""           // end of list
 };
 
-static const char gSubMenu_TXP[3][5] =
+const char gSubMenu_TXP[3][5] =
 {
 	"LOW",
 	"MID",
-	"HIGH",
+	"HIGH"
 };
 
-static const char gSubMenu_SFT_D[3][4] =
+const char gSubMenu_SFT_D[3][4] =
 {
 	"OFF",
 	"+",
-	"-",
+	"-"
 };
 
-static const char gSubMenu_W_N[2][7] =
+const char gSubMenu_W_N[2][7] =
 {
 	"WIDE",
-	"NARROW",
+	"NARROW"
 };
 
-static const char gSubMenu_OFF_ON[2][4] =
+const char gSubMenu_OFF_ON[2][4] =
 {
 	"OFF",
-	"ON",
+	"ON"
 };
 
-static const char gSubMenu_SAVE[5][4] =
+const char gSubMenu_SAVE[5][4] =
 {
 	"OFF",
 	"1:1",
 	"1:2",
 	"1:3",
-	"1:4",
+	"1:4"
 };
 
-static const char gSubMenu_CHAN[3][7] =
+const char gSubMenu_CHAN[3][7] =
 {
 	"OFF",
 	"CHAN_A",
-	"CHAN_B",
+	"CHAN_B"
 };
 
 #ifdef ENABLE_VOICE
-	static const char gSubMenu_VOICE[3][4] =
+	const char gSubMenu_VOICE[3][4] =
 	{
 		"OFF",
 		"CHI",
-		"ENG",
+		"ENG"
 	};
 #endif
 
-static const char gSubMenu_SC_REV[3][3] =
+const char gSubMenu_SC_REV[3][3] =
 {
 	"TO",
 	"CO",
-	"SE",
+	"SE"
 };
 
 #ifndef ENABLE_CHAN_NAME_FREQ
-	static const char gSubMenu_MDF[3][5] =
+	const char gSubMenu_MDF[3][5] =
 	{
 		"FREQ",
 		"CHAN",
 		"NAME"
 	};
 #else
-	static const char gSubMenu_MDF[4][8] =
+	const char gSubMenu_MDF[4][8] =
 	{
 		"FREQ",
 		"CHAN",
@@ -187,30 +187,30 @@ static const char gSubMenu_SC_REV[3][3] =
 #endif
 
 #ifdef ENABLE_ALARM
-	static const char gSubMenu_AL_MOD[2][5] =
+	const char gSubMenu_AL_MOD[2][5] =
 	{
 		"SITE",
-		"TONE",
+		"TONE"
 	};
 #endif
 
-static const char gSubMenu_D_RSP[4][6] =
+const char gSubMenu_D_RSP[4][6] =
 {
 	"NULL",
 	"RING",
 	"REPLY",
-	"BOTH",
+	"BOTH"
 };
 
-static const char gSubMenu_PTT_ID[4][5] =
+const char gSubMenu_PTT_ID[4][5] =
 {
 	"OFF",
 	"BOT",
 	"EOT",
-	"BOTH",
+	"BOTH"
 };
 
-static const char gSubMenu_PONMSG[4][5] =
+const char gSubMenu_PONMSG[4][5] =
 {
 	"FULL",
 	"MSG",
@@ -218,27 +218,27 @@ static const char gSubMenu_PONMSG[4][5] =
 	"NONE"
 };
 
-static const char gSubMenu_ROGER[3][6] =
+const char gSubMenu_ROGER[3][6] =
 {
 	"OFF",
 	"ROGER",
-	"MDC",
+	"MDC"
 };
 
-static const char gSubMenu_RESET[2][4] =
+const char gSubMenu_RESET[2][4] =
 {
 	"VFO",
-	"ALL",
+	"ALL"
 };
 
-static const char gSubMenu_F_LOCK[6][4] =
+const char gSubMenu_F_LOCK[6][4] =
 {
 	"OFF",
 	"FCC",
 	"CE",
 	"GB",
 	"430",
-	"438",
+	"438"
 };
 
 bool     gIsInSubMenu;
@@ -283,7 +283,7 @@ void UI_DisplayMenu(void)
 		NUMBER_ToDigits(1 + gMenuCursor, String);
 		UI_DisplaySmallDigits(2, String + 6, 33, 6, false);
 	#else
-		sprintf(String, "%2u/%u", 1u + gMenuCursor, gMenuListCount);
+		sprintf(String, "%2u.%u", 1u + gMenuCursor, gMenuListCount);
 		UI_PrintStringSmall(String, 8, 0, 6);
 	#endif
 
@@ -536,11 +536,13 @@ void UI_DisplayMenu(void)
 	if (gMenuCursor == MENU_AM)
 	{	// the radio doesn't really do AM
 		UI_PrintString(String, 50, 127, 1, 8);
-		if (gSubMenuSelection > 0)
-		{
-			UI_PrintString("not",    50, 127, 3, 8);
-			UI_PrintString("really", 50, 127, 5, 8);
-		}
+		#if 0
+			if (gSubMenuSelection > 0)
+			{
+				UI_PrintString("not",    50, 127, 3, 8);
+				UI_PrintString("really", 50, 127, 5, 8);
+			}
+		#endif
 	}
 	else
 	if (gMenuCursor == MENU_VOL)

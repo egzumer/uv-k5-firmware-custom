@@ -142,77 +142,110 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 			break;
 
 		case MENU_ABR:
-		case MENU_F_LOCK:
 			*pMin = 0;
 			*pMax = 5;
 			break;
+
+		case MENU_F_LOCK:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_F_LOCK) - 1;
+			break;
 			
 		case MENU_MDF:
-			#ifdef ENABLE_CHAN_NAME_FREQ
-				*pMin = 0;
-				*pMax = 3;
-				break;
-			#endif
-
-			// Fallthrough
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_MDF) - 1;
+			break;
 			
 		case MENU_TXP:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_TXP) - 1;
+			break;
+			
 		case MENU_SFT_D:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_SFT_D) - 1;
+			break;
+		
 		case MENU_TDR:
 		case MENU_XB:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_CHAN) - 1;
+			break;
+		
 		#ifdef ENABLE_VOICE
 			case MENU_VOICE:
+				*pMin = 0;
+				*pMax = ARRAY_SIZE(gSubMenu_VOICE) - 1;
+				break;
 		#endif
+		
 		case MENU_SC_REV:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_SC_REV) - 1;
+			break;
+		
 		case MENU_ROGER:
 			*pMin = 0;
-			*pMax = 2;
+			*pMax = ARRAY_SIZE(gSubMenu_ROGER) - 1;
 			break;
 
 		case MENU_PONMSG:
 			*pMin = 0;
-			*pMax = 3;
+			*pMax = ARRAY_SIZE(gSubMenu_PONMSG) - 1;
 			break;
 
 		case MENU_R_DCS:
 		case MENU_T_DCS:
 			*pMin = 0;
 			*pMax = 208;
+			//*pMax = (ARRAY_SIZE(DCS_Options) * 2);
 			break;
 			
 		case MENU_R_CTCS:
 		case MENU_T_CTCS:
 			*pMin = 0;
-			*pMax = 50;
+			*pMax = ARRAY_SIZE(CTCSS_Options) - 1;
 			break;
 			
+		case MENU_W_N:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_W_N) - 1;
+			break;
+
+		#ifdef ENABLE_ALARM
+			case MENU_AL_MOD:
+				*pMin = 0;
+				*pMax = ARRAY_SIZE(gSubMenu_AL_MOD) - 1;
+				break;
+		#endif
+
+		case MENU_RESET:
+				*pMin = 0;
+				*pMax = ARRAY_SIZE(gSubMenu_RESET) - 1;
+				break;
+
 		#ifdef ENABLE_COMPANDER
 			case MENU_COMPAND:
 		#endif
-		case MENU_W_N:
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_AUTOLK:
 		case MENU_S_ADD1:
 		case MENU_S_ADD2:
 		case MENU_STE:
-		#ifdef ENABLE_ALARM
-			case MENU_AL_MOD:
-		#endif
 		case MENU_D_ST:
 		case MENU_D_DCD:
 		case MENU_AM:
 		#ifdef ENABLE_NOAA
 			case MENU_NOAA_S:
 		#endif
-		case MENU_RESET:
 		case MENU_350TX:
 		case MENU_200TX:
 		case MENU_500TX:
 		case MENU_350EN:
 		case MENU_SCREN:
 			*pMin = 0;
-			*pMax = 1;
+			*pMax = ARRAY_SIZE(gSubMenu_OFF_ON) - 1;
 			break;
 			
 		case MENU_SCR:
@@ -233,6 +266,10 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 			break;
 			
 		case MENU_SAVE:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_SAVE) - 1;
+			break;
+		
 		case MENU_MIC:
 			*pMin = 0;
 			*pMax = 4;
@@ -244,9 +281,13 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 			break;
 			
 		case MENU_D_RSP:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_D_RSP) - 1;
+			break;
+		
 		case MENU_PTT_ID:
 			*pMin = 0;
-			*pMax = 3;
+			*pMax = ARRAY_SIZE(gSubMenu_PTT_ID) - 1;
 			break;
 			
 		case MENU_D_HOLD:
