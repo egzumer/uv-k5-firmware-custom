@@ -16,6 +16,7 @@ ENABLE_TX_WHEN_AM             := 0
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1
 ENABLE_MAIN_KEY_HOLD          := 1
 ENABLE_BOOT_BEEPS             := 1
+ENABLE_COMPANDER              := 1
 #ENABLE_SINGLE_VFO_CHAN       := 1
 #ENABLE_BAND_SCOPE            := 1
 
@@ -132,7 +133,6 @@ ifeq ($(ENABLE_OVERLAY),1)
 endif
 
 #CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
-#CFLAGS = -O2 -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD -fdata-sections -ffunction-sections
 CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD -fdata-sections -ffunction-sections
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
@@ -180,6 +180,9 @@ ifeq ($(ENABLE_MAIN_KEY_HOLD),1)
 endif
 ifeq ($(ENABLE_BOOT_BEEPS),1)
 	CFLAGS  += -DENABLE_BOOT_BEEPS
+endif
+ifeq ($(ENABLE_COMPANDER),1)
+	CFLAGS  += -DENABLE_COMPANDER
 endif
 ifeq ($(ENABLE_SINGLE_VFO_CHAN),1)
 	CFLAGS  += -DENABLE_SINGLE_VFO_CHAN

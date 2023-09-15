@@ -384,7 +384,7 @@ void BK4819_EnableVox(uint16_t VoxEnableThreshold, uint16_t VoxDisableThreshold)
 	BK4819_WriteRegister(BK4819_REG_7A, 0x289A); // vox disable delay = 128*5 = 640ms
 
 	// Enable VOX
-	BK4819_WriteRegister(BK4819_REG_31, REG_31_Value | 4u); // bit 2 - VOX Enable
+	BK4819_WriteRegister(BK4819_REG_31, REG_31_Value | (1u << 2));    // VOX Enable
 }
 
 void BK4819_SetFilterBandwidth(BK4819_FilterBandwidth_t Bandwidth)
@@ -509,14 +509,31 @@ void BK4819_PickRXFilterPathBasedOnFrequency(uint32_t Frequency)
 void BK4819_DisableScramble(void)
 {
 	const uint16_t Value = BK4819_ReadRegister(BK4819_REG_31);
-	BK4819_WriteRegister(BK4819_REG_31, Value & 0xFFFD);
+	BK4819_WriteRegister(BK4819_REG_31, Value & ~(1u << 1));
 }
 
 void BK4819_EnableScramble(uint8_t Type)
 {
 	const uint16_t Value = BK4819_ReadRegister(BK4819_REG_31);
-	BK4819_WriteRegister(BK4819_REG_31, Value | 2u);
+	BK4819_WriteRegister(BK4819_REG_31, Value | (1u << 1));
+
 	BK4819_WriteRegister(BK4819_REG_71, 0x68DC + (Type * 1032));
+}
+
+bool BK4819_CompanderEnabled(void)
+{
+	return (BK4819_ReadRegister(BK4819_REG_31) & (1u < 3)) ? true : false;
+}
+void BK4819_DisableCompander(void)
+{
+	const uint16_t Value = BK4819_ReadRegister(BK4819_REG_31);
+	BK4819_WriteRegister(BK4819_REG_31, Value & ~(1u < 3));
+}
+
+void BK4819_EnableCompander(void)
+{
+	const uint16_t Value = BK4819_ReadRegister(BK4819_REG_31);
+	BK4819_WriteRegister(BK4819_REG_31, Value | (1u < 3));
 }
 
 void BK4819_DisableVox(void)
@@ -675,9 +692,9 @@ void BK4819_EnterDTMF_TX(bool bLocalLoopback)
 	BK4819_WriteRegister(BK4819_REG_70,
 		0
 		| BK4819_REG_70_MASK_ENABLE_TONE1
-		| (83 << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN)
+		| (83u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN)
 		| BK4819_REG_70_MASK_ENABLE_TONE2
-		| (83 << BK4819_REG_70_SHIFT_TONE2_TUNING_GAIN));
+		| (83u << BK4819_REG_70_SHIFT_TONE2_TUNING_GAIN));
 
 	BK4819_EnableTXLink();
 }

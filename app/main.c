@@ -33,6 +33,9 @@
 #include "ui/inputbox.h"
 #include "ui/ui.h"
 
+// TEST ONLY
+#include "driver/bk4819.h"
+
 //#ifndef ARRAY_SIZE
 //	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 //#endif

@@ -129,7 +129,10 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, uint8_t ChannelSave, uint8_t Band, uint32
 	pInfo->pRX                     = &pInfo->ConfigRX;
 	pInfo->pTX                     = &pInfo->ConfigTX;
 	pInfo->FREQUENCY_OF_DEVIATION  = 1000000;
-
+	#ifdef ENABLE_COMPANDER
+		pInfo->Compander           = false;
+	#endif
+	
 	if (ChannelSave == (FREQ_CHANNEL_FIRST + BAND2_108MHz))
 	{
 		pInfo->AM_CHANNEL_MODE = true;
@@ -312,7 +315,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		{
 			gEeprom.VfoInfo[VFO].FrequencyReverse  = false;
 			gEeprom.VfoInfo[VFO].CHANNEL_BANDWIDTH = 0;
-			gEeprom.VfoInfo[VFO].OUTPUT_POWER      = 2;
+			gEeprom.VfoInfo[VFO].OUTPUT_POWER      = OUTPUT_POWER_LOW;
 			gEeprom.VfoInfo[VFO].BUSY_CHANNEL_LOCK = false;
 		}
 		else
@@ -405,6 +408,10 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 	}
 	else
 		gEeprom.VfoInfo[VFO].IsAM = false;
+
+	#ifdef ENABLE_COMPANDER
+		gEeprom.VfoInfo[VFO].Compander = false;
+	#endif
 
 	RADIO_ConfigureSquelchAndOutputPower(pRadio);
 }
@@ -676,6 +683,13 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 	else
 		BK4819_DisableVox();
 
+	#ifdef ENABLE_COMPANDER
+		if (gRxVfo->Compander)
+			BK4819_EnableCompander();
+		else
+			BK4819_DisableCompander();
+	#endif
+
 	if (gRxVfo->IsAM || (!gRxVfo->DTMF_DECODING_ENABLE && !gSetting_KILLED))
 	{
 		BK4819_DisableDTMF();
@@ -756,6 +770,13 @@ void RADIO_SetTxParameters(void)
 	BK4819_SetFilterBandwidth(Bandwidth);
 
 	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency);
+
+	#ifdef ENABLE_COMPANDER
+		if (gCurrentVfo->Compander)
+			BK4819_EnableCompander();
+		else
+			BK4819_DisableCompander();
+	#endif
 
 	BK4819_PrepareTransmit();
 

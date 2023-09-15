@@ -56,7 +56,8 @@ void ACTION_Power(void)
 	if (++gTxVfo->OUTPUT_POWER > OUTPUT_POWER_HIGH)
 		gTxVfo->OUTPUT_POWER = OUTPUT_POWER_LOW;
 
-	gRequestSaveChannel   = 1;
+	//gRequestSaveChannel = 1;
+	gRequestSaveChannel = 2;     // TODO: fix me
 
 	#ifdef ENABLE_VOICE
 		gAnotherVoiceID   = VOICE_ID_POWER;
@@ -77,8 +78,8 @@ static void ACTION_Monitor(void)
 		#endif
 		
 		RADIO_SetupRegisters(true);
-		APP_StartListening(FUNCTION_MONITOR);
 
+		APP_StartListening(FUNCTION_MONITOR);
 		return;
 	}
 

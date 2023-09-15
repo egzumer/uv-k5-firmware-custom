@@ -27,6 +27,7 @@ ENABLE_TX_WHEN_AM             := 0       allow TX when RX set to AM
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       use CTCSS tail phase shift rather than QS's 55Hz tone method 
 ENABLE_MAIN_KEY_HOLD          := 1       keys 0-9 can be held down to bypass having to press the F-key
 ENABLE_BOOT_BEEPS             := 1       gives the user some audio feedback on the volume level knob position at boot-up
+ENABLE_COMPANDER              := 1       compander menu option - not yet fully operational
 #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented
 #ENABLE_BAND_SCOPE            := 1       not yet implemented
 ```

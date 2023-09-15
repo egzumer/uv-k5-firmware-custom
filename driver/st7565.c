@@ -23,6 +23,9 @@
 #include "driver/st7565.h"
 #include "driver/system.h"
 
+#define LCD_WIDTH       128
+#define LCD_HEIGHT       64
+
 uint8_t gStatusLine[128];
 uint8_t gFrameBuffer[7][128];
 
@@ -96,7 +99,7 @@ void ST7565_BlitStatusLine(void)
 
 	SPI_ToggleMasterMode(&SPI0->CR, false);
 
-	ST7565_WriteByte(0x40);
+	ST7565_WriteByte(0x40);    // start line ?
 
 	ST7565_SelectColumnAndLine(4, 0);
 
@@ -141,36 +144,35 @@ void ST7565_Init(void)
 
 	SPI_ToggleMasterMode(&SPI0->CR, false);
 
-	// RESET command
-	ST7565_WriteByte(0xE2);
+	ST7565_WriteByte(0xE2);   // internal reset
 
 	SYSTEM_DelayMs(120);
 
-	ST7565_WriteByte(0xA2);
-	ST7565_WriteByte(0xC0);
-	ST7565_WriteByte(0xA1);
-	ST7565_WriteByte(0xA6);
-	ST7565_WriteByte(0xA4);
-	ST7565_WriteByte(0x24);
-	ST7565_WriteByte(0x81);
-	ST7565_WriteByte(0x1F);
-	ST7565_WriteByte(0x2B);
+	ST7565_WriteByte(0xA2);   // bias 9
+	ST7565_WriteByte(0xC0);   // com normal
+	ST7565_WriteByte(0xA1);   // reverse ?
+	ST7565_WriteByte(0xA6);   // normal ?
+	ST7565_WriteByte(0xA4);   // all points normal
+	ST7565_WriteByte(0x24);   //
+	ST7565_WriteByte(0x81);   // volume first ?
+	ST7565_WriteByte(0x1f);   // contrast ?
+	ST7565_WriteByte(0x2B);   // power control ?
 
 	SYSTEM_DelayMs(1);
 
-	ST7565_WriteByte(0x2E);
+	ST7565_WriteByte(0x2E);   // power control ?
 
 	SYSTEM_DelayMs(1);
 
-	ST7565_WriteByte(0x2F);
-	ST7565_WriteByte(0x2F);
-	ST7565_WriteByte(0x2F);
-	ST7565_WriteByte(0x2F);
+	ST7565_WriteByte(0x2F);   //
+	ST7565_WriteByte(0x2F);   //
+	ST7565_WriteByte(0x2F);   //
+	ST7565_WriteByte(0x2F);   //
 
 	SYSTEM_DelayMs(40);
 
-	ST7565_WriteByte(0x40);
-	ST7565_WriteByte(0xAF);
+	ST7565_WriteByte(0x40);   // start line ?
+	ST7565_WriteByte(0xAF);   // display on ?
 
 	SPI_WaitForUndocumentedTxFifoStatusBit();
 

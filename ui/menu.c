@@ -63,6 +63,9 @@ const char MenuList[][7] =
 	"STE",
     "RP-STE",
 	"Mic",
+	#ifdef ENABLE_COMPANDER
+		"Compnd",
+	#endif
     "1-Call",
 	"S-List",
 	"SList1",
@@ -100,7 +103,7 @@ const char MenuList[][7] =
 	"350-EN",    // was "350EN"
 	"SCR-EN",    // was "SCREN"
 	
-	""           // indicate end of list
+	""           // end of list
 };
 
 #if 0
@@ -315,7 +318,7 @@ void UI_DisplayMenu(void)
 				sprintf(String, "+%u.%01udB", mic / 2, mic % 2);
 			}
 			break;
-	
+
 		case MENU_STEP:
 			sprintf(String, "%u.%02uKHz", gSubMenu_Step[gSubMenuSelection] / 100, gSubMenu_Step[gSubMenuSelection] % 100);
 			break;
@@ -410,6 +413,9 @@ void UI_DisplayMenu(void)
 			strcpy(String, (gSubMenuSelection == 0) ? "OFF" : "AUTO");
 			break;
 
+		#ifdef ENABLE_COMPANDER
+			case MENU_COMPAND:
+		#endif
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_S_ADD1:

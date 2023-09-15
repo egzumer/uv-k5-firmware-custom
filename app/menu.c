@@ -187,6 +187,9 @@ int MENU_GetLimits(uint8_t Cursor, uint8_t *pMin, uint8_t *pMax)
 			*pMax = 50;
 			break;
 			
+		#ifdef ENABLE_COMPANDER
+			case MENU_COMPAND:
+		#endif
 		case MENU_W_N:
 		case MENU_BCL:
 		case MENU_BEEP:
@@ -495,6 +498,13 @@ void MENU_AcceptSetting(void)
 			gFlagReconfigureVfos = true;
 			return;
 	
+		#ifdef ENABLE_COMPANDER
+			case MENU_COMPAND:
+				gTxVfo->Compander = gSubMenuSelection;
+				//gRequestSaveChannel = 2;
+				return;
+		#endif
+
 		case MENU_1_CALL:
 			gEeprom.CHAN_1_CALL = gSubMenuSelection;
 			break;
@@ -821,6 +831,12 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gEeprom.MIC_SENSITIVITY;
 			break;
 	
+		#ifdef ENABLE_COMPANDER
+			case MENU_COMPAND:
+				gSubMenuSelection = gTxVfo->Compander;
+				return;
+		#endif
+
 		case MENU_1_CALL:
 			gSubMenuSelection = gEeprom.CHAN_1_CALL;
 			break;
