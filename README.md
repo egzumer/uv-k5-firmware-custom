@@ -105,5 +105,5 @@ You may obtain a copy of the License at
 
 <p float="left">
   <img src="/chan_freq_option.png" width="300" />
-  <img src="/F-CALI_menu.png" width="300" /> 
+  <img src="/F_CALI_menu.png" width="300" /> 
 </p>
