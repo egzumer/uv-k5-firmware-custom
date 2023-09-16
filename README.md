@@ -9,12 +9,12 @@ A cool achievement
 # User customization
 
 You can customize the firmware by enabling/disabling various compile options.
-You'll find the options at the top of "makefile" ('0' = disable, '1' = enable) ..
+You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) ..
 
 ```
 ENABLE_SWD                    := 0       only needed if using CPU's SWD port (debugging/programming)
 ENABLE_OVERLAY                := 1       cpu FLASH stuff
-ENABLE_UART                   := 1       without this you can't configure the radio via PC
+ENABLE_UART                   := 1       without this you can't configure radio via PC
 ENABLE_AIRCOPY                := 0       easier to just enter frequency
 ENABLE_FMRADIO                := 0       WBFM VHF band 2 RX
 ENABLE_NOAA                   := 0       Everything NOAA
@@ -27,7 +27,7 @@ ENABLE_WIDE_RX                := 1       full 18MHz to 1300MHz RX (though fronte
 ENABLE_TX_WHEN_AM             := 0       allow TX (always FM) when RX is set to AM
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       standard CTCSS tail phase shift rather than QS's own 55Hz tone method 
 ENABLE_MAIN_KEY_HOLD          := 1       initial F-key press not needed, instead hold down keys 0-9
-ENABLE_BOOT_BEEPS             := 1       give user audio feedback on the volume knob position at boot-up
+ENABLE_BOOT_BEEPS             := 1       give user audio feedback on volume knob position at boot-up
 ENABLE_COMPANDER              := 1       compander option - setting not yet saved
 #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible
 #ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter

@@ -90,52 +90,18 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 	if (End > Start)
 		Start += (((End - Start) - (Length * 8)) + 1) / 2;
 
-	#if 1
-	{	// 5x7 font
-		const unsigned int char_width   = ARRAY_SIZE(gFont5x7[0]);
-		const unsigned int char_spacing = char_width + 1;
-		uint8_t            *pFb         = gFrameBuffer[Line] + Start;
-		for (i = 0; i < Length; i++)
-		{
-			if (pString[i] >= 32)
-			{
-				const unsigned int Index = ((unsigned int)pString[i] - 32);
-				if (Index < ARRAY_SIZE(gFont5x7))
-					memcpy(pFb + (i * char_spacing), &gFont5x7[Index], char_width);
-			}
-		}
-	}
-	#elif 1
-	{	// 5x8 font - this one
-		const unsigned int char_width   = ARRAY_SIZE(gFont5x8[0]);
-		const unsigned int char_spacing = char_width + 1;
-		uint8_t            *pFb         = gFrameBuffer[Line] + Start;
-		for (i = 0; i < Length; i++)
-		{
-			if (pString[i] >= 32)
-			{
-				const unsigned int Index = (unsigned int)pString[i] - 32;
-				if (Index < ARRAY_SIZE(gFont5x8))
-					memcpy(pFb + (i * char_spacing), &gFont5x8[Index], char_width);
-			}
-		}
-	}
-	#else
+	const unsigned int char_width   = ARRAY_SIZE(gFontSmall[0]);
+	const unsigned int char_spacing = char_width + 0;
+	uint8_t            *pFb         = gFrameBuffer[Line] + Start;
+	for (i = 0; i < Length; i++)
 	{
-		const unsigned int char_width   = ARRAY_SIZE(gFont6x8[0]);
-		const unsigned int char_spacing = char_width + 1;
-		uint8_t            *pFb         = gFrameBuffer[Line] + Start;
-		for (i = 0; i < Length; i++)
+		if (pString[i] >= 32)
 		{
-			if (pString[i] >= 32)
-			{
-				const unsigned int Index = (unsigned int)pString[i] - 32;
-				if (Index < ARRAY_SIZE(gFont6x8))
-					memcpy(pFb + (i * char_spacing), &gFont6x8[Index], char_width);
-			}
+			const unsigned int Index = (unsigned int)pString[i] - 32;
+			if (Index < ARRAY_SIZE(gFontSmall))
+				memcpy(pFb + (i * char_spacing), &gFontSmall[Index], char_width);
 		}
 	}
-	#endif
 }
 
 void UI_DisplayFrequency(const char *pDigits, uint8_t X, uint8_t Y, bool bDisplayLeadingZero, bool bFlag)

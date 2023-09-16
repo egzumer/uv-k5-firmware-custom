@@ -331,13 +331,8 @@ void UI_DisplayMain(void)
 								}
 
 								// show the channel frequency below the channel number/name
-								#if 1
-									NUMBER_ToDigits(frequency_Hz, String);  // 8 digits
-									UI_DisplayFrequencySmall(String, 31 + 8, Line + 1, false);
-								#else
-									sprintf(String, "%03u.%05u", frequency_Hz / 100000, frequency_Hz % 100000);
-									UI_PrintStringSmall(String, 31 + 8, 0, Line + 1);
-								#endif
+								sprintf(String, "%03u.%05u", frequency_Hz / 100000, frequency_Hz % 100000);
+								UI_PrintStringSmall(String, 31 + 8, 0, Line + 1);
 
 								break;
 						#endif
