@@ -4,7 +4,7 @@ This repository is a cloned and customized version of DualTachyon's open firmwar
 
 https://github.com/DualTachyon/uv-k5-firmware
 
-A cool achievement if you ask me
+A cool achievement
 
 # User customization
 

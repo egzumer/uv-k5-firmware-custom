@@ -246,10 +246,11 @@ const char gSubMenu_F_LOCK[6][4] =
 };
 
 #ifdef ENABLE_COMPANDER
-	const char gSubMenu_Compand[3][6] =
+	const char gSubMenu_Compand[4][6] =
 	{
 		"OFF",
 		"TX",
+		"RX",
 		"TX/RX"
 	};
 #endif

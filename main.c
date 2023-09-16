@@ -66,7 +66,7 @@ void Main(void)
 	SYSTICK_Init();
 	BOARD_Init();
 	UART_Init();
-	
+
 	UART_Send(UART_Version, strlen(UART_Version));
 
 	// Not implementing authentic device checks
@@ -93,11 +93,11 @@ void Main(void)
 
 	for (i = 0; i < ARRAY_SIZE(gBatteryVoltages); i++)
 		BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[i], &gBatteryCurrent);
-	
+
 	BATTERY_GetReadings(false);
 
 	gMenuListCount = 0;
-	
+
 	if (!gChargingWithTypeC && !gBatteryDisplayLevel)
 	{
 		FUNCTION_Select(FUNCTION_POWER_SAVE);
@@ -124,15 +124,16 @@ void Main(void)
 
 		if (gEeprom.POWER_ON_DISPLAY_MODE != POWER_ON_DISPLAY_MODE_NONE)
 		{	// 2.55 second boot-up screen
-			while (boot_counter < 255)
+			while (boot_counter < 255 && KEYBOARD_Poll() == KEY_INVALID)
 			{
 				#ifdef ENABLE_BOOT_BEEPS
 					if ((boot_counter % 25) == 0)
 						AUDIO_PlayBeep(BEEP_880HZ_40MS_OPTIONAL);
 				#endif
 			}
+			//boot_counter = 255;   // halt boot beeps
 		}
-		
+
 		BootMode = BOOT_GetMode();
 
 		if (gEeprom.POWER_ON_PASSWORD < 1000000)
@@ -151,9 +152,9 @@ void Main(void)
 		#ifdef ENABLE_VOICE
 		{
 			uint8_t Channel;
-			
+
 			AUDIO_SetVoiceID(0, VOICE_ID_WELCOME);
-		
+
 			Channel = gEeprom.ScreenChannel[gEeprom.TX_CHANNEL];
 			if (IS_MR_CHANNEL(Channel))
 			{
