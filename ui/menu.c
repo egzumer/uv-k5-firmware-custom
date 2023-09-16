@@ -536,7 +536,7 @@ void UI_DisplayMenu(void)
 		case MENU_F_CALI:
 			{
 				sprintf(String, "%d", gSubMenuSelection);
-				UI_PrintString(String, 50, 127, 1, 8);
+				UI_PrintString(String, 50, 127, 0, 8);
 
 				const uint32_t value = 22656 + gSubMenuSelection;
 				//gEeprom.BK4819_XTAL_FREQ_LOW = gSubMenuSelection;
@@ -544,8 +544,8 @@ void UI_DisplayMenu(void)
 
 				const uint32_t xtal_Hz = (0x4f0000u + value) * 5;
 				sprintf(String, "%u.%06u", xtal_Hz / 1000000, xtal_Hz % 1000000);
-				UI_PrintString(String, 50, 127, 3, 8);
-				UI_PrintString("MHz",  50, 127, 5, 8);
+				UI_PrintString(String, 50, 127, 2, 8);
+				UI_PrintString("MHz",  50, 127, 4, 8);
 			}
 			break;
 	}

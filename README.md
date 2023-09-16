@@ -38,9 +38,12 @@ ENABLE_COMPANDER              := 1       compander option - not yet fully operat
 * Various QS firmware bugs fixed
 * Added new bugs
 * Finer RSSI bar steps
+* Mic menu includes max gain possible
+* AM RX everywhere (not that AM really works)
+* Better backlight times (inc always on)
 * Nicer/cleaner big numeric font than original QS big numeric font
-* Various menu re-wordings - trying to reduce 'WTH does that mean ?'
-* Extra menu items (including hidden menu freq calibration)
+* Various menu re-wordings (trying to reduce 'WTH does that mean ?')
+* Extra menu items (including hidden frequency calibration)
 * plus others
 
 # Compiler
