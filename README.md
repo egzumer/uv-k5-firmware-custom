@@ -107,6 +107,6 @@ You may obtain a copy of the License at
 # Example changes
 
 <p float="left">
-  <img src="/chan_freq_option.png" width="400" />
-  <img src="/F_CALI_menu.png" width="410" /> 
+  <img src="/chan_freq_option.png" width="350" />
+  <img src="/F_CALI_menu.png" width="355" /> 
 </p>
