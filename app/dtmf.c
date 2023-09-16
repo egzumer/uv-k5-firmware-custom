@@ -115,35 +115,10 @@ bool DTMF_FindContact(const char *pContact, char *pResult)
 	return false;
 }
 
-char DTMF_GetCharacter(uint8_t Code)
+char DTMF_GetCharacter(const uint8_t code)
 {
-	switch (Code)
-	{
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-		case 5:
-		case 6:
-		case 7:
-		case 8:
-		case 9:
-			return '0' + (char)Code;
-		case 10:
-			return 'A';
-		case 11:
-			return 'B';
-		case 12:
-			return 'C';
-		case 13:
-			return 'D';
-		case 14:
-			return '*';
-		case 15:
-			return '#';
-	}
-	return 0xFF;
+	const char list[] = "0123456789ABCD*#";
+	return (code < ARRAY_SIZE(list)) ? list[code] : 0xFF;
 }
 
 bool DTMF_CompareMessage(const char *pMsg, const char *pTemplate, uint8_t Size, bool bCheckGroup)
@@ -190,7 +165,7 @@ void DTMF_Append(char Code)
 
 void DTMF_HandleRequest(void)
 {
-	char String[20];
+	char    String[20];
 	uint8_t Offset;
 
 	if (!gDTMF_RequestPending)

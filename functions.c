@@ -53,23 +53,25 @@ void FUNCTION_Init(void)
 			gCurrentCodeType = CODE_TYPE_CONTINUOUS_TONE;
 	#endif
 
-	gDTMF_RequestPending          = false;
-	gDTMF_WriteIndex              = 0;
-
+	gDTMF_RequestPending = false;
+	gDTMF_WriteIndex     = 0;
 	memset(gDTMF_Received, 0, sizeof(gDTMF_Received));
 
 	g_CxCSS_TAIL_Found            = false;
 	g_CDCSS_Lost                  = false;
 	g_CTCSS_Lost                  = false;
+
 	g_VOX_Lost                    = false;
 	g_SquelchLost                 = false;
-	gTailNoteEliminationCountdown = 0;
 	gFlagTteComplete              = false;
+
+	gTailNoteEliminationCountdown = 0;
 	gFoundCTCSS                   = false;
 	gFoundCDCSS                   = false;
 	gFoundCTCSSCountdown          = 0;
 	gFoundCDCSSCountdown          = 0;
 	gEndOfRxDetectedMaybe         = false;
+
 	gSystickCountdown2            = 0;
 }
 

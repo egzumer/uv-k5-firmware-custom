@@ -441,7 +441,6 @@ void APP_StartListening(FUNCTION_Type_t Function)
 		if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 		{
 			gRxVfoIsActive      = true;
-
 			gDualWatchCountdown = dual_watch_count_after_2_10ms;
 			gScheduleDualWatch  = false;
 		}
@@ -449,11 +448,20 @@ void APP_StartListening(FUNCTION_Type_t Function)
 		if (gRxVfo->IsAM)
 		{
 			BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);
+			
+			// PGA + MIXER + LNA + LNA_SHORT
+			BK4819_WriteRegister(BK4819_REG_13, 3u | (3u << 3) | (2u << 5) | (3u << 8));
+
 			gNeverUsed = 0;
 		}
 		else
+		{
 			BK4819_WriteRegister(BK4819_REG_48, 0xB000 | (gEeprom.VOLUME_GAIN << 4) | (gEeprom.DAC_GAIN << 0));
-
+			
+			// PGA + MIXER + LNA + LNA_SHORT
+			BK4819_WriteRegister(BK4819_REG_13, 0x03BE);
+		}
+		
 		#ifdef ENABLE_VOICE
 			if (gVoiceWriteIndex == 0)
 		#endif
@@ -640,20 +648,24 @@ void APP_CheckRadioInterrupts(void)
 		if (interrupt_status_bits & BK4819_REG_02_DTMF_5TONE_FOUND)
 		{
 			gDTMF_RequestPending = true;
-			gDTMF_RecvTimeout    = 5;
+			gDTMF_RecvTimeout    = DTMF_RX_timeout_500ms;
 
-			if (gDTMF_WriteIndex > 15)
-			{
+			if (gDTMF_WriteIndex >= ARRAY_SIZE(gDTMF_Received))
+			{	// shift the RX buffer down one
 				unsigned int i;
-				for (i = 0; i < (sizeof(gDTMF_Received) - 1); i++)
+				for (i = 0; i < (ARRAY_SIZE(gDTMF_Received) - 1); i++)
 					gDTMF_Received[i] = gDTMF_Received[i + 1];
-				gDTMF_WriteIndex = 15;
+				gDTMF_WriteIndex--;
 			}
 
+			// save new RX'ed character
 			gDTMF_Received[gDTMF_WriteIndex++] = DTMF_GetCharacter(BK4819_GetDTMF_5TONE_Code());
 
 			if (gCurrentFunction == FUNCTION_RECEIVE)
+			{
 				DTMF_HandleRequest();
+				gUpdateDisplay = true;
+			}
 		}
 
 		if (interrupt_status_bits & BK4819_REG_02_CxCSS_TAIL)
@@ -1792,7 +1804,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	else
 	{
 		if (Key != KEY_PTT)
-			gVoltageMenuCountdown = menu_timeout_10ms;
+			gVoltageMenuCountdown = menu_timeout_500ms;
 
 		BACKLIGHT_TurnOn();
 

@@ -931,6 +931,7 @@ void RADIO_EnableCxCSS(void)
 {
 	switch (gCurrentVfo->pTX->CodeType)
 	{
+		default:
 		case CODE_TYPE_OFF:
 			break;
 

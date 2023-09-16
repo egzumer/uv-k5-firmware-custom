@@ -27,6 +27,10 @@
 #define IS_NOAA_CHANNEL(x)         ((x) >= NOAA_CHANNEL_FIRST && (x) <= NOAA_CHANNEL_LAST)
 #define IS_NOT_NOAA_CHANNEL(x)     ((x) >= MR_CHANNEL_FIRST   && (x) <= FREQ_CHANNEL_LAST)
 
+#ifndef ARRAY_SIZE
+	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+#endif
+
 enum {
 	MR_CHANNEL_FIRST   = 0,
 	MR_CHANNEL_LAST    = 199u,
@@ -74,6 +78,10 @@ enum CssScanMode_t
 
 typedef enum CssScanMode_t   CssScanMode_t;
 
+extern const uint8_t         menu_timeout_500ms;
+
+extern const uint8_t         DTMF_RX_timeout_500ms;
+
 extern const uint8_t         key_input_timeout_500ms;
 
 extern const uint16_t        key_repeat_delay_10ms;
@@ -81,8 +89,6 @@ extern const uint16_t        key_repeat_10ms;
 extern const uint16_t        key_debounce_10ms;
 
 extern const uint8_t         scan_delay_10ms;
-
-extern const uint8_t         menu_timeout_10ms;
 
 extern const uint16_t        battery_save_count_10ms;
 

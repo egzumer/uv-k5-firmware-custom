@@ -29,6 +29,7 @@ ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       standard CTCSS tail phase shift rather 
 ENABLE_MAIN_KEY_HOLD          := 1       initial F-key press not needed, instead hold down keys 0-9
 ENABLE_BOOT_BEEPS             := 1       give user audio feedback on volume knob position at boot-up
 ENABLE_COMPANDER              := 1       compander option - setting not yet saved
+ENABLE_DTMF_DECODER           := 1       enable real time on-screen DTMF decoder
 #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible
 #ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter
 ```

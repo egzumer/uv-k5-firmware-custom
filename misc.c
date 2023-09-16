@@ -18,9 +18,11 @@
 
 #include "misc.h"
 
-const uint8_t     menu_timeout_10ms               = 20 * 2;       // 20 seconds
+const uint8_t     menu_timeout_500ms              = 20000 / 500;  // 20 seconds
 
-const uint8_t     key_input_timeout_500ms         =  8 * 2;       // 8 seconds
+const uint8_t     DTMF_RX_timeout_500ms           =  2500 / 500;  // 2.5 seconds
+
+const uint8_t     key_input_timeout_500ms         =  8000 / 500;  // 8 seconds
 
 const uint16_t    key_repeat_delay_10ms           =   400 / 10;   // 400ms
 const uint16_t    key_repeat_10ms                 =    80 / 10;   // 80ms .. MUST be less than 'key_repeat_delay'
