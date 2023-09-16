@@ -74,30 +74,30 @@ enum CssScanMode_t
 
 typedef enum CssScanMode_t   CssScanMode_t;
 
-extern const uint8_t         key_input_timeout;
+extern const uint8_t         key_input_timeout_500ms;
 
-extern const uint16_t        key_repeat_delay;
-extern const uint16_t        key_repeat;
-extern const uint16_t        key_debounce;
+extern const uint16_t        key_repeat_delay_10ms;
+extern const uint16_t        key_repeat_10ms;
+extern const uint16_t        key_debounce_10ms;
 
-extern const uint8_t         g_scan_delay;
+extern const uint8_t         scan_delay_10ms;
 
-extern const uint8_t         g_menu_timeout;
+extern const uint8_t         menu_timeout_10ms;
+
+extern const uint16_t        battery_save_count_10ms;
+
+extern const uint16_t        dual_watch_count_after_tx_10ms;
+extern const uint16_t        dual_watch_count_after_rx_10ms;
+extern const uint16_t        dual_watch_count_after_1_10ms;
+extern const uint16_t        dual_watch_count_after_2_10ms;
+extern const uint16_t        dual_watch_count_toggle_10ms;
+extern const uint16_t        dual_watch_count_noaa_10ms;
+extern const uint16_t        dual_watch_count_after_vox_10ms;
 
 extern const uint16_t        gMax_bat_v;
 extern const uint16_t        gMin_bat_v;
 
 extern const uint8_t         gMicGain_dB2[5];
-
-extern const uint16_t        battery_save_count;
-
-extern const uint16_t        dual_watch_count_after_tx;
-extern const uint16_t        dual_watch_count_after_rx;
-extern const uint16_t        dual_watch_count_after_1;
-extern const uint16_t        dual_watch_count_after_2;
-extern const uint16_t        dual_watch_count_toggle;
-extern const uint16_t        dual_watch_count_noaa;
-extern const uint16_t        dual_watch_count_after_vox;
 
 extern bool                  gSetting_350TX;
 extern bool                  gSetting_KILLED;

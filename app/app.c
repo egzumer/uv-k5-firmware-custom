@@ -98,7 +98,7 @@ static void APP_CheckForIncoming(void)
 			return;
 		}
 
-		gDualWatchCountdown = dual_watch_count_after_rx;
+		gDualWatchCountdown = dual_watch_count_after_rx_10ms;
 		gScheduleDualWatch  = false;
 	}
 	else
@@ -163,7 +163,7 @@ static void APP_HandleIncoming(void)
 			{
 				if (gRxReceptionMode == RX_MODE_DETECTED)
 				{
-					gDualWatchCountdown = dual_watch_count_after_1;
+					gDualWatchCountdown = dual_watch_count_after_1_10ms;
 					gScheduleDualWatch  = false;
 					gRxReceptionMode    = RX_MODE_LISTENING;
 					return;
@@ -442,7 +442,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 		{
 			gRxVfoIsActive      = true;
 
-			gDualWatchCountdown = dual_watch_count_after_2;
+			gDualWatchCountdown = dual_watch_count_after_2_10ms;
 			gScheduleDualWatch  = false;
 		}
 
@@ -607,9 +607,9 @@ static void DUALWATCH_Alternate(void)
 	RADIO_SetupRegisters(false);
 
 	#ifdef ENABLE_NOAA
-		gDualWatchCountdown = gIsNoaaMode ? dual_watch_count_noaa : dual_watch_count_toggle;
+		gDualWatchCountdown = gIsNoaaMode ? dual_watch_count_noaa_10ms : dual_watch_count_toggle_10ms;
 	#else
-		gDualWatchCountdown = dual_watch_count_toggle;
+		gDualWatchCountdown = dual_watch_count_toggle_10ms;
 	#endif
 }
 
@@ -687,9 +687,9 @@ void APP_CheckRadioInterrupts(void)
 					gBatterySaveCountdownExpired = false;
 				}
 
-				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && (gScheduleDualWatch || gDualWatchCountdown < dual_watch_count_after_vox))
+				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && (gScheduleDualWatch || gDualWatchCountdown < dual_watch_count_after_vox_10ms))
 				{
-					gDualWatchCountdown = dual_watch_count_after_vox;
+					gDualWatchCountdown = dual_watch_count_after_vox_10ms;
 					gScheduleDualWatch  = false;
 				}
 			}
@@ -975,12 +975,12 @@ void APP_Update(void)
 			    gCssScanMode != CSS_SCAN_MODE_OFF ||
 			    gScreenToDisplay != DISPLAY_MAIN  ||
 			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
-				gBatterySaveCountdown = battery_save_count;
+				gBatterySaveCountdown = battery_save_count_10ms;
 			else
 			if ((IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
 				FUNCTION_Select(FUNCTION_POWER_SAVE);
 			else
-				gBatterySaveCountdown = battery_save_count;
+				gBatterySaveCountdown = battery_save_count_10ms;
 		#else
 			if (
 				#ifdef ENABLE_FMRADIO
@@ -993,7 +993,7 @@ void APP_Update(void)
 			    gCssScanMode != CSS_SCAN_MODE_OFF ||
 			    gScreenToDisplay != DISPLAY_MAIN  ||
 			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
-				gBatterySaveCountdown = battery_save_count;
+				gBatterySaveCountdown = battery_save_count_10ms;
 			else
 				FUNCTION_Select(FUNCTION_POWER_SAVE);
 		#endif
@@ -1135,7 +1135,7 @@ void APP_CheckKeys(void)
 		return;
 	}
 
-	if (++gDebounceCounter == key_debounce)
+	if (++gDebounceCounter == key_debounce_10ms)
 	{	// debounced new key pressed
 
 		if (Key == KEY_INVALID)
@@ -1158,7 +1158,7 @@ void APP_CheckKeys(void)
 
 	// key is being held pressed
 	
-	if (gDebounceCounter == key_repeat_delay)
+	if (gDebounceCounter == key_repeat_delay_10ms)
 	{	// initial delay after pressed
 		if (Key == KEY_STAR  ||
 		    Key == KEY_F     ||
@@ -1178,19 +1178,19 @@ void APP_CheckKeys(void)
 		return;
 	}
 
-	if (gDebounceCounter > key_repeat_delay)
+	if (gDebounceCounter > key_repeat_delay_10ms)
 	{	// key repeat
 		if (Key == KEY_UP || Key == KEY_DOWN)
 		{
 			gKeyBeingHeld = true;
-			if ((gDebounceCounter % key_repeat) == 0)
+			if ((gDebounceCounter % key_repeat_10ms) == 0)
 				APP_ProcessKey(Key, true, true);
 		}
 
 		if (gDebounceCounter < 0xFFFF)
 			return;
 
-		gDebounceCounter = key_repeat_delay;
+		gDebounceCounter = key_repeat_delay_10ms;
 		return;
 	}
 }
@@ -1374,7 +1374,7 @@ void APP_TimeSlice10ms(void)
 					GUI_SelectNextDisplay(DISPLAY_SCANNER);
 				}
 
-				gScanDelay = g_scan_delay;
+				gScanDelay = scan_delay_10ms;
 				break;
 
 			case SCAN_CSS_STATE_SCANNING:
@@ -1420,7 +1420,7 @@ void APP_TimeSlice10ms(void)
 				if (gScanCssState < SCAN_CSS_STATE_FOUND)
 				{
 					BK4819_SetScanFrequency(gScanFrequency);
-					gScanDelay = g_scan_delay;
+					gScanDelay = scan_delay_10ms;
 					break;
 				}
 
@@ -1753,7 +1753,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	if (gCurrentFunction == FUNCTION_POWER_SAVE)
 		FUNCTION_Select(FUNCTION_FOREGROUND);
 
-	gBatterySaveCountdown = battery_save_count;
+	gBatterySaveCountdown = battery_save_count_10ms;
 
 	if (gEeprom.AUTO_KEYPAD_LOCK)
 		gKeyLockCountdown = 30;     // 15 seconds
@@ -1792,7 +1792,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	else
 	{
 		if (Key != KEY_PTT)
-			gVoltageMenuCountdown = g_menu_timeout;
+			gVoltageMenuCountdown = menu_timeout_10ms;
 
 		BACKLIGHT_TurnOn();
 

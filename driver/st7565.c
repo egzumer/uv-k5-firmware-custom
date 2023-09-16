@@ -63,8 +63,7 @@ void ST7565_DrawLine(uint8_t Column, uint8_t Line, uint16_t Size, const uint8_t 
 
 void ST7565_BlitFullScreen(void)
 {
-	uint8_t Line;
-	uint8_t Column;
+	unsigned int Line;
 
 	SPI_ToggleMasterMode(&SPI0->CR, false);
 
@@ -72,6 +71,7 @@ void ST7565_BlitFullScreen(void)
 
 	for (Line = 0; Line < 7; Line++)
 	{
+		unsigned int Column;
 		ST7565_SelectColumnAndLine(4, Line + 1);
 		GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_ST7565_A0);
 		for (Column = 0; Column < 128; Column++)

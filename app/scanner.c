@@ -391,7 +391,7 @@ void SCANNER_Start(void)
 		BK4819_EnableFrequencyScan();
 	}
 
-	gScanDelay             = g_scan_delay;
+	gScanDelay             = scan_delay_10ms;
 	gScanCssResultCode     = 0xFF;
 	gScanCssResultType     = 0xFF;
 	gScanHitCount          = 0;

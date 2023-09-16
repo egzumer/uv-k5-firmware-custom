@@ -183,7 +183,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			break;
 	}
 
-	gBatterySaveCountdown = battery_save_count;
+	gBatterySaveCountdown = battery_save_count_10ms;
 	gSchedulePowerSave    = false;
 	#if defined(ENABLE_FMRADIO)
 		gFM_RestoreCountdown = 0;

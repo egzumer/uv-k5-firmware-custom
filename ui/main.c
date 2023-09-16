@@ -68,9 +68,7 @@ void UI_DisplayMain(void)
 			if (!bIsSameVfo)
 				continue;  // skip the unused vfo
 
-			//Line   = 1;
-			//pLine0 = gFrameBuffer[Line + 0];
-			//pLine1 = gFrameBuffer[Line + 1];
+
 		}
 		
 		if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive)
@@ -151,7 +149,7 @@ void UI_DisplayMain(void)
 				if (Channel == vfo_num)
 				{	// show the TX symbol
 					SomeValue = 1;
-					memcpy(pLine0 + 14, BITMAP_TX, sizeof(BITMAP_TX));
+					UI_PrintStringSmall("TX", 14, 0, Line);
 				}
 			}
 		}
@@ -159,7 +157,7 @@ void UI_DisplayMain(void)
 		{	// receiving .. show the RX symbol
 			SomeValue = 2;
 			if ((gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR) && gEeprom.RX_CHANNEL == vfo_num)
-				memcpy(pLine0 + 14, BITMAP_RX, sizeof(BITMAP_RX));
+				UI_PrintStringSmall("RX", 14, 0, Line);
 		}
 
 		if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
@@ -168,23 +166,21 @@ void UI_DisplayMain(void)
 			const unsigned int x = 2;
 
 			// show the memory channel symbol
-			memcpy(pLine1 + x, BITMAP_M, sizeof(BITMAP_M));
+			UI_PrintStringSmall("M", x, 0, Line + 1);
 	
 			if (gInputBoxIndex == 0 || gEeprom.TX_CHANNEL != vfo_num)
 				NUMBER_ToDigits(gEeprom.ScreenChannel[vfo_num] + 1, String);  // show the memory channel number
 			else
 				memcpy(String + 5, gInputBox, 3);                             // show the input text
-			UI_DisplaySmallDigits(3, String + 5, x + sizeof(BITMAP_M), Line + 1, false);
+			UI_DisplaySmallDigits(3, String + 5, x + 7, Line + 1, false);
 		}
 		else
 		if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 		{
 			const unsigned int x = 2;	// was 14
 			// show the frequency band number
-			char c;
-			memcpy(pLine1 + x, BITMAP_FB, sizeof(BITMAP_FB));
-			c = (gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST) + 1;
-			UI_DisplaySmallDigits(1, &c, x + sizeof(BITMAP_FB), Line + 1, false);
+			sprintf(String, "FB%u", 1 + gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST);
+			UI_PrintStringSmall(String, x, 0, Line + 1);
 		}
 		else
 		{
@@ -405,7 +401,7 @@ void UI_DisplayMain(void)
 
 		if (gEeprom.VfoInfo[vfo_num].IsAM)
 		{	// show the AM symbol
-			memcpy(pLine1 + display_width + 27, BITMAP_AM, sizeof(BITMAP_AM));
+			UI_PrintStringSmall("AM", display_width + 27, 0, Line + 1);
 		}
 		else
 		{	// show the CTCSS or DCS symbol
@@ -416,51 +412,52 @@ void UI_DisplayMain(void)
 				case CODE_TYPE_OFF:
 					break;
 				case CODE_TYPE_CONTINUOUS_TONE:	// CTCSS
-					memcpy(pLine1 + display_width + 27, BITMAP_CT, sizeof(BITMAP_CT));
+					UI_PrintStringSmall("CT",  display_width + 24, 0, Line + 1);
 					break;
 				case CODE_TYPE_DIGITAL:
 				case CODE_TYPE_REVERSE_DIGITAL:	// DCS
-					memcpy(pLine1 + display_width + 24, BITMAP_DCS, sizeof(BITMAP_DCS));
+					UI_PrintStringSmall("DCS", display_width + 24, 0, Line + 1);
 					break;
 			}
 		}
 
+		String[0] = '?';
 		switch (gEeprom.VfoInfo[vfo_num].OUTPUT_POWER)
 		{	// show the TX power level symbol
-			case OUTPUT_POWER_LOW:
-				memcpy(pLine1 + display_width + 44, BITMAP_PowerLow,  sizeof(BITMAP_PowerLow));
-				break;
-			case OUTPUT_POWER_MID:
-				memcpy(pLine1 + display_width + 44, BITMAP_PowerMid,  sizeof(BITMAP_PowerMid));
-				break;
-			case OUTPUT_POWER_HIGH:
-				memcpy(pLine1 + display_width + 44, BITMAP_PowerHigh, sizeof(BITMAP_PowerHigh));
-				break;
+			case OUTPUT_POWER_LOW:  String[0] = 'L'; break;
+			case OUTPUT_POWER_MID:  String[0] = 'M'; break;
+			case OUTPUT_POWER_HIGH: String[0] = 'H'; break;
 		}
+		String[1] = '\0';
+		UI_PrintStringSmall(String, display_width + 46, 0, Line + 1);
 
 		if (gEeprom.VfoInfo[vfo_num].ConfigRX.Frequency != gEeprom.VfoInfo[vfo_num].ConfigTX.Frequency)
 		{	// show the TX offset symbol
-			if (gEeprom.VfoInfo[vfo_num].TX_OFFSET_FREQUENCY_DIRECTION == TX_OFFSET_FREQUENCY_DIRECTION_ADD)
-				memcpy(pLine1 + display_width + 54, BITMAP_Add, sizeof(BITMAP_Add));
-			if (gEeprom.VfoInfo[vfo_num].TX_OFFSET_FREQUENCY_DIRECTION == TX_OFFSET_FREQUENCY_DIRECTION_SUB)
-				memcpy(pLine1 + display_width + 54, BITMAP_Sub, sizeof(BITMAP_Sub));
+			String[0] = '\0';
+			switch (gEeprom.VfoInfo[vfo_num].TX_OFFSET_FREQUENCY_DIRECTION)
+			{
+				case TX_OFFSET_FREQUENCY_DIRECTION_ADD: String[0] = '+'; break;
+				case TX_OFFSET_FREQUENCY_DIRECTION_SUB: String[0] = '-'; break;
+			}
+			String[1] = '\0';
+			UI_PrintStringSmall(String, display_width + 54, 0, Line + 1);
 		}
 
 		// show the TX/RX reverse symbol
 		if (gEeprom.VfoInfo[vfo_num].FrequencyReverse)
-			memcpy(pLine1 + display_width + 64, BITMAP_ReverseMode, sizeof(BITMAP_ReverseMode));
+			UI_PrintStringSmall("R", display_width + 62, 0, Line + 1);
 
 		// show the narrow band symbol
 		if (gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH == BANDWIDTH_NARROW)
-			memcpy(pLine1 + display_width + 74, BITMAP_NarrowBand, sizeof(BITMAP_NarrowBand));
+			UI_PrintStringSmall("N", display_width + 70, 0, Line + 1);
 
 		// show the DTMF decoding symbol
 		if (gEeprom.VfoInfo[vfo_num].DTMF_DECODING_ENABLE || gSetting_KILLED)
-			memcpy(pLine1 + display_width + 84, BITMAP_DTMF, sizeof(BITMAP_DTMF));
+			UI_PrintStringSmall("DTMF", display_width + 78, 0, Line + 1);
 
 		// show the audio scramble symbol
 		if (gEeprom.VfoInfo[vfo_num].SCRAMBLING_TYPE && gSetting_ScrambleEnable)
-			memcpy(pLine1 + display_width + 110, BITMAP_Scramble, sizeof(BITMAP_Scramble));
+			UI_PrintStringSmall("SCR", display_width + 106, 0, Line + 1);
 	}
 
 	ST7565_BlitFullScreen();

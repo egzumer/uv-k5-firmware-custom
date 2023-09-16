@@ -26,6 +26,7 @@
 #include "helper/battery.h"
 #include "misc.h"
 #include "settings.h"
+//#include "ui/helper.h"
 #include "ui/status.h"
 
 void UI_DisplayStatus(const bool test_display)

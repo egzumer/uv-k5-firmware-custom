@@ -266,7 +266,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 		uint8_t Vfo = gEeprom.TX_CHANNEL;
 
-		gKeyInputCountdown = key_input_timeout;
+		gKeyInputCountdown = key_input_timeout_500ms;
 		INPUTBOX_Append(Key);
 
 		gRequestDisplayScreen = DISPLAY_MAIN;
@@ -413,7 +413,7 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 					return;
 				gInputBox[--gInputBoxIndex] = 10;
 
-				gKeyInputCountdown = key_input_timeout;
+				gKeyInputCountdown = key_input_timeout_500ms;
 
 				#ifdef ENABLE_VOICE
 					if (gInputBoxIndex == 0)
@@ -507,7 +507,7 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 			if (gScanState == SCAN_OFF)
 		#endif
 		{
-			gKeyInputCountdown    = key_input_timeout;
+			gKeyInputCountdown    = key_input_timeout_500ms;
 			gDTMF_InputMode       = true;
 			memcpy(gDTMF_InputBox, gDTMF_String, 15);
 			gDTMF_InputIndex      = 0;
@@ -657,7 +657,7 @@ void MAIN_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			{	// add key to DTMF string
 				DTMF_Append(Character);
 
-				gKeyInputCountdown    = key_input_timeout;
+				gKeyInputCountdown    = key_input_timeout_500ms;
 				gRequestDisplayScreen = DISPLAY_MAIN;
 				gPttWasReleased       = true;
 				gBeepToPlay           = BEEP_1KHZ_60MS_OPTIONAL;

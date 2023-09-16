@@ -67,7 +67,7 @@ void UI_DisplayLock(void)
 
 		if (gKeyReading0 == Key)
 		{
-			if (++gDebounceCounter == key_debounce)
+			if (++gDebounceCounter == key_debounce_10ms)
 			{
 				if (Key == KEY_INVALID)
 				{
