@@ -1,11 +1,11 @@
 
-# compile options
-# you can enable ('1') or disable ('0') any/all of these you like
+# compile options (see Readme.md)
+# '0' = disable, 1 = enable
 ENABLE_SWD                    := 0
-ENABLE_AIRCOPY                := 0
-ENABLE_FMRADIO                := 0
 ENABLE_OVERLAY                := 1
 ENABLE_UART                   := 1
+ENABLE_AIRCOPY                := 0
+ENABLE_FMRADIO                := 0
 ENABLE_NOAA                   := 0
 ENABLE_VOICE                  := 0
 ENABLE_ALARM                  := 0

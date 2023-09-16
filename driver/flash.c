@@ -31,4 +31,3 @@ uint32_t FLASH_ReadNvrWord(uint32_t Address)
 {
 	return overlay_FLASH_ReadNvrWord(Address);
 }
-

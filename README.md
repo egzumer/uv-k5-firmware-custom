@@ -1,42 +1,41 @@
-# Open reimplementation of the Quan Sheng UV K5 v2.1.27 firmware
+# Open reimplementation of the Quan Sheng UV-K5 v2.1.27 firmware
 
 This repository is a cloned and customized version of DualTachyon's open firmware found here ..
 
 https://github.com/DualTachyon/uv-k5-firmware
 
-Am amazing achievement if you ask me !
+A cool achievement if you ask me
 
 # User customization
 
-This version you can customize at compile time by making various changes to the makefile.
-You can edit those changes by (currently) editing the MakeFile, look for these lines at the top of the file ..
+You can customize the firmware by enabling/disabling various compile options.
+You'll find the options at the top of "makefile" ('0' = disable, '1' = enable) ..
 
 ```
+ENABLE_SWD                    := 0       enable only if you're using the CPU's SWD port (debugging/programming)
+ENABLE_OVERLAY                := 1       cpu FLASH stuff
+ENABLE_UART                   := 1       without this you can't configure the radio with your PC
 ENABLE_AIRCOPY                := 0       easier to just type frequency in
 ENABLE_FMRADIO                := 0       FM band 2 RX
-ENABLE_OVERLAY                := 1
-ENABLE_UART                   := 1       without this you can't configure the radio with your PC
-ENABLE_NOAA                   := 0       NOAA channels
-ENABLE_VOICE                  := 0       strange voices
+ENABLE_NOAA                   := 0       Everything NOAA
+ENABLE_VOICE                  := 0       want to hear voices ?
 ENABLE_ALARM                  := 0       TX alarms
 ENABLE_BIG_FREQ               := 0       big font for the frequencies
 ENABLE_KEEP_MEM_NAME          := 1       maintain the channel name when (re)saving a memory channel
 ENABLE_CHAN_NAME_FREQ         := 1       show the channel frequency below the channel name/number
-ENABLE_WIDE_RX                := 1       enable the RX in the full 18MHz to 1300MHz (though frontend is not tuned for full range)
-ENABLE_TX_WHEN_AM             := 0       allow TX when RX set to AM
-ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       use CTCSS tail phase shift rather than QS's 55Hz tone method 
-ENABLE_MAIN_KEY_HOLD          := 1       keys 0-9 can be held down to bypass having to press the F-key
-ENABLE_BOOT_BEEPS             := 1       gives the user some audio feedback on the volume level knob position at boot-up
-ENABLE_COMPANDER              := 1       compander menu option - not yet fully operational
-#ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented
-#ENABLE_BAND_SCOPE            := 1       not yet implemented
+ENABLE_WIDE_RX                := 1       full 18MHz to 1300MHz for RX (though frontend is not tuned for full range)
+ENABLE_TX_WHEN_AM             := 0       allow TX (always FM) when RX is set to AM
+ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       use standard CTCSS tail phase shift rather than QS's own 55Hz tone method 
+ENABLE_MAIN_KEY_HOLD          := 1       keys 0-9 can be held down to bypass having to first press the F-key
+ENABLE_BOOT_BEEPS             := 1       give user audio feedback on the volume knob position at boot-up
+ENABLE_COMPANDER              := 1       compander option - not yet fully operational
+#ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible
+#ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter
 ```
-
-To enable the custom option, set the above option to '1'
 
 # Some other changes made
 
-* Various original QS firmware bugs fixed
+* Various QS firmware bugs fixed
 * Added new bugs
 * Finer RSSI bar steps
 * Nicer/cleaner big numeric font than original QS big numeric font
@@ -67,7 +66,7 @@ To compile directly in windows without the need of a linux virtual machine:
 ```
 
 Then you can run 'win_make.bat' from the directory you saved this source code too.
-You may need to edit the bat file (path to make.exe) depending on where you installed 'gnu_make' too.
+You may need to edit the bat file (path to make.exe) depending on where you installed the above two packages too.
 
 # Credits
 
@@ -102,3 +101,9 @@ You may obtain a copy of the License at
     See the License for the specific language governing permissions and
     limitations under the License.
 
+# Example changes
+
+<p float="left">
+  <img src="/chan_freq_option.png" width="300" />
+  <img src="/F-CALI_menu.png" width="300" /> 
+</p>
