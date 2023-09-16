@@ -12,36 +12,36 @@ You can customize the firmware by enabling/disabling various compile options.
 You'll find the options at the top of "makefile" ('0' = disable, '1' = enable) ..
 
 ```
-ENABLE_SWD                    := 0       enable only if you're using the CPU's SWD port (debugging/programming)
+ENABLE_SWD                    := 0       only needed if using CPU's SWD port (debugging/programming)
 ENABLE_OVERLAY                := 1       cpu FLASH stuff
-ENABLE_UART                   := 1       without this you can't configure the radio with your PC
-ENABLE_AIRCOPY                := 0       easier to just type frequency in
-ENABLE_FMRADIO                := 0       FM band 2 RX
+ENABLE_UART                   := 1       without this you can't configure the radio via PC
+ENABLE_AIRCOPY                := 0       easier to just enter frequency
+ENABLE_FMRADIO                := 0       WBFM VHF band 2 RX
 ENABLE_NOAA                   := 0       Everything NOAA
 ENABLE_VOICE                  := 0       want to hear voices ?
 ENABLE_ALARM                  := 0       TX alarms
-ENABLE_BIG_FREQ               := 0       big font for the frequencies
-ENABLE_KEEP_MEM_NAME          := 1       maintain the channel name when (re)saving a memory channel
-ENABLE_CHAN_NAME_FREQ         := 1       show the channel frequency below the channel name/number
-ENABLE_WIDE_RX                := 1       full 18MHz to 1300MHz for RX (though frontend is not tuned for full range)
+ENABLE_BIG_FREQ               := 0       big font frequencies
+ENABLE_KEEP_MEM_NAME          := 1       maintain channel name when (re)saving memory channel
+ENABLE_CHAN_NAME_FREQ         := 1       show channel frequency below channel name/number
+ENABLE_WIDE_RX                := 1       full 18MHz to 1300MHz RX (though frontend not tuned over full range)
 ENABLE_TX_WHEN_AM             := 0       allow TX (always FM) when RX is set to AM
-ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       use standard CTCSS tail phase shift rather than QS's own 55Hz tone method 
-ENABLE_MAIN_KEY_HOLD          := 1       keys 0-9 can be held down to bypass having to first press the F-key
+ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       standard CTCSS tail phase shift rather than QS's own 55Hz tone method 
+ENABLE_MAIN_KEY_HOLD          := 1       initial F-key press not needed, instead hold down keys 0-9
 ENABLE_BOOT_BEEPS             := 1       give user audio feedback on the volume knob position at boot-up
-ENABLE_COMPANDER              := 1       compander option - not yet fully operational
+ENABLE_COMPANDER              := 1       compander option - setting not yet saved
 #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible
 #ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter
 ```
 
 # Some other changes made
 
-* Various QS firmware bugs fixed
+* Various Quansheng firmware bugs fixed
 * Added new bugs
 * Finer RSSI bar steps
 * Mic menu includes max gain possible
 * AM RX everywhere (not that AM really works)
 * Better backlight times (inc always on)
-* Nicer/cleaner big numeric font than original QS big numeric font
+* Nicer/cleaner big numeric font than original Quansheng big numeric font
 * Various menu re-wordings (trying to reduce 'WTH does that mean ?')
 * Extra menu items (including hidden frequency calibration)
 * plus others
@@ -104,9 +104,10 @@ You may obtain a copy of the License at
     See the License for the specific language governing permissions and
     limitations under the License.
 
-# Example changes
+# Example changes/updates
 
 <p float="left">
-  <img src="/chan_freq_option.png" width="350" />
-  <img src="/F_CALI_menu.png" width="355" /> 
+  <img src="/image1.png" width="300" />
+  <img src="/image2.png" width="300" /> 
+  <img src="/image3.png" width="300" /> 
 </p>
