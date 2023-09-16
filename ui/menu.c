@@ -245,6 +245,15 @@ const char gSubMenu_F_LOCK[6][4] =
 	"438"
 };
 
+#ifdef ENABLE_COMPANDER
+	const char gSubMenu_Compand[3][6] =
+	{
+		"OFF",
+		"TX",
+		"TX/RX"
+	};
+#endif
+
 bool    gIsInSubMenu;
 uint8_t gMenuCursor;
 int8_t  gMenuScrollDirection;
@@ -405,7 +414,10 @@ void UI_DisplayMenu(void)
 
 		#ifdef ENABLE_COMPANDER
 			case MENU_COMPAND:
+				strcpy(String, gSubMenu_Compand[gSubMenuSelection]);
+				break;
 		#endif
+
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_S_ADD1:

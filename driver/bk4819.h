@@ -86,8 +86,7 @@ void     BK4819_DisableScramble(void);
 void     BK4819_EnableScramble(uint8_t Type);
 
 bool     BK4819_CompanderEnabled(void);
-void     BK4819_DisableCompander(void);
-void     BK4819_EnableCompander(void);
+void     BK4819_SetCompander(const unsigned int mode);
 
 void     BK4819_DisableVox(void);
 void     BK4819_DisableDTMF(void);

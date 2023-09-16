@@ -235,13 +235,17 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 		#endif
 
 		case MENU_RESET:
-				*pMin = 0;
-				*pMax = ARRAY_SIZE(gSubMenu_RESET) - 1;
-				break;
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_RESET) - 1;
+			break;
 
 		#ifdef ENABLE_COMPANDER
 			case MENU_COMPAND:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_Compand) - 1;
+			break;
 		#endif
+
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_AUTOLK:
