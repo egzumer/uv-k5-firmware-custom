@@ -1,6 +1,7 @@
 
 # compile options
 # you can enable ('1') or disable ('0') any/all of these you like
+ENABLE_SWD                    := 0
 ENABLE_AIRCOPY                := 0
 ENABLE_FMRADIO                := 0
 ENABLE_OVERLAY                := 1
@@ -132,10 +133,13 @@ ifeq ($(ENABLE_OVERLAY),1)
 	ASFLAGS += -DENABLE_OVERLAY
 endif
 
-#CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
-CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD -fdata-sections -ffunction-sections
+CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
+#CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD -fdata-sections -ffunction-sections
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
+ifeq ($(ENABLE_SWD),1)
+	CFLAGS += -DENABLE_SWD
+endif
 ifeq ($(ENABLE_AIRCOPY),1)
 	CFLAGS += -DENABLE_AIRCOPY
 endif

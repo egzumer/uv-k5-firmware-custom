@@ -151,7 +151,10 @@ void ST7565_Init(void)
 	ST7565_WriteByte(0xA2);   // bias 9
 	ST7565_WriteByte(0xC0);   // com normal
 	ST7565_WriteByte(0xA1);   // reverse ?
-	ST7565_WriteByte(0xA6);   // normal ?
+	
+	ST7565_WriteByte(0xA6);   // normal screen ?
+//	ST7565_WriteByte(0xA7);   // inverse screen ?
+
 	ST7565_WriteByte(0xA4);   // all points normal
 	ST7565_WriteByte(0x24);   //
 	ST7565_WriteByte(0x81);   // volume first ?

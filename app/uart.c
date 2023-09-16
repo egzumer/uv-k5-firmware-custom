@@ -16,6 +16,9 @@
 
 #include <string.h>
 
+#if !defined(ENABLE_OVERLAY)
+	#include "ARMCM0.h"
+#endif
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
@@ -32,7 +35,9 @@
 #include "functions.h"
 #include "misc.h"
 #include "settings.h"
-#include "sram-overlay.h"
+#if defined(ENABLE_OVERLAY)
+	#include "sram-overlay.h"
+#endif
 #include "version.h"
 
 #define DMA_INDEX(x, y) (((x) + (y)) % sizeof(UART_DMA_Buffer))
@@ -524,7 +529,11 @@ void UART_HandleCommand(void)
 			break;
 	
 		case 0x05DD:
-			overlay_FLASH_RebootToBootloader();
+			#if defined(ENABLE_OVERLAY)
+				overlay_FLASH_RebootToBootloader();
+			#else
+				NVIC_SystemReset();
+			#endif
 			break;
 	}
 }

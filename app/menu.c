@@ -16,6 +16,9 @@
 
 #include <string.h>
 
+#if !defined(ENABLE_OVERLAY)
+	#include "ARMCM0.h"
+#endif
 #include "app/dtmf.h"
 #include "app/generic.h"
 #include "app/menu.h"
@@ -31,7 +34,9 @@
 #include "frequencies.h"
 #include "misc.h"
 #include "settings.h"
-#include "sram-overlay.h"
+#if defined(ENABLE_OVERLAY)
+	#include "sram-overlay.h"
+#endif
 #include "ui/inputbox.h"
 #include "ui/menu.h"
 #include "ui/ui.h"
@@ -1234,7 +1239,12 @@ static void MENU_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 								AUDIO_PlaySingleVoice(true);
 							#endif
 							MENU_AcceptSetting();
-							overlay_FLASH_RebootToBootloader();
+	
+							#if defined(ENABLE_OVERLAY)
+								overlay_FLASH_RebootToBootloader();
+							#else
+								NVIC_SystemReset();
+							#endif
 						}
 
 						gFlagAcceptSetting  = true;

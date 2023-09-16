@@ -569,21 +569,18 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 	BK4819_SetFrequency(Frequency);
 
 	BK4819_SetupSquelch(
-		gRxVfo->SquelchOpenRSSIThresh,
-		gRxVfo->SquelchCloseRSSIThresh,
-		gRxVfo->SquelchOpenNoiseThresh,
-		gRxVfo->SquelchCloseNoiseThresh,
-		gRxVfo->SquelchCloseGlitchThresh,
-		gRxVfo->SquelchOpenGlitchThresh);
+		gRxVfo->SquelchOpenRSSIThresh,    gRxVfo->SquelchCloseRSSIThresh,
+		gRxVfo->SquelchOpenNoiseThresh,   gRxVfo->SquelchCloseNoiseThresh,
+		gRxVfo->SquelchCloseGlitchThresh, gRxVfo->SquelchOpenGlitchThresh);
 
 	BK4819_PickRXFilterPathBasedOnFrequency(Frequency);
 
 	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, true);
 
 	// AF Rx Gain and DAC
-	BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);
+	BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);  // 1011 00 111010 1000
 
-	InterruptMask = 0 | BK4819_REG_3F_SQUELCH_FOUND | BK4819_REG_3F_SQUELCH_LOST;
+	InterruptMask = BK4819_REG_3F_SQUELCH_FOUND | BK4819_REG_3F_SQUELCH_LOST;
 
 	#ifdef ENABLE_NOAA
 		if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
@@ -681,13 +678,13 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 	#endif
 	{
 		BK4819_EnableVox(gEeprom.VOX1_THRESHOLD, gEeprom.VOX0_THRESHOLD);
-		InterruptMask |= 0 | BK4819_REG_3F_VOX_FOUND | BK4819_REG_3F_VOX_LOST;
+		InterruptMask |= BK4819_REG_3F_VOX_FOUND | BK4819_REG_3F_VOX_LOST;
 	}
 	else
 		BK4819_DisableVox();
 
 	#ifdef ENABLE_COMPANDER
-		if (gRxVfo->Compander)
+		if (gRxVfo->Compander && !gRxVfo->IsAM)
 			BK4819_EnableCompander();
 		else
 			BK4819_DisableCompander();
@@ -775,7 +772,7 @@ void RADIO_SetTxParameters(void)
 	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency);
 
 	#ifdef ENABLE_COMPANDER
-		if (gCurrentVfo->Compander)
+		if (gCurrentVfo->Compander && !gCurrentVfo->IsAM)
 			BK4819_EnableCompander();
 		else
 			BK4819_DisableCompander();

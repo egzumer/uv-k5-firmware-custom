@@ -52,7 +52,9 @@
 #include "misc.h"
 #include "radio.h"
 #include "settings.h"
-#include "sram-overlay.h"
+#if defined(ENABLE_OVERLAY)
+	#include "sram-overlay.h"
+#endif
 #include "ui/battery.h"
 #include "ui/inputbox.h"
 #include "ui/menu.h"
@@ -727,7 +729,8 @@ void APP_CheckRadioInterrupts(void)
 }
 
 void APP_EndTransmission(void)
-{
+{	// back to RX mode
+
 	RADIO_SendEndOfTransmission();
 
 	if (gCurrentVfo->pTX->CodeType != CODE_TYPE_OFF)
@@ -1710,6 +1713,7 @@ void APP_TimeSlice500ms(void)
 		SYSTEM_DelayMs(5);
 
 		RADIO_SetupRegisters(true);
+
 		gRequestDisplayScreen = DISPLAY_MAIN;
 	}
 #endif

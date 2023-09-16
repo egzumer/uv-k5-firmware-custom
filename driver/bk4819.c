@@ -29,9 +29,8 @@ bool gRxIdleMode;
 
 __inline uint16_t scale_freq(const uint16_t freq)
 {
-//	return (uint16_t)(freq * 10.32444);   // argh - floating point
-//	return ((uint32_t)freq * 1032444u) / 100000u;
-	return ((uint32_t)freq * 1353245u) >> 17;
+//	return (((uint32_t)freq * 1032444u) + 50000u) / 100000u;   // with rounding
+	return (((uint32_t)freq * 1353245u) + (1u << 16)) >> 17;   // with rounding
 }
 
 void BK4819_Init(void)
@@ -754,72 +753,33 @@ void BK4819_EnableTXLink(void)
 
 void BK4819_PlayDTMF(char Code)
 {
+	uint16_t tone1 = 0;
+	uint16_t tone2 = 0;
+
 	switch (Code)
 	{
-		case '0':
-			BK4819_WriteRegister(BK4819_REG_71, 0x25F3);
-			BK4819_WriteRegister(BK4819_REG_72, 0x35E1);
-			break;
-		case '1':
-			BK4819_WriteRegister(BK4819_REG_71, 0x1C1C);
-			BK4819_WriteRegister(BK4819_REG_72, 0x30C2);
-			break;
-		case '2':
-			BK4819_WriteRegister(BK4819_REG_71, 0x1C1C);
-			BK4819_WriteRegister(BK4819_REG_72, 0x35E1);
-			break;
-		case '3':
-			BK4819_WriteRegister(BK4819_REG_71, 0x1C1C);
-			BK4819_WriteRegister(BK4819_REG_72, 0x3B91);
-			break;
-		case '4':
-			BK4819_WriteRegister(BK4819_REG_71, 0x1F0E);
-			BK4819_WriteRegister(BK4819_REG_72, 0x30C2);
-			break;
-		case '5':
-			BK4819_WriteRegister(BK4819_REG_71, 0x1F0E);
-			BK4819_WriteRegister(BK4819_REG_72, 0x35E1);
-			break;
-		case '6':
-			BK4819_WriteRegister(BK4819_REG_71, 0x1F0E);
-			BK4819_WriteRegister(BK4819_REG_72, 0x3B91);
-			break;
-		case '7':
-			BK4819_WriteRegister(BK4819_REG_71, 0x225C);
-			BK4819_WriteRegister(BK4819_REG_72, 0x30C2);
-			break;
-		case '8':
-			BK4819_WriteRegister(BK4819_REG_71, 0x225c);
-			BK4819_WriteRegister(BK4819_REG_72, 0x35E1);
-			break;
-		case '9':
-			BK4819_WriteRegister(BK4819_REG_71, 0x225C);
-			BK4819_WriteRegister(BK4819_REG_72, 0x3B91);
-			break;
-		case 'A':
-			BK4819_WriteRegister(BK4819_REG_71, 0x1C1C);
-			BK4819_WriteRegister(BK4819_REG_72, 0x41DC);
-			break;
-		case 'B':
-			BK4819_WriteRegister(BK4819_REG_71, 0x1F0E);
-			BK4819_WriteRegister(BK4819_REG_72, 0x41DC);
-			break;
-		case 'C':
-			BK4819_WriteRegister(BK4819_REG_71, 0x225C);
-			BK4819_WriteRegister(BK4819_REG_72, 0x41DC);
-			break;
-		case 'D':
-			BK4819_WriteRegister(BK4819_REG_71, 0x25F3);
-			BK4819_WriteRegister(BK4819_REG_72, 0x41DC);
-			break;
-		case '*':
-			BK4819_WriteRegister(BK4819_REG_71, 0x25F3);
-			BK4819_WriteRegister(BK4819_REG_72, 0x30C2);
-			break;
-		case '#':
-			BK4819_WriteRegister(BK4819_REG_71, 0x25F3);
-			BK4819_WriteRegister(BK4819_REG_72, 0x3B91);
-			break;
+		case '0': tone1 = 9715; tone2 = 13793; break;   //  941Hz  1336Hz
+		case '1': tone1 = 7196; tone2 = 12482; break;   //  679Hz  1209Hz
+		case '2': tone1 = 7196; tone2 = 13793; break;   //  697Hz  1336Hz
+		case '3': tone1 = 7196; tone2 = 15249; break;   //  679Hz  1477Hz
+		case '4': tone1 = 7950; tone2 = 12482; break;   //  770Hz  1209Hz
+		case '5': tone1 = 7950; tone2 = 13793; break;   //  770Hz  1336Hz
+		case '6': tone1 = 7950; tone2 = 15249; break;   //  770Hz  1477Hz
+		case '7': tone1 = 8796; tone2 = 12482; break;   //  852Hz  1209Hz
+		case '8': tone1 = 8796; tone2 = 13793; break;   //  852Hz  1336Hz
+		case '9': tone1 = 8796; tone2 = 15249; break;   //  852Hz  1477Hz
+		case 'A': tone1 = 7196; tone2 = 16860; break;   //  679Hz  1633Hz
+		case 'B': tone1 = 7950; tone2 = 16860; break;   //  770Hz  1633Hz
+		case 'C': tone1 = 8796; tone2 = 16860; break;   //  852Hz  1633Hz
+		case 'D': tone1 = 9715; tone2 = 16860; break;   //  941Hz  1633Hz
+		case '*': tone1 = 9715; tone2 = 12482; break;   //  941Hz  1209Hz
+		case '#': tone1 = 9715; tone2 = 15249; break;   //  941Hz  1477Hz
+	}
+	
+	if (tone1 > 0 && tone2 > 0)
+	{
+		BK4819_WriteRegister(BK4819_REG_71, tone1);
+		BK4819_WriteRegister(BK4819_REG_72, tone2);
 	}
 }
 
@@ -1117,30 +1077,36 @@ void BK4819_PrepareFSKReceive(void)
 
 void BK4819_PlayRoger(void)
 {
+	#if 0
+		const uint32_t tone1_Hz = 500;
+		const uint32_t tone2_Hz = 700;
+	#else
+		// motorola type
+		const uint32_t tone1_Hz = 1540;
+		const uint32_t tone2_Hz = 1310;
+	#endif
+	
 	BK4819_EnterTxMute();
-
 	BK4819_SetAF(BK4819_AF_MUTE);
-	BK4819_WriteRegister(BK4819_REG_70, 0xE000);
+	BK4819_WriteRegister(BK4819_REG_70, 0xE000);  // 1110 0000 0000 0000 
 
 	BK4819_EnableTXLink();
-
 	SYSTEM_DelayMs(50);
 
-	BK4819_WriteRegister(BK4819_REG_71, 0x142A);
+	BK4819_WriteRegister(BK4819_REG_71, scale_freq(tone1_Hz));
+
 	BK4819_ExitTxMute();
-
 	SYSTEM_DelayMs(80);
-
 	BK4819_EnterTxMute();
-	BK4819_WriteRegister(BK4819_REG_71, 0x1C3B);
+
+	BK4819_WriteRegister(BK4819_REG_71, scale_freq(tone2_Hz));
+
 	BK4819_ExitTxMute();
-
 	SYSTEM_DelayMs(80);
-
 	BK4819_EnterTxMute();
 
 	BK4819_WriteRegister(BK4819_REG_70, 0x0000);
-	BK4819_WriteRegister(BK4819_REG_30, 0xC1FE);
+	BK4819_WriteRegister(BK4819_REG_30, 0xC1FE);   // 1 1 0000 0 1 1111 1 1 1 0
 }
 
 void BK4819_PlayRogerMDC(void)
