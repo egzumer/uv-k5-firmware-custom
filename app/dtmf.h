@@ -55,7 +55,18 @@ typedef enum DTMF_CallMode_t DTMF_CallMode_t;
 
 extern char              gDTMF_String[15];
 extern char              gDTMF_InputBox[15];
+
 extern char              gDTMF_Received[16];
+extern uint8_t           gDTMF_WriteIndex;
+extern uint8_t           gDTMF_PreviousIndex;
+extern uint8_t           gDTMF_RecvTimeout;
+
+#ifdef ENABLE_DTMF_DECODER
+	extern char          gDTMF_ReceivedSaved[16];
+	extern uint8_t       gDTMF_WriteIndexSaved;
+	extern uint8_t       gDTMF_RecvTimeoutSaved;
+#endif
+
 extern bool              gIsDtmfContactValid;
 extern char              gDTMF_ID[4];
 extern char              gDTMF_Caller[4];
@@ -64,12 +75,9 @@ extern DTMF_State_t      gDTMF_State;
 extern bool              gDTMF_DecodeRing;
 extern uint8_t           gDTMF_DecodeRingCountdown;
 extern uint8_t           gDTMFChosenContact;
-extern uint8_t           gDTMF_WriteIndex;
-extern uint8_t           gDTMF_PreviousIndex;
 extern uint8_t           gDTMF_AUTO_RESET_TIME;
 extern uint8_t           gDTMF_InputIndex;
 extern bool              gDTMF_InputMode;
-extern uint8_t           gDTMF_RecvTimeout;
 extern DTMF_CallState_t  gDTMF_CallState;
 extern DTMF_ReplyState_t gDTMF_ReplyState;
 extern DTMF_CallMode_t   gDTMF_CallMode;

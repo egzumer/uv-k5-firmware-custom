@@ -687,11 +687,13 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 		BK4819_SetCompander(!gRxVfo->IsAM ? gRxVfo->Compander : 0);
 	#endif
 
-	if (gRxVfo->IsAM || (!gRxVfo->DTMF_DECODING_ENABLE && !gSetting_KILLED))
-	{
-		BK4819_DisableDTMF();
-	}
-	else
+	#ifndef ENABLE_DTMF_DECODER
+		if (gRxVfo->IsAM || (!gRxVfo->DTMF_DECODING_ENABLE && !gSetting_KILLED))
+		{
+			BK4819_DisableDTMF();
+		}
+		else
+	#endif
 	{
 		BK4819_EnableDTMF();
 		InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;

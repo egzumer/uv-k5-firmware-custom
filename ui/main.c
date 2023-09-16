@@ -402,11 +402,11 @@ void UI_DisplayMain(void)
 	}
 
 	#ifdef ENABLE_DTMF_DECODER
-		if (gCurrentFunction == FUNCTION_RECEIVE && gDTMF_WriteIndex > 0)
+		if (gDTMF_WriteIndexSaved > 0)
 		{	// show the incoming DTMF live on-screen
-			const unsigned int len = (gDTMF_WriteIndex < (ARRAY_SIZE(String) - 1)) ? gDTMF_WriteIndex : ARRAY_SIZE(String) - 1;
+			const unsigned int len = (gDTMF_WriteIndexSaved < ARRAY_SIZE(String)) ? gDTMF_WriteIndexSaved : ARRAY_SIZE(String) - 1;
 			memset(String, 0, sizeof(String));
-			memcpy(String, gDTMF_Received, len);
+			memcpy(String, gDTMF_ReceivedSaved, len);
 			UI_PrintStringSmall("D:", 2, 0, 3);
 			UI_PrintStringSmall(String, 2 + (7 * 2), 0, 3);
 		}

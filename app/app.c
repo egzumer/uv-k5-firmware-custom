@@ -663,8 +663,17 @@ void APP_CheckRadioInterrupts(void)
 
 			if (gCurrentFunction == FUNCTION_RECEIVE)
 			{
+				#ifdef ENABLE_DTMF_DECODER
+					if (gDTMF_WriteIndex > 0)
+					{
+						memcpy(gDTMF_ReceivedSaved, gDTMF_Received, sizeof(gDTMF_ReceivedSaved));
+						gDTMF_WriteIndexSaved  = gDTMF_WriteIndex;
+						gDTMF_RecvTimeoutSaved = DTMF_RX_timeout_saved_500ms;
+						gUpdateDisplay = true;
+					}
+				#endif
+
 				DTMF_HandleRequest();
-				gUpdateDisplay = true;
 			}
 		}
 
@@ -831,9 +840,7 @@ static void APP_HandleVox(void)
 				if (gCurrentFunction != FUNCTION_TRANSMIT)
 				{
 					gDTMF_ReplyState = DTMF_REPLY_NONE;
-
 					RADIO_PrepareTX();
-
 					gUpdateDisplay = true;
 				}
 			}
@@ -1705,6 +1712,18 @@ void APP_TimeSlice500ms(void)
 			memset(gDTMF_Received, 0, sizeof(gDTMF_Received));
 		}
 	}
+
+	#ifdef ENABLE_DTMF_DECODER
+		if (gDTMF_RecvTimeoutSaved > 0)
+		{
+			if (--gDTMF_RecvTimeoutSaved == 0)
+			{
+				gDTMF_WriteIndexSaved = 0;
+				memset(gDTMF_ReceivedSaved, 0, sizeof(gDTMF_ReceivedSaved));
+				gUpdateDisplay = true;
+			}
+		}
+	#endif
 }
 
 #ifdef ENABLE_ALARM

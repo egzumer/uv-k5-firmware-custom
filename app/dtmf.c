@@ -33,7 +33,18 @@
 
 char              gDTMF_String[15];
 char              gDTMF_InputBox[15];
+
 char              gDTMF_Received[16];
+uint8_t           gDTMF_WriteIndex    = 0;
+uint8_t           gDTMF_PreviousIndex = 0;
+uint8_t           gDTMF_RecvTimeout   = 0;
+
+#ifdef ENABLE_DTMF_DECODER
+	char          gDTMF_ReceivedSaved[16];
+	uint8_t       gDTMF_WriteIndexSaved  = 0;
+	uint8_t       gDTMF_RecvTimeoutSaved = 0;
+#endif
+
 bool              gIsDtmfContactValid;
 char              gDTMF_ID[4];
 char              gDTMF_Caller[4];
@@ -42,12 +53,9 @@ DTMF_State_t      gDTMF_State;
 bool              gDTMF_DecodeRing;
 uint8_t           gDTMF_DecodeRingCountdown;
 uint8_t           gDTMFChosenContact;
-uint8_t           gDTMF_WriteIndex;
-uint8_t           gDTMF_PreviousIndex;
 uint8_t           gDTMF_AUTO_RESET_TIME;
 uint8_t           gDTMF_InputIndex;
 bool              gDTMF_InputMode;
-uint8_t           gDTMF_RecvTimeout;
 DTMF_CallState_t  gDTMF_CallState;
 DTMF_ReplyState_t gDTMF_ReplyState;
 DTMF_CallMode_t   gDTMF_CallMode;
