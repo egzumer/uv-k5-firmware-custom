@@ -74,7 +74,7 @@ void Main(void)
 	memset(&gEeprom, 0, sizeof(gEeprom));
 
 	memset(gDTMF_String, '-', sizeof(gDTMF_String));
-	gDTMF_String[14] = 0;
+	gDTMF_String[sizeof(gDTMF_String) - 1] = 0;
 
 	BK4819_Init();
 

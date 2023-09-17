@@ -179,16 +179,22 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 
 				if (gDTMF_InputMode)
 				{
-					if (gDTMF_InputIndex || gDTMF_PreviousIndex)
+					if (gDTMF_InputIndex > 0 || gDTMF_PreviousIndex > 0)
 					{
 						if (gDTMF_InputIndex == 0)
 							gDTMF_InputIndex = gDTMF_PreviousIndex;
 
 						gDTMF_InputBox[gDTMF_InputIndex] = 0;
 
-						if (gDTMF_InputIndex == 3)
-							gDTMF_CallMode = DTMF_CheckGroupCall(gDTMF_InputBox, 3);
-						else
+						#if 0
+							if (gDTMF_InputIndex == 3)
+								gDTMF_CallMode = DTMF_CheckGroupCall(gDTMF_InputBox, 3);	// this will cause our ID tobe appened to the DTMF code
+							else
+						#else
+							if (gDTMF_InputIndex == 3 && gTxVfo->DTMF_DECODING_ENABLE > 0)
+								gDTMF_CallMode = DTMF_CheckGroupCall(gDTMF_InputBox, 3);	// this will cause our ID tobe appened to the DTMF code
+							else
+						#endif
 							gDTMF_CallMode = DTMF_CALL_MODE_DTMF;
 
 						strcpy(gDTMF_String, gDTMF_InputBox);

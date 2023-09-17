@@ -648,37 +648,51 @@ void BOARD_EEPROM_Init(void)
 	if (DTMF_ValidateCodes((char *)Data, 8))
 		memmove(gEeprom.ANI_DTMF_ID, Data, 8);
 	else
-		// Original firmware overflows into the next string
-		memmove(gEeprom.ANI_DTMF_ID, "123\0\0\0\0", 8);
-
+	{
+		memset(gEeprom.ANI_DTMF_ID, 0, sizeof(gEeprom.ANI_DTMF_ID));
+		strcpy(gEeprom.ANI_DTMF_ID, "123");
+	}
+	
 	// 0EE8..0EEF
 	EEPROM_ReadBuffer(0x0EE8, Data, 8);
 	if (DTMF_ValidateCodes((char *)Data, 8))
 		memmove(gEeprom.KILL_CODE, Data, 8);
 	else
-		memmove(gEeprom.KILL_CODE, "ABCD9\0\0", 8);
-
+	{
+		memset(gEeprom.KILL_CODE, 0, sizeof(gEeprom.KILL_CODE));
+		strcpy(gEeprom.KILL_CODE, "ABCD9");
+	}
+	
 	// 0EF0..0EF7
 	EEPROM_ReadBuffer(0x0EF0, Data, 8);
 	if (DTMF_ValidateCodes((char *)Data, 8))
 		memmove(gEeprom.REVIVE_CODE, Data, 8);
 	else
-		memmove(gEeprom.REVIVE_CODE, "9DCBA\0\0", 8);
-
+	{
+		memset(gEeprom.REVIVE_CODE, 0, sizeof(gEeprom.REVIVE_CODE));
+		strcpy(gEeprom.REVIVE_CODE, "9DCBA");
+	}
+	
 	// 0EF8..0F07
 	EEPROM_ReadBuffer(0x0EF8, Data, 16);
 	if (DTMF_ValidateCodes((char *)Data, 16))
 		memmove(gEeprom.DTMF_UP_CODE, Data, 16);
 	else
-		memmove(gEeprom.DTMF_UP_CODE, "12345\0\0\0\0\0\0\0\0\0\0", 16);
-
+	{
+		memset(gEeprom.DTMF_UP_CODE, 0, sizeof(gEeprom.DTMF_UP_CODE));
+		strcpy(gEeprom.DTMF_UP_CODE, "12345");
+	}
+	
 	// 0F08..0F17
 	EEPROM_ReadBuffer(0x0F08, Data, 16);
 	if (DTMF_ValidateCodes((char *)Data, 16))
 		memmove(gEeprom.DTMF_DOWN_CODE, Data, 16);
 	else
-		memmove(gEeprom.DTMF_DOWN_CODE, "54321\0\0\0\0\0\0\0\0\0\0", 16);
-
+	{
+		memset(gEeprom.DTMF_DOWN_CODE, 0, sizeof(gEeprom.DTMF_DOWN_CODE));
+		strcpy(gEeprom.DTMF_DOWN_CODE, "54321");
+	}
+	
 	// 0F18..0F1F
 	EEPROM_ReadBuffer(0x0F18, Data, 8);
 	gEeprom.SCAN_LIST_DEFAULT = (Data[0] < 2) ? Data[0] : false;

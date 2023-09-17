@@ -15,6 +15,7 @@
  */
 
 #include <string.h>
+#include <stdio.h>   // NULL
 
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
@@ -161,7 +162,7 @@ void DTMF_Append(char Code)
 	if (gDTMF_InputIndex == 0)
 	{
 		memset(gDTMF_InputBox, '-', sizeof(gDTMF_InputBox));
-		gDTMF_InputBox[14] = 0;
+		gDTMF_InputBox[sizeof(gDTMF_InputBox) - 1] = 0;
 	}
 	else
 	if (gDTMF_InputIndex >= sizeof(gDTMF_InputBox))
@@ -295,12 +296,15 @@ void DTMF_HandleRequest(void)
 
 void DTMF_Reply(void)
 {
-	char        String[20];
-	const char *pString;
 	uint16_t    Delay;
+	char        String[20];
+	const char *pString = NULL;
 
 	switch (gDTMF_ReplyState)
 	{
+		case DTMF_REPLY_NONE:
+			return;
+			
 		case DTMF_REPLY_ANI:
 			if (gDTMF_CallMode == DTMF_CALL_MODE_DTMF)
 			{
@@ -308,6 +312,7 @@ void DTMF_Reply(void)
 			}
 			else
 			{
+				// append out ID code onto the end of the DTMF code to send
 				sprintf(String, "%s%c%s", gDTMF_String, gEeprom.DTMF_SEPARATE_CODE, gEeprom.ANI_DTMF_ID);
 				pString = String;
 			}
@@ -334,16 +339,15 @@ void DTMF_Reply(void)
 
 	gDTMF_ReplyState = DTMF_REPLY_NONE;
 
+	if (pString == NULL)
+		return;
+	
 	Delay = gEeprom.DTMF_PRELOAD_TIME;
 	if (gEeprom.DTMF_SIDE_TONE)
 	{
 		GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
-
 		gEnableSpeaker = true;
-
-		Delay = gEeprom.DTMF_PRELOAD_TIME;
-		if (gEeprom.DTMF_PRELOAD_TIME < 60)
-			Delay = 60;
+		Delay = (gEeprom.DTMF_PRELOAD_TIME < 60) ? 60 : gEeprom.DTMF_PRELOAD_TIME;
 	}
 	SYSTEM_DelayMs(Delay);
 

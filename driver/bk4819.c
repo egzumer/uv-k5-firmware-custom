@@ -14,6 +14,8 @@
  *     limitations under the License.
  */
 
+#include <stdio.h>   // NULL
+
 #include "bk4819.h"
 #include "bsp/dp32g030/gpio.h"
 #include "bsp/dp32g030/portcon.h"
@@ -818,6 +820,10 @@ void BK4819_PlayDTMF(char Code)
 void BK4819_PlayDTMFString(const char *pString, bool bDelayFirst, uint16_t FirstCodePersistTime, uint16_t HashCodePersistTime, uint16_t CodePersistTime, uint16_t CodeInternalTime)
 {
 	unsigned int i;
+
+	if (pString == NULL)
+		return;
+	
 	for (i = 0; pString[i]; i++)
 	{
 		uint16_t Delay;

@@ -509,7 +509,7 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 		{
 			gKeyInputCountdown    = key_input_timeout_500ms;
 			gDTMF_InputMode       = true;
-			memmove(gDTMF_InputBox, gDTMF_String, 15);
+			memmove(gDTMF_InputBox, gDTMF_String, sizeof(gDTMF_InputBox));
 			gDTMF_InputIndex      = 0;
 			gRequestDisplayScreen = DISPLAY_MAIN;
 			return;

@@ -1803,10 +1803,11 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		gKeyLockCountdown = 30;     // 15 seconds
 
 	#ifdef ENABLE_DTMF_DECODER
-		if (Key == KEY_EXIT && bKeyPressed && bKeyHeld)
-		{	// clear the DTMF RX display buffer
+		if (Key == KEY_EXIT && bKeyPressed && bKeyHeld && gDTMF_ReceivedSaved[0] > 0)
+		{	// clear the live DTMF RX if the EXIT key is held
 			gDTMF_RecvTimeoutSaved = 0;
 			gDTMF_ReceivedSaved[0] = '\0';
+			gUpdateDisplay         = true;
 		}
 	#endif
 

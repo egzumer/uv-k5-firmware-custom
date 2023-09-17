@@ -21,34 +21,34 @@
 #include <stdint.h>
 
 enum DTMF_State_t {
-	DTMF_STATE_0            = 0U,
-	DTMF_STATE_TX_SUCC      = 1U,
-	DTMF_STATE_CALL_OUT_RSP = 2U,
+	DTMF_STATE_0 = 0,
+	DTMF_STATE_TX_SUCC,
+	DTMF_STATE_CALL_OUT_RSP
 };
 
 typedef enum DTMF_State_t DTMF_State_t;
 
 enum DTMF_CallState_t {
-	DTMF_CALL_STATE_NONE     = 0U,
-	DTMF_CALL_STATE_CALL_OUT = 1U,
-	DTMF_CALL_STATE_RECEIVED = 2U,
+	DTMF_CALL_STATE_NONE = 0,
+	DTMF_CALL_STATE_CALL_OUT,
+	DTMF_CALL_STATE_RECEIVED
 };
 
 typedef enum DTMF_CallState_t DTMF_CallState_t;
 
 enum DTMF_ReplyState_t {
-	DTMF_REPLY_NONE    = 0U,
-	DTMF_REPLY_ANI     = 1U,
-	DTMF_REPLY_AB      = 2U,
-	DTMF_REPLY_AAAAA   = 3U,
+	DTMF_REPLY_NONE = 0,
+	DTMF_REPLY_ANI,
+	DTMF_REPLY_AB,
+	DTMF_REPLY_AAAAA
 };
 
 typedef enum DTMF_ReplyState_t DTMF_ReplyState_t;
 
 enum DTMF_CallMode_t {
-	DTMF_CALL_MODE_NOT_GROUP = 0U,
-	DTMF_CALL_MODE_GROUP     = 1U,
-	DTMF_CALL_MODE_DTMF      = 2U,
+	DTMF_CALL_MODE_NOT_GROUP = 0,
+	DTMF_CALL_MODE_GROUP,
+	DTMF_CALL_MODE_DTMF
 };
 
 typedef enum DTMF_CallMode_t DTMF_CallMode_t;
@@ -94,4 +94,3 @@ void DTMF_HandleRequest(void);
 void DTMF_Reply(void);
 
 #endif
-
