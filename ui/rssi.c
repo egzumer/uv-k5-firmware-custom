@@ -15,19 +15,48 @@
  */
 
 #include <string.h>
+
 #include "bitmaps.h"
 #include "driver/st7565.h"
+#include "external/printf/printf.h"
 #include "functions.h"
 #include "misc.h"
 #include "settings.h"
+#include "ui/helper.h"
 #include "ui/rssi.h"
 #include "ui/ui.h"
 
-static void Render(uint8_t RssiLevel, uint8_t VFO)
-{
+#ifdef ENABLE_DBM
+
+void UI_UpdateRSSI(uint16_t RSSI)
+{	// dBm
+	//
+	// this doesn't yet quite fit into the available screen space
+
+	char          s[8];
+	const uint8_t line = (gEeprom.RX_CHANNEL == 0) ? 3 : 7;
+
+	gVFO_RSSI[gEeprom.RX_CHANNEL]       = RSSI;
+	gVFO_RSSI_Level[gEeprom.RX_CHANNEL] = 0;
+
+	if (RSSI > 0)
+	{	// drop the '.5'
+		const int16_t dBm = (int16_t)(RSSI / 2) - 160;
+		sprintf(s, "%-3d", dBm);
+	}
+	else
+		strcpy(s, "    ");
+
+	UI_PrintStringSmall(s, 2, 0, line);
+}
+
+#else
+	
+void Render(const uint8_t rssi, const uint8_t RssiLevel, const uint8_t VFO)
+{	// bar graph
+
 	uint8_t *pLine;
 	uint8_t  Line;
-	bool     bIsClearMode = false;
 
 	if (gCurrentFunction == FUNCTION_TRANSMIT || gScreenToDisplay != DISPLAY_MAIN)
 		return;
@@ -36,7 +65,6 @@ static void Render(uint8_t RssiLevel, uint8_t VFO)
 	{
 		pLine = gFrameBuffer[2];
 		Line  = 3;
-//		Line  = 4;
 	}
 	else
 	{
@@ -45,15 +73,15 @@ static void Render(uint8_t RssiLevel, uint8_t VFO)
 	}
 
 	memset(pLine, 0, 23);
-
+	
 	if (RssiLevel == 0)
 	{
-		pLine        = NULL;
-		bIsClearMode = true;
+		pLine = NULL;
 	}
 	else
 	{
-		memmove(pLine, BITMAP_Antenna, 5);
+		//if (RssiLevel >= 1)
+			memmove(pLine, BITMAP_Antenna, 5);
 		if (RssiLevel >= 2)
 			memmove(pLine +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
 		if (RssiLevel >= 3)
@@ -68,14 +96,16 @@ static void Render(uint8_t RssiLevel, uint8_t VFO)
 			memmove(pLine + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
 	}
 
-	ST7565_DrawLine(0, Line, 23 , pLine, bIsClearMode);
+	ST7565_DrawLine(0, Line, 23, pLine, (pLine == NULL) ? true : false);
 }
 
 void UI_UpdateRSSI(uint16_t RSSI)
 {
-	//const int16_t dB = (int16_t)(RSSI / 2) - 160;
+	gVFO_RSSI[gEeprom.RX_CHANNEL] = RSSI;
+	
+	//const int16_t dBm = (int16_t)(RSSI / 2) - 160;
 
-//	const unsigned int band = gRxVfo->Band;
+	//const unsigned int band = gRxVfo->Band;
 	const unsigned int band = 0;
 	
 	const uint16_t level0  = gEEPROM_RSSI_CALIB[band][0];
@@ -105,6 +135,8 @@ void UI_UpdateRSSI(uint16_t RSSI)
 	if (gVFO_RSSI_Level[gEeprom.RX_CHANNEL] != Level)
 	{
 		gVFO_RSSI_Level[gEeprom.RX_CHANNEL] = Level;
-		Render(Level, gEeprom.RX_CHANNEL);
+		Render(RSSI, Level, gEeprom.RX_CHANNEL);
 	}
 }
+
+#endif

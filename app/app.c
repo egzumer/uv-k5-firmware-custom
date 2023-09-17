@@ -452,7 +452,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			
 			// help improve AM RX audio by reducing the PGA gain
 			//
-			// I think the solution is to set the RX AGC to limit the front end gain
+			// I think the solution is to set the RX AGC to limit the front end/I.F gain
 			//
 			// LNA_SHORT ..   0dB
 			// LNA ........  14dB

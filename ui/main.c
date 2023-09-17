@@ -57,7 +57,7 @@ void UI_DisplayMain(void)
 	#ifdef ENABLE_DTMF_DECODER
 		bool show_dtmf_rx = true;
 	#endif
-	
+
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
 		uint8_t  Channel    = gEeprom.TX_CHANNEL;
@@ -131,7 +131,7 @@ void UI_DisplayMain(void)
 				#ifdef ENABLE_DTMF_DECODER
 					show_dtmf_rx = false;
 				#endif
-				
+
 				continue;
 			}
 
@@ -354,32 +354,49 @@ void UI_DisplayMain(void)
 			else
 			if (SomeValue == 2)
 			{	// RX signal level
-				if (gVFO_RSSI_Level[vfo_num])
-					Level = gVFO_RSSI_Level[vfo_num];
+				#ifdef ENABLE_DBM
+					// dBm
+					//
+					// this doesn't yet quite fit into the available screen space
+					const uint16_t rssi = gVFO_RSSI[vfo_num];
+					if (rssi > 0)
+					{
+						const int16_t dBm = (int16_t)(rssi / 2) - 160;
+						sprintf(String, "%-3d", dBm);
+						UI_PrintStringSmall(String, 2, 0, Line + 2);
+					}
+				#else
+					// bar graph
+					if (gVFO_RSSI_Level[vfo_num] > 0)
+						Level = gVFO_RSSI_Level[vfo_num];
+				#endif
 			}
 
 			if (Level >= 1)
 			{
-					memmove(pLine1 + display_width +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna));
-					memmove(pLine1 + display_width +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
+				uint8_t *pLine = pLine1 + display_width;
+					memmove(pLine +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna));
 				if (Level >= 2)
-					memmove(pLine1 + display_width +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
+					memmove(pLine +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
 				if (Level >= 3)
-					memmove(pLine1 + display_width + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
+					memmove(pLine +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
 				if (Level >= 4)
-					memmove(pLine1 + display_width + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
+					memmove(pLine + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
 				if (Level >= 5)
-					memmove(pLine1 + display_width + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
+					memmove(pLine + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
 				if (Level >= 6)
-					memmove(pLine1 + display_width + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
+					memmove(pLine + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
+				if (Level >= 7)
+					memmove(pLine + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
 			}
 		}
 
 		// ************
 
+		String[0] = '\0';
 		if (gEeprom.VfoInfo[vfo_num].IsAM)
 		{	// show the AM symbol
-			UI_PrintStringSmall("AM", display_width + 27, 0, Line + 1);
+			strcpy(String, "AM");
 		}
 		else
 		{	// show the CTCSS/DCS symbol
@@ -387,8 +404,9 @@ void UI_DisplayMain(void)
 			const unsigned int code_type = pConfig->CodeType;
 			const char *code_list[] = {"", "CT", "DCS", "DCR"};
 			if (code_type >= 0 && code_type < ARRAY_SIZE(code_list))
-				UI_PrintStringSmall(code_list[code_type], display_width + 24, 0, Line + 1);
+				strcpy(String, code_list[code_type]);
 		}
+		UI_PrintStringSmall(String, display_width + 24, 0, Line + 1);
 
 		{	// show the TX power
 			const char pwr_list[] = "LMH";
@@ -423,7 +441,7 @@ void UI_DisplayMain(void)
 			UI_PrintStringSmall("DTMF", display_width + 78, 0, Line + 1);
 
 		// show the audio scramble symbol
-		if (gEeprom.VfoInfo[vfo_num].SCRAMBLING_TYPE && gSetting_ScrambleEnable)
+		if (gEeprom.VfoInfo[vfo_num].SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
 			UI_PrintStringSmall("SCR", display_width + 106, 0, Line + 1);
 	}
 
@@ -433,6 +451,6 @@ void UI_DisplayMain(void)
 			UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);
 		}
 	#endif
-	
+
 	ST7565_BlitFullScreen();
 }

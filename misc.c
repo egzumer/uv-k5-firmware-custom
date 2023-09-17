@@ -99,7 +99,10 @@ uint8_t           gUpdateStatus;
 uint8_t           gFoundCTCSS;
 uint8_t           gFoundCDCSS;
 bool              gEndOfRxDetectedMaybe;
+
+uint16_t          gVFO_RSSI[2];
 uint8_t           gVFO_RSSI_Level[2];
+
 uint8_t           gReducedService;
 uint8_t           gBatteryVoltageIndex;
 CssScanMode_t     gCssScanMode;
