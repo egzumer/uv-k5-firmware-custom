@@ -1685,19 +1685,19 @@ void APP_TimeSlice500ms(void)
 			}
 		}
 
-		if (gDTMF_DecodeRing && gDTMF_DecodeRingCountdown > 0)
+		if (gDTMF_DecodeRing && gDTMF_DecodeRingCountdown_500ms > 0)
 		{
-			if ((--gDTMF_DecodeRingCountdown % 3) == 0)
+			if ((--gDTMF_DecodeRingCountdown_500ms % 3) == 0)
 				AUDIO_PlayBeep(BEEP_440HZ_500MS);
 
-			if (gDTMF_DecodeRingCountdown == 0)
+			if (gDTMF_DecodeRingCountdown_500ms == 0)
 				gDTMF_DecodeRing = false;
 		}
 	}
 
-	if (gDTMF_IsTx && gDTMF_TxStopCountdown > 0)
+	if (gDTMF_IsTx && gDTMF_TxStopCountdown_500ms > 0)
 	{
-		if (--gDTMF_TxStopCountdown == 0)
+		if (--gDTMF_TxStopCountdown_500ms == 0)
 		{
 			gDTMF_IsTx     = false;
 			gUpdateDisplay = true;
@@ -2165,10 +2165,10 @@ Skip:
 
 		RADIO_SetupRegisters(true);
 
-		gDTMF_AUTO_RESET_TIME = 0;
-		gDTMF_CallState       = DTMF_CALL_STATE_NONE;
-		gDTMF_TxStopCountdown = 0;
-		gDTMF_IsTx            = false;
+		gDTMF_AUTO_RESET_TIME       = 0;
+		gDTMF_CallState             = DTMF_CALL_STATE_NONE;
+		gDTMF_TxStopCountdown_500ms = 0;
+		gDTMF_IsTx                  = false;
 
 		gVFO_RSSI_Level[0]    = 0;
 		gVFO_RSSI_Level[1]    = 0;

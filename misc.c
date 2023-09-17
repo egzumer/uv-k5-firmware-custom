@@ -18,41 +18,43 @@
 
 #include "misc.h"
 
-const uint8_t     fm_resume_countdown_500ms       =  2500 / 500;  // 2.5 seconds
-const uint8_t     fm_radio_countdown_500ms        =  2000 / 500;  // 2 seconds
-const uint16_t    fm_play_countdown_scan_10ms     =   100 / 10;   // 100ms
-const uint16_t    fm_play_countdown_noscan_10ms   =  1200 / 10;   // 1.2 seconds
+const uint8_t     fm_resume_countdown_500ms        =  2500 / 500;  // 2.5 seconds
+const uint8_t     fm_radio_countdown_500ms         =  2000 / 500;  // 2 seconds
+const uint16_t    fm_play_countdown_scan_10ms      =   100 / 10;   // 100ms
+const uint16_t    fm_play_countdown_noscan_10ms    =  1200 / 10;   // 1.2 seconds
+												   
+const uint8_t     menu_timeout_500ms               = 20000 / 500;  // 20 seconds
+												   
+const uint8_t     DTMF_RX_timeout_500ms            =  2500 / 500;  // 2.5 seconds
+const uint8_t     DTMF_RX_timeout_saved_500ms      = 20000 / 500;  // 20 seconds
+const uint8_t     DTMF_decode_ring_countdown_500ms = 15000 / 500;  // 15 seconds
+const uint8_t     DTMF_txstop_countdown_500ms      =  3000 / 500;  // 6 seconds
 
-const uint8_t     menu_timeout_500ms              = 20000 / 500;  // 20 seconds
+const uint8_t     key_input_timeout_500ms          =  8000 / 500;  // 8 seconds
+												   
+const uint16_t    key_repeat_delay_10ms            =   400 / 10;   // 400ms
+const uint16_t    key_repeat_10ms                  =    80 / 10;   // 80ms .. MUST be less than 'key_repeat_delay'
+const uint16_t    key_debounce_10ms                =    20 / 10;   // 20ms
+												   
+const uint8_t     scan_delay_10ms                  =   210 / 10;   // 210ms
+												   
+// 10ms count down resolution                      
+const uint16_t    dual_watch_count_after_tx_10ms   =  3600 / 10;   // 3.6 sec after TX ends
+const uint16_t    dual_watch_count_after_rx_10ms   =  1000 / 10;   // 1 sec after RX ends ?
+const uint16_t    dual_watch_count_after_1_10ms    =  5000 / 10;   // 5 sec
+const uint16_t    dual_watch_count_after_2_10ms    =  3600 / 10;   // 3.6 sec
+const uint16_t    dual_watch_count_toggle_10ms     =   100 / 10;   // 100ms between VFO toggles
+const uint16_t    dual_watch_count_noaa_10ms       =    70 / 10;   // 70ms
+const uint16_t    dual_watch_count_after_vox_10ms  =   200 / 10;   // 200ms
+												   
+const uint16_t    battery_save_count_10ms          = 10000 / 10;   // 10 seconds
+												   
+const uint16_t    gMax_bat_v                       = 843;          // 8.43V
+const uint16_t    gMin_bat_v                       = 660;          // 6.6V
 
-const uint8_t     DTMF_RX_timeout_500ms           =  2500 / 500;  // 2.5 seconds
-const uint8_t     DTMF_RX_timeout_saved_500ms     = 20000 / 500;  // 20 seconds
-
-const uint8_t     key_input_timeout_500ms         =  8000 / 500;  // 8 seconds
-
-const uint16_t    key_repeat_delay_10ms           =   400 / 10;   // 400ms
-const uint16_t    key_repeat_10ms                 =    80 / 10;   // 80ms .. MUST be less than 'key_repeat_delay'
-const uint16_t    key_debounce_10ms               =    20 / 10;   // 20ms
-
-const uint8_t     scan_delay_10ms                 =   210 / 10;   // 210ms
-
-// 10ms count down resolution
-const uint16_t    dual_watch_count_after_tx_10ms  =  3600 / 10;   // 3.6 sec after TX ends
-const uint16_t    dual_watch_count_after_rx_10ms  =  1000 / 10;   // 1 sec after RX ends ?
-const uint16_t    dual_watch_count_after_1_10ms   =  5000 / 10;   // 5 sec
-const uint16_t    dual_watch_count_after_2_10ms   =  3600 / 10;   // 3.6 sec
-const uint16_t    dual_watch_count_toggle_10ms    =   100 / 10;   // 100ms between VFO toggles
-const uint16_t    dual_watch_count_noaa_10ms      =    70 / 10;   // 70ms
-const uint16_t    dual_watch_count_after_vox_10ms =   200 / 10;   // 200ms
-
-const uint16_t    battery_save_count_10ms         = 10000 / 10;   // 10 seconds
-
-const uint16_t    gMax_bat_v                      = 843;          // 8.43V
-const uint16_t    gMin_bat_v                      = 660;          // 6.6V
-
-const uint32_t    gDefaultAesKey[4]               = {0x4AA5CC60, 0x0312CC5F, 0xFFD2DABB, 0x6BBA7F92};
-
-const uint8_t     gMicGain_dB2[5]                 = {3, 8, 16, 24, 31};
+const uint32_t    gDefaultAesKey[4]                = {0x4AA5CC60, 0x0312CC5F, 0xFFD2DABB, 0x6BBA7F92};
+												   
+const uint8_t     gMicGain_dB2[5]                  = {3, 8, 16, 24, 31};
 
 bool              gSetting_350TX;
 bool              gSetting_KILLED;

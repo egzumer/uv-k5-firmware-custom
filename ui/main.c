@@ -98,7 +98,13 @@ void UI_DisplayMain(void)
 						strcpy(String, (gDTMF_State == DTMF_STATE_TX_SUCC) ? "DTMF TX(SUCC)" : "DTMF TX");
 				}
 				else
+				{
 					sprintf(String, ">%s", gDTMF_InputBox);
+
+					#ifdef ENABLE_DTMF_DECODER
+						show_dtmf_rx = false;
+					#endif
+				}
 				UI_PrintString(String, 2, 0, vfo_num * 3, 8);
 
 				memset(String,  0, sizeof(String));
@@ -113,6 +119,12 @@ void UI_DisplayMain(void)
 					else
 					if (gDTMF_IsTx)
 						sprintf(String, ">%s", gDTMF_String);
+				}
+				else
+				{
+					#ifdef ENABLE_DTMF_DECODER
+						show_dtmf_rx = false;
+					#endif
 				}
 				UI_PrintString(String, 2, 0, 2 + (vfo_num * 3), 8);
 
@@ -225,6 +237,10 @@ void UI_DisplayMain(void)
 		if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_CHANNEL == vfo_num)
 		{	// user entering a frequency
 			UI_DisplayFrequency(gInputBox, 31, Line, true, false);
+
+			#ifdef ENABLE_DTMF_DECODER
+				show_dtmf_rx = false;
+			#endif
 		}
 		else
 		{

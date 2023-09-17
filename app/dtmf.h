@@ -72,7 +72,7 @@ extern char              gDTMF_Caller[4];
 extern char              gDTMF_Callee[4];
 extern DTMF_State_t      gDTMF_State;
 extern bool              gDTMF_DecodeRing;
-extern uint8_t           gDTMF_DecodeRingCountdown;
+extern uint8_t           gDTMF_DecodeRingCountdown_500ms;
 extern uint8_t           gDTMFChosenContact;
 extern uint8_t           gDTMF_AUTO_RESET_TIME;
 extern uint8_t           gDTMF_InputIndex;
@@ -81,7 +81,7 @@ extern DTMF_CallState_t  gDTMF_CallState;
 extern DTMF_ReplyState_t gDTMF_ReplyState;
 extern DTMF_CallMode_t   gDTMF_CallMode;
 extern bool              gDTMF_IsTx;
-extern uint8_t           gDTMF_TxStopCountdown;
+extern uint8_t           gDTMF_TxStopCountdown_500ms;
 
 bool DTMF_ValidateCodes(char *pCode, uint8_t Size);
 bool DTMF_GetContact(const int Index, char *pContact);

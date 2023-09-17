@@ -913,9 +913,9 @@ Skip:
 	{
 		if (gDTMF_CallMode == DTMF_CALL_MODE_DTMF)
 		{
-			gDTMF_IsTx            = true;
-			gDTMF_CallState       = DTMF_CALL_STATE_NONE;
-			gDTMF_TxStopCountdown = 6;
+			gDTMF_IsTx                  = true;
+			gDTMF_CallState             = DTMF_CALL_STATE_NONE;
+			gDTMF_TxStopCountdown_500ms = DTMF_txstop_countdown_500ms;
 		}
 		else
 		{

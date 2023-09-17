@@ -50,7 +50,7 @@ char              gDTMF_Caller[4];
 char              gDTMF_Callee[4];
 DTMF_State_t      gDTMF_State;
 bool              gDTMF_DecodeRing;
-uint8_t           gDTMF_DecodeRingCountdown;
+uint8_t           gDTMF_DecodeRingCountdown_500ms;
 uint8_t           gDTMFChosenContact;
 uint8_t           gDTMF_AUTO_RESET_TIME;
 uint8_t           gDTMF_InputIndex;
@@ -59,7 +59,7 @@ DTMF_CallState_t  gDTMF_CallState;
 DTMF_ReplyState_t gDTMF_ReplyState;
 DTMF_CallMode_t   gDTMF_CallMode;
 bool              gDTMF_IsTx;
-uint8_t           gDTMF_TxStopCountdown;
+uint8_t           gDTMF_TxStopCountdown_500ms;
 bool              gDTMF_IsGroupCall;
 
 bool DTMF_ValidateCodes(char *pCode, uint8_t Size)
@@ -271,15 +271,15 @@ void DTMF_HandleRequest(void)
 			switch (gEeprom.DTMF_DECODE_RESPONSE)
 			{
 				case 3:
-					gDTMF_DecodeRing = true;
-					gDTMF_DecodeRingCountdown = 20;
+					gDTMF_DecodeRing                = true;
+					gDTMF_DecodeRingCountdown_500ms = DTMF_decode_ring_countdown_500ms;
 					// Fallthrough
 				case 2:
 					gDTMF_ReplyState = DTMF_REPLY_AAAAA;
 					break;
 				case 1:
-					gDTMF_DecodeRing = true;
-					gDTMF_DecodeRingCountdown = 20;
+					gDTMF_DecodeRing                = true;
+					gDTMF_DecodeRingCountdown_500ms = DTMF_decode_ring_countdown_500ms;
 					break;
 				default:
 					gDTMF_DecodeRing = false;

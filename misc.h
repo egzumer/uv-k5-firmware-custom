@@ -87,6 +87,8 @@ extern const uint8_t         menu_timeout_500ms;
 
 extern const uint8_t         DTMF_RX_timeout_500ms;
 extern const uint8_t         DTMF_RX_timeout_saved_500ms;
+extern const uint8_t         DTMF_decode_ring_countdown_500ms;
+extern const uint8_t         DTMF_txstop_countdown_500ms;
 
 extern const uint8_t         key_input_timeout_500ms;
 
