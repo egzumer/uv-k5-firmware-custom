@@ -53,19 +53,19 @@ static void Render(uint8_t RssiLevel, uint8_t VFO)
 	}
 	else
 	{
-		memcpy(pLine, BITMAP_Antenna, 5);
+		memmove(pLine, BITMAP_Antenna, 5);
 		if (RssiLevel >= 2)
-			memcpy(pLine +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
+			memmove(pLine +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
 		if (RssiLevel >= 3)
-			memcpy(pLine +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
+			memmove(pLine +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
 		if (RssiLevel >= 4)
-			memcpy(pLine + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
+			memmove(pLine + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
 		if (RssiLevel >= 5)
-			memcpy(pLine + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
+			memmove(pLine + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
 		if (RssiLevel >= 6)
-			memcpy(pLine + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
+			memmove(pLine + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
 		if (RssiLevel >= 7)
-			memcpy(pLine + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
+			memmove(pLine + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
 	}
 
 	ST7565_DrawLine(0, Line, 23 , pLine, bIsClearMode);

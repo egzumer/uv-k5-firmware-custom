@@ -54,6 +54,10 @@ void UI_DisplayMain(void)
 		const bool single_vfo = false;
 //	#endif
 
+	#ifdef ENABLE_DTMF_DECODER
+		bool show_dtmf_rx = true;
+	#endif
+	
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
 		uint8_t  Channel    = gEeprom.TX_CHANNEL;
@@ -112,24 +116,28 @@ void UI_DisplayMain(void)
 				}
 				UI_PrintString(String, 2, 0, 2 + (vfo_num * 3), 8);
 
+				#ifdef ENABLE_DTMF_DECODER
+					show_dtmf_rx = false;
+				#endif
+				
 				continue;
 			}
 
 			// highlight the selected/used VFO with a marker
 			if (!single_vfo && bIsSameVfo)
-				memcpy(pLine0 + 2, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
+				memmove(pLine0 + 2, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			else
 			if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)
-				memcpy(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
+				memmove(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 		else
 		if (!single_vfo)
 		{	// highlight the selected/used VFO with a marker
 			if (bIsSameVfo)
-				memcpy(pLine0 + 2, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
+				memmove(pLine0 + 2, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			else
 			//if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)
-				memcpy(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
+				memmove(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 
 		uint32_t SomeValue = 0;
@@ -167,7 +175,7 @@ void UI_DisplayMain(void)
 			if (!inputting)
 				NUMBER_ToDigits(gEeprom.ScreenChannel[vfo_num] + 1, String);  // show the memory channel number
 			else
-				memcpy(String + 5, gInputBox, 3);                             // show the input text
+				memmove(String + 5, gInputBox, 3);                             // show the input text
 			UI_PrintStringSmall("M", x, 0, Line + 1);
 			UI_DisplaySmallDigits(3, String + 5, x + 7, Line + 1, inputting);
 		}
@@ -234,9 +242,9 @@ void UI_DisplayMain(void)
 				{	// show the scanlist symbols
 					const uint8_t Attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
 					if (Attributes & MR_CH_SCANLIST1)
-						memcpy(pLine0 + 113, BITMAP_ScanList, sizeof(BITMAP_ScanList));
+						memmove(pLine0 + 113, BITMAP_ScanList, sizeof(BITMAP_ScanList));
 					if (Attributes & MR_CH_SCANLIST2)
-						memcpy(pLine0 + 120, BITMAP_ScanList, sizeof(BITMAP_ScanList));
+						memmove(pLine0 + 120, BITMAP_ScanList, sizeof(BITMAP_ScanList));
 				}
 
 				switch (gEeprom.CHANNEL_DISPLAY_MODE)
@@ -270,7 +278,7 @@ void UI_DisplayMain(void)
 						else
 						{	// channel name
 							memset(String, 0, sizeof(String));
-							memcpy(String, gEeprom.VfoInfo[vfo_num].Name, 10);
+							memmove(String, gEeprom.VfoInfo[vfo_num].Name, 10);
 						}
 						UI_PrintString(String, 31, 112, Line, 8);
 						break;
@@ -285,7 +293,7 @@ void UI_DisplayMain(void)
 							else
 							{	// channel name
 								memset(String, 0, sizeof(String));
-								memcpy(String, gEeprom.VfoInfo[vfo_num].Name, 10);
+								memmove(String, gEeprom.VfoInfo[vfo_num].Name, 10);
 							}
 							UI_PrintStringSmall(String, 31 + 8, 0, Line);
 
@@ -336,18 +344,18 @@ void UI_DisplayMain(void)
 
 			if (Level >= 1)
 			{
-					memcpy(pLine1 + display_width +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna));
-					memcpy(pLine1 + display_width +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
+					memmove(pLine1 + display_width +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna));
+					memmove(pLine1 + display_width +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
 				if (Level >= 2)
-					memcpy(pLine1 + display_width +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
+					memmove(pLine1 + display_width +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
 				if (Level >= 3)
-					memcpy(pLine1 + display_width + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
+					memmove(pLine1 + display_width + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
 				if (Level >= 4)
-					memcpy(pLine1 + display_width + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
+					memmove(pLine1 + display_width + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
 				if (Level >= 5)
-					memcpy(pLine1 + display_width + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
+					memmove(pLine1 + display_width + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
 				if (Level >= 6)
-					memcpy(pLine1 + display_width + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
+					memmove(pLine1 + display_width + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
 			}
 		}
 
@@ -404,7 +412,7 @@ void UI_DisplayMain(void)
 	}
 
 	#ifdef ENABLE_DTMF_DECODER
-		if (gDTMF_ReceivedSaved[0] >= 32)
+		if (show_dtmf_rx && gDTMF_ReceivedSaved[0] >= 32)
 		{	// show the incoming DTMF live on-screen
 			UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);
 		}

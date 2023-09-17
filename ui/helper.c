@@ -76,8 +76,8 @@ void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Lin
 		{
 			const unsigned int Index = pString[i] - ' ';
 			const unsigned int ofs   = (unsigned int)Start + (i * Width);
-			memcpy(gFrameBuffer[Line + 0] + ofs, &gFontBig[Index][0], 8);
-			memcpy(gFrameBuffer[Line + 1] + ofs, &gFontBig[Index][8], 7);
+			memmove(gFrameBuffer[Line + 0] + ofs, &gFontBig[Index][0], 8);
+			memmove(gFrameBuffer[Line + 1] + ofs, &gFontBig[Index][8], 7);
 		}
 	}
 }
@@ -99,7 +99,7 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 		{
 			const unsigned int Index = (unsigned int)pString[i] - 32;
 			if (Index < ARRAY_SIZE(gFontSmall))
-				memcpy(pFb + (i * char_spacing), &gFontSmall[Index], char_width);
+				memmove(pFb + (i * char_spacing), &gFontSmall[Index], char_width);
 		}
 	}
 }
@@ -119,8 +119,8 @@ void UI_DisplayFrequency(const char *pDigits, uint8_t X, uint8_t Y, bool bDispla
 		if (bDisplayLeadingZero || bCanDisplay || Digit > 0)
 		{
 			bCanDisplay = true;
-			memcpy(pFb0, gFontBigDigits[Digit],              char_width);
-			memcpy(pFb1, gFontBigDigits[Digit] + char_width, char_width);
+			memmove(pFb0, gFontBigDigits[Digit],              char_width);
+			memmove(pFb1, gFontBigDigits[Digit] + char_width, char_width);
 		}
 		else
 		if (bFlag)
@@ -141,8 +141,8 @@ void UI_DisplayFrequency(const char *pDigits, uint8_t X, uint8_t Y, bool bDispla
 	while (i < 6)
 	{
 		const unsigned int Digit = pDigits[i++];
-		memcpy(pFb0, gFontBigDigits[Digit],              char_width);
-		memcpy(pFb1, gFontBigDigits[Digit] + char_width, char_width);
+		memmove(pFb0, gFontBigDigits[Digit],              char_width);
+		memmove(pFb1, gFontBigDigits[Digit] + char_width, char_width);
 		pFb0 += char_width;
 		pFb1 += char_width;
 	}
@@ -162,7 +162,7 @@ void UI_DisplayFrequencySmall(const char *pDigits, uint8_t X, uint8_t Y, bool bD
 		if (bDisplayLeadingZero || bCanDisplay || Digit > 0)
 		{
 			bCanDisplay = true;
-			memcpy(pFb, gFontSmallDigits[Digit], char_width);
+			memmove(pFb, gFontSmallDigits[Digit], char_width);
 			pFb += char_width;
 		}
 	}
@@ -178,7 +178,7 @@ void UI_DisplayFrequencySmall(const char *pDigits, uint8_t X, uint8_t Y, bool bD
 	while (i < 8)
 	{
 		const unsigned int Digit = pDigits[i++];
-		memcpy(pFb, gFontSmallDigits[Digit], char_width);
+		memmove(pFb, gFontSmallDigits[Digit], char_width);
 		pFb += char_width;
 	}
 }
@@ -196,7 +196,7 @@ void UI_DisplaySmallDigits(const uint8_t size, const char *str, const uint8_t x,
 			display = true;
 		if (display && c < ARRAY_SIZE(gFontSmallDigits))
 		{
-			memcpy(gFrameBuffer[y] + xx, gFontSmallDigits[c], char_width);
+			memmove(gFrameBuffer[y] + xx, gFontSmallDigits[c], char_width);
 			xx += char_width;
 		}
 	}

@@ -302,7 +302,7 @@ void UI_DisplayMenu(void)
 	#endif
 
 	if (gIsInSubMenu)
-		memcpy(gFrameBuffer[0] + 50, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));
+		memmove(gFrameBuffer[0] + 50, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));
 
 	memset(String, 0, sizeof(String));
 
@@ -523,7 +523,7 @@ void UI_DisplayMenu(void)
 			if (!gIsDtmfContactValid)
 				strcpy(String, "NULL");
 			else
-				memcpy(String, Contact, 8);
+				memmove(String, Contact, 8);
 			break;
 
 		case MENU_PONMSG:
@@ -650,7 +650,7 @@ void UI_DisplayMenu(void)
 	if (gMenuCursor == MENU_D_LIST && gIsDtmfContactValid)
 	{
 		Contact[11] = 0;
-		memcpy(&gDTMF_ID, Contact + 8, 4);
+		memmove(&gDTMF_ID, Contact + 8, 4);
 		sprintf(String, "ID:%s", Contact + 8);
 		UI_PrintString(String, 50, 127, 4, 8);
 	}

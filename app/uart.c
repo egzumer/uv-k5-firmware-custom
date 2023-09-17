@@ -223,7 +223,7 @@ static void CMD_0514(const uint8_t *pBuffer)
 
 	Timestamp = pCmd->Timestamp;
 	#ifdef ENABLE_FMRADIO
-		gFmRadioCountdown = 4;
+		gFmRadioCountdown_500ms = fm_radio_countdown_500ms;
 	#endif
 	GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
 	SendVersion();
@@ -240,7 +240,7 @@ static void CMD_051B(const uint8_t *pBuffer)
 	}
 
 	#ifdef ENABLE_FMRADIO
-		gFmRadioCountdown = 4;
+		gFmRadioCountdown_500ms = fm_radio_countdown_500ms;
 	#endif
 	memset(&Reply, 0, sizeof(Reply));
 	Reply.Header.ID = 0x051C;
@@ -273,7 +273,7 @@ static void CMD_051D(const uint8_t *pBuffer)
 	bReloadEeprom = false;
 
 	#ifdef ENABLE_FMRADIO
-		gFmRadioCountdown = 4;
+		gFmRadioCountdown_500ms = fm_radio_countdown_500ms;
 	#endif
 	Reply.Header.ID = 0x051E;
 	Reply.Header.Size = sizeof(Reply.Data);
@@ -340,7 +340,7 @@ static void CMD_052D(const uint8_t *pBuffer)
 	bool bIsLocked;
 
 	#ifdef ENABLE_FMRADIO
-		gFmRadioCountdown = 4;
+		gFmRadioCountdown_500ms = fm_radio_countdown_500ms;
 	#endif
 	Reply.Header.ID = 0x052E;
 	Reply.Header.Size = sizeof(Reply.Data);
@@ -458,11 +458,11 @@ bool UART_IsCommandAvailable(void)
 	if (TailIndex < Index)
 	{
 		const uint16_t ChunkSize = sizeof(UART_DMA_Buffer) - Index;
-		memcpy(UART_Command.Buffer, UART_DMA_Buffer + Index, ChunkSize);
-		memcpy(UART_Command.Buffer + ChunkSize, UART_DMA_Buffer, TailIndex);
+		memmove(UART_Command.Buffer, UART_DMA_Buffer + Index, ChunkSize);
+		memmove(UART_Command.Buffer + ChunkSize, UART_DMA_Buffer, TailIndex);
 	}
 	else
-		memcpy(UART_Command.Buffer, UART_DMA_Buffer + Index, TailIndex - Index);
+		memmove(UART_Command.Buffer, UART_DMA_Buffer + Index, TailIndex - Index);
 
 	TailIndex = DMA_INDEX(TailIndex, 2);
 	if (TailIndex < gUART_WriteIndex)

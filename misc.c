@@ -18,6 +18,11 @@
 
 #include "misc.h"
 
+const uint8_t     fm_resume_countdown_500ms       =  2500 / 500;  // 2.5 seconds
+const uint8_t     fm_radio_countdown_500ms        =  2000 / 500;  // 2 seconds
+const uint16_t    fm_play_countdown_scan_10ms     =   100 / 10;   // 100ms
+const uint16_t    fm_play_countdown_noscan_10ms   =  1200 / 10;   // 1.2 seconds
+
 const uint8_t     menu_timeout_500ms              = 20000 / 500;  // 20 seconds
 
 const uint8_t     DTMF_RX_timeout_500ms           =  2500 / 500;  // 2.5 seconds

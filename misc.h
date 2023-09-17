@@ -78,6 +78,11 @@ enum CssScanMode_t
 
 typedef enum CssScanMode_t   CssScanMode_t;
 
+extern const uint8_t         fm_resume_countdown_500ms;
+extern const uint8_t         fm_radio_countdown_500ms;
+extern const uint16_t        fm_play_countdown_scan_10ms;
+extern const uint16_t        fm_play_countdown_noscan_10ms;
+
 extern const uint8_t         menu_timeout_500ms;
 
 extern const uint8_t         DTMF_RX_timeout_500ms;
@@ -138,7 +143,7 @@ extern volatile uint16_t     gDualWatchCountdown;
 extern volatile uint16_t     gTxTimerCountdown;
 extern volatile uint16_t     gTailNoteEliminationCountdown;
 #ifdef ENABLE_FMRADIO
-	extern volatile uint16_t gFmPlayCountdown;
+	extern volatile uint16_t gFmPlayCountdown_10ms;
 #endif
 #ifdef ENABLE_NOAA
 	extern volatile uint16_t gNOAA_Countdown;

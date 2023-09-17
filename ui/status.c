@@ -34,11 +34,11 @@ void UI_DisplayStatus(const bool test_display)
 	memset(gStatusLine, 0, sizeof(gStatusLine));
 
 	if (gCurrentFunction == FUNCTION_POWER_SAVE || test_display)
-		memcpy(gStatusLine, BITMAP_PowerSave, sizeof(BITMAP_PowerSave));
+		memmove(gStatusLine, BITMAP_PowerSave, sizeof(BITMAP_PowerSave));
 
 	#ifdef ENABLE_NOAA
 		if (gIsNoaaMode || test_display)
-			memcpy(gStatusLine + 7, BITMAP_NOAA, sizeof(BITMAP_NOAA));
+			memmove(gStatusLine + 7, BITMAP_NOAA, sizeof(BITMAP_NOAA));
 	#endif
 	
 	if (gSetting_KILLED || test_display)
@@ -46,46 +46,46 @@ void UI_DisplayStatus(const bool test_display)
 	#ifdef ENABLE_FMRADIO
 		else
 		if (gFmRadioMode || test_display)
-			memcpy(gStatusLine + 21, BITMAP_FM, sizeof(BITMAP_FM));
+			memmove(gStatusLine + 21, BITMAP_FM, sizeof(BITMAP_FM));
 	#endif
 
 	#ifdef ENABLE_VOICE
 		if (gEeprom.VOICE_PROMPT != VOICE_PROMPT_OFF || test_display)
-			memcpy(gStatusLine + 34, BITMAP_VoicePrompt, sizeof(BITMAP_VoicePrompt));
+			memmove(gStatusLine + 34, BITMAP_VoicePrompt, sizeof(BITMAP_VoicePrompt));
 	#endif
 	
 	if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF || test_display)
-		memcpy(gStatusLine + 45, BITMAP_TDR, sizeof(BITMAP_TDR));
+		memmove(gStatusLine + 45, BITMAP_TDR, sizeof(BITMAP_TDR));
 
 	if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF || test_display)
-		memcpy(gStatusLine + 58, BITMAP_XB, sizeof(BITMAP_XB));
+		memmove(gStatusLine + 58, BITMAP_XB, sizeof(BITMAP_XB));
 
 	if (gEeprom.VOX_SWITCH || test_display)
-		memcpy(gStatusLine + 71, BITMAP_VOX, sizeof(BITMAP_VOX));
+		memmove(gStatusLine + 71, BITMAP_VOX, sizeof(BITMAP_VOX));
 
 	if (gEeprom.KEY_LOCK || test_display)
-		memcpy(gStatusLine + 90, BITMAP_KeyLock, sizeof(BITMAP_KeyLock));
+		memmove(gStatusLine + 90, BITMAP_KeyLock, sizeof(BITMAP_KeyLock));
 	else
 	if (gWasFKeyPressed)
-		memcpy(gStatusLine + 90, BITMAP_F_Key, sizeof(BITMAP_F_Key));
+		memmove(gStatusLine + 90, BITMAP_F_Key, sizeof(BITMAP_F_Key));
 
 	if (gChargingWithTypeC || test_display)
-		memcpy(gStatusLine + 100, BITMAP_USB_C, sizeof(BITMAP_USB_C));
+		memmove(gStatusLine + 100, BITMAP_USB_C, sizeof(BITMAP_USB_C));
 
 	if (gBatteryDisplayLevel >= 5 || test_display)
-		memcpy(gStatusLine + 110, BITMAP_BatteryLevel5, sizeof(BITMAP_BatteryLevel5));
+		memmove(gStatusLine + 110, BITMAP_BatteryLevel5, sizeof(BITMAP_BatteryLevel5));
 	else
 	if (gBatteryDisplayLevel >= 4)
-		memcpy(gStatusLine + 110, BITMAP_BatteryLevel4, sizeof(BITMAP_BatteryLevel4));
+		memmove(gStatusLine + 110, BITMAP_BatteryLevel4, sizeof(BITMAP_BatteryLevel4));
 	else
 	if (gBatteryDisplayLevel >= 3)
-		memcpy(gStatusLine + 110, BITMAP_BatteryLevel3, sizeof(BITMAP_BatteryLevel3));
+		memmove(gStatusLine + 110, BITMAP_BatteryLevel3, sizeof(BITMAP_BatteryLevel3));
 	else
 	if (gBatteryDisplayLevel >= 2)
-		memcpy(gStatusLine + 110, BITMAP_BatteryLevel2, sizeof(BITMAP_BatteryLevel2));
+		memmove(gStatusLine + 110, BITMAP_BatteryLevel2, sizeof(BITMAP_BatteryLevel2));
 	else
 	if (gLowBatteryBlink == 1)
-		memcpy(gStatusLine + 110, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
+		memmove(gStatusLine + 110, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
 
 	ST7565_BlitStatusLine();
 }

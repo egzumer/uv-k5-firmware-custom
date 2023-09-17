@@ -616,7 +616,7 @@ void MENU_AcceptSetting(void)
 				GUI_SelectNextDisplay(DISPLAY_MAIN);
 				gDTMF_InputMode       = true;
 				gDTMF_InputIndex      = 3;
-				memcpy(gDTMF_InputBox, gDTMF_ID, 4);
+				memmove(gDTMF_InputBox, gDTMF_ID, 4);
 				gRequestDisplayScreen = DISPLAY_INVALID;
 			}
 			return;

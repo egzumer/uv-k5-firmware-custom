@@ -650,28 +650,30 @@ void APP_CheckRadioInterrupts(void)
 	
 			// fetch the RX'ed char
 			const char c = DTMF_GetCharacter(BK4819_GetDTMF_5TONE_Code());
-			
-			gDTMF_RequestPending = true;
-			gDTMF_RecvTimeout    = DTMF_RX_timeout_500ms;
-			// shift the RX buffer down one - if need be
-			if (gDTMF_WriteIndex >= sizeof(gDTMF_Received))
-				memmove(gDTMF_Received, &gDTMF_Received[1], gDTMF_WriteIndex-- - 1);
-			gDTMF_Received[gDTMF_WriteIndex++] = c;
-
-			if (gCurrentFunction == FUNCTION_RECEIVE)
+			if (c != 0xff)
 			{
-				#ifdef ENABLE_DTMF_DECODER
-					gDTMF_RecvTimeoutSaved = DTMF_RX_timeout_saved_500ms;
-					size_t len = strlen(gDTMF_ReceivedSaved);
-					// shift the RX buffer down one
-					if (len >= (sizeof(gDTMF_ReceivedSaved) - 1))
-						memmove(gDTMF_ReceivedSaved, &gDTMF_ReceivedSaved[1], len--);
-					gDTMF_ReceivedSaved[len++] = c;
-					gDTMF_ReceivedSaved[len]   = '\0';
-					gUpdateDisplay = true;
-				#endif
-
-				DTMF_HandleRequest();
+				gDTMF_RequestPending = true;
+				gDTMF_RecvTimeout    = DTMF_RX_timeout_500ms;
+				// shift the RX buffer down one - if need be
+				if (gDTMF_WriteIndex >= sizeof(gDTMF_Received))
+					memmove(gDTMF_Received, &gDTMF_Received[1], gDTMF_WriteIndex-- - 1);
+				gDTMF_Received[gDTMF_WriteIndex++] = c;
+	
+				if (gCurrentFunction == FUNCTION_RECEIVE)
+				{
+					#ifdef ENABLE_DTMF_DECODER
+						gDTMF_RecvTimeoutSaved = DTMF_RX_timeout_saved_500ms;
+						size_t len = strlen(gDTMF_ReceivedSaved);
+						// shift the RX buffer down one - if need be
+						if (len >= (sizeof(gDTMF_ReceivedSaved) - 1))
+							memmove(gDTMF_ReceivedSaved, &gDTMF_ReceivedSaved[1], len--);
+						gDTMF_ReceivedSaved[len++] = c;
+						gDTMF_ReceivedSaved[len]   = '\0';
+						gUpdateDisplay = true;
+					#endif
+	
+					DTMF_HandleRequest();
+				}
 			}
 		}
 
@@ -877,7 +879,7 @@ void APP_Update(void)
 		APP_HandleFunction();
 
 	#ifdef ENABLE_FMRADIO
-		if (gFmRadioCountdown)
+		if (gFmRadioCountdown_500ms > 0)
 			return;
 	#endif
 
@@ -1253,7 +1255,7 @@ void APP_TimeSlice10ms(void)
 	// Skipping authentic device checks
 
 	#ifdef ENABLE_FMRADIO
-		if (gFmRadioCountdown > 0)
+		if (gFmRadioCountdown_500ms > 0)
 			return;
 	#endif
 	
@@ -1496,9 +1498,9 @@ void APP_TimeSlice500ms(void)
 	// Skipped authentic device check
 
 	#ifdef ENABLE_FMRADIO
-		if (gFmRadioCountdown > 0)
+		if (gFmRadioCountdown_500ms > 0)
 		{
-			gFmRadioCountdown--;
+			gFmRadioCountdown_500ms--;
 			return;
 		}
 	#endif
@@ -1597,9 +1599,9 @@ void APP_TimeSlice500ms(void)
 	}
 
 	#ifdef ENABLE_FMRADIO
-		if (!gPttIsPressed && gFM_ResumeCountdown > 0)
+		if (!gPttIsPressed && gFM_ResumeCountdown_500ms > 0)
 		{
-			if (--gFM_ResumeCountdown == 0)
+			if (--gFM_ResumeCountdown_500ms == 0)
 			{
 				RADIO_SetVfoState(VFO_STATE_NORMAL);
 				if (gCurrentFunction != FUNCTION_RECEIVE && gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_MONITOR && gFmRadioMode)

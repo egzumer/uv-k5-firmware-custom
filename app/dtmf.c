@@ -113,7 +113,7 @@ bool DTMF_FindContact(const char *pContact, char *pResult)
 
 		if (j == 3)
 		{
-			memcpy(pResult, Contact, 8);
+			memmove(pResult, Contact, 8);
 			pResult[8] = 0;
 			return true;
 		}
@@ -263,8 +263,8 @@ void DTMF_HandleRequest(void)
 		if (DTMF_CompareMessage(gDTMF_Received + Offset, String, 4, true))
 		{
 			gDTMF_CallState = DTMF_CALL_STATE_RECEIVED;
-			memcpy(gDTMF_Callee, gDTMF_Received + Offset, 3);
-			memcpy(gDTMF_Caller, gDTMF_Received + Offset + 4, 3);
+			memmove(gDTMF_Callee, gDTMF_Received + Offset, 3);
+			memmove(gDTMF_Caller, gDTMF_Received + Offset + 4, 3);
 
 			gUpdateDisplay = true;
 

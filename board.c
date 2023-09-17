@@ -609,7 +609,7 @@ void BOARD_EEPROM_Init(void)
 
 	// 0E98..0E9F
 	EEPROM_ReadBuffer(0x0E98, Data, 8);
-	memcpy(&gEeprom.POWER_ON_PASSWORD, Data, 4);
+	memmove(&gEeprom.POWER_ON_PASSWORD, Data, 4);
 
 	// 0EA0..0EA7
 	#ifdef ENABLE_VOICE
@@ -646,38 +646,38 @@ void BOARD_EEPROM_Init(void)
 	// 0EE0..0EE7
 	EEPROM_ReadBuffer(0x0EE0, Data, 8);
 	if (DTMF_ValidateCodes((char *)Data, 8))
-		memcpy(gEeprom.ANI_DTMF_ID, Data, 8);
+		memmove(gEeprom.ANI_DTMF_ID, Data, 8);
 	else
 		// Original firmware overflows into the next string
-		memcpy(gEeprom.ANI_DTMF_ID, "123\0\0\0\0", 8);
+		memmove(gEeprom.ANI_DTMF_ID, "123\0\0\0\0", 8);
 
 	// 0EE8..0EEF
 	EEPROM_ReadBuffer(0x0EE8, Data, 8);
 	if (DTMF_ValidateCodes((char *)Data, 8))
-		memcpy(gEeprom.KILL_CODE, Data, 8);
+		memmove(gEeprom.KILL_CODE, Data, 8);
 	else
-		memcpy(gEeprom.KILL_CODE, "ABCD9\0\0", 8);
+		memmove(gEeprom.KILL_CODE, "ABCD9\0\0", 8);
 
 	// 0EF0..0EF7
 	EEPROM_ReadBuffer(0x0EF0, Data, 8);
 	if (DTMF_ValidateCodes((char *)Data, 8))
-		memcpy(gEeprom.REVIVE_CODE, Data, 8);
+		memmove(gEeprom.REVIVE_CODE, Data, 8);
 	else
-		memcpy(gEeprom.REVIVE_CODE, "9DCBA\0\0", 8);
+		memmove(gEeprom.REVIVE_CODE, "9DCBA\0\0", 8);
 
 	// 0EF8..0F07
 	EEPROM_ReadBuffer(0x0EF8, Data, 16);
 	if (DTMF_ValidateCodes((char *)Data, 16))
-		memcpy(gEeprom.DTMF_UP_CODE, Data, 16);
+		memmove(gEeprom.DTMF_UP_CODE, Data, 16);
 	else
-		memcpy(gEeprom.DTMF_UP_CODE, "12345\0\0\0\0\0\0\0\0\0\0", 16);
+		memmove(gEeprom.DTMF_UP_CODE, "12345\0\0\0\0\0\0\0\0\0\0", 16);
 
 	// 0F08..0F17
 	EEPROM_ReadBuffer(0x0F08, Data, 16);
 	if (DTMF_ValidateCodes((char *)Data, 16))
-		memcpy(gEeprom.DTMF_DOWN_CODE, Data, 16);
+		memmove(gEeprom.DTMF_DOWN_CODE, Data, 16);
 	else
-		memcpy(gEeprom.DTMF_DOWN_CODE, "54321\0\0\0\0\0\0\0\0\0\0", 16);
+		memmove(gEeprom.DTMF_DOWN_CODE, "54321\0\0\0\0\0\0\0\0\0\0", 16);
 
 	// 0F18..0F1F
 	EEPROM_ReadBuffer(0x0F18, Data, 8);
@@ -728,16 +728,16 @@ void BOARD_EEPROM_LoadMoreSettings(void)
 //	uint8_t Mic;
 
 	EEPROM_ReadBuffer(0x1EC0, gEEPROM_1EC0_0, 8);
-	memcpy(gEEPROM_1EC0_1, gEEPROM_1EC0_0, 8);
-	memcpy(gEEPROM_1EC0_2, gEEPROM_1EC0_0, 8);
-	memcpy(gEEPROM_1EC0_3, gEEPROM_1EC0_0, 8);
+	memmove(gEEPROM_1EC0_1, gEEPROM_1EC0_0, 8);
+	memmove(gEEPROM_1EC0_2, gEEPROM_1EC0_0, 8);
+	memmove(gEEPROM_1EC0_3, gEEPROM_1EC0_0, 8);
 
 	// 3 bands, 4 * 16-bit values per band
 	// both my radios are -70dBm, -65dBm, -60dBm, -55dBm (0xB4, 0xBE, 0xC8, 0xD2)
 	// -93, -75, -57, -39 seems to be a better choice (0x86, 0xAA, 0xCE, 0xF2)
 	EEPROM_ReadBuffer(0x1EC8, gEEPROM_RSSI_CALIB[0], 8);
-	memcpy(gEEPROM_RSSI_CALIB[1], gEEPROM_RSSI_CALIB[0], 8);
-	memcpy(gEEPROM_RSSI_CALIB[2], gEEPROM_RSSI_CALIB[0], 8);
+	memmove(gEEPROM_RSSI_CALIB[1], gEEPROM_RSSI_CALIB[0], 8);
+	memmove(gEEPROM_RSSI_CALIB[2], gEEPROM_RSSI_CALIB[0], 8);
 
 	EEPROM_ReadBuffer(0x1F40, gBatteryCalibration, 12);
 	if (gBatteryCalibration[0] >= 5000)

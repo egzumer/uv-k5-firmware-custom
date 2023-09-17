@@ -134,11 +134,14 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 		case FUNCTION_POWER_SAVE:
 			gBatterySave = gEeprom.BATTERY_SAVE * 10;
 			gRxIdleMode  = true;
+
 			BK4819_DisableVox();
 			BK4819_Sleep();
 			BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, false);
+
 			gBatterySaveCountdownExpired = false;
 			gUpdateStatus                = true;
+
 			GUI_SelectNextDisplay(DISPLAY_MAIN);
 			return;
 	
@@ -184,8 +187,8 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 				}
 			#endif
 			
-			if (gCurrentVfo->SCRAMBLING_TYPE && gSetting_ScrambleEnable)
-				BK4819_EnableScramble(gCurrentVfo->SCRAMBLING_TYPE - 1U);
+			if (gCurrentVfo->SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
+				BK4819_EnableScramble(gCurrentVfo->SCRAMBLING_TYPE - 1);
 			else
 				BK4819_DisableScramble();
 

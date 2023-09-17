@@ -645,10 +645,10 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 					break;
 			}
 
-			if (gRxVfo->SCRAMBLING_TYPE == 0 || !gSetting_ScrambleEnable)
-				BK4819_DisableScramble();
-			else
+			if (gRxVfo->SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
 				BK4819_EnableScramble(gRxVfo->SCRAMBLING_TYPE - 1);
+			else
+				BK4819_DisableScramble();
 		}
 	}
 	#ifdef ENABLE_NOAA
@@ -688,18 +688,26 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 	#endif
 
 	#ifndef ENABLE_DTMF_DECODER
+		// there's no reason the DTMF decoder can't be used in AM RX mode too
+		// aircraft comms use it on HF (AM and SSB)
 		if (gRxVfo->IsAM || (!gRxVfo->DTMF_DECODING_ENABLE && !gSetting_KILLED))
 		{
 			BK4819_DisableDTMF();
 		}
 		else
+		{
+			BK4819_EnableDTMF();
+			InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
+		}
+	#else
+		if (!gSetting_KILLED)
+		{
+			BK4819_EnableDTMF();
+			InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
+		}
 	#endif
-	{
-		BK4819_EnableDTMF();
-		InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
-	}
 
-	// enable/disable BK4819 interrupts
+	// enable/disable BK4819 selected interrupts
 	BK4819_WriteRegister(BK4819_REG_3F, InterruptMask);
 
 	FUNCTION_Init();
@@ -765,7 +773,7 @@ void RADIO_SetTxParameters(void)
 
 	Bandwidth = gCurrentVfo->CHANNEL_BANDWIDTH;
 	if (Bandwidth != BK4819_FILTER_BW_WIDE)
-		Bandwidth = BK4819_FILTER_BW_NARROW;
+		Bandwidth  = BK4819_FILTER_BW_NARROW;
 	BK4819_SetFilterBandwidth(Bandwidth);
 
 	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency);
@@ -816,7 +824,7 @@ void RADIO_SetVfoState(VfoState_t State)
 		VfoState[1] = VFO_STATE_NORMAL;
 
 		#ifdef ENABLE_FMRADIO
-			gFM_ResumeCountdown = 0;
+			gFM_ResumeCountdown_500ms = 0;
 		#endif
 	}
 	else
@@ -833,7 +841,7 @@ void RADIO_SetVfoState(VfoState_t State)
 		}
 
 		#ifdef ENABLE_FMRADIO
-			gFM_ResumeCountdown = 5;
+			gFM_ResumeCountdown_500ms = fm_resume_countdown_500ms;
 		#endif
 	}
 
@@ -858,7 +866,9 @@ void RADIO_PrepareTX(void)
 	RADIO_SelectCurrentVfo();
 
 	#ifdef ENABLE_ALARM
-		if (gAlarmState == ALARM_STATE_OFF || gAlarmState == ALARM_STATE_TX1750 || (gAlarmState == ALARM_STATE_ALARM && gEeprom.ALARM_MODE == ALARM_MODE_TONE))
+		if (gAlarmState == ALARM_STATE_OFF ||
+		    gAlarmState == ALARM_STATE_TX1750 ||
+		   (gAlarmState == ALARM_STATE_ALARM && gEeprom.ALARM_MODE == ALARM_MODE_TONE))
 	#endif
 	{
 		VfoState_t State;
@@ -892,10 +902,9 @@ void RADIO_PrepareTX(void)
 			gAlarmState = ALARM_STATE_OFF;
 		#endif
 
-		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
-
 		gDTMF_ReplyState = DTMF_REPLY_NONE;
 
+		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 		return;
 	}
 
@@ -953,7 +962,9 @@ void RADIO_EnableCxCSS(void)
 void RADIO_PrepareCssTX(void)
 {
 	RADIO_PrepareTX();
+
 	SYSTEM_DelayMs(200);
+
 	RADIO_EnableCxCSS();
 	RADIO_SetupRegisters(true);
 }

@@ -38,14 +38,14 @@
 
 uint16_t          gFM_Channels[20];
 bool              gFmRadioMode;
-uint8_t           gFmRadioCountdown;
-volatile uint16_t gFmPlayCountdown;
+uint8_t           gFmRadioCountdown_500ms;
+volatile uint16_t gFmPlayCountdown_10ms;
 volatile int8_t   gFM_ScanState;
 bool              gFM_AutoScan;
 uint8_t           gFM_ChannelPosition;
 bool              gFM_FoundFrequency;
 bool              gFM_AutoScan;
-uint8_t           gFM_ResumeCountdown;
+uint8_t           gFM_ResumeCountdown_500ms;
 uint16_t          gFM_RestoreCountdown;
 
 bool FM_CheckValidChannel(uint8_t Channel)
@@ -120,7 +120,7 @@ void FM_Tune(uint16_t Frequency, int8_t Step, bool bFlag)
 
 	gEnableSpeaker = false;
 
-	gFmPlayCountdown = (gFM_ScanState == FM_SCAN_OFF) ? 120 : 10;
+	gFmPlayCountdown_10ms = (gFM_ScanState == FM_SCAN_OFF) ? fm_play_countdown_noscan_10ms : fm_play_countdown_scan_10ms;
 
 	gScheduleFM                 = false;
 	gFM_FoundFrequency          = false;
@@ -159,9 +159,9 @@ void FM_PlayAndUpdate(void)
 	BK1080_SetFrequency(gEeprom.FM_FrequencyPlaying);
 	SETTINGS_SaveFM();
 
-	gFmPlayCountdown = 0;
-	gScheduleFM      = false;
-	gAskToSave       = false;
+	gFmPlayCountdown_10ms = 0;
+	gScheduleFM           = false;
+	gAskToSave            = false;
 
 	GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 
@@ -617,8 +617,8 @@ void FM_Play(void)
 	{
 		if (!gFM_AutoScan)
 		{
-			gFmPlayCountdown   = 0;
-			gFM_FoundFrequency = true;
+			gFmPlayCountdown_10ms = 0;
+			gFM_FoundFrequency    = true;
 
 			if (!gEeprom.FM_IsMrMode)
 				gEeprom.FM_SelectedFrequency = gEeprom.FM_FrequencyPlaying;
