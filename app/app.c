@@ -447,19 +447,33 @@ void APP_StartListening(FUNCTION_Type_t Function)
 
 		if (gRxVfo->IsAM)
 		{
+			// RX AF level
 			BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);
 			
-			// PGA + MIXER + LNA + LNA_SHORT
-			BK4819_WriteRegister(BK4819_REG_13, 3u | (3u << 3) | (2u << 5) | (3u << 8));
+			// help improve AM RX audio by reducing the PGA gain
+			//
+			// I think the solution is to set the RX AGC to limit the front end gain
+			//
+			// LNA_SHORT ..   0dB
+			// LNA ........  14dB
+			// MIXER ......   0dB
+			// PGA ........ -15dB
+			//
+			BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (3u << 0));
 
 			gNeverUsed = 0;
 		}
 		else
 		{
+			// RX AF level
 			BK4819_WriteRegister(BK4819_REG_48, 0xB000 | (gEeprom.VOLUME_GAIN << 4) | (gEeprom.DAC_GAIN << 0));
 			
-			// PGA + MIXER + LNA + LNA_SHORT
-			BK4819_WriteRegister(BK4819_REG_13, 0x03BE);
+			// LNA_SHORT ..   0dB
+			// LNA ........  14dB
+			// MIXER ......   0dB
+			// PGA ........  -3dB
+			//
+			BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (6u << 0));
 		}
 		
 		#ifdef ENABLE_VOICE

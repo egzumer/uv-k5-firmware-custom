@@ -41,12 +41,19 @@ void BK4819_Init(void)
 
 	BK4819_WriteRegister(BK4819_REG_00, 0x8000);
 	BK4819_WriteRegister(BK4819_REG_00, 0x0000);
+
 	BK4819_WriteRegister(BK4819_REG_37, 0x1D0F);
 	BK4819_WriteRegister(BK4819_REG_36, 0x0022);
+
 	BK4819_SetAGC(0);
-	BK4819_WriteRegister(BK4819_REG_19, 0x1041);
+
+	BK4819_WriteRegister(BK4819_REG_19, 0b0001000001000001);   // <15> MIC AGC  1 = disable  0 = enable
+
 	BK4819_WriteRegister(BK4819_REG_7D, 0xE940);
+
+	// RX AF level
 	BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);
+
 	BK4819_WriteRegister(BK4819_REG_09, 0x006F);
 	BK4819_WriteRegister(BK4819_REG_09, 0x106B);
 	BK4819_WriteRegister(BK4819_REG_09, 0x2067);
@@ -63,9 +70,12 @@ void BK4819_Init(void)
 	BK4819_WriteRegister(BK4819_REG_09, 0xD0CB);
 	BK4819_WriteRegister(BK4819_REG_09, 0xE0B5);
 	BK4819_WriteRegister(BK4819_REG_09, 0xF09F);
+
 	BK4819_WriteRegister(BK4819_REG_1F, 0x5454);
 	BK4819_WriteRegister(BK4819_REG_3E, 0xA037);
+
 	gBK4819_GpioOutState = 0x9000;
+
 	BK4819_WriteRegister(BK4819_REG_33, 0x9000);
 	BK4819_WriteRegister(BK4819_REG_3F, 0);
 }
@@ -191,7 +201,13 @@ void BK4819_SetAGC(uint8_t Value)
 {
 	if (Value == 0)
 	{
-		BK4819_WriteRegister(BK4819_REG_13, 0x03BE);
+		// LNA_SHORT ..   0dB
+		// LNA ........  14dB
+		// MIXER ......   0dB
+		// PGA ........  -3dB
+		//
+		BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (6u << 0));  // 000000 11 101 11 110
+
 		BK4819_WriteRegister(BK4819_REG_12, 0x037B);
 		BK4819_WriteRegister(BK4819_REG_11, 0x027B);
 		BK4819_WriteRegister(BK4819_REG_10, 0x007A);
@@ -203,7 +219,14 @@ void BK4819_SetAGC(uint8_t Value)
 	if (Value == 1)
 	{
 		unsigned int i;
-		BK4819_WriteRegister(BK4819_REG_13, 0x03BE);
+
+		// LNA_SHORT ..   0dB
+		// LNA ........  14dB
+		// MIXER ......   0dB
+		// PGA ........  -3dB
+		//
+		BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (6u << 0));  // 000000 11 101 11 110
+
 		BK4819_WriteRegister(BK4819_REG_12, 0x037C);
 		BK4819_WriteRegister(BK4819_REG_11, 0x027B);
 		BK4819_WriteRegister(BK4819_REG_10, 0x007A);
@@ -212,6 +235,7 @@ void BK4819_SetAGC(uint8_t Value)
 		BK4819_WriteRegister(BK4819_REG_7B, 0x318C);
 		BK4819_WriteRegister(BK4819_REG_7C, 0x595E);
 		BK4819_WriteRegister(BK4819_REG_20, 0x8DEF);
+
 		for (i = 0; i < 8; i++)
 			// Bug? The bit 0x2000 below overwrites the (i << 13)
 			BK4819_WriteRegister(BK4819_REG_06, ((i << 13) | 0x2500u) + 0x036u);

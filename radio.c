@@ -357,6 +357,11 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 
 	Frequency = pRadio->ConfigRX.Frequency;
 
+#if 1
+	// fix previously set incorrect band
+	Band = FREQUENCY_GetBand(Frequency);
+#endif
+
 	if (Frequency < LowerLimitFrequencyBandTable[Band])
 		Frequency = LowerLimitFrequencyBandTable[Band];
 	else
@@ -481,13 +486,21 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 			break;
 	}
 
-	// limit to 50MHz to 600MHz
-	if (Frequency < 5000000)
-		Frequency = 5000000;
-	else
-	if (Frequency > 60000000)
-		Frequency = 60000000;
-
+	#if 0
+		// limit to 50MHz to 600MHz
+		if (Frequency < 5000000)
+			Frequency = 5000000;
+		else
+		if (Frequency > 60000000)
+			Frequency = 60000000;
+	#else
+		if (Frequency < LowerLimitFrequencyBandTable[0])
+			Frequency = LowerLimitFrequencyBandTable[0];
+		else
+		if (Frequency > UpperLimitFrequencyBandTable[ARRAY_SIZE(UpperLimitFrequencyBandTable) - 1])
+			Frequency = UpperLimitFrequencyBandTable[ARRAY_SIZE(UpperLimitFrequencyBandTable) - 1];
+	#endif
+	
 	pInfo->ConfigTX.Frequency = Frequency;
 }
 
@@ -577,7 +590,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, true);
 
-	// AF Rx Gain and DAC
+	// AF RX Gain and DAC
 	BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);  // 1011 00 111010 1000
 
 	InterruptMask = BK4819_REG_3F_SQUELCH_FOUND | BK4819_REG_3F_SQUELCH_LOST;

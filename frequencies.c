@@ -118,8 +118,8 @@ FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency)
 		return BAND3_136MHz;
 	if (Frequency >= 10800000)
 		return BAND2_108MHz;
-//	if (Frequency >=  5000000)
-//		return BAND1_50MHz;
+	if (Frequency >=  5000000)
+		return BAND1_50MHz;
 //	if (Frequency >= bx_min_Hz)
 		return BAND1_50MHz;
 
