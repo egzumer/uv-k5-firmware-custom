@@ -318,7 +318,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		if (Data[4] == 0xFF)
 		{
 			gEeprom.VfoInfo[VFO].FrequencyReverse  = false;
-			gEeprom.VfoInfo[VFO].CHANNEL_BANDWIDTH = 0;
+			gEeprom.VfoInfo[VFO].CHANNEL_BANDWIDTH = BK4819_FILTER_BW_WIDE;
 			gEeprom.VfoInfo[VFO].OUTPUT_POWER      = OUTPUT_POWER_LOW;
 			gEeprom.VfoInfo[VFO].BUSY_CHANNEL_LOCK = false;
 		}
@@ -547,10 +547,16 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 	BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_GREEN, false);
 
 	Bandwidth = gRxVfo->CHANNEL_BANDWIDTH;
-	if (Bandwidth != BK4819_FILTER_BW_WIDE)
-		Bandwidth = BK4819_FILTER_BW_NARROW;
-	BK4819_SetFilterBandwidth(Bandwidth);
-
+	switch (Bandwidth)
+	{
+		default:
+			Bandwidth = BK4819_FILTER_BW_WIDE;
+		case BK4819_FILTER_BW_WIDE:
+		case BK4819_FILTER_BW_NARROW:
+			BK4819_SetFilterBandwidth(Bandwidth);
+			break;
+	}
+	
 	BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, false);
 
 	BK4819_SetupPowerAmplifier(0, 0);
@@ -785,9 +791,15 @@ void RADIO_SetTxParameters(void)
 	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, false);
 
 	Bandwidth = gCurrentVfo->CHANNEL_BANDWIDTH;
-	if (Bandwidth != BK4819_FILTER_BW_WIDE)
-		Bandwidth  = BK4819_FILTER_BW_NARROW;
-	BK4819_SetFilterBandwidth(Bandwidth);
+	switch (Bandwidth)
+	{
+		default:
+			Bandwidth = BK4819_FILTER_BW_WIDE;
+		case BK4819_FILTER_BW_WIDE:
+		case BK4819_FILTER_BW_NARROW:
+			BK4819_SetFilterBandwidth(Bandwidth);
+			break;
+	}
 
 	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency);
 

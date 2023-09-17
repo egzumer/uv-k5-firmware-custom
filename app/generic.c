@@ -187,12 +187,16 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 						gDTMF_InputBox[gDTMF_InputIndex] = 0;
 
 						#if 0
+							// append our DTMF ID to the inputted DTMF code -
+							//  IF the user inputted code is exactly 3 digits long
 							if (gDTMF_InputIndex == 3)
-								gDTMF_CallMode = DTMF_CheckGroupCall(gDTMF_InputBox, 3);	// this will cause our ID tobe appened to the DTMF code
+								gDTMF_CallMode = DTMF_CheckGroupCall(gDTMF_InputBox, 3);
 							else
 						#else
+							// append our DTMF ID to the inputted DTMF code -
+							//  IF the user inputted code is exactly 3 digits long and D-DCD is enabled
 							if (gDTMF_InputIndex == 3 && gTxVfo->DTMF_DECODING_ENABLE > 0)
-								gDTMF_CallMode = DTMF_CheckGroupCall(gDTMF_InputBox, 3);	// this will cause our ID tobe appened to the DTMF code
+								gDTMF_CallMode = DTMF_CheckGroupCall(gDTMF_InputBox, 3);
 							else
 						#endif
 							gDTMF_CallMode = DTMF_CALL_MODE_DTMF;

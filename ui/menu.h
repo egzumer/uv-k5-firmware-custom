@@ -83,11 +83,11 @@ enum
 	MENU_DEL_CH,
 	MENU_RESET,
 
-	// items after here are normally hidden
+	// items after here are hidden
 
-	MENU_350TX,
 	MENU_F_LOCK,
 	MENU_200TX,
+	MENU_350TX,
 	MENU_500TX,
 	MENU_350EN,
 	MENU_SCREN,

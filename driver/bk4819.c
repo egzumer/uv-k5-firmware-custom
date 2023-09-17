@@ -23,6 +23,10 @@
 #include "driver/system.h"
 #include "driver/systick.h"
 
+#ifndef ARRAY_SIZE
+	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+#endif
+
 static const uint16_t FSK_RogerTable[7] = {0xF1A2, 0x7446, 0x61A4, 0x6544, 0x4E8A, 0xE044, 0xEA84};
 
 static uint16_t gBK4819_GpioOutState;
@@ -56,22 +60,9 @@ void BK4819_Init(void)
 	// RX AF level
 	BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);
 
-	BK4819_WriteRegister(BK4819_REG_09, 0x006F);
-	BK4819_WriteRegister(BK4819_REG_09, 0x106B);
-	BK4819_WriteRegister(BK4819_REG_09, 0x2067);
-	BK4819_WriteRegister(BK4819_REG_09, 0x3062);
-	BK4819_WriteRegister(BK4819_REG_09, 0x4050);
-	BK4819_WriteRegister(BK4819_REG_09, 0x5047);
-	BK4819_WriteRegister(BK4819_REG_09, 0x603A);
-	BK4819_WriteRegister(BK4819_REG_09, 0x702C);
-	BK4819_WriteRegister(BK4819_REG_09, 0x8041);
-	BK4819_WriteRegister(BK4819_REG_09, 0x9037);
-	BK4819_WriteRegister(BK4819_REG_09, 0xA025);
-	BK4819_WriteRegister(BK4819_REG_09, 0xB017);
-	BK4819_WriteRegister(BK4819_REG_09, 0xC0E4);
-	BK4819_WriteRegister(BK4819_REG_09, 0xD0CB);
-	BK4819_WriteRegister(BK4819_REG_09, 0xE0B5);
-	BK4819_WriteRegister(BK4819_REG_09, 0xF09F);
+	const uint8_t dtmf_coeffs[] = {0x6F,0x6B,0x67,0x62,0x50,0x47,0x3A,0x2C,0x41,0x37,0x25,0x17,0xE4,0xCB,0xB5,0x9F};
+	for (unsigned int i = 0; i < ARRAY_SIZE(dtmf_coeffs); i++)
+		BK4819_WriteRegister(BK4819_REG_09, (i << 12) | dtmf_coeffs[i]);
 
 	BK4819_WriteRegister(BK4819_REG_1F, 0x5454);
 	BK4819_WriteRegister(BK4819_REG_3E, 0xA037);
@@ -346,7 +337,7 @@ void BK4819_SetCTCSSFrequency(uint32_t FreqControlWord)
 		Config = 0x904A;   // 1 0 0 1 0 0 0 0 0 1001010
 	}
 	BK4819_WriteRegister(BK4819_REG_51, Config);
-	
+
 	// REG_07 <15:0>
 	//
 	// When <13> = 0 for CTC1
@@ -367,7 +358,7 @@ void BK4819_SetCTCSSFrequency(uint32_t FreqControlWord)
 	BK4819_WriteRegister(BK4819_REG_07, BK4819_REG_07_MODE_CTC1 | (((FreqControlWord * 2064888u) + 500000u) / 1000000u));   // with rounding
 }
 
-// freq_10Hz is CTCSS Hz * 10 
+// freq_10Hz is CTCSS Hz * 10
 void BK4819_SetTailDetection(const uint32_t freq_10Hz)
 {
 	// REG_07 <15:0>
@@ -414,12 +405,97 @@ void BK4819_EnableVox(uint16_t VoxEnableThreshold, uint16_t VoxDisableThreshold)
 
 void BK4819_SetFilterBandwidth(BK4819_FilterBandwidth_t Bandwidth)
 {
+	// REG_43 <14:12> 4 RF filter bandwidth
+	//                0 = 1.7  kHz
+	//                1 = 2.0  kHz
+	//                2 = 2.5  kHz
+	//                3 = 3.0  kHz
+	//                4 = 3.75 kHz
+	//                5 = 4.0  kHz
+	//                6 = 4.25 kHz
+	//                7 = 4.5  kHz
+	// if REG_43 <5> == 1 RF filter bandwidth * 2
+	//
+	// REG_43 <11:9>  0 RF filter bandwidth when signal is weak
+	//                0 = 1.7  kHz
+	//                1 = 2.0  kHz
+	//                2 = 2.5  kHz
+	//                3 = 3.0  kHz
+	//                4 = 3.75 kHz
+	//                5 = 4.0  kHz
+	//                6 = 4.25 kHz
+	//                7 = 4.5  kHz
+	// if REG_43 <5> == 1 RF filter bandwidth * 2
+	//
+	// REG_43 <8:6>   1 AFTxLPF2 filter Band Width
+	//                1 = 2.5  kHz (for 12.5k Channel Space)
+	//                2 = 2.75 kHz
+	//                0 = 3.0  kHz (for 25k   Channel Space)
+	//                3 = 3.5  kHz
+	//                4 = 4.5  kHz
+	//                5 = 4.25 kHz
+	//                6 = 4.0  kHz
+	//                7 = 3.75 kHz
+	//
+	// REG_43 <5:4>   0 BW Mode Selection
+	//                1 =  6.25k
+	//                0 = 12.5k
+	//                2 = 25k/20k
+	//
+	// REG_43 <2>     0 Gain after FM Demodulation
+	//                0 = 0dB
+	//                1 = 6dB
+	//
 	if (Bandwidth == BK4819_FILTER_BW_WIDE)
-		BK4819_WriteRegister(BK4819_REG_43, 0x3028);
+	{
+		BK4819_WriteRegister(BK4819_REG_43,
+			(0u << 15) |     // 0
+			(3u << 12) |     // 3 RF filter bandwidth
+			(3u <<  9) |     // 0 RF filter bandwidth when signal is weak
+			(0u <<  6) |     // 0 AFTxLPF2 filter Band Width
+			(2u <<  4) |     // 2 BW Mode Selection
+			(1u <<  3) |     // 1
+			(0u <<  2) |     // 0 Gain after FM Demodulation
+			(0u <<  0));     // 0
+	}
 	else
 	if (Bandwidth == BK4819_FILTER_BW_NARROW)
-		BK4819_WriteRegister(BK4819_REG_43, 0x4048);
-		//BK4819_WriteRegister(BK4819_REG_43, 0x790C);	// fastest squelch, https://github.com/fagci/uv-k5-firmware-fagci-mod
+	{
+		BK4819_WriteRegister(BK4819_REG_43, // 0x4048);        // 0 100 000 001 00 1 0 00
+			(0u << 15) |     // 0
+			(3u << 12) |     // 4 RF filter bandwidth
+			(3u <<  9) |     // 0 RF filter bandwidth when signal is weak
+			(1u <<  6) |     // 1 AFTxLPF2 filter Band Width
+			(0u <<  4) |     // 0 BW Mode Selection
+			(1u <<  3) |     // 1
+			(0u <<  2) |     // 0 Gain after FM Demodulation
+			(0u <<  0));     // 0
+/*
+			// https://github.com/fagci/uv-k5-firmware-fagci-mod
+			//BK4819_WriteRegister(BK4819_REG_43, // 0x790C);  // 0 111 100 100 00 1 1 00 squelch
+			(0u << 15) |     // 0
+			(7u << 12) |     // 7 RF filter bandwidth
+			(4u <<  9) |     // 4 RF filter bandwidth when signal is weak
+			(4u <<  6) |     // 4 AFTxLPF2 filter Band Width
+			(0u <<  4) |     // 0 BW Mode Selection
+			(1u <<  3) |     // 1
+			(1u <<  2) |     // 1 Gain after FM Demodulation
+			(0u <<  0));     // 0
+*/
+	}
+	else
+	if (Bandwidth == BK4819_FILTER_BW_NARROWER)
+	{
+		BK4819_WriteRegister(BK4819_REG_43,                    // 0 100 000 001 01 1 0 00
+			(0u << 15) |     // 0
+			(4u << 12) |     // 4 RF filter bandwidth
+			(0u <<  9) |     // 0 RF filter bandwidth when signal is weak
+			(1u <<  6) |     // 1 AFTxLPF2 filter Band Width
+			(1u <<  4) |     // 1 BW Mode Selection
+			(1u <<  3) |     // 1
+			(0u <<  2) |     // 0 Gain after FM Demodulation
+			(0u <<  0));     // 0
+	}
 }
 
 void BK4819_SetupPowerAmplifier(uint16_t Bias, uint32_t Frequency)
@@ -452,21 +528,47 @@ void BK4819_SetFrequency(uint32_t Frequency)
 	BK4819_WriteRegister(BK4819_REG_39, (Frequency >> 16) & 0xFFFF);
 }
 
-void BK4819_SetupSquelch(uint8_t SquelchOpenRSSIThresh, uint8_t SquelchCloseRSSIThresh, uint8_t SquelchOpenNoiseThresh, uint8_t SquelchCloseNoiseThresh, uint8_t SquelchCloseGlitchThresh, uint8_t SquelchOpenGlitchThresh)
+void BK4819_SetupSquelch(
+		uint8_t SquelchOpenRSSIThresh,
+		uint8_t SquelchCloseRSSIThresh,
+		uint8_t SquelchOpenNoiseThresh,
+		uint8_t SquelchCloseNoiseThresh,
+		uint8_t SquelchCloseGlitchThresh,
+		uint8_t SquelchOpenGlitchThresh)
 {
+	// REG_70 <15>   0 Enable TONE1
+	//               1 = Enable
+	//               0 = Disable
+	// REG_70 <14:8> 0 TONE1 tuning gain
+	// REG_70 <7>    0 Enable TONE2
+	//               1 = Enable
+	//               0 = Disable
+	// REG_70 <6:0>  0 TONE2/FSK tuning gain
+	//
 	BK4819_WriteRegister(BK4819_REG_70, 0);
 
+	// Glitch threshold for Squelch
+	//
+	BK4819_WriteRegister(BK4819_REG_4D, 0xA000 | SquelchCloseGlitchThresh);
+
+	// REG_4E <13:11> 5 Squelch = 1 Delay Setting
+	// REG_4E <10: 9> 7 Squelch = 0 Delay Setting
+	// REG_4E < 7: 0> 8 Glitch threshold for Squelch = 1
+	//
 	#if 1
-		BK4819_WriteRegister(BK4819_REG_4D, 0xA000 | SquelchCloseGlitchThresh);
+		BK4819_WriteRegister(BK4819_REG_4E, 0x6F00 | SquelchOpenGlitchThresh);
 	#else
-		// fastest squelch, https://github.com/fagci/uv-k5-firmware-fagci-mod this doesn't work
-		BK4819_WriteRegister(BK4819_REG_4D, 0b01000000 | SquelchCloseGlitchThresh);
+		// https://github.com/fagci/uv-k5-firmware-fagci-mod
+		BK4819_WriteRegister(BK4819_REG_4E, 0x0040 | SquelchOpenGlitchThresh);
 	#endif
-	
-	// 0x6f = 0110 1111 meaning the default sql delays from the datasheet are used (101 and 111)
-	BK4819_WriteRegister(BK4819_REG_4E, 0x6F00 | SquelchOpenGlitchThresh);
-	BK4819_WriteRegister(BK4819_REG_4F, (SquelchCloseNoiseThresh << 8) | SquelchOpenNoiseThresh);
-	BK4819_WriteRegister(BK4819_REG_78, (SquelchOpenRSSIThresh   << 8) | SquelchCloseRSSIThresh);
+
+	// REG_4F <14:8> 47 Ex-noise threshold for Squelch = 0
+	// REG_4F <6:0>  46 Ex-noise threshold for Squelch = 1
+	BK4819_WriteRegister(BK4819_REG_4F, ((uint16_t)SquelchCloseNoiseThresh << 8) | SquelchOpenNoiseThresh);
+
+	// REG_78 <15:8> 72 RSSI threshold for Squelch = 1   0.5dB/step
+	// REG_78  <7:0> 70 RSSI threshold for Squelch = 0   0.5dB/step
+	BK4819_WriteRegister(BK4819_REG_78, ((uint16_t)SquelchOpenRSSIThresh   << 8) | SquelchCloseRSSIThresh);
 
 	BK4819_SetAF(BK4819_AF_MUTE);
 
@@ -558,14 +660,14 @@ void BK4819_SetCompander(const unsigned int mode)
 	// mode 1 .. TX
 	// mode 2 .. RX
 	// mode 3 .. TX and RX
-	
+
 	if (mode == 0)
 	{	// disable
 		const uint16_t Value = BK4819_ReadRegister(BK4819_REG_31);
 		BK4819_WriteRegister(BK4819_REG_31, Value & ~(1u < 3));
 		return;
 	}
-	
+
 	// enable
 	val	= BK4819_ReadRegister(BK4819_REG_31);
 	BK4819_WriteRegister(BK4819_REG_31, val | (1u < 3));
@@ -581,7 +683,7 @@ void BK4819_SetCompander(const unsigned int mode)
 	const uint16_t compress_ratio = (mode == 1 || mode >= 3) ? 3 : 0;  // 4:1
 	val	= BK4819_ReadRegister(BK4819_REG_29);
 	BK4819_WriteRegister(BK4819_REG_29, (val & ~(3u < 14)) | (compress_ratio < 14));
-	
+
 	// set the expander ratio
 	//
 	// REG_28 <15:14> 01 Expander (AF Rx) Ratio
@@ -608,14 +710,25 @@ void BK4819_DisableDTMF(void)
 
 void BK4819_EnableDTMF(void)
 {
+	// no idea what this register does
 	BK4819_WriteRegister(BK4819_REG_21, 0x06D8);
+
+	// REG_24 <5>   0 DTMF/SelCall Enable
+	//              1 = Enable
+	//              0 = Disable
+	// REG_24 <4>   1 DTMF or SelCall Detection Mode
+	//              1 = for DTMF
+	//              0 = for SelCall
+	// REG_24 <3:0> 14 Max Symbol Number for SelCall Detection
+	//
 	BK4819_WriteRegister(BK4819_REG_24,
-		  (1U << BK4819_REG_24_SHIFT_UNKNOWN_15)
-		| (24 << BK4819_REG_24_SHIFT_THRESHOLD)
-		| (1U << BK4819_REG_24_SHIFT_UNKNOWN_6)
-		| BK4819_REG_24_ENABLE
-		| BK4819_REG_24_SELECT_DTMF
-		| (14U << BK4819_REG_24_SHIFT_MAX_SYMBOLS));
+		  (1u  << BK4819_REG_24_SHIFT_UNKNOWN_15)
+//		| (24u << BK4819_REG_24_SHIFT_THRESHOLD)  // original
+		| (31u << BK4819_REG_24_SHIFT_THRESHOLD)  // hopefully reduced sensitivity
+		| (1u  << BK4819_REG_24_SHIFT_UNKNOWN_6)
+		|         BK4819_REG_24_ENABLE
+		|         BK4819_REG_24_SELECT_DTMF
+		| (14u << BK4819_REG_24_SHIFT_MAX_SYMBOLS));
 }
 
 void BK4819_PlayTone(uint16_t Frequency, bool bTuningGainSwitch)
@@ -748,6 +861,7 @@ void BK4819_EnterDTMF_TX(bool bLocalLoopback)
 	BK4819_EnableDTMF();
 	BK4819_EnterTxMute();
 	BK4819_SetAF(bLocalLoopback ? BK4819_AF_BEEP : BK4819_AF_MUTE);
+
 	BK4819_WriteRegister(BK4819_REG_70,
 		0
 		| BK4819_REG_70_MASK_ENABLE_TONE1
@@ -809,7 +923,7 @@ void BK4819_PlayDTMF(char Code)
 		case '*': tone1 = 9715; tone2 = 12482; break;   //  941Hz  1209Hz
 		case '#': tone1 = 9715; tone2 = 15249; break;   //  941Hz  1477Hz
 	}
-	
+
 	if (tone1 > 0 && tone2 > 0)
 	{
 		BK4819_WriteRegister(BK4819_REG_71, tone1);
@@ -823,7 +937,7 @@ void BK4819_PlayDTMFString(const char *pString, bool bDelayFirst, uint16_t First
 
 	if (pString == NULL)
 		return;
-	
+
 	for (i = 0; pString[i]; i++)
 	{
 		uint16_t Delay;
@@ -854,7 +968,7 @@ void BK4819_TransmitTone(bool bLocalLoopback, uint32_t Frequency)
 	BK4819_EnableTXLink();
 
 	SYSTEM_DelayMs(50);
-	
+
 	BK4819_ExitTxMute();
 }
 
@@ -926,7 +1040,7 @@ void BK4819_EnableCTCSS(void)
 	#else
 		BK4819_GenTail(4);       // 55Hz tone freq
 	#endif
-	
+
 	// REG_51 <15>  0
 	//              1 = Enable TxCTCSS/CDCSS
 	//              0 = Disable
@@ -1123,10 +1237,10 @@ void BK4819_PlayRoger(void)
 		const uint32_t tone1_Hz = 1540;
 		const uint32_t tone2_Hz = 1310;
 	#endif
-	
+
 	BK4819_EnterTxMute();
 	BK4819_SetAF(BK4819_AF_MUTE);
-	BK4819_WriteRegister(BK4819_REG_70, 0xE000);  // 1110 0000 0000 0000 
+	BK4819_WriteRegister(BK4819_REG_70, 0xE000);  // 1110 0000 0000 0000
 
 	BK4819_EnableTXLink();
 	SYSTEM_DelayMs(50);

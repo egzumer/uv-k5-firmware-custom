@@ -432,10 +432,17 @@ void UI_DisplayMain(void)
 		if (gEeprom.VfoInfo[vfo_num].FrequencyReverse)
 			UI_PrintStringSmall("R", display_width + 62, 0, Line + 1);
 
-		// show the narrow band symbol
-		if (gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH == BANDWIDTH_NARROW)
-			UI_PrintStringSmall("N", display_width + 70, 0, Line + 1);
-
+		{	// show the narrow band symbol
+			String[0] = '?';
+			switch (gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH)
+			{
+				case BANDWIDTH_WIDE:   String[0] = 'W'; break;
+				case BANDWIDTH_NARROW: String[0] = 'N'; break;
+			}
+			String[1] = '\0';
+			UI_PrintStringSmall(String, display_width + 70, 0, Line + 1);
+		}
+		
 		// show the DTMF decoding symbol
 		if (gEeprom.VfoInfo[vfo_num].DTMF_DECODING_ENABLE || gSetting_KILLED)
 			UI_PrintStringSmall("DTMF", display_width + 78, 0, Line + 1);

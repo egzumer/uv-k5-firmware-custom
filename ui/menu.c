@@ -41,13 +41,13 @@ const char MenuList[][7] =
 {
 	"SQL",
     "STEP",
-    "TXPWR",     // was "TXP"
-    "RXDCS",     // was "R_DCS"
-	"RXCTCS",    // was "R_CTCS"
-	"TXDCS",     // was "T_DCS"
-	"TXCTCS",    // was "T_CTCS"
-	"TXDIR",     // was "SFT_D"
-	"TXOFFS",    // was "OFFSET"
+    "T-PWR",     // was "TXP"
+    "R-DCS",     // was "R_DCS"
+	"R-CTCS",    // was "R_CTCS"
+	"T-DCS",     // was "T_DCS"
+	"T-CTCS",    // was "T_CTCS"
+	"T-DIR",     // was "SFT_D"
+	"T-OFFS",    // was "OFFSET"
 	"W/N",
 	"SCRAM",     // was "SCR"
     "BUSYCL",    // was "BCL"
@@ -56,9 +56,9 @@ const char MenuList[][7] =
     "VOX",
     "BACKLT",    // was "ABR"
 	"DUALRX",    // was "TDR"
-    "TXVFO",     // was "WX"
+    "T-VFO",     // was "WX"
 	"BEEP",
-	"TXTOUT",    // was "TOT"
+	"T-TOUT",    // was "TOT"
 	#ifdef ENABLE_VOICE
 		"VOICE",
 	#endif
@@ -100,13 +100,13 @@ const char MenuList[][7] =
 	"MEMDEL",    // was "Del-CH"
 	"RESET",
 
-	// normally hidden menu items from here on.
-	// enabled if pressing PTT and side button below PTT at power-on.
+	// hidden menu items from here on.
+	// enabled if pressing PTT and upper side button at power-on.
 
-	"350-TX",    // was "350TX"
 	"F-LOCK",
-	"200-TX",    // was "200TX"
-	"500-TX",    // was "500TX"
+	"T-200",     // was "200TX"
+	"T-350",     // was "350TX"
+	"T-500",     // was "500TX"
 	"350-EN",    // was "350EN"
 	"SCR-EN",    // was "SCREN"
 

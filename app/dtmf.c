@@ -311,8 +311,7 @@ void DTMF_Reply(void)
 				pString = gDTMF_String;
 			}
 			else
-			{
-				// append out ID code onto the end of the DTMF code to send
+			{	// append our ID code onto the end of the DTMF code to send
 				sprintf(String, "%s%c%s", gDTMF_String, gEeprom.DTMF_SEPARATE_CODE, gEeprom.ANI_DTMF_ID);
 				pString = String;
 			}

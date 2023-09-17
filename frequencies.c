@@ -168,7 +168,9 @@ uint32_t FREQUENCY_FloorToStep(uint32_t Upper, uint32_t Step, uint32_t Lower)
 }
 
 int FREQUENCY_Check(VFO_Info_t *pInfo)
-{
+{	// return '0' if TX frequency is allowed
+	// otherwise return '-1'
+	
 	const uint32_t Frequency = pInfo->pTX->Frequency;
 
 	#ifdef ENABLE_NOAA
@@ -178,6 +180,22 @@ int FREQUENCY_Check(VFO_Info_t *pInfo)
 
 	switch (gSetting_F_LOCK)
 	{
+		case F_LOCK_OFF:
+			if (Frequency >= 13600000 && Frequency < 17400000)
+				return 0;
+			if (Frequency >= 17400000 && Frequency < 35000000)
+				if (gSetting_200TX)
+					return 0;
+			if (Frequency >= 35000000 && Frequency < 40000000)
+				if (gSetting_350TX && gSetting_350EN)
+					return 0;
+			if (Frequency >= 40000000 && Frequency < 47000000)
+				return 0;
+			if (Frequency >= 47000000 && Frequency <= 60000000)
+				if (gSetting_500TX)
+					return 0;
+			break;
+
 		case F_LOCK_FCC:
 			if (Frequency >= 14400000 && Frequency < 14800000)
 				return 0;
@@ -210,23 +228,8 @@ int FREQUENCY_Check(VFO_Info_t *pInfo)
 			if (Frequency >= 40000000 && Frequency < 43800000)
 				return 0;
 			break;
-
-		default:
-			if (Frequency >= 13600000 && Frequency < 17400000)
-				return 0;
-			if (Frequency >= 35000000 && Frequency < 40000000)
-				if (gSetting_350TX && gSetting_350EN)
-					return 0;
-			if (Frequency >= 40000000 && Frequency < 47000000)
-				return 0;
-			if (Frequency >= 17400000 && Frequency < 35000000)
-				if (gSetting_200TX)
-					return 0;
-			if (Frequency >= 47000000 && Frequency <= 60000000)
-				if (gSetting_500TX)
-					return 0;
-			break;
 	}
 
+	// dis-allowed TX frequency
 	return -1;
 }
