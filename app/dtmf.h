@@ -62,8 +62,7 @@ extern uint8_t           gDTMF_PreviousIndex;
 extern uint8_t           gDTMF_RecvTimeout;
 
 #ifdef ENABLE_DTMF_DECODER
-	extern char          gDTMF_ReceivedSaved[16];
-	extern uint8_t       gDTMF_WriteIndexSaved;
+	extern char          gDTMF_ReceivedSaved[17];
 	extern uint8_t       gDTMF_RecvTimeoutSaved;
 #endif
 

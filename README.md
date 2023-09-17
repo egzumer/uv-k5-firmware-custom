@@ -25,11 +25,11 @@ ENABLE_KEEP_MEM_NAME          := 1       maintain channel name when (re)saving m
 ENABLE_CHAN_NAME_FREQ         := 1       show channel frequency below channel name/number
 ENABLE_WIDE_RX                := 1       full 18MHz to 1300MHz RX (though frontend not tuned over full range)
 ENABLE_TX_WHEN_AM             := 0       allow TX (always FM) when RX is set to AM
-ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       standard CTCSS tail phase shift rather than QS's own 55Hz tone method 
+ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       standard CTCSS tail phase shift rather than QS's own 55Hz tone method
 ENABLE_MAIN_KEY_HOLD          := 1       initial F-key press not needed, instead hold down keys 0-9
 ENABLE_BOOT_BEEPS             := 1       give user audio feedback on volume knob position at boot-up
+ENABLE_DTMF_DECODER           := 1       live on-screen DTMF decoder
 ENABLE_COMPANDER              := 1       compander option - setting not yet saved
-ENABLE_DTMF_DECODER           := 1       enable real time on-screen DTMF decoder
 #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible
 #ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter
 ```
@@ -40,7 +40,7 @@ ENABLE_DTMF_DECODER           := 1       enable real time on-screen DTMF decoder
 * Added new bugs
 * Finer RSSI bar steps
 * Mic menu includes max gain possible
-* AM RX everywhere (not that AM really works)
+* AM RX everywhere
 * Better backlight times (inc always on)
 * Nicer/cleaner big numeric font than original Quansheng big numeric font
 * Various menu re-wordings (trying to reduce 'WTH does that mean ?')
@@ -86,6 +86,7 @@ Many thanks to various people on Telegram for putting up with me during this eff
 * @Davide
 * @Ismo OH2FTG
 * [OneOfEleven](https://github.com/OneOfEleven)
+* @d1ced95
 * and others I forget
 
 # License
@@ -109,6 +110,6 @@ You may obtain a copy of the License at
 
 <p float="left">
   <img src="/image1.png" width="300" />
-  <img src="/image2.png" width="300" /> 
-  <img src="/image3.png" width="300" /> 
+  <img src="/image2.png" width="300" />
+  <img src="/image3.png" width="300" />
 </p>

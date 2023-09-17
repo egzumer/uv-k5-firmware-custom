@@ -262,30 +262,32 @@ void UI_DisplayMain(void)
 						break;
 
 					case MDF_NAME:		// show the channel name
-						if (gEeprom.VfoInfo[vfo_num].Name[0] == 0 || gEeprom.VfoInfo[vfo_num].Name[0] == 0xFF)
+						if (gEeprom.VfoInfo[vfo_num].Name[0] <= 32 ||
+						    gEeprom.VfoInfo[vfo_num].Name[0] >= 127)
 						{	// no channel name, show the channel number instead
 							sprintf(String, "CH-%03u", gEeprom.ScreenChannel[vfo_num] + 1);
 						}
 						else
 						{	// channel name
-							strcpy(String, gEeprom.VfoInfo[vfo_num].Name);
+							memset(String, 0, sizeof(String));
+							memcpy(String, gEeprom.VfoInfo[vfo_num].Name, 10);
 						}
 						UI_PrintString(String, 31, 112, Line, 8);
 						break;
 
 					#ifdef ENABLE_CHAN_NAME_FREQ
 						case MDF_NAME_FREQ:	// show the channel name and frequency
-							if (gEeprom.VfoInfo[vfo_num].Name[0] == 0 || gEeprom.VfoInfo[vfo_num].Name[0] == 0xFF)
+							if (gEeprom.VfoInfo[vfo_num].Name[0] <= 32 ||
+							    gEeprom.VfoInfo[vfo_num].Name[0] >= 127)
 							{	// no channel name, show channel number instead
 								sprintf(String, "CH-%03u", gEeprom.ScreenChannel[vfo_num] + 1);
-								UI_PrintStringSmall(gEeprom.VfoInfo[vfo_num].Name, 31 + 8, 0, Line);
 							}
 							else
 							{	// channel name
 								memset(String, 0, sizeof(String));
-								memcpy(String, gEeprom.VfoInfo[vfo_num].Name, 8);
-								UI_PrintStringSmall(gEeprom.VfoInfo[vfo_num].Name, 31 + 8, 0, Line);
+								memcpy(String, gEeprom.VfoInfo[vfo_num].Name, 10);
 							}
+							UI_PrintStringSmall(String, 31 + 8, 0, Line);
 
 							// show the channel frequency below the channel number/name
 							sprintf(String, "%03u.%05u", frequency_Hz / 100000, frequency_Hz % 100000);
@@ -402,13 +404,9 @@ void UI_DisplayMain(void)
 	}
 
 	#ifdef ENABLE_DTMF_DECODER
-		if (gDTMF_WriteIndexSaved > 0)
+		if (gDTMF_ReceivedSaved[0] >= 32)
 		{	// show the incoming DTMF live on-screen
-			const unsigned int len = (gDTMF_WriteIndexSaved < ARRAY_SIZE(String)) ? gDTMF_WriteIndexSaved : ARRAY_SIZE(String) - 1;
-			memset(String, 0, sizeof(String));
-			memcpy(String, gDTMF_ReceivedSaved, len);
-			UI_PrintStringSmall("D:", 2, 0, 3);
-			UI_PrintStringSmall(String, 2 + (7 * 2), 0, 3);
+			UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);
 		}
 	#endif
 	

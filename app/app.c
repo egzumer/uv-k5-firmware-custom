@@ -646,31 +646,29 @@ void APP_CheckRadioInterrupts(void)
 //			g_CTCSS_Lost = true;
 		
 		if (interrupt_status_bits & BK4819_REG_02_DTMF_5TONE_FOUND)
-		{
+		{	// save the new DTMF RX'ed character
+	
+			// fetch the RX'ed char
+			const char c = DTMF_GetCharacter(BK4819_GetDTMF_5TONE_Code());
+			
 			gDTMF_RequestPending = true;
 			gDTMF_RecvTimeout    = DTMF_RX_timeout_500ms;
-
-			if (gDTMF_WriteIndex >= ARRAY_SIZE(gDTMF_Received))
-			{	// shift the RX buffer down one
-				unsigned int i;
-				for (i = 0; i < (ARRAY_SIZE(gDTMF_Received) - 1); i++)
-					gDTMF_Received[i] = gDTMF_Received[i + 1];
-				gDTMF_WriteIndex--;
-			}
-
-			// save new RX'ed character
-			gDTMF_Received[gDTMF_WriteIndex++] = DTMF_GetCharacter(BK4819_GetDTMF_5TONE_Code());
+			// shift the RX buffer down one - if need be
+			if (gDTMF_WriteIndex >= sizeof(gDTMF_Received))
+				memmove(gDTMF_Received, &gDTMF_Received[1], gDTMF_WriteIndex-- - 1);
+			gDTMF_Received[gDTMF_WriteIndex++] = c;
 
 			if (gCurrentFunction == FUNCTION_RECEIVE)
 			{
 				#ifdef ENABLE_DTMF_DECODER
-					if (gDTMF_WriteIndex > 0)
-					{
-						memcpy(gDTMF_ReceivedSaved, gDTMF_Received, sizeof(gDTMF_ReceivedSaved));
-						gDTMF_WriteIndexSaved  = gDTMF_WriteIndex;
-						gDTMF_RecvTimeoutSaved = DTMF_RX_timeout_saved_500ms;
-						gUpdateDisplay = true;
-					}
+					gDTMF_RecvTimeoutSaved = DTMF_RX_timeout_saved_500ms;
+					size_t len = strlen(gDTMF_ReceivedSaved);
+					// shift the RX buffer down one
+					if (len >= (sizeof(gDTMF_ReceivedSaved) - 1))
+						memmove(gDTMF_ReceivedSaved, &gDTMF_ReceivedSaved[1], len--);
+					gDTMF_ReceivedSaved[len++] = c;
+					gDTMF_ReceivedSaved[len]   = '\0';
+					gUpdateDisplay = true;
 				#endif
 
 				DTMF_HandleRequest();
@@ -1718,8 +1716,7 @@ void APP_TimeSlice500ms(void)
 		{
 			if (--gDTMF_RecvTimeoutSaved == 0)
 			{
-				gDTMF_WriteIndexSaved = 0;
-				memset(gDTMF_ReceivedSaved, 0, sizeof(gDTMF_ReceivedSaved));
+				gDTMF_ReceivedSaved[0] = '\0';
 				gUpdateDisplay = true;
 			}
 		}
@@ -1788,6 +1785,14 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 	if (gEeprom.AUTO_KEYPAD_LOCK)
 		gKeyLockCountdown = 30;     // 15 seconds
+
+	#ifdef ENABLE_DTMF_DECODER
+		if (Key == KEY_EXIT && bKeyPressed && bKeyHeld)
+		{	// clear the DTMF RX display buffer
+			gDTMF_RecvTimeoutSaved = 0;
+			gDTMF_ReceivedSaved[0] = '\0';
+		}
+	#endif
 
 	if (!bKeyPressed)
 	{
