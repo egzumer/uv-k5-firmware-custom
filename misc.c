@@ -83,6 +83,9 @@ uint8_t           gMR_ChannelAttributes[207];
 
 volatile uint16_t gBatterySaveCountdown_10ms = battery_save_count_10ms;
 volatile bool     gBatterySaveCountdownExpired;
+volatile bool     gSchedulePowerSave;
+
+volatile bool     gScheduleDualWatch = true;
 
 volatile uint16_t gDualWatchCountdown_10ms;
 volatile bool     gDualWatchCountdownExpired = true;

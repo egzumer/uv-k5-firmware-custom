@@ -70,14 +70,14 @@ void SystickHandler(void)
 	DECREMENT(gFoundCTCSSCountdown_10ms);
 
 	if (gCurrentFunction == FUNCTION_FOREGROUND)
-		DECREMENT_AND_TRIGGER(gBatterySaveCountdown_10ms, gBatterySaveCountdownExpired);
+		DECREMENT_AND_TRIGGER(gBatterySaveCountdown_10ms, gSchedulePowerSave);
 
 	if (gCurrentFunction == FUNCTION_POWER_SAVE)
-		DECREMENT_AND_TRIGGER(gBatterySave_10ms, gBatterySaveExpired);
+		DECREMENT_AND_TRIGGER(gBatterySave_10ms, gBatterySaveCountdownExpired);
 
 	if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE)
-			DECREMENT_AND_TRIGGER(gDualWatchCountdown_10ms, gDualWatchCountdownExpired);
+			DECREMENT_AND_TRIGGER(gDualWatchCountdown_10ms, gScheduleDualWatch);
 
 	#ifdef ENABLE_NOAA
 		if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH == DUAL_WATCH_OFF)

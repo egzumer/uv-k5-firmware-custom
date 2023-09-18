@@ -98,7 +98,7 @@ static void APP_CheckForIncoming(void)
 		}
 
 		gDualWatchCountdown_10ms   = dual_watch_count_after_rx_10ms;
-		gDualWatchCountdownExpired = false;
+		gScheduleDualWatch = false;
 
 		// let the user see DW is not active
 		gDualWatchActive = false;
@@ -166,8 +166,8 @@ static void APP_HandleIncoming(void)
 			{
 				if (gRxReceptionMode == RX_MODE_DETECTED)
 				{
-					gDualWatchCountdown_10ms   = dual_watch_count_after_1_10ms;
-					gDualWatchCountdownExpired = false;
+					gDualWatchCountdown_10ms = dual_watch_count_after_1_10ms;
+					gScheduleDualWatch = false;
 
 					gRxReceptionMode = RX_MODE_LISTENING;
 
@@ -449,8 +449,8 @@ void APP_StartListening(FUNCTION_Type_t Function)
 
 		if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 		{
-			gDualWatchCountdown_10ms   = dual_watch_count_after_2_10ms;
-			gDualWatchCountdownExpired = false;
+			gDualWatchCountdown_10ms = dual_watch_count_after_2_10ms;
+			gScheduleDualWatch = false;
 
 			gRxVfoIsActive = true;
 
@@ -944,14 +944,14 @@ void APP_CheckRadioInterrupts(void)
 			{
 				if (gCurrentFunction == FUNCTION_POWER_SAVE && !gRxIdleMode)
 				{
-					gBatterySave_10ms   = 20;     // 200ms
-					gBatterySaveExpired = false;
+					gBatterySave_10ms = 20;     // 200ms
+					gBatterySaveCountdownExpired = 0;
 				}
 
-				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && (gBatterySaveCountdownExpired || gDualWatchCountdown_10ms < dual_watch_count_after_vox_10ms))
+				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && (gScheduleDualWatch || gDualWatchCountdown_10ms < dual_watch_count_after_vox_10ms))
 				{
-					gDualWatchCountdown_10ms   = dual_watch_count_after_vox_10ms;
-					gDualWatchCountdownExpired = false;
+					gDualWatchCountdown_10ms = dual_watch_count_after_vox_10ms;
+					gScheduleDualWatch = false;
 
 					// let the user see DW is not active
 					gDualWatchActive = false;
@@ -1182,9 +1182,9 @@ void APP_Update(void)
 	if (gScreenToDisplay != DISPLAY_SCANNER && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 	{
 		#ifdef ENABLE_VOICE
-			if (gDualWatchCountdownExpired && gVoiceWriteIndex == 0)
+			if (gScheduleDualWatch && gVoiceWriteIndex == 0)
 		#else
-			if (gDualWatchCountdownExpired)
+			if (gScheduleDualWatch)
 		#endif
 		{
 			if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF)
@@ -1196,16 +1196,15 @@ void APP_Update(void)
 				    gDTMF_CallState == DTMF_CALL_STATE_NONE &&
 				    gCurrentFunction != FUNCTION_POWER_SAVE)
 				{
-					gDualWatchCountdownExpired = false;
-
 					DUALWATCH_Alternate();    // toggle between the two VFO's
 
 					if (gRxVfoIsActive && gScreenToDisplay == DISPLAY_MAIN)
 						GUI_SelectNextDisplay(DISPLAY_MAIN);
 
-					gRxVfoIsActive   = false;
-					gScanPauseMode   = false;
-					gRxReceptionMode = RX_MODE_NONE;
+					gRxVfoIsActive     = false;
+					gScanPauseMode     = false;
+					gRxReceptionMode   = RX_MODE_NONE;
+					gScheduleDualWatch = false;
 				}
 			}
 		}
@@ -1226,7 +1225,7 @@ void APP_Update(void)
 	if (gEeprom.VOX_SWITCH)
 		APP_HandleVox();
 
-	if (gBatterySaveCountdownExpired)
+	if (gSchedulePowerSave)
 	{
 		#ifdef ENABLE_NOAA
 			if (
@@ -1242,7 +1241,6 @@ void APP_Update(void)
 			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
 			{
 				gBatterySaveCountdown_10ms   = battery_save_count_10ms;
-				gBatterySaveCountdownExpired = false;
 			}
 			else
 			if ((IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
@@ -1252,7 +1250,6 @@ void APP_Update(void)
 			else
 			{
 				gBatterySaveCountdown_10ms   = battery_save_count_10ms;
-				gBatterySaveCountdownExpired = false;
 			}
 		#else
 			if (
@@ -1268,19 +1265,20 @@ void APP_Update(void)
 			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
 			{
 				gBatterySaveCountdown_10ms   = battery_save_count_10ms;
-				gBatterySaveCountdownExpired = false;
 			}
 			else
 			{
 				FUNCTION_Select(FUNCTION_POWER_SAVE);
 			}
+			
+			gSchedulePowerSave = false;
 		#endif
 	}
 
 	#ifdef ENABLE_VOICE
-		if (gBatterySaveExpired && gCurrentFunction == FUNCTION_POWER_SAVE && gVoiceWriteIndex == 0)
+		if (gBatterySaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE && gVoiceWriteIndex == 0)
 	#else
-		if (gBatterySaveExpired && gCurrentFunction == FUNCTION_POWER_SAVE)
+		if (gBatterySaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE)
 	#endif
 	{
 		if (gRxIdleMode)
@@ -1300,8 +1298,6 @@ void APP_Update(void)
 			FUNCTION_Init();
 
 			gBatterySave_10ms   = 10;    // 100ms
-			gBatterySaveExpired = false;
-
 			gRxIdleMode         = false;
 		}
 		else
@@ -1311,8 +1307,6 @@ void APP_Update(void)
 			UI_UpdateRSSI(gCurrentRSSI);
 
 			gBatterySave_10ms   = gEeprom.BATTERY_SAVE * 10;
-			gBatterySaveExpired = false;
-
 			gRxIdleMode         = true;
 
 			BK4819_DisableVox();
@@ -1329,8 +1323,9 @@ void APP_Update(void)
 			gUpdateRSSI         = true;
 
 			gBatterySave_10ms   = 10;   // 100ms
-			gBatterySaveExpired = false;
 		}
+
+		gBatterySaveCountdownExpired = false;
 	}
 }
 

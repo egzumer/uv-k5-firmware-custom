@@ -876,8 +876,8 @@ void RADIO_PrepareTX(void)
 {
 	if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 	{
-		gDualWatchCountdown_10ms   = dual_watch_count_after_tx_10ms;
-		gDualWatchCountdownExpired = false;
+		gDualWatchCountdown_10ms = dual_watch_count_after_tx_10ms;
+		gScheduleDualWatch = false;
 
 		if (!gRxVfoIsActive)
 		{

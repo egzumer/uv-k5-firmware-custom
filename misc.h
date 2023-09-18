@@ -140,7 +140,10 @@ extern uint16_t              gEEPROM_1F8C;
 extern uint8_t               gMR_ChannelAttributes[207];
 
 extern volatile uint16_t     gBatterySaveCountdown_10ms;
+extern volatile bool         gSchedulePowerSave;
 extern volatile bool         gBatterySaveCountdownExpired;
+
+extern volatile bool         gScheduleDualWatch;
 
 extern volatile uint16_t     gDualWatchCountdown_10ms;
 extern volatile bool         gDualWatchCountdownExpired;
