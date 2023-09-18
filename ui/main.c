@@ -465,16 +465,18 @@ void UI_DisplayMain(void)
 	#endif
 			if (gChargingWithTypeC)
 			{	// charging .. show the battery state
-				const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
-				                       (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
-				                        gBatteryVoltageAverage;
-
-				sprintf(String, "Charge %u.%02uV %u%%",
-						gBatteryVoltageAverage / 100,
-						gBatteryVoltageAverage % 100,
-						(100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
-
-				UI_PrintStringSmall(String, 2, 0, 3);
+				#ifdef ENABLE_SHOW_CHARGE_LEVEL
+					const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
+										(gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
+											gBatteryVoltageAverage;
+	
+					sprintf(String, "Charge %u.%02uV %u%%",
+							gBatteryVoltageAverage / 100,
+							gBatteryVoltageAverage % 100,
+							(100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
+	
+					UI_PrintStringSmall(String, 2, 0, 3);
+				#endif
 			}
 		}
 

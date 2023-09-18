@@ -30,6 +30,7 @@ ENABLE_MAIN_KEY_HOLD          := 1       initial F-key press not needed, instead
 ENABLE_BOOT_BEEPS             := 0       give user audio feedback on volume knob position at boot-up
 ENABLE_DTMF_DECODER           := 1       live on-screen DTMF decoder
 ENABLE_COMPANDER              := 1       compander option - setting not yet saved
+ENABLE_SHOW_CHARGE_LEVEL      := 1       show the charge level when the radio is on charge 
 #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible
 #ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter
 ```
