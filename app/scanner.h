@@ -46,7 +46,7 @@ extern uint32_t          gScanFrequency;
 extern bool              gScanPauseMode;
 extern SCAN_CssState_t   gScanCssState;
 extern volatile bool     gScheduleScanListen;
-extern volatile uint16_t ScanPauseDelayIn10msec;
+extern volatile uint16_t ScanPauseDelayIn_10ms;
 extern uint8_t           gScanProgressIndicator;
 extern uint8_t           gScanHitCount;
 extern bool              gScanUseCssResult;

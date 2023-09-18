@@ -132,7 +132,7 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep);
 	extern VOICE_ID_t        gVoiceID[8];
 	extern uint8_t           gVoiceReadIndex;
 	extern uint8_t           gVoiceWriteIndex;
-	extern volatile uint16_t gCountdownToPlayNextVoice;
+	extern volatile uint16_t gCountdownToPlayNextVoice_10ms;
 	extern volatile bool     gFlagPlayQueuedVoice;
 	extern VOICE_ID_t        gAnotherVoiceID;
 	

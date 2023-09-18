@@ -767,10 +767,10 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 			if (gRxVfo->CHANNEL_SAVE >= NOAA_CHANNEL_FIRST)
 			{
-				gIsNoaaMode     = true;
-				gNoaaChannel    = gRxVfo->CHANNEL_SAVE - NOAA_CHANNEL_FIRST;
-				gNOAA_Countdown = 50;
-				gScheduleNOAA   = false;
+				gIsNoaaMode          = true;
+				gNoaaChannel         = gRxVfo->CHANNEL_SAVE - NOAA_CHANNEL_FIRST;
+				gNOAA_Countdown_10ms = 50;  // 500ms
+				gScheduleNOAA        = false;
 			}
 			else
 				gIsNoaaMode = false;
@@ -877,15 +877,19 @@ void RADIO_PrepareTX(void)
 {
 	if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 	{
-		gDualWatchCountdown = dual_watch_count_after_tx_10ms;
-		gScheduleDualWatch  = false;
+		gDualWatchCountdown_10ms   = dual_watch_count_after_tx_10ms;
+		gDualWatchCountdownExpired = false;
 
 		if (!gRxVfoIsActive)
 		{
 			gEeprom.RX_CHANNEL = gEeprom.TX_CHANNEL;
 			gRxVfo             = &gEeprom.VfoInfo[gEeprom.TX_CHANNEL];
+			gRxVfoIsActive     = true;
 		}
-		gRxVfoIsActive = true;
+
+		// let the user see that DW is not active
+		gDualWatchActive = false;
+		gUpdateStatus    = true;
 	}
 
 	RADIO_SelectCurrentVfo();

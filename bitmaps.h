@@ -26,7 +26,8 @@ extern const uint8_t BITMAP_VOX[18];
 	extern const uint8_t BITMAP_XB[12];
 #endif
 
-extern const uint8_t BITMAP_TDR[12];
+extern const uint8_t BITMAP_TDR1[12];
+extern const uint8_t BITMAP_TDR2[12];
 
 #ifdef ENABLE_VOICE
 	extern const uint8_t BITMAP_VoicePrompt[9];

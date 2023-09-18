@@ -227,7 +227,7 @@ const uint8_t BITMAP_VOX[] =
 	};
 #endif
 
-const uint8_t BITMAP_TDR[] =
+const uint8_t BITMAP_TDR1[] =
 {	// "DW"
 	0b00000000,
 	0b01111111,
@@ -242,6 +242,23 @@ const uint8_t BITMAP_TDR[] =
 	0b00011000,
 	0b00100000,
 	0b01111111
+};
+
+const uint8_t BITMAP_TDR2[] =
+{	// "--"
+	0b00000000,
+	0b00010000,
+	0b00010000,
+	0b00010000,
+	0b00010000,
+	0b00010000,
+
+	0b00010000,
+	0b00010000,
+	0b00010000,
+	0b00010000,
+	0b00010000,
+	0b00010000,
 };
 
 #ifdef ENABLE_VOICE

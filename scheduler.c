@@ -14,7 +14,6 @@
  *     limitations under the License.
  */
 
-#include "scheduler.h"
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
@@ -29,17 +28,20 @@
 #include "bsp/dp32g030/gpio.h"
 #include "driver/gpio.h"
 
+#define DECREMENT(cnt) \
+	do {               \
+		if (cnt > 0)   \
+			cnt--;     \
+	} while (0)
+
 #define DECREMENT_AND_TRIGGER(cnt, flag) \
-	do { \
-		if (cnt) { \
-			if (--cnt == 0) { \
-				flag = true; \
-			} \
-		} \
-	} while(0)
+	do {                                 \
+		if (cnt > 0)                     \
+			if (--cnt == 0)              \
+				flag = true;             \
+	} while (0)
 
 static volatile uint32_t gGlobalSysTickCounter;
-volatile uint8_t         boot_counter = 0;
 
 void SystickHandler(void);
 
@@ -59,40 +61,39 @@ void SystickHandler(void)
 	if ((gGlobalSysTickCounter & 3) == 0)
 		gNextTimeslice40ms = true;
 
-	if (gSystickCountdown2)
-		gSystickCountdown2--;
+	#ifdef ENABLE_NOAA
+		DECREMENT(gNOAACountdown_10ms);
+	#endif
 
-	if (gFoundCDCSSCountdown)
-		gFoundCDCSSCountdown--;
+	DECREMENT(gFoundCDCSSCountdown_10ms);
 
-	if (gFoundCTCSSCountdown)
-		gFoundCTCSSCountdown--;
+	DECREMENT(gFoundCTCSSCountdown_10ms);
 
 	if (gCurrentFunction == FUNCTION_FOREGROUND)
-		DECREMENT_AND_TRIGGER(gBatterySaveCountdown, gSchedulePowerSave);
+		DECREMENT_AND_TRIGGER(gBatterySaveCountdown_10ms, gBatterySaveCountdownExpired);
 
 	if (gCurrentFunction == FUNCTION_POWER_SAVE)
-		DECREMENT_AND_TRIGGER(gBatterySave, gBatterySaveCountdownExpired);
+		DECREMENT_AND_TRIGGER(gBatterySave_10ms, gBatterySaveExpired);
 
 	if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE)
-			DECREMENT_AND_TRIGGER(gDualWatchCountdown, gScheduleDualWatch);
+			DECREMENT_AND_TRIGGER(gDualWatchCountdown_10ms, gDualWatchCountdownExpired);
 
 	#ifdef ENABLE_NOAA
 		if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH == DUAL_WATCH_OFF)
 			if (gIsNoaaMode && gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
 				if (gCurrentFunction != FUNCTION_RECEIVE)
-					DECREMENT_AND_TRIGGER(gNOAA_Countdown, gScheduleNOAA);
+					DECREMENT_AND_TRIGGER(gNOAA_Countdown_10ms, gScheduleNOAA);
 	#endif
 
 	if (gScanState != SCAN_OFF || gCssScanMode == CSS_SCAN_MODE_SCANNING)
 		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
-			DECREMENT_AND_TRIGGER(ScanPauseDelayIn10msec, gScheduleScanListen);
+			DECREMENT_AND_TRIGGER(ScanPauseDelayIn_10ms, gScheduleScanListen);
 
-	DECREMENT_AND_TRIGGER(gTailNoteEliminationCountdown, gFlagTteComplete);
+	DECREMENT_AND_TRIGGER(gTailNoteEliminationCountdown_10ms, gFlagTailNoteEliminationComplete);
 
 	#ifdef ENABLE_VOICE
-		DECREMENT_AND_TRIGGER(gCountdownToPlayNextVoice, gFlagPlayQueuedVoice);
+		DECREMENT_AND_TRIGGER(gCountdownToPlayNextVoice_10ms, gFlagPlayQueuedVoice);
 	#endif
 	
 	#ifdef ENABLE_FMRADIO
@@ -101,9 +102,9 @@ void SystickHandler(void)
 				DECREMENT_AND_TRIGGER(gFmPlayCountdown_10ms, gScheduleFM);
 	#endif
 
-	if (gVoxStopCountdown)
-		gVoxStopCountdown--;
+	DECREMENT(gVoxStopCountdown_10ms);
 
-	if (boot_counter < 255)
-		boot_counter++;
+	#ifdef ENABLE_BOOT_BEEPS
+		DECREMENT(boot_counter_10ms);
+	#endif
 }

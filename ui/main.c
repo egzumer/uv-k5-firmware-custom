@@ -76,7 +76,7 @@ void UI_DisplayMain(void)
 		}
 
 		if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive)
-			Channel = gEeprom.RX_CHANNEL;
+			Channel = gEeprom.RX_CHANNEL;    // we're currently monitoring the other VFO
 
 		if (Channel != vfo_num)
 		{

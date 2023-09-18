@@ -64,22 +64,24 @@ void FUNCTION_Init(void)
 //		gDTMF_ReceivedSaved[0] = '\0';
 	#endif
 		
-	g_CxCSS_TAIL_Found            = false;
-	g_CDCSS_Lost                  = false;
-	g_CTCSS_Lost                  = false;
+	g_CxCSS_TAIL_Found = false;
+	g_CDCSS_Lost       = false;
+	g_CTCSS_Lost       = false;
+					  
+	g_VOX_Lost         = false;
+	g_SquelchLost      = false;
 
-	g_VOX_Lost                    = false;
-	g_SquelchLost                 = false;
-	gFlagTteComplete              = false;
+	gFlagTailNoteEliminationComplete   = false;
+	gTailNoteEliminationCountdown_10ms = 0;
+	gFoundCTCSS                        = false;
+	gFoundCDCSS                        = false;
+	gFoundCTCSSCountdown_10ms          = 0;
+	gFoundCDCSSCountdown_10ms          = 0;
+	gEndOfRxDetectedMaybe              = false;
 
-	gTailNoteEliminationCountdown = 0;
-	gFoundCTCSS                   = false;
-	gFoundCDCSS                   = false;
-	gFoundCTCSSCountdown          = 0;
-	gFoundCDCSSCountdown          = 0;
-	gEndOfRxDetectedMaybe         = false;
-
-	gSystickCountdown2            = 0;
+	#ifdef ENABLE_NOAA
+		gNOAACountdown_10ms = 0;
+	#endif
 }
 
 void FUNCTION_Select(FUNCTION_Type_t Function)
@@ -132,15 +134,16 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			break;
 	
 		case FUNCTION_POWER_SAVE:
-			gBatterySave = gEeprom.BATTERY_SAVE * 10;
-			gRxIdleMode  = true;
+			gBatterySave_10ms   = gEeprom.BATTERY_SAVE * 10;
+			gBatterySaveExpired = false;
+
+			gRxIdleMode = true;
 
 			BK4819_DisableVox();
 			BK4819_Sleep();
 			BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, false);
 
-			gBatterySaveCountdownExpired = false;
-			gUpdateStatus                = true;
+			gUpdateStatus = true;
 
 			GUI_SelectNextDisplay(DISPLAY_MAIN);
 			return;
@@ -195,9 +198,10 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			break;
 	}
 
-	gBatterySaveCountdown = battery_save_count_10ms;
-	gSchedulePowerSave    = false;
+	gBatterySaveCountdown_10ms   = battery_save_count_10ms;
+	gBatterySaveCountdownExpired = false;
+
 	#if defined(ENABLE_FMRADIO)
-		gFM_RestoreCountdown = 0;
+		gFM_RestoreCountdown   = 0;
 	#endif
 }

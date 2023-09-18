@@ -55,8 +55,13 @@ void UI_DisplayStatus(const bool test_display)
 	#endif
 	
 	if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF || test_display)
-		memmove(gStatusLine + 45, BITMAP_TDR, sizeof(BITMAP_TDR));
-
+	{
+		if (gDualWatchActive)
+			memmove(gStatusLine + 45, BITMAP_TDR1, sizeof(BITMAP_TDR1));
+		else
+			memmove(gStatusLine + 45, BITMAP_TDR2, sizeof(BITMAP_TDR2));
+	}
+	
 	if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF || test_display)
 		memmove(gStatusLine + 58, BITMAP_XB, sizeof(BITMAP_XB));
 

@@ -139,16 +139,21 @@ extern uint16_t              gEEPROM_1F8C;
 
 extern uint8_t               gMR_ChannelAttributes[207];
 
+extern volatile uint16_t     gBatterySaveCountdown_10ms;
+extern volatile bool         gBatterySaveCountdownExpired;
+
+extern volatile uint16_t     gDualWatchCountdown_10ms;
+extern volatile bool         gDualWatchCountdownExpired;
+extern bool                  gDualWatchActive;
+
 extern volatile bool         gNextTimeslice500ms;
-extern volatile uint16_t     gBatterySaveCountdown;
-extern volatile uint16_t     gDualWatchCountdown;
 extern volatile uint16_t     gTxTimerCountdown;
-extern volatile uint16_t     gTailNoteEliminationCountdown;
+extern volatile uint16_t     gTailNoteEliminationCountdown_10ms;
 #ifdef ENABLE_FMRADIO
 	extern volatile uint16_t gFmPlayCountdown_10ms;
 #endif
 #ifdef ENABLE_NOAA
-	extern volatile uint16_t gNOAA_Countdown;
+	extern volatile uint16_t gNOAA_Countdown_10ms;
 #endif
 extern bool                  gEnableSpeaker;
 extern uint8_t               gKeyInputCountdown;
@@ -235,24 +240,24 @@ extern bool                  gUpdateDisplay;
 #endif
 extern bool                  gF_LOCK;
 extern uint8_t               gShowChPrefix;
-extern volatile uint16_t     gSystickCountdown2;
-extern volatile uint8_t      gFoundCDCSSCountdown;
-extern volatile uint8_t      gFoundCTCSSCountdown;
-extern volatile uint16_t     gVoxStopCountdown;
+extern volatile uint8_t      gFoundCDCSSCountdown_10ms;
+extern volatile uint8_t      gFoundCTCSSCountdown_10ms;
+extern volatile uint16_t     gVoxStopCountdown_10ms;
 extern volatile bool         gTxTimeoutReached;
 extern volatile bool         gNextTimeslice40ms;
-extern volatile bool         gSchedulePowerSave;
-extern volatile bool         gBatterySaveCountdownExpired;
-extern volatile bool         gScheduleDualWatch;
 #ifdef ENABLE_NOAA
+	extern volatile uint16_t gNOAACountdown_10ms;
 	extern volatile bool     gScheduleNOAA;
 #endif
-extern volatile bool         gFlagTteComplete;
+extern volatile bool         gFlagTailNoteEliminationComplete;
 #ifdef ENABLE_FMRADIO
 	extern volatile bool     gScheduleFM;
 #endif
 extern uint16_t              gCurrentRSSI;
 extern uint8_t               gIsLocked;
+#ifdef ENABLE_BOOT_BEEPS
+	extern volatile uint8_t  boot_counter_10ms;
+#endif
 
 void    NUMBER_Get(char *pDigits, uint32_t *pInteger);
 void    NUMBER_ToDigits(uint32_t Value, char *pDigits);

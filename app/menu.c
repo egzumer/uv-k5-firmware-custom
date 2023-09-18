@@ -131,8 +131,8 @@ void MENU_StartCssScan(int8_t Direction)
 
 	MENU_SelectNextCode();
 	
-	ScanPauseDelayIn10msec = 50;
-	gScheduleScanListen    = false;
+	ScanPauseDelayIn_10ms = 50;
+	gScheduleScanListen   = false;
 }
 
 void MENU_StopCssScan(void)
@@ -746,7 +746,7 @@ void MENU_SelectNextCode(void)
 
 	RADIO_SetupRegisters(true);
 
-	ScanPauseDelayIn10msec = (gSelectedCodeType == CODE_TYPE_CONTINUOUS_TONE) ? 20 : 30;
+	ScanPauseDelayIn_10ms = (gSelectedCodeType == CODE_TYPE_CONTINUOUS_TONE) ? 20 : 30;
 
 	gUpdateDisplay = true;
 }

@@ -62,7 +62,7 @@
 	VOICE_ID_t        gVoiceID[8];
 	uint8_t           gVoiceReadIndex;
 	uint8_t           gVoiceWriteIndex;
-	volatile uint16_t gCountdownToPlayNextVoice;
+	volatile uint16_t gCountdownToPlayNextVoice_10ms;
 	volatile bool     gFlagPlayQueuedVoice;
 	VOICE_ID_t        gAnotherVoiceID = VOICE_ID_INVALID;
 	
@@ -283,9 +283,9 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 				return;
 			}
 	
-			gVoiceReadIndex           = 1;
-			gCountdownToPlayNextVoice = Delay;
-			gFlagPlayQueuedVoice      = false;
+			gVoiceReadIndex                = 1;
+			gCountdownToPlayNextVoice_10ms = Delay;
+			gFlagPlayQueuedVoice           = false;
 	
 			return;
 		}
@@ -390,9 +390,9 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 	
 				AUDIO_PlayVoice(VoiceID);
 				
-				gCountdownToPlayNextVoice = Delay;
-				gFlagPlayQueuedVoice      = false;
-				gVoxResumeCountdown       = 2000;
+				gCountdownToPlayNextVoice_10ms = Delay;
+				gFlagPlayQueuedVoice           = false;
+				gVoxResumeCountdown            = 2000;
 	
 				return;
 			}

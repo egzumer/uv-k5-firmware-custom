@@ -16,7 +16,6 @@
 
 #include <string.h>
 
-#include "scheduler.h"
 #include "app/app.h"
 #include "app/dtmf.h"
 #include "audio.h"
@@ -98,6 +97,10 @@ void Main(void)
 
 	gMenuListCount = 0;
 
+	#ifdef ENABLE_BOOT_BEEPS
+		boot_counter_10ms = 250;   // 2.5 sec
+	#endif
+	
 	if (!gChargingWithTypeC && !gBatteryDisplayLevel)
 	{
 		FUNCTION_Select(FUNCTION_POWER_SAVE);
@@ -124,14 +127,18 @@ void Main(void)
 
 		if (gEeprom.POWER_ON_DISPLAY_MODE != POWER_ON_DISPLAY_MODE_NONE)
 		{	// 2.55 second boot-up screen
-			while (boot_counter < 255 && KEYBOARD_Poll() == KEY_INVALID)
+			while (boot_counter_10ms > 0)
 			{
+				if (KEYBOARD_Poll() != KEY_INVALID)
+				{	// halt boot beeps
+					boot_counter_10ms = 0;   
+					break;
+				}
 				#ifdef ENABLE_BOOT_BEEPS
-					if ((boot_counter % 25) == 0)
+					if ((boot_counter_10ms % 25) == 0)
 						AUDIO_PlayBeep(BEEP_880HZ_40MS_OPTIONAL);
 				#endif
 			}
-			//boot_counter = 255;   // halt boot beeps
 		}
 
 		BootMode = BOOT_GetMode();

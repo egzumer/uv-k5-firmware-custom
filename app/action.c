@@ -85,16 +85,16 @@ static void ACTION_Monitor(void)
 
 	if (gScanState != SCAN_OFF)
 	{
-		ScanPauseDelayIn10msec = 500;     // 5 seconds
-		gScheduleScanListen    = false;
-		gScanPauseMode         = true;
+		ScanPauseDelayIn_10ms = 500;     // 5 seconds
+		gScheduleScanListen   = false;
+		gScanPauseMode        = true;
 	}
 
 	#ifdef ENABLE_NOAA
 		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gIsNoaaMode)
 		{
-			gNOAA_Countdown = 500;
-			gScheduleNOAA   = false;
+			gNOAA_Countdown_10ms = 500;   // 5 sec
+			gScheduleNOAA        = false;
 		}
 	#endif
 	

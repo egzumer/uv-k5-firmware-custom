@@ -36,7 +36,7 @@ uint32_t          gScanFrequency;
 bool              gScanPauseMode;
 SCAN_CssState_t   gScanCssState;
 volatile bool     gScheduleScanListen = true;
-volatile uint16_t ScanPauseDelayIn10msec;
+volatile uint16_t ScanPauseDelayIn_10ms;
 uint8_t           gScanProgressIndicator;
 uint8_t           gScanHitCount;
 bool              gScanUseCssResult;
