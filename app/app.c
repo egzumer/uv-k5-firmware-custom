@@ -1201,7 +1201,7 @@ void APP_CheckKeys(void)
 	Key = KEYBOARD_Poll();
 
 	if (Key != KEY_INVALID)
-		boot_counter_10ms = 0;   // cancel bbot beeps if any key pressed
+		boot_counter_10ms = 0;   // cancel boot screen/beeps if any key pressed
 
 	if (gKeyReading0 != Key)
 	{	// new key pressed
@@ -1847,17 +1847,10 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 //	const bool backlight_was_on = (gBacklightCountdown > 0 || gEeprom.BACKLIGHT >= 5);
 	const bool backlight_was_on = GPIO_CheckBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
 	
-	if (Key != KEY_PTT &&
-	    Key != KEY_F && 
-	    bKeyPressed &&
-	   !bKeyHeld &&
-	   !backlight_was_on)
+	if (Key == KEY_EXIT && !backlight_was_on)
 	{	// just turn the light on for now
 		BACKLIGHT_TurnOn();
-//		gKeyReading0     = KEY_INVALID;
-//		gKeyReading1     = KEY_INVALID;
-		gDebounceCounter = 0;
-		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
+		gBeepToPlay = BEEP_NONE;
 		return;
 	}
 
@@ -1871,7 +1864,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 	#ifdef ENABLE_DTMF_DECODER
 		if (Key == KEY_EXIT && bKeyPressed && bKeyHeld && gDTMF_ReceivedSaved[0] > 0)
-		{	// clear the live DTMF RX if the EXIT key is held
+		{	// clear the live DTMF decoder if the EXIT key is held
 			gDTMF_RecvTimeoutSaved = 0;
 			gDTMF_ReceivedSaved[0] = '\0';
 			gUpdateDisplay         = true;
@@ -2152,7 +2145,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	}
 
 Skip:
-	if (gBeepToPlay)
+	if (gBeepToPlay != BEEP_NONE)
 	{
 		AUDIO_PlayBeep(gBeepToPlay);
 		gBeepToPlay = BEEP_NONE;

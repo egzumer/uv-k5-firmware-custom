@@ -12,6 +12,14 @@ del /S /Q *.bin >nul 2>nul
 del /S /Q *.o >nul 2>nul
 del /S /Q *.d >nul 2>nul
 
+:: If you have python installed, you can create a 'packed' .bin from the compiled firmware.bin file.
+:: The Quangsheng windows upload-to-radio program requires a 'packed' .bin file.
+::
+:: if you don't have python installed, then comment out the python line below, in which case you'll need
+:: to upload the standard firmware.bin file another way.
+:: I wrote a windows version of k5prog to do this easily in windows ..
+::    https://github.com/OneOfEleven/k5prog-win
+::
 ::python -m pip install --upgrade pip crcmod
 fw-pack.py firmware.bin 230918 firmware.packed.bin
 
