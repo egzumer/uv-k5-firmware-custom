@@ -198,9 +198,7 @@ volatile bool     gFlagTailNoteEliminationComplete;
 	volatile bool gScheduleFM;
 #endif
 
-#ifdef ENABLE_BOOT_BEEPS
-	volatile uint8_t  boot_counter_10ms;
-#endif
+volatile uint8_t  boot_counter_10ms;
 
 uint16_t          gCurrentRSSI;
 

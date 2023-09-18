@@ -97,9 +97,7 @@ void Main(void)
 
 	gMenuListCount = 0;
 
-	#ifdef ENABLE_BOOT_BEEPS
-		boot_counter_10ms = 250;   // 2.5 sec
-	#endif
+	boot_counter_10ms = 250;   // 2.5 sec
 	
 	if (!gChargingWithTypeC && !gBatteryDisplayLevel)
 	{

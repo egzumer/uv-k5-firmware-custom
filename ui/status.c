@@ -42,14 +42,14 @@ void UI_DisplayStatus(const bool test_display)
 	#ifdef ENABLE_NOAA
 		if (gIsNoaaMode || test_display)
 			memmove(gStatusLine + 7, BITMAP_NOAA, sizeof(BITMAP_NOAA));
-	#else
-		if (gScanState != SCAN_OFF ||
-		    gCssScanMode != CSS_SCAN_MODE_OFF ||
-		    gScanCssState != SCAN_CSS_STATE_OFF ||
-			gScreenToDisplay == DISPLAY_SCANNER ||
-		    test_display)
-			memmove(gStatusLine + 7, BITMAP_SC, sizeof(BITMAP_SC));
+		else
 	#endif
+	if (gScanState != SCAN_OFF ||
+	    gCssScanMode != CSS_SCAN_MODE_OFF ||
+	    gScanCssState != SCAN_CSS_STATE_OFF ||
+		gScreenToDisplay == DISPLAY_SCANNER ||
+	    test_display)
+		memmove(gStatusLine + 7, BITMAP_SC, sizeof(BITMAP_SC));
 	
 	#ifdef ENABLE_FMRADIO
 		if (gSetting_KILLED)

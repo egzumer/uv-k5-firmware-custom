@@ -1200,10 +1200,8 @@ void APP_CheckKeys(void)
 	// scan the hardware keys
 	Key = KEYBOARD_Poll();
 
-	#ifdef ENABLE_BOOT_BEEPS
-		if (Key != KEY_INVALID)
-			boot_counter_10ms = 0;   // cancel bbot beeps if any key pressed
-	#endif
+	if (Key != KEY_INVALID)
+		boot_counter_10ms = 0;   // cancel bbot beeps if any key pressed
 
 	if (gKeyReading0 != Key)
 	{	// new key pressed

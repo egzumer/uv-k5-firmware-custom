@@ -255,9 +255,7 @@ extern volatile bool         gFlagTailNoteEliminationComplete;
 #endif
 extern uint16_t              gCurrentRSSI;
 extern uint8_t               gIsLocked;
-#ifdef ENABLE_BOOT_BEEPS
-	extern volatile uint8_t  boot_counter_10ms;
-#endif
+extern volatile uint8_t      boot_counter_10ms;
 
 void    NUMBER_Get(char *pDigits, uint32_t *pInteger);
 void    NUMBER_ToDigits(uint32_t Value, char *pDigits);

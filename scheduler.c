@@ -104,7 +104,5 @@ void SystickHandler(void)
 
 	DECREMENT(gVoxStopCountdown_10ms);
 
-	#ifdef ENABLE_BOOT_BEEPS
-		DECREMENT(boot_counter_10ms);
-	#endif
+	DECREMENT(boot_counter_10ms);
 }
