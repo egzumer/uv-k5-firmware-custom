@@ -4,19 +4,32 @@
 // all these images are on their right sides
 // turn your monitor 90deg anti-clockwise to see the images
 
-const uint8_t BITMAP_PowerSave[] =
-{	// "S"
-	0b00000000,
-	0b00100110,
-	0b01001001,
-	0b01001001,
-	0b01001001,
-	0b01001001,
-	0b01001001,
-	0b00110010
+const uint8_t BITMAP_PowerSave[8] =
+{
+	#if 0
+		// "S"
+		0b00000000,
+		0b00100110,
+		0b01001001,
+		0b01001001,
+		0b01001001,
+		0b01001001,
+		0b01001001,
+		0b00110010
+	#else
+		// "PS"
+		0b00000000,
+		0b01111111,
+		0b00010001,
+		0b00001110,
+		0b00000000,
+		0b01000110,
+		0b01001001,
+		0b00110001
+	#endif
 };
 
-const uint8_t BITMAP_BatteryLevel1[] =
+const uint8_t BITMAP_BatteryLevel1[18] =
 {
 	0b00000000,
 	0b00111110,
@@ -38,7 +51,7 @@ const uint8_t BITMAP_BatteryLevel1[] =
 	0b01111111
 };
 
-const uint8_t BITMAP_BatteryLevel2[] =
+const uint8_t BITMAP_BatteryLevel2[18] =
 {
 	0b00000000,
 	0b00111110,
@@ -60,7 +73,7 @@ const uint8_t BITMAP_BatteryLevel2[] =
 	0b01111111
 };
 
-const uint8_t BITMAP_BatteryLevel3[] =
+const uint8_t BITMAP_BatteryLevel3[18] =
 {
 	0b00000000,
 	0b00111110,
@@ -82,7 +95,7 @@ const uint8_t BITMAP_BatteryLevel3[] =
 	0b01111111
 };
 
-const uint8_t BITMAP_BatteryLevel4[] =
+const uint8_t BITMAP_BatteryLevel4[18] =
 {
 	0b00000000,
 	0b00111110,
@@ -104,7 +117,7 @@ const uint8_t BITMAP_BatteryLevel4[] =
 	0b01111111
 };
 
-const uint8_t BITMAP_BatteryLevel5[] =
+const uint8_t BITMAP_BatteryLevel5[18] =
 {
 	0b00000000,
 	0b00111110,
@@ -126,7 +139,7 @@ const uint8_t BITMAP_BatteryLevel5[] =
 	0b01111111
 };
 
-const uint8_t BITMAP_USB_C[] =
+const uint8_t BITMAP_USB_C[9] =
 {	// USB symbol
 	0b00000000,
 	0b00011100,
@@ -139,7 +152,7 @@ const uint8_t BITMAP_USB_C[] =
 	0b00011100
 };
 
-const uint8_t BITMAP_KeyLock[] =
+const uint8_t BITMAP_KeyLock[9] =
 {	// padlock symbol
 	0b00000000,
 	0b01111100,
@@ -152,7 +165,7 @@ const uint8_t BITMAP_KeyLock[] =
 	0b01111100
 };
 
-const uint8_t BITMAP_F_Key[] =
+const uint8_t BITMAP_F_Key[10] =
 {	// F-Key symbol
 	0b11111111,
 	0b10000001,
@@ -166,7 +179,7 @@ const uint8_t BITMAP_F_Key[] =
 	0b11111111
 };
 
-const uint8_t BITMAP_VOX[] =
+const uint8_t BITMAP_VOX[18] =
 {	// "VOX"
 	0b00000000,
 	0b00011111,
@@ -191,7 +204,7 @@ const uint8_t BITMAP_VOX[] =
 };
 
 #if 0
-	const uint8_t BITMAP_WX[] =
+	const uint8_t BITMAP_WX[12] =
 	{	// "WX"
 		0b00000000,
 		0b01111111,
@@ -209,7 +222,7 @@ const uint8_t BITMAP_VOX[] =
 	};
 #else
 	// 'XB' (cross-band)
-	const uint8_t BITMAP_XB[] =
+	const uint8_t BITMAP_XB[12] =
 	{	// "XB"
 		0b00000000,
 		0b01100011,
@@ -227,7 +240,7 @@ const uint8_t BITMAP_VOX[] =
 	};
 #endif
 
-const uint8_t BITMAP_TDR1[] =
+const uint8_t BITMAP_TDR1[12] =
 {	// "DW"
 	0b00000000,
 	0b01111111,
@@ -244,7 +257,7 @@ const uint8_t BITMAP_TDR1[] =
 	0b01111111
 };
 
-const uint8_t BITMAP_TDR2[] =
+const uint8_t BITMAP_TDR2[12] =
 {	// "--"
 	0b00000000,
 	0b00010000,
@@ -262,7 +275,7 @@ const uint8_t BITMAP_TDR2[] =
 };
 
 #ifdef ENABLE_VOICE
-	const uint8_t BITMAP_VoicePrompt[] =
+	const uint8_t BITMAP_VoicePrompt[9] =
 	{
 		0b00000000,
 		0b00011000,
@@ -277,7 +290,7 @@ const uint8_t BITMAP_TDR2[] =
 #endif
 
 #ifdef ENABLE_FMRADIO
-	const uint8_t BITMAP_FM[] =
+	const uint8_t BITMAP_FM[12] =
 	{	// "FM"
 		0b00000000,
 		0b01111111,
@@ -296,7 +309,7 @@ const uint8_t BITMAP_TDR2[] =
 #endif
 
 #ifdef ENABLE_NOAA
-	const uint8_t BITMAP_NOAA[] =
+	const uint8_t BITMAP_NOAA[12] =
 	{	// "NS"
 		0b00000000,
 		0b01111111,
@@ -312,9 +325,26 @@ const uint8_t BITMAP_TDR2[] =
 		0b01001001,
 		0b00110001
 	};
+#else
+	const uint8_t BITMAP_SC[12] =
+	{	// "SC"
+		0b00000000,
+		0b01000110,
+		0b01001001,
+		0b01001001,
+		0b01001001,
+		0b00110001,
+	
+		0b00000000,
+		0b00111110,
+		0b01000001,
+		0b01000001,
+		0b01000001,
+		0b00100010
+	};
 #endif
 
-const uint8_t BITMAP_Antenna[] =
+const uint8_t BITMAP_Antenna[5] =
 {
 	0b00000011,
 	0b00000101,
@@ -323,49 +353,49 @@ const uint8_t BITMAP_Antenna[] =
 	0b00000011
 };
 
-const uint8_t BITMAP_AntennaLevel1[] =
+const uint8_t BITMAP_AntennaLevel1[3] =
 {
 	0b01100000,
 	0b01100000,
 	0b00000000
 };
 
-const uint8_t BITMAP_AntennaLevel2[] =
+const uint8_t BITMAP_AntennaLevel2[3] =
 {
 	0b01110000,
 	0b01110000,
 	0b00000000
 };
 
-const uint8_t BITMAP_AntennaLevel3[] =
+const uint8_t BITMAP_AntennaLevel3[3] =
 {
 	0b01111000,
 	0b01111000,
 	0b00000000
 };
 
-const uint8_t BITMAP_AntennaLevel4[] =
+const uint8_t BITMAP_AntennaLevel4[3] =
 {
 	0b01111100,
 	0b01111100,
 	0b00000000
 };
 
-const uint8_t BITMAP_AntennaLevel5[] =
+const uint8_t BITMAP_AntennaLevel5[3] =
 {
 	0b01111110,
 	0b01111110,
 	0b00000000
 };
 
-const uint8_t BITMAP_AntennaLevel6[] =
+const uint8_t BITMAP_AntennaLevel6[3] =
 {
 	0b01111111,
 	0b01111111,
 	0b00000000
 };
 
-const uint8_t BITMAP_CurrentIndicator[] =
+const uint8_t BITMAP_CurrentIndicator[8] =
 {
 	0b11111111,
 	0b11111111,
@@ -377,7 +407,7 @@ const uint8_t BITMAP_CurrentIndicator[] =
 	0b00011000
 };
 
-const uint8_t BITMAP_VFO_Default[] =
+const uint8_t BITMAP_VFO_Default[8] =
 {
 	0b00000000,
 	0b01111111,
@@ -389,7 +419,7 @@ const uint8_t BITMAP_VFO_Default[] =
 	0b00001000
 };
 
-const uint8_t BITMAP_VFO_NotDefault[] =
+const uint8_t BITMAP_VFO_NotDefault[8] =
 {
 	0b00000000,
 	0b01000001,
@@ -401,7 +431,7 @@ const uint8_t BITMAP_VFO_NotDefault[] =
 	0b00001000
 };
 
-const uint8_t BITMAP_ScanList[] =
+const uint8_t BITMAP_ScanList[6] =
 {	// diamond symbol
 	0b00001000,
 	0b00011100,

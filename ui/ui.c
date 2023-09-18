@@ -100,6 +100,8 @@ void GUI_SelectNextDisplay(GUI_DisplayType_t Display)
 				gWasFKeyPressed = false;
 				gUpdateStatus   = true;
 			}
+
+			gUpdateStatus       = true;
 		}
 
 		gUpdateDisplay   = true;

@@ -638,6 +638,12 @@ static void DUALWATCH_Alternate(void)
 	{	// toggle between VFO's
 		gEeprom.RX_CHANNEL = (1 - gEeprom.RX_CHANNEL) & 1;
 		gRxVfo             = &gEeprom.VfoInfo[gEeprom.RX_CHANNEL];
+
+		if (!gDualWatchActive)
+		{	// let the user see DW is active
+			gDualWatchActive = true;
+			gUpdateStatus    = true;
+		}
 	}
 
 	RADIO_SetupRegisters(false);
@@ -647,12 +653,6 @@ static void DUALWATCH_Alternate(void)
 	#else
 		gDualWatchCountdown_10ms = dual_watch_count_toggle_10ms;
 	#endif
-
-	if (!gDualWatchActive)
-	{	// let the user see DW is active
-		gDualWatchActive = true;
-		gUpdateStatus    = true;
-	}
 }
 
 void APP_CheckRadioInterrupts(void)
@@ -1200,8 +1200,10 @@ void APP_CheckKeys(void)
 	// scan the hardware keys
 	Key = KEYBOARD_Poll();
 
-	if (Key != KEY_INVALID)
-		boot_counter_10ms = 0;   
+	#ifdef ENABLE_BOOT_BEEPS
+		if (Key != KEY_INVALID)
+			boot_counter_10ms = 0;   // cancel bbot beeps if any key pressed
+	#endif
 
 	if (gKeyReading0 != Key)
 	{	// new key pressed
@@ -1300,10 +1302,7 @@ void APP_TimeSlice10ms(void)
 	if (gCurrentFunction != FUNCTION_TRANSMIT)
 	{
 		if (gUpdateStatus)
-		{
 			UI_DisplayStatus(false);
-			gUpdateStatus = false;
-		}
 
 		if (gUpdateDisplay)
 		{
@@ -1406,9 +1405,9 @@ void APP_TimeSlice10ms(void)
 		BK4819_CssScanResult_t ScanResult;
 		uint16_t               CtcssFreq;
 
-		if (gScanDelay > 0)
+		if (gScanDelay_10ms > 0)
 		{
-			gScanDelay--;
+			gScanDelay_10ms--;
 			APP_CheckKeys();
 			return;
 		}
@@ -1451,9 +1450,11 @@ void APP_TimeSlice10ms(void)
 					gScanProgressIndicator = 0;
 					gScanCssState          = SCAN_CSS_STATE_SCANNING;
 					GUI_SelectNextDisplay(DISPLAY_SCANNER);
+					gUpdateStatus          = true;
 				}
 
-				gScanDelay = scan_delay_10ms;
+				//gScanDelay_10ms = scan_delay_10ms;
+				gScanDelay_10ms = 20 / 10;   // 20ms
 				break;
 
 			case SCAN_CSS_STATE_SCANNING:
@@ -1472,6 +1473,7 @@ void APP_TimeSlice10ms(void)
 						gScanCssResultType = CODE_TYPE_DIGITAL;
 						gScanCssState      = SCAN_CSS_STATE_FOUND;
 						gScanUseCssResult  = true;
+						gUpdateStatus      = true;
 					}
 				}
 				else
@@ -1486,6 +1488,7 @@ void APP_TimeSlice10ms(void)
 							{
 								gScanCssState     = SCAN_CSS_STATE_FOUND;
 								gScanUseCssResult = true;
+								gUpdateStatus     = true;
 							}
 						}
 						else
@@ -1499,7 +1502,7 @@ void APP_TimeSlice10ms(void)
 				if (gScanCssState < SCAN_CSS_STATE_FOUND)
 				{
 					BK4819_SetScanFrequency(gScanFrequency);
-					gScanDelay = scan_delay_10ms;
+					gScanDelay_10ms = scan_delay_10ms;
 					break;
 				}
 
@@ -1730,7 +1733,10 @@ void APP_TimeSlice500ms(void)
 				gScanCssState = SCAN_CSS_STATE_FOUND;
 			else
 				gScanCssState = SCAN_CSS_STATE_FAILED;
+
+			gUpdateStatus = true;
 		}
+
 		gUpdateDisplay = true;
 	}
 
@@ -1840,6 +1846,20 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
 	bool bFlag = false;
 
+//	const bool backlight_was_on = (gBacklightCountdown > 0 || gEeprom.BACKLIGHT >= 5);
+	const bool backlight_was_on = GPIO_CheckBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
+	
+//	if (Key == KEY_EXIT && bKeyPressed && !bKeyHeld && !backlight_was_on)
+	if (bKeyPressed && !bKeyHeld && !backlight_was_on)
+	{	// just turn the light on for now
+		BACKLIGHT_TurnOn();
+//		gKeyReading0     = KEY_INVALID;
+//		gKeyReading1     = KEY_INVALID;
+		gDebounceCounter = 0;
+		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
+		return;
+	}
+
 	if (gCurrentFunction == FUNCTION_POWER_SAVE)
 		FUNCTION_Select(FUNCTION_FOREGROUND);
 
@@ -1939,25 +1959,28 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		}
 	}
 
-	if ((gScanState != SCAN_OFF &&
-	     Key != KEY_PTT  &&
-	     Key != KEY_UP   &&
-		 Key != KEY_DOWN &&
-		 Key != KEY_EXIT &&
-		 Key != KEY_STAR)
-		 ||
-	    (gCssScanMode != CSS_SCAN_MODE_OFF &&
-		 Key != KEY_PTT &&
-		 Key != KEY_UP &&
-		 Key != KEY_DOWN &&
-		 Key != KEY_EXIT &&
-		 Key != KEY_STAR &&
-		 Key != KEY_MENU))
-	 {
-		if (!bKeyPressed || bKeyHeld)
-			return;
+	if (gScanState != SCAN_OFF &&
+	    Key != KEY_PTT  &&
+	    Key != KEY_UP   &&
+		Key != KEY_DOWN &&
+		Key != KEY_EXIT &&
+		Key != KEY_STAR)
+	{	// scanning
+		if (bKeyPressed && !bKeyHeld)
+			AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
+		return;
+	}
 
-		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
+	if (gCssScanMode != CSS_SCAN_MODE_OFF &&
+		Key != KEY_PTT  &&
+		Key != KEY_UP   &&
+		Key != KEY_DOWN &&
+		Key != KEY_EXIT &&
+		Key != KEY_STAR &&
+		Key != KEY_MENU)
+	{	// code scanning
+		if (bKeyPressed && !bKeyHeld)
+			AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 		return;
 	}
 

@@ -39,6 +39,8 @@ extern const uint8_t BITMAP_TDR2[12];
 
 #ifdef ENABLE_NOAA
 	extern const uint8_t BITMAP_NOAA[12];
+#else
+	extern const uint8_t BITMAP_SC[12];
 #endif
 
 extern const uint8_t BITMAP_Antenna[5];

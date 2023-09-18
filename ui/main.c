@@ -436,7 +436,7 @@ void UI_DisplayMain(void)
 			String[0] = '?';
 			switch (gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH)
 			{
-				case BANDWIDTH_WIDE:   String[0] = 'W'; break;
+//				case BANDWIDTH_WIDE:   String[0] = 'W'; break;
 				case BANDWIDTH_NARROW: String[0] = 'N'; break;
 			}
 			String[1] = '\0';

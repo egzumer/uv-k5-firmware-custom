@@ -195,6 +195,7 @@ static void AIRCOPY_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 		g_FSK_Buffer[35]    = 0xDCBA;
 
 		AIRCOPY_SendMessage();
+
 		GUI_DisplayScreen();
 
 		gAircopyState       = AIRCOPY_TRANSFER;

@@ -80,6 +80,7 @@ static void ACTION_Monitor(void)
 		RADIO_SetupRegisters(true);
 
 		APP_StartListening(FUNCTION_MONITOR);
+
 		return;
 	}
 
@@ -184,6 +185,10 @@ void ACTION_Scan(bool bRestart)
 					AUDIO_SetVoiceID(0, VOICE_ID_SCANNING_BEGIN);
 					AUDIO_PlaySingleVoice(true);
 				#endif
+
+				// let the user see DW is not active
+				gDualWatchActive = false;
+				gUpdateStatus    = true;
 			}
 		}
 	}

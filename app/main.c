@@ -149,11 +149,11 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 		case KEY_4:
 			gWasFKeyPressed          = false;
-			gUpdateStatus            = true;
 			gFlagStartScan           = true;
 			gScanSingleFrequency     = false;
 			gBackupCROSS_BAND_RX_TX  = gEeprom.CROSS_BAND_RX_TX;
 			gEeprom.CROSS_BAND_RX_TX = CROSS_BAND_OFF;
+			gUpdateStatus            = true;
 
 			if (beep)
 				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;

@@ -207,6 +207,8 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 				gAnotherVoiceID   = VOICE_ID_MEMORY_CHANNEL;
 			#endif
 			gRequestDisplayScreen = DISPLAY_SCANNER;
+			
+			gUpdateStatus = true;
 			break;
 
 		case 1:
@@ -380,18 +382,24 @@ void SCANNER_Start(void)
 		gScanCssState  = SCAN_CSS_STATE_SCANNING;
 		gScanFrequency = gRxVfo->pRX->Frequency;
 		gStepSetting   = gRxVfo->STEP_SETTING;
+
 		BK4819_PickRXFilterPathBasedOnFrequency(gScanFrequency);
 		BK4819_SetScanFrequency(gScanFrequency);
+
+		gUpdateStatus = true;
 	}
 	else
 	{
 		gScanCssState  = SCAN_CSS_STATE_OFF;
 		gScanFrequency = 0xFFFFFFFF;
+
 		BK4819_PickRXFilterPathBasedOnFrequency(0xFFFFFFFF);
 		BK4819_EnableFrequencyScan();
+
+		gUpdateStatus = true;
 	}
 
-	gScanDelay             = scan_delay_10ms;
+	gScanDelay_10ms        = scan_delay_10ms;
 	gScanCssResultCode     = 0xFF;
 	gScanCssResultType     = 0xFF;
 	gScanHitCount          = 0;
@@ -441,4 +449,6 @@ void SCANNER_Stop(void)
 	}
 
 	SETTINGS_SaveVfoIndices();
+
+	gUpdateStatus = true;
 }

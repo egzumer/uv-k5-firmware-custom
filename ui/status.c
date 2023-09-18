@@ -16,6 +16,7 @@
 
 #include <string.h>
 
+#include "app/scanner.h"
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
@@ -26,11 +27,13 @@
 #include "helper/battery.h"
 #include "misc.h"
 #include "settings.h"
-//#include "ui/helper.h"
+#include "ui/ui.h"
 #include "ui/status.h"
 
 void UI_DisplayStatus(const bool test_display)
 {
+	gUpdateStatus = false;
+	
 	memset(gStatusLine, 0, sizeof(gStatusLine));
 
 	if (gCurrentFunction == FUNCTION_POWER_SAVE || test_display)
@@ -39,24 +42,37 @@ void UI_DisplayStatus(const bool test_display)
 	#ifdef ENABLE_NOAA
 		if (gIsNoaaMode || test_display)
 			memmove(gStatusLine + 7, BITMAP_NOAA, sizeof(BITMAP_NOAA));
+	#else
+		if (gScanState != SCAN_OFF ||
+		    gCssScanMode != CSS_SCAN_MODE_OFF ||
+		    gScanCssState != SCAN_CSS_STATE_OFF ||
+			gScreenToDisplay == DISPLAY_SCANNER ||
+		    test_display)
+			memmove(gStatusLine + 7, BITMAP_SC, sizeof(BITMAP_SC));
 	#endif
 	
-	if (gSetting_KILLED || test_display)
-		memset(gStatusLine + 21, 0xFF, 10);
 	#ifdef ENABLE_FMRADIO
+		if (gSetting_KILLED)
+			memset(gStatusLine + 21, 0xFF, 10);
 		else
 		if (gFmRadioMode || test_display)
 			memmove(gStatusLine + 21, BITMAP_FM, sizeof(BITMAP_FM));
+	#else
+		if (test_display)
+			memset(gStatusLine + 21, 0xFF, 10);
 	#endif
 
 	#ifdef ENABLE_VOICE
 		if (gEeprom.VOICE_PROMPT != VOICE_PROMPT_OFF || test_display)
 			memmove(gStatusLine + 34, BITMAP_VoicePrompt, sizeof(BITMAP_VoicePrompt));
+	#else
+		if (test_display)
+			memset(gStatusLine + 35, 0xFF, 8);
 	#endif
 	
 	if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF || test_display)
 	{
-		if (gDualWatchActive)
+		if (gDualWatchActive || test_display)
 			memmove(gStatusLine + 45, BITMAP_TDR1, sizeof(BITMAP_TDR1));
 		else
 			memmove(gStatusLine + 45, BITMAP_TDR2, sizeof(BITMAP_TDR2));

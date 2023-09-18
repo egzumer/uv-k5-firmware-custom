@@ -124,7 +124,9 @@
 
 void MENU_StartCssScan(int8_t Direction)
 {
-	gCssScanMode         = CSS_SCAN_MODE_SCANNING;
+	gCssScanMode  = CSS_SCAN_MODE_SCANNING;
+	gUpdateStatus = true;
+
 	gMenuScrollDirection = Direction;
 	
 	RADIO_SelectVfos();
@@ -137,7 +139,8 @@ void MENU_StartCssScan(int8_t Direction)
 
 void MENU_StopCssScan(void)
 {
-	gCssScanMode = CSS_SCAN_MODE_OFF;
+	gCssScanMode  = CSS_SCAN_MODE_OFF;
+	gUpdateStatus = true;
 
 	RADIO_SetupRegisters(true);
 }
@@ -1262,7 +1265,8 @@ static void MENU_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 				gIsInSubMenu       = false;
 			}
 			
-			gCssScanMode = CSS_SCAN_MODE_OFF;
+			gCssScanMode  = CSS_SCAN_MODE_OFF;
+			gUpdateStatus = true;
 			
 			#ifdef ENABLE_VOICE
 				if (gMenuCursor == MENU_SCR)
