@@ -32,81 +32,103 @@
 
 void UI_DisplayStatus(const bool test_display)
 {
+	uint8_t *line = gStatusLine;
+	
 	gUpdateStatus = false;
 	
-	memset(gStatusLine, 0, sizeof(gStatusLine));
+	memset(line, 0, sizeof(gStatusLine));
 
+	line += 2;
+
+	// POWER-SAVE indicator
 	if (gCurrentFunction == FUNCTION_POWER_SAVE || test_display)
-		memmove(gStatusLine, BITMAP_PowerSave, sizeof(BITMAP_PowerSave));
+		memmove(line, BITMAP_PowerSave, sizeof(BITMAP_PowerSave));
+	line += sizeof(BITMAP_PowerSave);
 
 	#ifdef ENABLE_NOAA
+		// NOASS SCAN indicator
 		if (gIsNoaaMode || test_display)
-			memmove(gStatusLine + 7, BITMAP_NOAA, sizeof(BITMAP_NOAA));
-		else
+			memmove(line, BITMAP_NOAA, sizeof(BITMAP_NOAA));
+		line += sizeof(BITMAP_NOAA);
+	#else
+		line += 12;
 	#endif
-	if (gScanState != SCAN_OFF ||
-	    gCssScanMode != CSS_SCAN_MODE_OFF ||
-	    gScanCssState != SCAN_CSS_STATE_OFF ||
-		gScreenToDisplay == DISPLAY_SCANNER ||
-	    test_display)
-		memmove(gStatusLine + 7, BITMAP_SC, sizeof(BITMAP_SC));
 	
 	#ifdef ENABLE_FMRADIO
+		// FM indicator
 		if (gSetting_KILLED)
-			memset(gStatusLine + 21, 0xFF, 10);
+			memset(line, 0xFF, 10);
 		else
 		if (gFmRadioMode || test_display)
-			memmove(gStatusLine + 21, BITMAP_FM, sizeof(BITMAP_FM));
-	#else
-		if (test_display)
-			memset(gStatusLine + 21, 0xFF, 10);
+			memmove(line, BITMAP_FM, sizeof(BITMAP_FM));
+		else
 	#endif
+		// SCAN indicator
+		if (gScanState != SCAN_OFF || gScreenToDisplay == DISPLAY_SCANNER || test_display)
+			memmove(line, BITMAP_SC, sizeof(BITMAP_SC));
+	line += sizeof(BITMAP_SC);
 
 	#ifdef ENABLE_VOICE
+		// VOICE indicator
 		if (gEeprom.VOICE_PROMPT != VOICE_PROMPT_OFF || test_display)
-			memmove(gStatusLine + 34, BITMAP_VoicePrompt, sizeof(BITMAP_VoicePrompt));
+			memmove(line, BITMAP_VoicePrompt, sizeof(BITMAP_VoicePrompt));
 	#else
 		if (test_display)
-			memset(gStatusLine + 35, 0xFF, 8);
+			memset(line, 0xFF, 8);
 	#endif
-	
+	line += 9;
+
+	// DUAL-WATCH indicator
 	if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF || test_display)
 	{
 		if (gDualWatchActive || test_display)
-			memmove(gStatusLine + 45, BITMAP_TDR1, sizeof(BITMAP_TDR1));
+			memmove(line, BITMAP_TDR1, sizeof(BITMAP_TDR1));
 		else
-			memmove(gStatusLine + 45, BITMAP_TDR2, sizeof(BITMAP_TDR2));
+			memmove(line, BITMAP_TDR2, sizeof(BITMAP_TDR2));
 	}
-	
+	line += sizeof(BITMAP_TDR1);
+
+	// CROSS-VFO indicator
 	if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF || test_display)
-		memmove(gStatusLine + 58, BITMAP_XB, sizeof(BITMAP_XB));
+		memmove(line, BITMAP_XB, sizeof(BITMAP_XB));
+	line += sizeof(BITMAP_XB);
 
+	// VOX indicator
 	if (gEeprom.VOX_SWITCH || test_display)
-		memmove(gStatusLine + 71, BITMAP_VOX, sizeof(BITMAP_VOX));
+		memmove(line, BITMAP_VOX, sizeof(BITMAP_VOX));
+	line += sizeof(BITMAP_VOX);
 
+	// KEY-LOCK indicator
 	if (gEeprom.KEY_LOCK || test_display)
-		memmove(gStatusLine + 90, BITMAP_KeyLock, sizeof(BITMAP_KeyLock));
+		memmove(line, BITMAP_KeyLock, sizeof(BITMAP_KeyLock));
 	else
 	if (gWasFKeyPressed)
-		memmove(gStatusLine + 90, BITMAP_F_Key, sizeof(BITMAP_F_Key));
+		memmove(line, BITMAP_F_Key, sizeof(BITMAP_F_Key));
+	line += sizeof(BITMAP_F_Key);
 
+	// USB-C charge indicator
 	if (gChargingWithTypeC || test_display)
-		memmove(gStatusLine + 100, BITMAP_USB_C, sizeof(BITMAP_USB_C));
+		memmove(line, BITMAP_USB_C, sizeof(BITMAP_USB_C));
+	line += sizeof(BITMAP_USB_C);
 
+	line += 4;
+	
+	// BATTERY LEVEL indicator
 	if (gBatteryDisplayLevel >= 5 || test_display)
-		memmove(gStatusLine + 110, BITMAP_BatteryLevel5, sizeof(BITMAP_BatteryLevel5));
+		memmove(line, BITMAP_BatteryLevel5, sizeof(BITMAP_BatteryLevel5));
 	else
 	if (gBatteryDisplayLevel >= 4)
-		memmove(gStatusLine + 110, BITMAP_BatteryLevel4, sizeof(BITMAP_BatteryLevel4));
+		memmove(line, BITMAP_BatteryLevel4, sizeof(BITMAP_BatteryLevel4));
 	else
 	if (gBatteryDisplayLevel >= 3)
-		memmove(gStatusLine + 110, BITMAP_BatteryLevel3, sizeof(BITMAP_BatteryLevel3));
+		memmove(line, BITMAP_BatteryLevel3, sizeof(BITMAP_BatteryLevel3));
 	else
 	if (gBatteryDisplayLevel >= 2)
-		memmove(gStatusLine + 110, BITMAP_BatteryLevel2, sizeof(BITMAP_BatteryLevel2));
+		memmove(line, BITMAP_BatteryLevel2, sizeof(BITMAP_BatteryLevel2));
 	else
 	if (gLowBatteryBlink == 1)
-		memmove(gStatusLine + 110, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
+		memmove(line, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
+//	line += sizeof(BITMAP_BatteryLevel1);
 
 	ST7565_BlitStatusLine();
 }
