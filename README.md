@@ -72,6 +72,8 @@ To compile directly in windows without the need of a linux virtual machine:
 Then you can run 'win_make.bat' from the directory you saved this source code too.
 You may need to edit the bat file (path to make.exe) depending on where you installed the above two packages too.
 
+I've left some notes in the win_make.bat file to maybe help with stuff.
+
 # Credits
 
 Many thanks to various people on Telegram for putting up with me during this effort and helping:

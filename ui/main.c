@@ -21,6 +21,7 @@
 #include "driver/st7565.h"
 #include "external/printf/printf.h"
 #include "functions.h"
+#include "helper/battery.h"
 #include "misc.h"
 #include "radio.h"
 #include "settings.h"
@@ -55,7 +56,7 @@ void UI_DisplayMain(void)
 //	#endif
 
 	#ifdef ENABLE_DTMF_DECODER
-		bool show_dtmf_rx = true;
+		bool center_line_is_free = true;
 	#endif
 
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
@@ -102,7 +103,7 @@ void UI_DisplayMain(void)
 					sprintf(String, ">%s", gDTMF_InputBox);
 
 					#ifdef ENABLE_DTMF_DECODER
-						show_dtmf_rx = false;
+						center_line_is_free = false;
 					#endif
 				}
 				UI_PrintString(String, 2, 0, vfo_num * 3, 8);
@@ -123,13 +124,13 @@ void UI_DisplayMain(void)
 				else
 				{
 					#ifdef ENABLE_DTMF_DECODER
-						show_dtmf_rx = false;
+						center_line_is_free = false;
 					#endif
 				}
 				UI_PrintString(String, 2, 0, 2 + (vfo_num * 3), 8);
 
 				#ifdef ENABLE_DTMF_DECODER
-					show_dtmf_rx = false;
+					center_line_is_free = false;
 				#endif
 
 				continue;
@@ -239,7 +240,7 @@ void UI_DisplayMain(void)
 			UI_DisplayFrequency(gInputBox, 31, Line, true, false);
 
 			#ifdef ENABLE_DTMF_DECODER
-				show_dtmf_rx = false;
+				center_line_is_free = false;
 			#endif
 		}
 		else
@@ -453,11 +454,31 @@ void UI_DisplayMain(void)
 	}
 
 	#ifdef ENABLE_DTMF_DECODER
-		if (show_dtmf_rx && gDTMF_ReceivedSaved[0] >= 32)
-		{	// show the incoming DTMF live on-screen
-			UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);
-		}
+		if (center_line_is_free)
+		{
+			if (gDTMF_ReceivedSaved[0] >= 32)
+			{	// show the on-screen live DTMF decode
+				UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);
+			}
+			else
+	#else
+		if (center_line_is_free)
+		{
 	#endif
+			if (gChargingWithTypeC)
+			{	// charging .. show the battery state
+				const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
+				                       (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
+				                        gBatteryVoltageAverage;
+
+				sprintf(String, "Charge %u.%02uV %u%%",
+						gBatteryVoltageAverage / 100,
+						gBatteryVoltageAverage % 100,
+						(100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
+
+				UI_PrintStringSmall(String, 2, 0, 3);
+			}
+		}
 
 	ST7565_BlitFullScreen();
 }
