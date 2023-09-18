@@ -464,7 +464,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 
 			// RX AF level
 			//
-			// REG_48 <15:12> 11  ??????
+			// REG_48 <15:12> 11  ???
 			//
 			// REG_48 <11:10> 0 AF Rx Gain-1
 			//                0 =   0dB
@@ -476,10 +476,9 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			//                63 = max
 			//                 0 = mute
 			//
-			// REG_48 <3:0>   15 AF DAC Gain (after Gain-1 and Gain-2)
+			// REG_48 <3:0>   15 AF DAC Gain (after Gain-1 and Gain-2) approx 2dB/step
 			//                15 = max
 			//                 0 = min
-			//                approx 2dB/step
 			//
 			BK4819_WriteRegister(BK4819_REG_48,
 			#if 0
@@ -496,9 +495,44 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			
 			BK4819_WriteRegister(0x4B, BK4819_ReadRegister(0x4B) & ~(1u << 5));	// enable RX ALC
 
-			// help improve AM RX distorted audio by reducing the PGA gain (still bad with stronger signals
+			// help improve AM RX distorted audio by reducing the PGA gain (still very bad with stronge signals)
 			//
-			// I think the proper solution is to set the RX AGC to limit the front end/I.F gain
+			// I think a solution is to dynamically change these values as the RSSI moves up/down ?
+			// without a detailed datasheet on the chip it's very difficult to fix things
+			//
+			// REG_10 <15:0> 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
+			//
+			//         <9:8> = LNA Gain Short
+			//                 3 =   0dB
+			//                 2 = -11dB
+			//                 1 = -16dB
+			//                 0 = -19dB
+			//
+			//         <7:5> = LNA Gain
+			//                 7 =   0dB
+			//                 6 =  -2dB
+			//                 5 =  -4dB
+			//                 4 =  -6dB
+			//                 3 =  -9dB
+			//                 2 = -14dB
+			//                 1 = -19dB
+			//                 0 = -24dB
+			//
+			//         <4:3> = MIXER Gain
+			//                 3 =  0dB
+			//                 2 = -3dB
+			//                 1 = -6dB
+			//                 0 = -8dB
+			//
+			//         <2:0> = PGA Gain
+			//                 7 =   0dB
+			//                 6 =  -3dB
+			//                 5 =  -6dB
+			//                 4 =  -9dB
+			//                 3 = -15dB
+			//                 2 = -21dB
+			//                 1 = -27dB
+			//                 0 = -33dB
 			//
 			// LNA_SHORT ..   0dB
 			// LNA ........  14dB
@@ -506,6 +540,10 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			// PGA ........ -15dB
 			//                                  LNA SHORT     LNA         MIXER        PGA
 			BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (3u << 0));
+			//BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
+			//BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
+			//BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
+			//BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
 
 			gNeverUsed = 0;
 		}
@@ -514,7 +552,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 
 			// RX AF level
 			//
-			// REG_48 <15:12> 11  ??????
+			// REG_48 <15:12> 11  ???
 			//
 			// REG_48 <11:10> 0 AF Rx Gain-1
 			//                0 =   0dB
@@ -526,10 +564,9 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			//                63 = max
 			//                 0 = mute
 			//
-			// REG_48 <3:0>   15 AF DAC Gain (after Gain-1 and Gain-2)
+			// REG_48 <3:0>   15 AF DAC Gain (after Gain-1 and Gain-2) approx 2dB/step
 			//                15 = max
 			//                 0 = min
-			//                approx 2dB/step
 			//
 			BK4819_WriteRegister(BK4819_REG_48,
 				(11u << 12)                 |     // ???
@@ -539,6 +576,40 @@ void APP_StartListening(FUNCTION_Type_t Function)
 
 			BK4819_WriteRegister(0x4B, BK4819_ReadRegister(0x4B) | (1u << 5));	// disable RX ALC
 			
+			// REG_10 <15:0> 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
+			//
+			//         <9:8> = LNA Gain Short
+			//                 3 =   0dB
+			//                 2 = -11dB
+			//                 1 = -16dB
+			//                 0 = -19dB
+			//
+			//         <7:5> = LNA Gain
+			//                 7 =   0dB
+			//                 6 =  -2dB
+			//                 5 =  -4dB
+			//                 4 =  -6dB
+			//                 3 =  -9dB
+			//                 2 = -14dB
+			//                 1 = -19dB
+			//                 0 = -24dB
+			//
+			//         <4:3> = MIXER Gain
+			//                 3 =  0dB
+			//                 2 = -3dB
+			//                 1 = -6dB
+			//                 0 = -8dB
+			//
+			//         <2:0> = PGA Gain
+			//                 7 =   0dB
+			//                 6 =  -3dB
+			//                 5 =  -6dB
+			//                 4 =  -9dB
+			//                 3 = -15dB
+			//                 2 = -21dB
+			//                 1 = -27dB
+			//                 0 = -33dB
+			//
 			// LNA_SHORT ..   0dB
 			// LNA ........  14dB
 			// MIXER ......   0dB
