@@ -459,6 +459,8 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			gUpdateStatus    = true;
 		}
 
+		const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
+
 		if (gRxVfo->IsAM)
 		{	// AM
 
@@ -539,12 +541,18 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			// MIXER ......   0dB
 			// PGA ........ -15dB
 			//                                  LNA SHORT     LNA         MIXER        PGA
-			BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (3u << 0));
+			uint8_t pga = 6u;
+			if (rx_frequency < 22640000)  //     seem to need more gain above this frequency
+				pga = 3u;
+			else
+				pga = 6u;
+
+			BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (pga << 0));
 			//BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
 			//BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
 			//BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
 			//BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
-
+			
 			gNeverUsed = 0;
 		}
 		else

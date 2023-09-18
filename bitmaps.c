@@ -430,7 +430,7 @@ const uint8_t BITMAP_VFO_NotDefault[8] =
 	0b00010100,
 	0b00001000
 };
-
+/*
 const uint8_t BITMAP_ScanList[6] =
 {	// diamond symbol
 	0b00001000,
@@ -439,4 +439,24 @@ const uint8_t BITMAP_ScanList[6] =
 	0b00111110,
 	0b00011100,
 	0b00001000
+};
+*/
+const uint8_t BITMAP_ScanList1[6] =
+{	// 1 symbol
+	0b00000000,
+	0b01000001,
+	0b01111111,
+	0b01000001,
+	0b00000000,
+	0b00000000
+};
+
+const uint8_t BITMAP_ScanList2[6] =
+{	// 2 symbol
+	0b01000001,
+	0b01111111,
+	0b01000001,
+	0b01111111,
+	0b01000001,
+	0b00000000
 };
