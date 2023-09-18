@@ -54,11 +54,11 @@ void UI_DisplayStatus(const bool test_display)
 		line += 12;
 	#endif
 	
+	if (gSetting_KILLED)
+		memset(line, 0xFF, 10);
+	else
 	#ifdef ENABLE_FMRADIO
 		// FM indicator
-		if (gSetting_KILLED)
-			memset(line, 0xFF, 10);
-		else
 		if (gFmRadioMode || test_display)
 			memmove(line, BITMAP_FM, sizeof(BITMAP_FM));
 		else

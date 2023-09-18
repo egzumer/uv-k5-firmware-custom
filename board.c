@@ -707,7 +707,6 @@ void BOARD_EEPROM_Init(void)
 	// 0F40..0F47
 	EEPROM_ReadBuffer(0x0F40, Data, 8);
 	gSetting_F_LOCK         = (Data[0] < 6) ? Data[0] : F_LOCK_OFF;
-
 	gSetting_350TX          = (Data[1] < 2) ? Data[1] : false;  // was true
 	gSetting_KILLED         = (Data[2] < 2) ? Data[2] : false;
 	gSetting_200TX          = (Data[3] < 2) ? Data[3] : false;

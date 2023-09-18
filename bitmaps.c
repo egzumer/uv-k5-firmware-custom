@@ -2,7 +2,7 @@
 #include "bitmaps.h"
 
 // all these images are on their right sides
-// turn your monitor 90deg anti-clockwise to see the images
+// turn your monitor 90-deg anti-clockwise to see the images
 
 const uint8_t BITMAP_PowerSave[8] =
 {

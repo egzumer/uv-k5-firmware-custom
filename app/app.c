@@ -460,7 +460,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 		}
 
 		const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
-
+/*
 		if (gRxVfo->IsAM)
 		{	// AM
 
@@ -476,7 +476,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			//
 			// REG_48 <9:4>   60 AF Rx Gain-2  -26dB ~ 5.5dB   0.5dB/step
 			//                63 = max
-			//                 0 = mute
+			//                 0 = min = mute
 			//
 			// REG_48 <3:0>   15 AF DAC Gain (after Gain-1 and Gain-2) approx 2dB/step
 			//                15 = max
@@ -484,23 +484,25 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			//
 			BK4819_WriteRegister(BK4819_REG_48,
 			#if 0
+				// QS calibrated RX AF gain
 				(11u << 12)                 |     // ???
 				( 0u << 10)                 |     // AF Rx Gain-1
 				(gEeprom.VOLUME_GAIN <<  4) |     // AF Rx Gain-2
 				(gEeprom.DAC_GAIN    <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
 			#else
+				// max RX AF gain
 				(11u << 12) |     // ???
 				( 0u << 10) |     // AF Rx Gain-1
 				(63u <<  4) |     // AF Rx Gain-2
 				(15u <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
 			#endif
-			
-			BK4819_WriteRegister(0x4B, BK4819_ReadRegister(0x4B) & ~(1u << 5));	// enable RX ALC
+
+//			BK4819_WriteRegister(0x4B, BK4819_ReadRegister(0x4B) & ~(1u << 5));	// enable RX ALC
 
 			// help improve AM RX distorted audio by reducing the PGA gain (still very bad with stronge signals)
 			//
 			// I think a solution is to dynamically change these values as the RSSI moves up/down ?
-			// without a detailed datasheet on the chip it's very difficult to fix things
+			// without a detailed datasheet on the chip it's difficult/impossible to fix things
 			//
 			// REG_10 <15:0> 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
 			//
@@ -540,35 +542,38 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			// LNA ........  14dB
 			// MIXER ......   0dB
 			// PGA ........ -15dB
-			//                                  LNA SHORT     LNA         MIXER        PGA
+			//
 			{
-				uint16_t lna_short;
+				uint16_t lna_short;  // whats "LNA SHORT" mean ?
 				uint16_t lna;
 				uint16_t mixer;
 				uint16_t pga;
-				if (rx_frequency < 22640000)  //     seem to need more gain above this frequency
+				// seems the RX gain abrutly reduces above this frequency, why ?
+				if (rx_frequency <= 22640000)
 				{
 					lna_short = 3;   // original
 					lna       = 2;   // original
 					mixer     = 3;   // original
-					pga       = 3;   // reduced
+					pga       = 3;   // reduced - seems to help reduce the AM demodulation distortion
 				}
 				else
 				{
 					lna_short = 3;   // original
-					lna       = 3;   // increased
+					lna       = 4;   // increased
 					mixer     = 3;   // original
 				//	pga       = 6;   // original
 					pga       = 7;   // increased
 				}
-	
+
 				BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
+
+				// what do these 4 other gain tables do ???
 				//BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
 				//BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
 				//BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
 				//BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
 			}
-			
+
 			gNeverUsed = 0;
 		}
 		else
@@ -586,7 +591,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			//
 			// REG_48 <9:4>   60 AF Rx Gain-2  -26dB ~ 5.5dB   0.5dB/step
 			//                63 = max
-			//                 0 = mute
+			//                 0 = min = mute
 			//
 			// REG_48 <3:0>   15 AF DAC Gain (after Gain-1 and Gain-2) approx 2dB/step
 			//                15 = max
@@ -598,8 +603,8 @@ void APP_StartListening(FUNCTION_Type_t Function)
 				(gEeprom.VOLUME_GAIN <<  4) |     // AF Rx Gain-2
 				(gEeprom.DAC_GAIN    <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
 
-			BK4819_WriteRegister(0x4B, BK4819_ReadRegister(0x4B) | (1u << 5));	// disable RX ALC
-			
+//			BK4819_WriteRegister(0x4B, BK4819_ReadRegister(0x4B) | (1u << 5));	// disable RX ALC
+
 			// REG_10 <15:0> 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
 			//
 			//         <9:8> = LNA Gain Short
@@ -641,7 +646,56 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			//                                  LNA SHORT     LNA         MIXER        PGA
 			BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (6u << 0));
 		}
+*/
+		if (gRxVfo->IsAM)
+		{	// AM
+			{
+				uint16_t lna_short;  // whats "LNA SHORT" mean ?
+				uint16_t lna;
+				uint16_t mixer;
+				uint16_t pga;
+				// seems the RX gain abrutly reduces above this frequency, why ?
+				if (rx_frequency <= 22640000)
+				{
+					lna_short = 3;   // original
+					lna       = 2;   // original
+					mixer     = 3;   // original
+					pga       = 3;   // reduced - seems to help reduce the AM demodulation distortion
+				}
+				else
+				{
+					lna_short = 3;   // original
+					lna       = 4;   // increased
+					mixer     = 3;   // original
+				//	pga       = 6;   // original
+					pga       = 7;   // increased
+				}
 
+				BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
+
+				// what do these 4 other gain tables do ???
+				//BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
+				//BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
+				//BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
+				//BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
+			}
+			BK4819_WriteRegister(BK4819_REG_48,
+				// max RX AF gain
+				(11u << 12) |     // ???
+				( 0u << 10) |     // AF Rx Gain-1
+				(63u <<  4) |     // AF Rx Gain-2
+				(15u <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
+			gNeverUsed = 0;
+		}
+		else
+		{	// FM
+			BK4819_WriteRegister(BK4819_REG_48,
+				(11u << 12)                 |     // ???
+				( 0u << 10)                 |     // AF Rx Gain-1
+				(gEeprom.VOLUME_GAIN <<  4) |     // AF Rx Gain-2
+				(gEeprom.DAC_GAIN    <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
+		}
+		
 		#ifdef ENABLE_VOICE
 			if (gVoiceWriteIndex == 0)
 		#endif

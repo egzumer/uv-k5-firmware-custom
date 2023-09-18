@@ -455,7 +455,7 @@ void UI_DisplayMain(void)
 		if (center_line_is_free)
 		{
 			if (gDTMF_ReceivedSaved[0] >= 32)
-			{	// show the on-screen live DTMF decode
+			{	// show live DTMF decode
 				UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);
 			}
 			else
@@ -467,7 +467,7 @@ void UI_DisplayMain(void)
 			{	// charging .. show the battery state
 				#ifdef ENABLE_SHOW_CHARGE_LEVEL
 					const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
-										(gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
+										   (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
 											gBatteryVoltageAverage;
 	
 					sprintf(String, "Charge %u.%02uV %u%%",
