@@ -138,19 +138,19 @@ void UI_DisplayMain(void)
 
 			// highlight the selected/used VFO with a marker
 			if (!single_vfo && bIsSameVfo)
-				memmove(pLine0 + 2, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
+				memmove(pLine0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			else
 			if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)
-				memmove(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
+				memmove(pLine0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 		else
 		if (!single_vfo)
 		{	// highlight the selected/used VFO with a marker
 			if (bIsSameVfo)
-				memmove(pLine0 + 2, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
+				memmove(pLine0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			else
 			//if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)
-				memmove(pLine0 + 2, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
+				memmove(pLine0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 
 		uint32_t SomeValue = 0;

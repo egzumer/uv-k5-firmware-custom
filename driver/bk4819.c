@@ -58,8 +58,30 @@ void BK4819_Init(void)
 	BK4819_WriteRegister(BK4819_REG_7D, 0xE940);
 
 	// RX AF level
-	BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);
-
+	//
+	// REG_48 <15:12> 11  ??????
+	//
+	// REG_48 <11:10> 0 AF Rx Gain-1
+	//                0 =   0dB
+	//                1 =  -6dB
+	//                2 = -12dB
+	//                3 = -18dB
+	//
+	// REG_48 <9:4>   60 AF Rx Gain-2  -26dB ~ 5.5dB   0.5dB/step
+	//                63 = max
+	//                 0 = mute
+	//
+	// REG_48 <3:0>   15 AF DAC Gain (after Gain-1 and Gain-2)
+	//                15 = max
+	//                 0 = min
+	//                approx 2dB/step
+	//
+	BK4819_WriteRegister(BK4819_REG_48,	//  0xB3A8);     // 1011 00 111010 1000
+		(11u << 12) |     // ???
+		( 0u << 10) |     // AF Rx Gain-1
+		(58u <<  4) |     // AF Rx Gain-2
+		( 8u <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
+		
 	const uint8_t dtmf_coeffs[] = {0x6F,0x6B,0x67,0x62,0x50,0x47,0x3A,0x2C,0x41,0x37,0x25,0x17,0xE4,0xCB,0xB5,0x9F};
 	for (unsigned int i = 0; i < ARRAY_SIZE(dtmf_coeffs); i++)
 		BK4819_WriteRegister(BK4819_REG_09, (i << 12) | dtmf_coeffs[i]);

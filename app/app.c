@@ -174,7 +174,7 @@ static void APP_HandleIncoming(void)
 					// let the user see DW is not active
 					gDualWatchActive = false;
 					gUpdateStatus    = true;
-					
+
 					return;
 				}
 			}
@@ -400,7 +400,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			if (gFmRadioMode)
 				BK1080_Init(0, false);
 		#endif
-		
+
 		gVFO_RSSI_Level[gEeprom.RX_CHANNEL == 0] = 0;
 
 		GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
@@ -460,36 +460,93 @@ void APP_StartListening(FUNCTION_Type_t Function)
 		}
 
 		if (gRxVfo->IsAM)
-		{
+		{	// AM
+
 			// RX AF level
-			BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);
-			
-			// help improve AM RX audio by reducing the PGA gain
 			//
-			// I think the solution is to set the RX AGC to limit the front end/I.F gain
+			// REG_48 <15:12> 11  ??????
+			//
+			// REG_48 <11:10> 0 AF Rx Gain-1
+			//                0 =   0dB
+			//                1 =  -6dB
+			//                2 = -12dB
+			//                3 = -18dB
+			//
+			// REG_48 <9:4>   60 AF Rx Gain-2  -26dB ~ 5.5dB   0.5dB/step
+			//                63 = max
+			//                 0 = mute
+			//
+			// REG_48 <3:0>   15 AF DAC Gain (after Gain-1 and Gain-2)
+			//                15 = max
+			//                 0 = min
+			//                approx 2dB/step
+			//
+			BK4819_WriteRegister(BK4819_REG_48,
+			#if 0
+				(11u << 12)                 |     // ???
+				( 0u << 10)                 |     // AF Rx Gain-1
+				(gEeprom.VOLUME_GAIN <<  4) |     // AF Rx Gain-2
+				(gEeprom.DAC_GAIN    <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
+			#else
+				(11u << 12) |     // ???
+				( 0u << 10) |     // AF Rx Gain-1
+				(63u <<  4) |     // AF Rx Gain-2
+				(15u <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
+			#endif
+			
+			BK4819_WriteRegister(0x4B, BK4819_ReadRegister(0x4B) & ~(1u << 5));	// enable RX ALC
+
+			// help improve AM RX distorted audio by reducing the PGA gain (still bad with stronger signals
+			//
+			// I think the proper solution is to set the RX AGC to limit the front end/I.F gain
 			//
 			// LNA_SHORT ..   0dB
 			// LNA ........  14dB
 			// MIXER ......   0dB
 			// PGA ........ -15dB
-			//
+			//                                  LNA SHORT     LNA         MIXER        PGA
 			BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (3u << 0));
 
 			gNeverUsed = 0;
 		}
 		else
-		{
+		{	// FM
+
 			// RX AF level
-			BK4819_WriteRegister(BK4819_REG_48, 0xB000 | (gEeprom.VOLUME_GAIN << 4) | (gEeprom.DAC_GAIN << 0));
+			//
+			// REG_48 <15:12> 11  ??????
+			//
+			// REG_48 <11:10> 0 AF Rx Gain-1
+			//                0 =   0dB
+			//                1 =  -6dB
+			//                2 = -12dB
+			//                3 = -18dB
+			//
+			// REG_48 <9:4>   60 AF Rx Gain-2  -26dB ~ 5.5dB   0.5dB/step
+			//                63 = max
+			//                 0 = mute
+			//
+			// REG_48 <3:0>   15 AF DAC Gain (after Gain-1 and Gain-2)
+			//                15 = max
+			//                 0 = min
+			//                approx 2dB/step
+			//
+			BK4819_WriteRegister(BK4819_REG_48,
+				(11u << 12)                 |     // ???
+				( 0u << 10)                 |     // AF Rx Gain-1
+				(gEeprom.VOLUME_GAIN <<  4) |     // AF Rx Gain-2
+				(gEeprom.DAC_GAIN    <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
+
+			BK4819_WriteRegister(0x4B, BK4819_ReadRegister(0x4B) | (1u << 5));	// disable RX ALC
 			
 			// LNA_SHORT ..   0dB
 			// LNA ........  14dB
 			// MIXER ......   0dB
 			// PGA ........  -3dB
-			//
+			//                                  LNA SHORT     LNA         MIXER        PGA
 			BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (6u << 0));
 		}
-		
+
 		#ifdef ENABLE_VOICE
 			if (gVoiceWriteIndex == 0)
 		#endif
@@ -678,10 +735,10 @@ void APP_CheckRadioInterrupts(void)
 //		const uint8_t ctcss_shift = BK4819_GetCTCShift();
 //		if (ctcss_shift > 0)
 //			g_CTCSS_Lost = true;
-		
+
 		if (interrupt_status_bits & BK4819_REG_02_DTMF_5TONE_FOUND)
 		{	// save the new DTMF RX'ed character
-	
+
 			// fetch the RX'ed char
 			const char c = DTMF_GetCharacter(BK4819_GetDTMF_5TONE_Code());
 			if (c != 0xff)
@@ -692,7 +749,7 @@ void APP_CheckRadioInterrupts(void)
 				if (gDTMF_WriteIndex >= sizeof(gDTMF_Received))
 					memmove(gDTMF_Received, &gDTMF_Received[1], gDTMF_WriteIndex-- - 1);
 				gDTMF_Received[gDTMF_WriteIndex++] = c;
-	
+
 				if (gCurrentFunction == FUNCTION_RECEIVE)
 				{
 					#ifdef ENABLE_DTMF_DECODER
@@ -705,7 +762,7 @@ void APP_CheckRadioInterrupts(void)
 						gDTMF_ReceivedSaved[len]   = '\0';
 						gUpdateDisplay = true;
 					#endif
-	
+
 					DTMF_HandleRequest();
 				}
 			}
@@ -1016,7 +1073,7 @@ void APP_Update(void)
 			gScheduleFM = false;
 		}
 	#endif
-	
+
 	if (gEeprom.VOX_SWITCH)
 		APP_HandleVox();
 
@@ -1186,7 +1243,7 @@ void APP_CheckKeys(void)
 	{	// PTT pressed
 		if (++gPttDebounceCounter >= 3)	    // 30ms
 		{	// start transmitting
-			boot_counter_10ms   = 0;   
+			boot_counter_10ms   = 0;
 			gPttDebounceCounter = 0;
 			gPttIsPressed       = true;
 			APP_ProcessKey(KEY_PTT, true, false);
@@ -1236,7 +1293,7 @@ void APP_CheckKeys(void)
 	}
 
 	// key is being held pressed
-	
+
 	if (gDebounceCounter == key_repeat_delay_10ms)
 	{	// initial delay after pressed
 		if (Key == KEY_STAR  ||
@@ -1315,7 +1372,7 @@ void APP_TimeSlice10ms(void)
 		if (gFmRadioCountdown_500ms > 0)
 			return;
 	#endif
-	
+
 	if (gFlashLightState == FLASHLIGHT_BLINK && (gFlashLightBlinkCounter & 15u) == 0)
 		GPIO_FlipBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);
 
@@ -1395,7 +1452,7 @@ void APP_TimeSlice10ms(void)
 			}
 		}
 	#endif
-	
+
 	if (gScreenToDisplay == DISPLAY_SCANNER)
 	{
 		uint32_t               Result;
@@ -1555,7 +1612,7 @@ void APP_TimeSlice500ms(void)
 	if (gKeyInputCountdown > 0)
 		if (--gKeyInputCountdown == 0)
 			cancelUserInputModes();
-	
+
 	// Skipped authentic device check
 
 	#ifdef ENABLE_FMRADIO
@@ -1565,7 +1622,7 @@ void APP_TimeSlice500ms(void)
 			return;
 		}
 	#endif
-	
+
 	if (gReducedService)
 	{
 		BOARD_ADC_GetBatteryInfo(&gBatteryCurrentVoltage, &gBatteryCurrent);
@@ -1673,7 +1730,7 @@ void APP_TimeSlice500ms(void)
 			}
 		}
 	#endif
-	
+
 	if (gLowBattery)
 	{
 		gLowBatteryBlink = ++gLowBatteryCountdown & 1;
@@ -1846,7 +1903,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 //	const bool backlight_was_on = (gBacklightCountdown > 0 || gEeprom.BACKLIGHT >= 5);
 	const bool backlight_was_on = GPIO_CheckBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
-	
+
 	if (Key == KEY_EXIT && !backlight_was_on)
 	{	// just turn the light on for now
 		BACKLIGHT_TurnOn();
@@ -1892,7 +1949,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				gFlagSaveFM = false;
 			}
 		#endif
-		
+
 		if (gFlagSaveChannel)
 		{
 			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_CHANNEL, gTxVfo, gFlagSaveChannel);
@@ -2013,7 +2070,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	{
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
 		{	// transmitting
-	
+
 			#ifdef ENABLE_ALARM
 				if (gAlarmState == ALARM_STATE_OFF)
 			#endif
@@ -2099,27 +2156,27 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 						bKeyHeld = false;	// allow the channel setting to be saved
 					#endif
 					break;
-					
+
 				#ifdef ENABLE_FMRADIO
 					case DISPLAY_FM:
 						FM_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 						break;
 				#endif
-				
+
 				case DISPLAY_MENU:
 					MENU_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 					break;
-					
+
 				case DISPLAY_SCANNER:
 					SCANNER_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 					break;
-					
+
 				#ifdef ENABLE_AIRCOPY
 					case DISPLAY_AIRCOPY:
 						AIRCOPY_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 						break;
 				#endif
-				
+
 				case DISPLAY_INVALID:
 				default:
 					break;
@@ -2186,7 +2243,7 @@ Skip:
 			gRequestSaveFM = false;
 		}
 	#endif
-	
+
 	if (gRequestSaveVFO)
 	{
 		if (!bKeyHeld)
