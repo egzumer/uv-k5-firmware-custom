@@ -1847,8 +1847,11 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 //	const bool backlight_was_on = (gBacklightCountdown > 0 || gEeprom.BACKLIGHT >= 5);
 	const bool backlight_was_on = GPIO_CheckBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
 	
-//	if (Key == KEY_EXIT && bKeyPressed && !bKeyHeld && !backlight_was_on)
-	if (bKeyPressed && !bKeyHeld && !backlight_was_on)
+	if (Key != KEY_PTT &&
+	    Key != KEY_F && 
+	    bKeyPressed &&
+	   !bKeyHeld &&
+	   !backlight_was_on)
 	{	// just turn the light on for now
 		BACKLIGHT_TurnOn();
 //		gKeyReading0     = KEY_INVALID;
