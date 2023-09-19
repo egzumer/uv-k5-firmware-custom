@@ -539,7 +539,7 @@ const uint8_t BITMAP_ScanList[6] =
 };
 */
 const uint8_t BITMAP_ScanList1[6] =
-{	// 1 symbol
+{	// 'I' symbol
 	0b00000000,
 	0b00000000,
 	0b01000010,
@@ -549,7 +549,7 @@ const uint8_t BITMAP_ScanList1[6] =
 };
 
 const uint8_t BITMAP_ScanList2[6] =
-{	// 2 symbol
+{	// 'II' symbol
 	0b00000000,
 	0b01000010,
 	0b01111110,
@@ -557,3 +557,15 @@ const uint8_t BITMAP_ScanList2[6] =
 	0b01111110,
 	0b01000010
 };
+
+#ifdef ENABLE_COMPANDER
+	const uint8_t BITMAP_compand[6] =
+	{
+		0b00000000,
+		0b00111100,
+		0b01000010,
+		0b01000010,
+		0b01000010,
+		0b00100100
+	};
+#endif

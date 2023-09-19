@@ -229,7 +229,7 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 	}
 }
 
-void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool bUpdate)
+void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool keep)
 {
 	UART_LogSend("svalid\r\n", 8);
 
@@ -238,32 +238,39 @@ void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool bUpdat
 	#endif
 	{
 		uint8_t  State[8];
-		uint8_t  Attributes = 0xFF;
-		uint16_t Offset     = 0x0D60 + (Channel & ~7U);
+		uint8_t  Attributes = 0xFF;        // default attributes
+		#ifdef ENABLE_COMPANDER
+			Attributes &= ~MR_CH_COMPAND;  // default to '0' = compander disabled
+		#endif
+		uint16_t Offset = 0x0D60 + (Channel & ~7u);
 
 		EEPROM_ReadBuffer(Offset, State, sizeof(State));
 
-		if (bUpdate)
+		if (keep)
 		{
-			Attributes = (pVFO->SCANLIST1_PARTICIPATION << 7) | (pVFO->SCANLIST2_PARTICIPATION << 6) | (pVFO->Band << 0);
-			if (State[Channel & 7U] == Attributes)
-				return;
+			#ifdef ENABLE_COMPANDER
+				Attributes = (pVFO->SCANLIST1_PARTICIPATION << 7) | (pVFO->SCANLIST2_PARTICIPATION << 6) | (pVFO->Compander << 4) | (pVFO->Band << 0);
+			#else
+				Attributes = (pVFO->SCANLIST1_PARTICIPATION << 7) | (pVFO->SCANLIST2_PARTICIPATION << 6) | (pVFO->Band << 0);
+			#endif
+			if (State[Channel & 7u] == Attributes)
+				return; // no change in the attributes
 		}
 
-		State[Channel & 7U] = Attributes;
+		State[Channel & 7u] = Attributes;
 
 		EEPROM_WriteBuffer(Offset, State);
 
 		gMR_ChannelAttributes[Channel] = Attributes;
 
-		#ifndef KEEP_MEM_NAME
-			if (IS_MR_CHANNEL(Channel))
+//		#ifndef KEEP_MEM_NAME
+			if (IS_MR_CHANNEL(Channel) && !keep)
 			{	// clear/reset the channel name
 				const uint16_t OffsetMR = Channel * 16;
 				memset(&State, 0xFF, sizeof(State));
 				EEPROM_WriteBuffer(0x0F50 + OffsetMR, State);
 				EEPROM_WriteBuffer(0x0F58 + OffsetMR, State);
 			}
-		#endif
+//		#endif
 	}
 }

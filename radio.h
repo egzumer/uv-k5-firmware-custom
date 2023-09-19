@@ -23,9 +23,12 @@
 #include "dcs.h"
 
 enum {
-	MR_CH_SCANLIST1 = (1u << 7),
-	MR_CH_SCANLIST2 = (1u << 6),
-	MR_CH_BAND_MASK = 0x0Fu
+	MR_CH_BAND_MASK   = 0x0F << 0,
+	#ifdef ENABLE_COMPANDER
+		MR_CH_COMPAND =   3u << 4,  // new
+	#endif
+	MR_CH_SCANLIST2   =   1u << 6,
+	MR_CH_SCANLIST1   =   1u << 7
 };
 
 enum {

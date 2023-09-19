@@ -244,22 +244,19 @@ void UI_DisplayMain(void)
 			if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 			{	// channel mode
 
-				// show the scanlist symbols
-				const uint8_t Attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
-//				#ifdef ENABLE_BIG_FREQ
-					// side-by-side
-					if (Attributes & MR_CH_SCANLIST1)
-						memmove(pLine0 + 113, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
-					if (Attributes & MR_CH_SCANLIST2)
-						memmove(pLine0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
-//				#else
-//					// top-bottom .. makes room for full 10 characters of channel name
-//					if (Attributes & MR_CH_SCANLIST1)
-//						memmove(pLine0 + 120, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
-//					if (Attributes & MR_CH_SCANLIST2)
-//						memmove(pLine0 + 120 + LCD_WIDTH, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
-//				#endif
-
+				// show the channel symbols
+				const uint8_t attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
+				if (attributes & MR_CH_SCANLIST1)
+					memmove(pLine0 + 113, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
+				if (attributes & MR_CH_SCANLIST2)
+					memmove(pLine0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
+				#ifndef ENABLE_BIG_FREQ
+					#ifdef ENABLE_COMPANDER
+						if ((attributes & MR_CH_COMPAND) > 0)
+							memmove(pLine0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+					#endif
+				#endif
+				
 				switch (gEeprom.CHANNEL_DISPLAY_MODE)
 				{
 					case MDF_FREQUENCY:	// show the channel frequency
@@ -326,6 +323,21 @@ void UI_DisplayMain(void)
 					// show the frequency in the main font
 					sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
 					UI_PrintString(String, 32, 0, Line, 8);
+				#endif
+
+				// show the channel symbols
+				const uint8_t attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
+				(void)attributes; // stop compiler warning/error
+				#ifdef ENABLE_BIG_FREQ
+					#ifdef ENABLE_COMPANDER
+						if ((attributes & MR_CH_COMPAND) > 0)
+							memmove(pLine0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
+					#endif
+				#else
+					#ifdef ENABLE_COMPANDER
+						if ((attributes & MR_CH_COMPAND) > 0)
+							memmove(pLine0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+					#endif
 				#endif
 			}
 		}

@@ -48,7 +48,8 @@ STEP_Setting_t gStepSetting;
 VfoState_t     VfoState[2];
 
 bool RADIO_CheckValidChannel(uint16_t Channel, bool bCheckScanList, uint8_t VFO)
-{
+{	// return true if the channel appears valid
+
 	uint8_t Attributes;
 	uint8_t PriorityCh1;
 	uint8_t PriorityCh2;
@@ -56,8 +57,8 @@ bool RADIO_CheckValidChannel(uint16_t Channel, bool bCheckScanList, uint8_t VFO)
 	if (!IS_MR_CHANNEL(Channel))
 		return false;
 
-	// Check channel is valid
 	Attributes = gMR_ChannelAttributes[Channel];
+
 	if ((Attributes & MR_CH_BAND_MASK) > BAND7_470MHz)
 		return false;
 
@@ -177,8 +178,9 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 				if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF)
 					return;
 
-				gUpdateStatus            = true;
 				gEeprom.CROSS_BAND_RX_TX = CROSS_BAND_OFF;
+
+				gUpdateStatus = true;
 				return;
 			}
 		#endif
@@ -203,7 +205,8 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 
 	Attributes = gMR_ChannelAttributes[Channel];
 	if (Attributes == 0xFF)
-	{
+	{	// invalid/unused channel
+
 		uint8_t Index;
 
 		if (IS_MR_CHANNEL(Channel))
@@ -220,8 +223,11 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 
 	Band = Attributes & MR_CH_BAND_MASK;
 	if (Band > BAND7_470MHz)
-		Band = BAND6_400MHz;
-
+	{
+//		Band = BAND6_400MHz;
+		Band = FREQUENCY_GetBand(gEeprom.ScreenChannel[VFO]);   // 111 bug fix, or have I broke it ?
+	}
+	
 	if (IS_MR_CHANNEL(Channel))
 	{
 		gEeprom.VfoInfo[VFO].Band                    = Band;
@@ -349,7 +355,9 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		} __attribute__((packed)) Info;
 
 		EEPROM_ReadBuffer(Base, &Info, sizeof(Info));
+
 		pRadio->ConfigRX.Frequency = Info.Frequency;
+
 		if (Info.Offset >= 100000000)
 			Info.Offset = 1000000;
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY = Info.Offset;
@@ -418,7 +426,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		gEeprom.VfoInfo[VFO].IsAM = false;
 
 	#ifdef ENABLE_COMPANDER
-		gEeprom.VfoInfo[VFO].Compander = 0;   // off
+		gEeprom.VfoInfo[VFO].Compander = (Attributes & MR_CH_COMPAND) >> 4;
 	#endif
 
 	RADIO_ConfigureSquelchAndOutputPower(pRadio);
@@ -465,7 +473,7 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 		Txp[1],
 		Txp[2],
 		LowerLimitFrequencyBandTable[Band],
-		MiddleFrequencyBandTable[Band],
+		    MiddleFrequencyBandTable[Band],
 		UpperLimitFrequencyBandTable[Band],
 		pInfo->pTX->Frequency);
 }

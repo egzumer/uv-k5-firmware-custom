@@ -578,7 +578,7 @@ void MENU_AcceptSetting(void)
 		#ifdef ENABLE_COMPANDER
 			case MENU_COMPAND:
 				gTxVfo->Compander = gSubMenuSelection;
-				//gRequestSaveChannel = 2;
+				gRequestSaveChannel = 2;
 				return;
 		#endif
 
