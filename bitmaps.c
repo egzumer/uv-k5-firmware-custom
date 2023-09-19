@@ -160,12 +160,11 @@ const uint8_t BITMAP_KeyLock[9] =
 	0b01111100
 };
 
-const uint8_t BITMAP_F_Key[10] =
+const uint8_t BITMAP_F_Key[9] =
 {	// F-Key symbol
 	0b11111111,
 	0b10000001,
 	0b10111101,
-	0b10010101,
 	0b10010101,
 	0b10010101,
 	0b10010101,
