@@ -65,6 +65,8 @@ bool              gSetting_TX_EN;
 uint8_t           gSetting_F_LOCK;
 bool              gSetting_ScrambleEnable;
 
+bool              gSetting_live_DTMF_decoder;
+
 uint32_t          gCustomAesKey[4];
 bool              bHasCustomAesKey;
 uint32_t          gChallenge[4];

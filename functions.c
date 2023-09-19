@@ -59,10 +59,8 @@ void FUNCTION_Init(void)
 	gDTMF_WriteIndex     = 0;
 	memset(gDTMF_Received, 0, sizeof(gDTMF_Received));
 
-	#ifdef ENABLE_DTMF_DECODER
-//		gDTMF_RecvTimeoutSaved = 0;
-//		gDTMF_ReceivedSaved[0] = '\0';
-	#endif
+//	gDTMF_RecvTimeoutSaved = 0;
+//	gDTMF_ReceivedSaved[0] = '\0';
 		
 	g_CxCSS_TAIL_Found = false;
 	g_CDCSS_Lost       = false;

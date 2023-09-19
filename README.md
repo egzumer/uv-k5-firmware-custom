@@ -28,7 +28,6 @@ ENABLE_TX_WHEN_AM             := 0       allow TX (always FM) when RX is set to 
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       standard CTCSS tail phase shift rather than QS's own 55Hz tone method
 ENABLE_MAIN_KEY_HOLD          := 1       initial F-key press not needed, instead hold down keys 0-9
 ENABLE_BOOT_BEEPS             := 0       give user audio feedback on volume knob position at boot-up
-ENABLE_DTMF_DECODER           := 1       live on-screen DTMF decoder
 ENABLE_COMPANDER              := 1       compander option - setting not yet saved
 ENABLE_SHOW_CHARGE_LEVEL      := 1       show the charge level when the radio is on charge 
 ENABLE_STATUSBAR_VOLTAGE      := 0       show the battery voltage on the top status bar - when possible

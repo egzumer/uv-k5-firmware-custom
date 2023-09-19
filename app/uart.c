@@ -139,9 +139,11 @@ typedef struct {
 
 static const uint8_t Obfuscation[16] = { 0x16, 0x6C, 0x14, 0xE6, 0x2E, 0x91, 0x0D, 0x40, 0x21, 0x35, 0xD5, 0x40, 0x13, 0x03, 0xE9, 0x80 };
 
-static union {
+static union
+{
 	uint8_t Buffer[256];
-	struct {
+	struct
+	{
 		Header_t Header;
 		uint8_t Data[252];
 	};
@@ -149,7 +151,7 @@ static union {
 
 static uint32_t Timestamp;
 static uint16_t gUART_WriteIndex;
-static bool bIsEncrypted = true;
+static bool     bIsEncrypted = true;
 
 static void SendReply(void *pReply, uint16_t Size)
 {
@@ -158,21 +160,24 @@ static void SendReply(void *pReply, uint16_t Size)
 	uint8_t *pBytes;
 	uint16_t i;
 
-	if (bIsEncrypted) {
+	if (bIsEncrypted)
+	{
 		pBytes = (uint8_t *)pReply;
-		for (i = 0; i < Size; i++) {
+		for (i = 0; i < Size; i++)
 			pBytes[i] ^= Obfuscation[i % 16];
-		}
 	}
 
 	Header.ID = 0xCDAB;
 	Header.Size = Size;
 	UART_Send(&Header, sizeof(Header));
 	UART_Send(pReply, Size);
-	if (bIsEncrypted) {
+	if (bIsEncrypted)
+	{
 		Footer.Padding[0] = Obfuscation[(Size + 0) % 16] ^ 0xFF;
 		Footer.Padding[1] = Obfuscation[(Size + 1) % 16] ^ 0xFF;
-	} else {
+	}
+	else
+	{
 		Footer.Padding[0] = 0xFF;
 		Footer.Padding[1] = 0xFF;
 	}
@@ -208,11 +213,9 @@ static bool IsBadChallenge(const uint32_t *pKey, const uint32_t *pIn, const uint
 	IV[2] = 0;
 	IV[3] = 0;
 	AES_Encrypt(pKey, IV, pIn, IV, true);
-	for (i = 0; i < 4; i++) {
-		if (IV[i] != pResponse[i]) {
+	for (i = 0; i < 4; i++)
+		if (IV[i] != pResponse[i])
 			return true;
-		}
-	}
 
 	return false;
 }
@@ -232,12 +235,11 @@ static void CMD_0514(const uint8_t *pBuffer)
 static void CMD_051B(const uint8_t *pBuffer)
 {
 	const CMD_051B_t *pCmd = (const CMD_051B_t *)pBuffer;
-	REPLY_051B_t Reply;
-	bool bLocked = false;
+	REPLY_051B_t      Reply;
+	bool              bLocked = false;
 
-	if (pCmd->Timestamp != Timestamp) {
+	if (pCmd->Timestamp != Timestamp)
 		return;
-	}
 
 	#ifdef ENABLE_FMRADIO
 		gFmRadioCountdown_500ms = fm_radio_countdown_500ms;
@@ -248,13 +250,11 @@ static void CMD_051B(const uint8_t *pBuffer)
 	Reply.Data.Offset = pCmd->Offset;
 	Reply.Data.Size = pCmd->Size;
 
-	if (bHasCustomAesKey) {
+	if (bHasCustomAesKey)
 		bLocked = gIsLocked;
-	}
 
-	if (!bLocked) {
+	if (!bLocked)
 		EEPROM_ReadBuffer(pCmd->Offset, Reply.Data.Data, pCmd->Size);
-	}
 
 	SendReply(&Reply, pCmd->Size + 8);
 }
@@ -266,44 +266,37 @@ static void CMD_051D(const uint8_t *pBuffer)
 	bool bReloadEeprom;
 	bool bIsLocked;
 
-	if (pCmd->Timestamp != Timestamp) {
+	if (pCmd->Timestamp != Timestamp)
 		return;
-	}
 
 	bReloadEeprom = false;
 
 	#ifdef ENABLE_FMRADIO
 		gFmRadioCountdown_500ms = fm_radio_countdown_500ms;
 	#endif
-	Reply.Header.ID = 0x051E;
+	Reply.Header.ID   = 0x051E;
 	Reply.Header.Size = sizeof(Reply.Data);
 	Reply.Data.Offset = pCmd->Offset;
 
-	bIsLocked = bHasCustomAesKey;
-	if (bHasCustomAesKey) {
-		bIsLocked = gIsLocked;
-	}
+	bIsLocked = bHasCustomAesKey ? gIsLocked : bHasCustomAesKey;
 
-	if (!bIsLocked) {
+	if (!bIsLocked)
+	{
 		uint16_t i;
+		for (i = 0; i < (pCmd->Size / 8); i++)
+		{
+			const uint16_t Offset = pCmd->Offset + (i * 8U);
 
-		for (i = 0; i < (pCmd->Size / 8U); i++) {
-			uint16_t Offset = pCmd->Offset + (i * 8U);
-
-			if (Offset >= 0x0F30 && Offset < 0x0F40) {
-				if (!gIsLocked) {
+			if (Offset >= 0x0F30 && Offset < 0x0F40)
+				if (!gIsLocked)
 					bReloadEeprom = true;
-				}
-			}
 
-			if ((Offset < 0x0E98 || Offset >= 0x0EA0) || !bIsInLockScreen || pCmd->bAllowPassword) {
+			if ((Offset < 0x0E98 || Offset >= 0x0EA0) || !bIsInLockScreen || pCmd->bAllowPassword)
 				EEPROM_WriteBuffer(Offset, &pCmd->Data[i * 8U]);
-			}
 		}
 
-		if (bReloadEeprom) {
+		if (bReloadEeprom)
 			BOARD_EEPROM_Init();
-		}
 	}
 
 	SendReply(&Reply, sizeof(Reply));
@@ -347,25 +340,30 @@ static void CMD_052D(const uint8_t *pBuffer)
 
 	bIsLocked = bHasCustomAesKey;
 
-	if (!bIsLocked) {
+	if (!bIsLocked)
 		bIsLocked = IsBadChallenge(gCustomAesKey, gChallenge, pCmd->Response);
-	}
-	if (!bIsLocked) {
+
+	if (!bIsLocked)
+	{
 		bIsLocked = IsBadChallenge(gDefaultAesKey, gChallenge, pCmd->Response);
-		if (bIsLocked) {
+		if (bIsLocked)
 			gTryCount++;
-		}
 	}
-	if (gTryCount < 3) {
-		if (!bIsLocked) {
+
+	if (gTryCount < 3)
+	{
+		if (!bIsLocked)
 			gTryCount = 0;
-		}
-	} else {
+	}
+	else
+	{
 		gTryCount = 3;
 		bIsLocked = true;
 	}
-	gIsLocked = bIsLocked;
+	
+	gIsLocked            = bIsLocked;
 	Reply.Data.bIsLocked = bIsLocked;
+
 	SendReply(&Reply, sizeof(Reply));
 }
 

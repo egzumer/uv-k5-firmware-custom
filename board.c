@@ -706,15 +706,16 @@ void BOARD_EEPROM_Init(void)
 
 	// 0F40..0F47
 	EEPROM_ReadBuffer(0x0F40, Data, 8);
-	gSetting_F_LOCK         = (Data[0] < 6) ? Data[0] : F_LOCK_OFF;
-	gSetting_350TX          = (Data[1] < 2) ? Data[1] : false;  // was true
-	gSetting_KILLED         = (Data[2] < 2) ? Data[2] : false;
-	gSetting_200TX          = (Data[3] < 2) ? Data[3] : false;
-	gSetting_500TX          = (Data[4] < 2) ? Data[4] : false;
-	gSetting_350EN          = (Data[5] < 2) ? Data[5] : true;
-	gSetting_ScrambleEnable = (Data[6] < 2) ? Data[6] : true;
-	gSetting_TX_EN          = (Data[7] & (1u << 0)) ? true : false;
-
+	gSetting_F_LOCK            = (Data[0] < 6) ? Data[0] : F_LOCK_OFF;
+	gSetting_350TX             = (Data[1] < 2) ? Data[1] : false;  // was true
+	gSetting_KILLED            = (Data[2] < 2) ? Data[2] : false;
+	gSetting_200TX             = (Data[3] < 2) ? Data[3] : false;
+	gSetting_500TX             = (Data[4] < 2) ? Data[4] : false;
+	gSetting_350EN             = (Data[5] < 2) ? Data[5] : true;
+	gSetting_ScrambleEnable    = (Data[6] < 2) ? Data[6] : true;
+	gSetting_TX_EN             = (Data[7] & (1u << 0)) ? true : false;
+	gSetting_live_DTMF_decoder = (Data[7] & (1u << 1)) ? true : false;
+	
 	if (!gEeprom.VFO_OPEN)
 	{
 		gEeprom.ScreenChannel[0] = gEeprom.MrChannel[0];

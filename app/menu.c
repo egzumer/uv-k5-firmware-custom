@@ -103,12 +103,13 @@
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
+		VOICE_ID_INVALID,
 		#ifdef ENABLE_NOAA
 			VOICE_ID_INVALID,
 		#endif
 		VOICE_ID_DELETE_CHANNEL,
 		VOICE_ID_INITIALISATION,
-
+		
 		// hidden items
 		
 		VOICE_ID_INVALID,
@@ -118,6 +119,7 @@
 		VOICE_ID_INVALID,
 		VOICE_ID_INVALID,
 
+		VOICE_ID_INVALID,
 		VOICE_ID_INVALID
 	};
 #endif
@@ -257,6 +259,7 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 		case MENU_STE:
 		case MENU_D_ST:
 		case MENU_D_DCD:
+		case MENU_D_LIVE_DEC:
 		case MENU_AM:
 		#ifdef ENABLE_NOAA
 			case MENU_NOAA_S:
@@ -613,6 +616,11 @@ void MENU_AcceptSetting(void)
 			gRequestSaveChannel          = 1;
 			return;
 	
+		case MENU_D_LIVE_DEC:
+			gSetting_live_DTMF_decoder = gSubMenuSelection;
+			gRequestSaveSettings       = true;
+			return;
+
 		case MENU_D_LIST:
 			gDTMFChosenContact = gSubMenuSelection - 1;
 			if (gIsDtmfContactValid)
@@ -982,6 +990,10 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gDTMFChosenContact + 1;
 			break;
 	
+		case MENU_D_LIVE_DEC:
+			gSubMenuSelection = gSetting_live_DTMF_decoder;
+			break;
+
 		case MENU_PONMSG:
 			gSubMenuSelection = gEeprom.POWER_ON_DISPLAY_MODE;
 			break;

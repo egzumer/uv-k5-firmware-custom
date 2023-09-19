@@ -90,6 +90,7 @@ const char MenuList[][7] =
 	"PTT-ID",
 	"D-DCD",
 	"D-LIST",
+	"D-LIVE",    // live DTMF decoder
 	"PONMSG",
 	"ROGER",
 	"BATVOL",    // was "VOL"
@@ -427,6 +428,7 @@ void UI_DisplayMenu(void)
 		case MENU_STE:
 		case MENU_D_ST:
 		case MENU_D_DCD:
+		case MENU_D_LIVE_DEC:
 		#ifdef ENABLE_NOAA
 			case MENU_NOAA_S:
 		#endif

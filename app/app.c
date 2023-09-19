@@ -901,7 +901,7 @@ void APP_CheckRadioInterrupts(void)
 
 				if (gCurrentFunction == FUNCTION_RECEIVE)
 				{
-					#ifdef ENABLE_DTMF_DECODER
+					{	// live DTMF decoder
 						gDTMF_RecvTimeoutSaved = DTMF_RX_timeout_saved_500ms;
 						size_t len = strlen(gDTMF_ReceivedSaved);
 						// shift the RX buffer down one - if need be
@@ -910,7 +910,7 @@ void APP_CheckRadioInterrupts(void)
 						gDTMF_ReceivedSaved[len++] = c;
 						gDTMF_ReceivedSaved[len]   = '\0';
 						gUpdateDisplay = true;
-					#endif
+					}
 
 					DTMF_HandleRequest();
 				}
@@ -1788,6 +1788,14 @@ void APP_TimeSlice500ms(void)
 				gBatteryVoltageIndex = 0;
 
 			BATTERY_GetReadings(true);
+
+			#if defined(ENABLE_STATUSBAR_VOLTAGE) || defined(ENABLE_STATUSBAR_PERCENTAGE)
+				// regular statusbar updates (once per sec) if battery voltage or percentage is enabled
+				gUpdateStatus = true;
+			#else
+				if (gChargingWithTypeC)
+					gUpdateDisplay = true;
+			#endif
 		}
 
 		if (gCurrentFunction != FUNCTION_POWER_SAVE)
@@ -1977,16 +1985,14 @@ void APP_TimeSlice500ms(void)
 		}
 	}
 
-	#ifdef ENABLE_DTMF_DECODER
-		if (gDTMF_RecvTimeoutSaved > 0)
+	if (gDTMF_RecvTimeoutSaved > 0)
+	{
+		if (--gDTMF_RecvTimeoutSaved == 0)
 		{
-			if (--gDTMF_RecvTimeoutSaved == 0)
-			{
-				gDTMF_ReceivedSaved[0] = '\0';
-				gUpdateDisplay = true;
-			}
+			gDTMF_ReceivedSaved[0] = '\0';
+			gUpdateDisplay = true;
 		}
-	#endif
+	}
 }
 
 #ifdef ENABLE_ALARM

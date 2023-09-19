@@ -447,34 +447,29 @@ void UI_DisplayMain(void)
 			UI_PrintStringSmall("SCR", LCD_WIDTH + 106, 0, Line + 1);
 	}
 
-	#ifdef ENABLE_DTMF_DECODER
-		if (center_line_is_free)
-		{
-			if (gDTMF_ReceivedSaved[0] >= 32)
-			{	// show live DTMF decode
-				UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);
-			}
-			else
-	#else
-		if (center_line_is_free)
-		{
-	#endif
-			if (gChargingWithTypeC)
-			{	// charging .. show the battery state
-				#ifdef ENABLE_SHOW_CHARGE_LEVEL
-					const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
-										   (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
-											gBatteryVoltageAverage;
-	
-					sprintf(String, "Charge %u.%02uV %u%%",
-							gBatteryVoltageAverage / 100,
-							gBatteryVoltageAverage % 100,
-							(100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
-	
-					UI_PrintStringSmall(String, 2, 0, 3);
-				#endif
-			}
+	if (center_line_is_free)
+	{
+		if (gSetting_live_DTMF_decoder && gDTMF_ReceivedSaved[0] >= 32)
+		{	// show live DTMF decode
+			UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);
 		}
+		else
+		if (gChargingWithTypeC)
+		{	// charging .. show the battery state
+			#ifdef ENABLE_SHOW_CHARGE_LEVEL
+				const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
+									   (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
+										gBatteryVoltageAverage;
+
+				sprintf(String, "Charge %u.%02uV %u%%",
+						gBatteryVoltageAverage / 100,
+						gBatteryVoltageAverage % 100,
+						(100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
+
+				UI_PrintStringSmall(String, 2, 0, 3);
+			#endif
+		}
+	}
 
 	ST7565_BlitFullScreen();
 }

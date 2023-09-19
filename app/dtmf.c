@@ -40,10 +40,8 @@ uint8_t           gDTMF_WriteIndex    = 0;
 uint8_t           gDTMF_PreviousIndex = 0;
 uint8_t           gDTMF_RecvTimeout   = 0;
 
-#ifdef ENABLE_DTMF_DECODER
-	char          gDTMF_ReceivedSaved[17];
-	uint8_t       gDTMF_RecvTimeoutSaved = 0;
-#endif
+char              gDTMF_ReceivedSaved[17];
+uint8_t           gDTMF_RecvTimeoutSaved = 0;
 
 bool              gIsDtmfContactValid;
 char              gDTMF_ID[4];
