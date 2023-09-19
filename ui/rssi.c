@@ -36,6 +36,9 @@ void UI_UpdateRSSI(uint16_t RSSI)
 	char          s[8];
 	const uint8_t line = (gEeprom.RX_CHANNEL == 0) ? 3 : 7;
 
+	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
+		return;    // the screen is currently in use
+	
 	gVFO_RSSI[gEeprom.RX_CHANNEL]       = RSSI;
 	gVFO_RSSI_Level[gEeprom.RX_CHANNEL] = 0;
 
@@ -58,8 +61,11 @@ void Render(const uint8_t rssi, const uint8_t RssiLevel, const uint8_t VFO)
 	uint8_t *pLine;
 	uint8_t  Line;
 
+	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
+		return;    // the screen is currently in use
+
 	if (gCurrentFunction == FUNCTION_TRANSMIT || gScreenToDisplay != DISPLAY_MAIN)
-		return;
+		return;    // it's still in use
 
 	if (VFO == 0)
 	{

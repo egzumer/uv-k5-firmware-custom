@@ -36,9 +36,9 @@ void UI_DisplayStatus(const bool test_display)
 	
 	gUpdateStatus = false;
 	
-	memset(line, 0, sizeof(gStatusLine));
+	memset(gStatusLine, 0, sizeof(gStatusLine));
 
-	line += 2;
+//	line += 2;
 
 	// POWER-SAVE indicator
 	if (gCurrentFunction == FUNCTION_POWER_SAVE || test_display)
@@ -109,11 +109,10 @@ void UI_DisplayStatus(const bool test_display)
 	// USB-C charge indicator
 	if (gChargingWithTypeC || test_display)
 		memmove(line, BITMAP_USB_C, sizeof(BITMAP_USB_C));
-	line += sizeof(BITMAP_USB_C);
+//	line += sizeof(BITMAP_USB_C);
 
-	line += 4;
-	
 	// BATTERY LEVEL indicator
+	line = gStatusLine + LCD_WIDTH - sizeof(BITMAP_BatteryLevel5); // point to the far right side of the screen
 	if (gBatteryDisplayLevel >= 5 || test_display)
 		memmove(line, BITMAP_BatteryLevel5, sizeof(BITMAP_BatteryLevel5));
 	else
@@ -128,7 +127,6 @@ void UI_DisplayStatus(const bool test_display)
 	else
 	if (gLowBatteryBlink == 1)
 		memmove(line, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
-//	line += sizeof(BITMAP_BatteryLevel1);
 
 	ST7565_BlitStatusLine();
 }

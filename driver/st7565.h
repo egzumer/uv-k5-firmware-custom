@@ -20,6 +20,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define LCD_WIDTH       128
+#define LCD_HEIGHT       64
+
 extern uint8_t gStatusLine[128];
 extern uint8_t gFrameBuffer[7][128];
 

@@ -6,11 +6,11 @@
 
 extern const uint8_t BITMAP_PowerSave[8];
 
-extern const uint8_t BITMAP_BatteryLevel1[18];
-extern const uint8_t BITMAP_BatteryLevel2[18];
-extern const uint8_t BITMAP_BatteryLevel3[18];
-extern const uint8_t BITMAP_BatteryLevel4[18];
-extern const uint8_t BITMAP_BatteryLevel5[18];
+extern const uint8_t BITMAP_BatteryLevel1[17];
+extern const uint8_t BITMAP_BatteryLevel2[17];
+extern const uint8_t BITMAP_BatteryLevel3[17];
+extern const uint8_t BITMAP_BatteryLevel4[17];
+extern const uint8_t BITMAP_BatteryLevel5[17];
 
 extern const uint8_t BITMAP_USB_C[9];
 

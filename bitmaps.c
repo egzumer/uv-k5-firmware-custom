@@ -29,12 +29,11 @@ const uint8_t BITMAP_PowerSave[8] =
 	#endif
 };
 
-const uint8_t BITMAP_BatteryLevel1[18] =
+const uint8_t BITMAP_BatteryLevel1[17] =
 {
 	0b00000000,
 	0b00111110,
 	0b00100010,
-	0b01000001,
 	0b01000001,
 	0b01000001,
 	0b01000001,
@@ -51,12 +50,11 @@ const uint8_t BITMAP_BatteryLevel1[18] =
 	0b01111111
 };
 
-const uint8_t BITMAP_BatteryLevel2[18] =
+const uint8_t BITMAP_BatteryLevel2[17] =
 {
 	0b00000000,
 	0b00111110,
 	0b00100010,
-	0b01000001,
 	0b01000001,
 	0b01000001,
 	0b01000001,
@@ -73,12 +71,11 @@ const uint8_t BITMAP_BatteryLevel2[18] =
 	0b01111111
 };
 
-const uint8_t BITMAP_BatteryLevel3[18] =
+const uint8_t BITMAP_BatteryLevel3[17] =
 {
 	0b00000000,
 	0b00111110,
 	0b00100010,
-	0b01000001,
 	0b01000001,
 	0b01000001,
 	0b01000001,
@@ -95,12 +92,11 @@ const uint8_t BITMAP_BatteryLevel3[18] =
 	0b01111111
 };
 
-const uint8_t BITMAP_BatteryLevel4[18] =
+const uint8_t BITMAP_BatteryLevel4[17] =
 {
 	0b00000000,
 	0b00111110,
 	0b00100010,
-	0b01000001,
 	0b01000001,
 	0b01000001,
 	0b01000001,
@@ -117,13 +113,12 @@ const uint8_t BITMAP_BatteryLevel4[18] =
 	0b01111111
 };
 
-const uint8_t BITMAP_BatteryLevel5[18] =
+const uint8_t BITMAP_BatteryLevel5[17] =
 {
 	0b00000000,
 	0b00111110,
 	0b00100010,
 	0b01000001,
-	0b01011101,
 	0b01011101,
 	0b01011101,
 	0b01000001,

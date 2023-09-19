@@ -1321,7 +1321,6 @@ void APP_Update(void)
 			DUALWATCH_Alternate();    // toggle between the two VFO's
 
 			gUpdateRSSI         = true;
-
 			gBatterySave_10ms   = 10;   // 100ms
 		}
 

@@ -81,9 +81,26 @@ void BK4819_Init(void)
 		(58u <<  4) |     // AF Rx Gain-2
 		( 8u <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
 		
-	const uint8_t dtmf_coeffs[] = {0x6F,0x6B,0x67,0x62,0x50,0x47,0x3A,0x2C,0x41,0x37,0x25,0x17,0xE4,0xCB,0xB5,0x9F};
-	for (unsigned int i = 0; i < ARRAY_SIZE(dtmf_coeffs); i++)
-		BK4819_WriteRegister(BK4819_REG_09, (i << 12) | dtmf_coeffs[i]);
+//	const uint8_t dtmf_coeffs[] = {0x6F,0x6B,0x67,0x62,0x50,0x47,0x3A,0x2C,0x41,0x37,0x25,0x17,0xE4,0xCB,0xB5,0x9F};
+//	for (unsigned int i = 0; i < ARRAY_SIZE(dtmf_coeffs); i++)
+//		BK4819_WriteRegister(BK4819_REG_09, (i << 12) | dtmf_coeffs[i]);
+	
+	BK4819_WriteRegister(BK4819_REG_09, 0x006F);  // 6F
+	BK4819_WriteRegister(BK4819_REG_09, 0x106B);  // 6B
+	BK4819_WriteRegister(BK4819_REG_09, 0x2067);  // 67
+	BK4819_WriteRegister(BK4819_REG_09, 0x3062);  // 62
+	BK4819_WriteRegister(BK4819_REG_09, 0x4050);  // 50
+	BK4819_WriteRegister(BK4819_REG_09, 0x5046);  // 47 **
+	BK4819_WriteRegister(BK4819_REG_09, 0x603A);  // 3A
+	BK4819_WriteRegister(BK4819_REG_09, 0x702C);  // 2C
+	BK4819_WriteRegister(BK4819_REG_09, 0x8041);  // 41
+	BK4819_WriteRegister(BK4819_REG_09, 0x9037);  // 37
+	BK4819_WriteRegister(BK4819_REG_09, 0xA025);  // 25
+	BK4819_WriteRegister(BK4819_REG_09, 0xB017);  // 17
+	BK4819_WriteRegister(BK4819_REG_09, 0xC0E4);  // E4
+	BK4819_WriteRegister(BK4819_REG_09, 0xD0CB);  // CB
+	BK4819_WriteRegister(BK4819_REG_09, 0xE0B5);  // B5
+	BK4819_WriteRegister(BK4819_REG_09, 0xF09F);  // 9F
 
 	BK4819_WriteRegister(BK4819_REG_1F, 0x5454);
 	BK4819_WriteRegister(BK4819_REG_3E, 0xA037);
@@ -677,30 +694,30 @@ void BK4819_RX_TurnOn(void)
 	// DSP Voltage Setting = 1
 	// ANA LDO = 2.7v
 	// VCO LDO = 2.7v
-	// RF LDO = 2.7v
+	// RF LDO  = 2.7v
 	// PLL LDO = 2.7v
 	// ANA LDO bypass
 	// VCO LDO bypass
-	// RF LDO bypass
+	// RF LDO  bypass
 	// PLL LDO bypass
 	// Reserved bit is 1 instead of 0
-	// Enable DSP
-	// Enable XTAL
-	// Enable Band Gap
-	BK4819_WriteRegister(BK4819_REG_37, 0x1F0F);
+	// Enable  DSP
+	// Enable  XTAL
+	// Enable  Band Gap
+	BK4819_WriteRegister(BK4819_REG_37, 0x1F0F);  // 0001111100001111
 
 	// Turn off everything
 	BK4819_WriteRegister(BK4819_REG_30, 0);
 
-	// Enable VCO Calibration
-	// Enable RX Link
-	// Enable AF DAC
-	// Enable PLL/VCO
+	// Enable  VCO Calibration
+	// Enable  RX Link
+	// Enable  AF DAC
+	// Enable  PLL/VCO
 	// Disable PA Gain
 	// Disable MIC ADC
 	// Disable TX DSP
-	// Enable RX DSP
-	BK4819_WriteRegister(BK4819_REG_30, 0xBFF1);
+	// Enable  RX DSP
+	BK4819_WriteRegister(BK4819_REG_30, 0b1011111111110001); // 1 0 1111 1 1 1111 0 0 0 1
 }
 
 void BK4819_PickRXFilterPathBasedOnFrequency(uint32_t Frequency)
@@ -813,8 +830,7 @@ void BK4819_EnableDTMF(void)
 	//
 	BK4819_WriteRegister(BK4819_REG_24,
 		  (1u  << BK4819_REG_24_SHIFT_UNKNOWN_15)
-//		| (24u << BK4819_REG_24_SHIFT_THRESHOLD)  // original
-		| (31u << BK4819_REG_24_SHIFT_THRESHOLD)  // hopefully reduced sensitivity
+		| (24u << BK4819_REG_24_SHIFT_THRESHOLD)
 		| (1u  << BK4819_REG_24_SHIFT_UNKNOWN_6)
 		|         BK4819_REG_24_ENABLE
 		|         BK4819_REG_24_SELECT_DTMF

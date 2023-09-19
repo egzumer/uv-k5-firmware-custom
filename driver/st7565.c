@@ -23,9 +23,6 @@
 #include "driver/st7565.h"
 #include "driver/system.h"
 
-#define LCD_WIDTH       128
-#define LCD_HEIGHT       64
-
 uint8_t gStatusLine[128];
 uint8_t gFrameBuffer[7][128];
 
