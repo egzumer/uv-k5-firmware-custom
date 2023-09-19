@@ -308,6 +308,8 @@ void UI_DisplayMenu(void)
 
 	memset(String, 0, sizeof(String));
 
+	bool already_printed = false;
+	
 	switch (gMenuCursor)
 	{
 		case MENU_SQL:
@@ -356,20 +358,26 @@ void UI_DisplayMenu(void)
 			if (!gIsInSubMenu || gInputBoxIndex == 0)
 			{
 				sprintf(String, "%d.%05u", gSubMenuSelection / 100000, abs(gSubMenuSelection) % 100000);
-				break;
+				UI_PrintString(String, 50, 127, 1, 8);
+			}
+			else
+			{
+				for (i = 0; i < 3; i++)
+					String[i    ] = (gInputBox[i] == 10) ? '-' : gInputBox[i] + '0';
+				String[3] = '.';
+				for (i = 3; i < 6; i++)
+					String[i + 1] = (gInputBox[i] == 10) ? '-' : gInputBox[i] + '0';
+				String[ 7] = '-';
+				String[ 8] = '-';
+				String[ 9] = 0;
+				String[10] = 0;
+				String[11] = 0;
+				UI_PrintString(String, 50, 127, 1, 8);
 			}
 
-			for (i = 0; i < 3; i++)
-				String[i    ] = (gInputBox[i] == 10) ? '-' : gInputBox[i] + '0';
-			String[3] = '.';
-			for (i = 3; i < 6; i++)
-				String[i + 1] = (gInputBox[i] == 10) ? '-' : gInputBox[i] + '0';
-			String[ 7] = '-';
-			String[ 8] = '-';
-			String[ 9] = 0;
-			String[10] = 0;
-			String[11] = 0;
-
+			UI_PrintString("MHz",  50, 127, 3, 8);
+			
+			already_printed = true;
 			break;
 
 		case MENU_W_N:
@@ -445,8 +453,10 @@ void UI_DisplayMenu(void)
 		case MENU_1_CALL:
 		case MENU_DEL_CH:
 			UI_GenerateChannelStringEx(String, RADIO_CheckValidChannel(gSubMenuSelection, false, 0), gSubMenuSelection);
+			UI_PrintString(String, 50, 127, 0, 8);
+			already_printed = true;
 			break;
-
+			
 		case MENU_SAVE:
 			strcpy(String, gSubMenu_SAVE[gSubMenuSelection]);
 			break;
@@ -539,7 +549,22 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_VOL:
+			// 1st text line
 			sprintf(String, "%u.%02uV", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100);
+			UI_PrintString(String, 50, 127, 1, 8);
+
+			{	// 2nd text line .. percentage
+				UI_PrintString(String, 50, 127, 1, 8);
+				const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
+				sprintf(String, "%u%%", (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
+				UI_PrintString(String, 50, 127, 3, 8);
+				#if 0
+					sprintf(String, "Curr %u", gBatteryCurrent);  // needs scaling into mA
+					UI_PrintString(String, 50, 127, 5, 8);
+				#endif
+			}
+
+			already_printed = true;
 			break;
 
 		case MENU_RESET:
@@ -552,91 +577,94 @@ void UI_DisplayMenu(void)
 
 		case MENU_F_CALI:
 			{
+				const uint32_t value = 22656 + gSubMenuSelection;
+				//gEeprom.BK4819_XTAL_FREQ_LOW = gSubMenuSelection;  // already set when the user was adjusting the value
+				BK4819_WriteRegister(BK4819_REG_3B, value);
+
 				sprintf(String, "%d", gSubMenuSelection);
 				UI_PrintString(String, 50, 127, 0, 8);
-
-				const uint32_t value = 22656 + gSubMenuSelection;
-				//gEeprom.BK4819_XTAL_FREQ_LOW = gSubMenuSelection;
-				BK4819_WriteRegister(BK4819_REG_3B, value);
 
 				const uint32_t xtal_Hz = (0x4f0000u + value) * 5;
 				sprintf(String, "%u.%06u", xtal_Hz / 1000000, xtal_Hz % 1000000);
 				UI_PrintString(String, 50, 127, 2, 8);
+
 				UI_PrintString("MHz",  50, 127, 4, 8);
+
+				already_printed = true;
 			}
 			break;
 	}
 
-	if (gMenuCursor == MENU_AM)
-	{	// the radio doesn't really do AM
-		UI_PrintString(String, 50, 127, 1, 8);
-		#if 0
-			if (gSubMenuSelection > 0)
-			{
-				UI_PrintString("not",    50, 127, 3, 8);
-				UI_PrintString("really", 50, 127, 5, 8);
-			}
-		#endif
-	}
-	else
-	if (gMenuCursor == MENU_VOL)
-	{	// 2nd text line .. percentage
-		UI_PrintString(String, 50, 127, 1, 8);
-		const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
-		                       (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
-		                        gBatteryVoltageAverage;
-		sprintf(String, "%u%%", (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
-		UI_PrintString(String, 50, 127, 3, 8);
-		#if 0
-			sprintf(String, "Curr %u", gBatteryCurrent);  // needs scaling into mA
-			UI_PrintString(String, 50, 127, 5, 8);
-		#endif
-	}
-	else
-	if (gMenuCursor == MENU_OFFSET)
-	{
-		UI_PrintString(String, 50, 127, 1, 8);
-		UI_PrintString("MHz",  50, 127, 3, 8);
-	}
-	else
-	if (gMenuCursor != MENU_F_CALI)
-	{
+	if (!already_printed)
 		UI_PrintString(String, 50, 127, 2, 8);
+	
+	if (gMenuCursor == MENU_SLIST1 || gMenuCursor == MENU_SLIST2)
+	{
+		i = (gMenuCursor == MENU_SLIST1) ? 0 : 1;
+
+//		if (gSubMenuSelection == 0xFF)
+		if (gSubMenuSelection < 0)
+			strcpy(String, "NULL");
+		else
+			UI_GenerateChannelStringEx(String, true, gSubMenuSelection);
+
+//		if (gSubMenuSelection == 0xFF || !gEeprom.SCAN_LIST_ENABLED[i])
+		if (gSubMenuSelection < 0 || !gEeprom.SCAN_LIST_ENABLED[i])
+		{
+			UI_PrintString(String, 50, 127, 0, 8);
+		}
+		else
+		{
+			UI_PrintString(String, 50, 127, 0, 8);
+
+			if (IS_MR_CHANNEL(gEeprom.SCANLIST_PRIORITY_CH1[i]))
+			{
+				sprintf(String, "PRI1:%u", gEeprom.SCANLIST_PRIORITY_CH1[i] + 1);
+				UI_PrintString(String, 50, 127, 2, 8);
+			}
+
+			if (IS_MR_CHANNEL(gEeprom.SCANLIST_PRIORITY_CH2[i]))
+			{
+				sprintf(String, "PRI2:%u", gEeprom.SCANLIST_PRIORITY_CH2[i] + 1);
+				UI_PrintString(String, 50, 127, 4, 8);
+			}
+		}
 	}
 
-	if ((gMenuCursor == MENU_RESET || gMenuCursor == MENU_MEM_CH || gMenuCursor == MENU_DEL_CH) && gAskForConfirmation)
-	{	// display confirmation
-		strcpy(String, (gAskForConfirmation == 1) ? "SURE?" : "WAIT!");
-		UI_PrintString(String, 50, 127, 4, 8);
-	}
-	else
-	if ((gMenuCursor == MENU_MEM_CH || gMenuCursor == MENU_DEL_CH) && !gAskForConfirmation)
+	if (gMenuCursor == MENU_MEM_CH ||
+	    gMenuCursor == MENU_DEL_CH ||
+	    gMenuCursor == MENU_1_CALL ||
+		gMenuCursor == MENU_SLIST1 ||
+		gMenuCursor == MENU_SLIST2)
 	{	// display the channel name
-		const uint16_t channel = (uint16_t)gSubMenuSelection;
-		const bool valid = RADIO_CheckValidChannel(channel, false, 0);
-		if (valid)
-		{	// 16 bytes allocated to the channel name but only 12 used
-			char s[17] = {0};
-			EEPROM_ReadBuffer(0x0F50 + (channel * 16), s + 0, 8);
-			EEPROM_ReadBuffer(0x0F58 + (channel * 16), s + 8, 2);
-			{	// make invalid chars '0'
-				i = 0;
-				while (i < sizeof(s))
-				{
-					if (s[i] < 32 || s[i] >= 128)
-						break;
-					i++;
+		if (gSubMenuSelection >= 0)
+		{
+			const uint16_t channel = (uint16_t)gSubMenuSelection;
+			const bool valid = RADIO_CheckValidChannel(channel, false, 0);
+			if (valid)
+			{	// 16 bytes allocated to the channel name but only 12 used
+				char s[17] = {0};
+				EEPROM_ReadBuffer(0x0F50 + (channel * 16), s + 0, 8);
+				EEPROM_ReadBuffer(0x0F58 + (channel * 16), s + 8, 2);
+				{	// make invalid chars '0'
+					i = 0;
+					while (i < sizeof(s))
+					{
+						if (s[i] < 32 || s[i] >= 128)
+							break;
+						i++;
+					}
+					while (i < sizeof(s))
+						s[i++] = 0;
+					while (--i > 0)
+					{
+						if (s[i] != 0 && s[i] != 32)
+							break;
+						s[i] = 0;
+					}
 				}
-				while (i < sizeof(s))
-					s[i++] = 0;
-				while (--i > 0)
-				{
-					if (s[i] != 0 && s[i] != 32)
-						break;
-					s[i] = 0;
-				}
+				UI_PrintString(s, 50, 127, 2, 8);
 			}
-			UI_PrintString(s, 50, 127, 4, 8);
 		}
 	}
 
@@ -671,35 +699,10 @@ void UI_DisplayMenu(void)
 		UI_DisplaySmallDigits(Offset, String + (8 - Offset), 105, 0, false);
 	}
 
-	if (gMenuCursor == MENU_SLIST1 || gMenuCursor == MENU_SLIST2)
-	{
-		i = gMenuCursor - MENU_SLIST1;
-
-		if (gSubMenuSelection == 0xFF)
-			strcpy(String, "NULL");
-		else
-			UI_GenerateChannelStringEx(String, true, gSubMenuSelection);
-
-		if (gSubMenuSelection == 0xFF || !gEeprom.SCAN_LIST_ENABLED[i])
-		{
-			UI_PrintString(String, 50, 127, 2, 8);
-		}
-		else
-		{
-			UI_PrintString(String, 50, 127, 0, 8);
-
-			if (IS_MR_CHANNEL(gEeprom.SCANLIST_PRIORITY_CH1[i]))
-			{
-				sprintf(String, "PRI1:%u", gEeprom.SCANLIST_PRIORITY_CH1[i] + 1);
-				UI_PrintString(String, 50, 127, 2, 8);
-			}
-
-			if (IS_MR_CHANNEL(gEeprom.SCANLIST_PRIORITY_CH2[i]))
-			{
-				sprintf(String, "PRI2:%u", gEeprom.SCANLIST_PRIORITY_CH2[i] + 1);
-				UI_PrintString(String, 50, 127, 4, 8);
-			}
-		}
+	if ((gMenuCursor == MENU_RESET || gMenuCursor == MENU_MEM_CH || gMenuCursor == MENU_DEL_CH) && gAskForConfirmation)
+	{	// display confirmation
+		strcpy(String, (gAskForConfirmation == 1) ? "SURE?" : "WAIT!");
+		UI_PrintString(String, 50, 127, 5, 8);
 	}
 
 	ST7565_BlitFullScreen();
