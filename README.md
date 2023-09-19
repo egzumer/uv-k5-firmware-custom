@@ -45,6 +45,7 @@ ENABLE_STATUSBAR_PERCENTAGE   := 1       show the battery percentage on the top 
 * AM RX everywhere
 * Better backlight times (inc always on)
 * Nicer/cleaner big numeric font than original Quansheng big numeric font
+* Live DTMF decoder option, though the decoder needs some coeff tuning changes to decode other radios it seems
 * Various menu re-wordings (trying to reduce 'WTH does that mean ?')
 * Extra menu items (including hidden ones)
 * plus others

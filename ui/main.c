@@ -99,9 +99,7 @@ void UI_DisplayMain(void)
 				{
 					sprintf(String, ">%s", gDTMF_InputBox);
 
-					#ifdef ENABLE_DTMF_DECODER
-						center_line_is_free = false;
-					#endif
+					center_line_is_free = false;
 				}
 				UI_PrintString(String, 2, 0, vfo_num * 3, 8);
 
@@ -120,16 +118,11 @@ void UI_DisplayMain(void)
 				}
 				else
 				{
-					#ifdef ENABLE_DTMF_DECODER
-						center_line_is_free = false;
-					#endif
+					center_line_is_free = false;
 				}
 				UI_PrintString(String, 2, 0, 2 + (vfo_num * 3), 8);
 
-				#ifdef ENABLE_DTMF_DECODER
-					center_line_is_free = false;
-				#endif
-
+				center_line_is_free = false;
 				continue;
 			}
 
@@ -236,9 +229,7 @@ void UI_DisplayMain(void)
 		{	// user entering a frequency
 			UI_DisplayFrequency(gInputBox, 31, Line, true, false);
 
-			#ifdef ENABLE_DTMF_DECODER
-				center_line_is_free = false;
-			#endif
+			center_line_is_free = false;
 		}
 		else
 		{

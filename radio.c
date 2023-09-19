@@ -706,7 +706,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 		BK4819_SetCompander(!gRxVfo->IsAM ? gRxVfo->Compander : 0);
 	#endif
 
-	#ifndef ENABLE_DTMF_DECODER
+	#if 0
 		// there's no reason the DTMF decoder can't be used in AM RX mode too
 		// aircraft comms use it on HF (AM and SSB)
 		if (gRxVfo->IsAM || (!gRxVfo->DTMF_DECODING_ENABLE && !gSetting_KILLED))
