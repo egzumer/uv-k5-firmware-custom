@@ -306,11 +306,11 @@ void UI_DisplayMain(void)
 							memset(String, 0, sizeof(String));
 							memmove(String, gEeprom.VfoInfo[vfo_num].Name, 10);
 						}
-						UI_PrintStringSmall(String, 32, 0, Line);
+						UI_PrintStringSmall(String, 32 + 4, 0, Line);
 
 						// show the channel frequency below the channel number/name
 						sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
-						UI_PrintStringSmall(String, 32, 0, Line + 1);
+						UI_PrintStringSmall(String, 32 + 4, 0, Line + 1);
 						break;
 				}
 			}

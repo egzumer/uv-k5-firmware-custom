@@ -31,7 +31,7 @@ ENABLE_COMPANDER              := 1       compander option - setting not yet save
 ENABLE_SHOW_CHARGE_LEVEL      := 1       show the charge level when the radio is on charge 
 ENABLE_REVERSE_BAT_SYMBOL     := 1       mirror the battery symbol on the status bar (+ pole on the right)
 ENABLE_STATUSBAR_VOLTAGE      := 0       show the battery voltage on the top status bar - when possible
-ENABLE_STATUSBAR_PERCENTAGE   := 1       show the battery percentage on the top status bar - when possible
+ENABLE_STATUSBAR_PERCENTAGE   := 1       or show the battery percentage on the top status bar - when possible
 #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible
 #ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter
 ```
