@@ -175,22 +175,13 @@ const char gSubMenu_SC_REV[3][3] =
 	"SE"
 };
 
-#ifndef ENABLE_CHAN_NAME_FREQ
-	const char gSubMenu_MDF[3][5] =
-	{
-		"FREQ",
-		"CHAN",
-		"NAME"
-	};
-#else
-	const char gSubMenu_MDF[4][8] =
-	{
-		"FREQ",
-		"CHAN",
-		"NAME",
-		"NAM+FRE"
-	};
-#endif
+const char gSubMenu_MDF[4][8] =
+{
+	"FREQ",
+	"CHAN",
+	"NAME",
+	"NAM+FRE"
+};
 
 #ifdef ENABLE_ALARM
 	const char gSubMenu_AL_MOD[2][5] =

@@ -541,17 +541,13 @@ void BOARD_EEPROM_Init(void)
 
 	// 0E78..0E7F
 	EEPROM_ReadBuffer(0x0E78, Data, 8);
-	#ifndef ENABLE_CHAN_NAME_FREQ
-		gEeprom.CHANNEL_DISPLAY_MODE  = (Data[1] < 3) ? Data[1] : MDF_FREQUENCY;
-	#else
-		gEeprom.CHANNEL_DISPLAY_MODE  = (Data[1] < 4) ? Data[1] : MDF_FREQUENCY;
-	#endif
-	gEeprom.CROSS_BAND_RX_TX          = (Data[2] < 3) ? Data[2] : CROSS_BAND_OFF;
-	gEeprom.BATTERY_SAVE              = (Data[3] < 5) ? Data[3] : 4;
-	gEeprom.DUAL_WATCH                = (Data[4] < 3) ? Data[4] : DUAL_WATCH_CHAN_A;
-	gEeprom.BACKLIGHT                 = (Data[5] < 6) ? Data[5] : 4;
-	gEeprom.TAIL_NOTE_ELIMINATION     = (Data[6] < 2) ? Data[6] : false;
-	gEeprom.VFO_OPEN                  = (Data[7] < 2) ? Data[7] : true;
+	gEeprom.CHANNEL_DISPLAY_MODE  = (Data[1] < 4) ? Data[1] : MDF_FREQUENCY;    // 4 instead of 3 - extra display mode
+	gEeprom.CROSS_BAND_RX_TX      = (Data[2] < 3) ? Data[2] : CROSS_BAND_OFF;
+	gEeprom.BATTERY_SAVE          = (Data[3] < 5) ? Data[3] : 4;
+	gEeprom.DUAL_WATCH            = (Data[4] < 3) ? Data[4] : DUAL_WATCH_CHAN_A;
+	gEeprom.BACKLIGHT             = (Data[5] < 6) ? Data[5] : 4;
+	gEeprom.TAIL_NOTE_ELIMINATION = (Data[6] < 2) ? Data[6] : false;
+	gEeprom.VFO_OPEN              = (Data[7] < 2) ? Data[7] : true;
 
 	// 0E80..0E87
 	EEPROM_ReadBuffer(0x0E80, Data, 8);

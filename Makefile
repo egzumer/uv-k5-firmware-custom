@@ -11,7 +11,6 @@ ENABLE_VOICE                  := 0
 ENABLE_ALARM                  := 0
 ENABLE_BIG_FREQ               := 0
 ENABLE_KEEP_MEM_NAME          := 1
-ENABLE_CHAN_NAME_FREQ         := 1
 ENABLE_WIDE_RX                := 1
 ENABLE_TX_WHEN_AM             := 0
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1
@@ -170,9 +169,6 @@ ifeq ($(ENABLE_ALARM),1)
 endif
 ifeq ($(ENABLE_KEEP_MEM_NAME),1)
 	CFLAGS  += -DKEEP_MEM_NAME
-endif
-ifeq ($(ENABLE_CHAN_NAME_FREQ),1)
-	CFLAGS  += -DENABLE_CHAN_NAME_FREQ
 endif
 ifeq ($(ENABLE_WIDE_RX),1)
 	CFLAGS  += -DENABLE_WIDE_RX

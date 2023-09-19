@@ -22,7 +22,6 @@ ENABLE_VOICE                  := 0       want to hear voices ?
 ENABLE_ALARM                  := 0       TX alarms
 ENABLE_BIG_FREQ               := 0       big font frequencies
 ENABLE_KEEP_MEM_NAME          := 1       maintain channel name when (re)saving memory channel
-ENABLE_CHAN_NAME_FREQ         := 1       show channel frequency below channel name/number
 ENABLE_WIDE_RX                := 1       full 18MHz to 1300MHz RX (though frontend not tuned over full range)
 ENABLE_TX_WHEN_AM             := 0       allow TX (always FM) when RX is set to AM
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       standard CTCSS tail phase shift rather than QS's own 55Hz tone method

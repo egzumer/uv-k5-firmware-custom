@@ -383,7 +383,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 
 	memset(gEeprom.VfoInfo[VFO].Name, 0, sizeof(gEeprom.VfoInfo[VFO].Name));
 	if (IS_MR_CHANNEL(Channel))
-	{	// 16 bytes allocated to the channel name but only 12 used
+	{	// 16 bytes allocated to the channel name but only 10 used
 		EEPROM_ReadBuffer(0x0F50 + (Channel * 16), gEeprom.VfoInfo[VFO].Name + 0, 8);
 		EEPROM_ReadBuffer(0x0F58 + (Channel * 16), gEeprom.VfoInfo[VFO].Name + 8, 2);
 	}

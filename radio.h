@@ -127,7 +127,7 @@ typedef struct VFO_Info_t
 	#ifdef ENABLE_COMPANDER
 		uint8_t    Compander;
 	#endif
-	char           Name[16];
+	char           Name[10 + 1];
 } VFO_Info_t;
 
 extern VFO_Info_t    *gTxVfo;
