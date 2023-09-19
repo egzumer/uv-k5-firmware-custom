@@ -83,7 +83,7 @@ enum
 	MENU_DEL_CH,
 	MENU_RESET,
 
-	// items after here are hidden
+	// items after here are normally hidden
 
 	MENU_F_LOCK,
 	MENU_200TX,
@@ -92,6 +92,7 @@ enum
 	MENU_350EN,
 	MENU_SCREN,
 
+	MENU_TX_EN,   // enable TX
 	MENU_F_CALI   // reference xtal calibration
 };
 

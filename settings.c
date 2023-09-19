@@ -163,13 +163,15 @@ void SETTINGS_SaveSettings(void)
 	EEPROM_WriteBuffer(0x0F18, State);
 
 	memset(State, 0xFF, sizeof(State));
-	State[0] = gSetting_F_LOCK;
-	State[1] = gSetting_350TX;
-	State[2] = gSetting_KILLED;
-	State[3] = gSetting_200TX;
-	State[4] = gSetting_500TX;
-	State[5] = gSetting_350EN;
-	State[6] = gSetting_ScrambleEnable;
+	State[0]  = gSetting_F_LOCK;
+	State[1]  = gSetting_350TX;
+	State[2]  = gSetting_KILLED;
+	State[3]  = gSetting_200TX;
+	State[4]  = gSetting_500TX;
+	State[5]  = gSetting_350EN;
+	State[6]  = gSetting_ScrambleEnable;
+	State[7]  = 0xff;
+	if (!gSetting_TX_EN) State[7] &= ~(1u << 0);
 	EEPROM_WriteBuffer(0x0F40, State);
 }
 

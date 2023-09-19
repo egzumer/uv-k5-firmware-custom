@@ -713,6 +713,7 @@ void BOARD_EEPROM_Init(void)
 	gSetting_500TX          = (Data[4] < 2) ? Data[4] : false;
 	gSetting_350EN          = (Data[5] < 2) ? Data[5] : true;
 	gSetting_ScrambleEnable = (Data[6] < 2) ? Data[6] : true;
+	gSetting_TX_EN          = (Data[7] & (1u << 0)) ? true : false;
 
 	if (!gEeprom.VFO_OPEN)
 	{

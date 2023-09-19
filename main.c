@@ -117,8 +117,9 @@ void Main(void)
 		// count the number of menu list items
 		while (MenuList[gMenuListCount][0] != 0)
 			gMenuListCount++;
+		// disable the N menu items
 		//gMenuListCount -= 6;
-		gMenuListCount -= 7;
+		gMenuListCount -= 8;
 
 		UI_DisplayWelcome();
 		BACKLIGHT_TurnOn();

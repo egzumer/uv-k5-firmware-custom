@@ -104,15 +104,16 @@ const char MenuList[][7] =
 	// enabled if pressing PTT and upper side button at power-on.
 
 	"F-LOCK",
-	"T-200",     // was "200TX"
-	"T-350",     // was "350TX"
-	"T-500",     // was "500TX"
+	"TX-200",    // was "200TX"
+	"TX-350",    // was "350TX"
+	"TX-500",    // was "500TX"
 	"350-EN",    // was "350EN"
 	"SCR-EN",    // was "SCREN"
 
+	"TX-EN",     // enable TX
 	"F-CALI",    // reference xtal calibration
 
-	""           // end of list
+	""           // end of list - DO NOT DELETE THIS !
 };
 
 const char gSubMenu_TXP[3][5] =
@@ -434,6 +435,7 @@ void UI_DisplayMenu(void)
 		case MENU_500TX:
 		case MENU_350EN:
 		case MENU_SCREN:
+		case MENU_TX_EN:
 			strcpy(String, gSubMenu_OFF_ON[gSubMenuSelection]);
 			break;
 

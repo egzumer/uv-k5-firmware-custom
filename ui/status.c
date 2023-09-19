@@ -114,29 +114,32 @@ void UI_DisplayStatus(const bool test_display)
 	}
 	else
 	if (!gChargingWithTypeC)
-	{	// battery voltage/percentage
+	{	// battery voltage or percentage
 
-		#if defined(ENABLE_STATUSBAR_VOLTAGE)
+		#ifdef ENABLE_STATUSBAR_VOLTAGE
 			char s[6];
 			sprintf(s, "%u.%02u", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100);
 			UI_PrintStringSmallBuffer(s, line);
+			//line += 8 * 4;
 		#elif defined(ENABLE_STATUSBAR_PERCENTAGE)
 			char s[6];
-			const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
-								   (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
-									gBatteryVoltageAverage;
+			const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
 			sprintf(s, "%u%%", (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
 			UI_PrintStringSmallBuffer(s, line);
+			//line += 8 * 4;
 		#endif
 	}
+//	else
+//		line += sizeof(BITMAP_F_Key);
+		
+	line = gStatusLine + LCD_WIDTH - sizeof(BITMAP_BatteryLevel5) - sizeof(BITMAP_USB_C); // point to right side of the screen
 	
 	// USB-C charge indicator
 	if (gChargingWithTypeC || test_display)
 		memmove(line, BITMAP_USB_C, sizeof(BITMAP_USB_C));
-//	line += sizeof(BITMAP_USB_C);
+	line += sizeof(BITMAP_USB_C);
 
 	// BATTERY LEVEL indicator
-	line = gStatusLine + LCD_WIDTH - sizeof(BITMAP_BatteryLevel5); // point to the far right side of the screen
 	if (gBatteryDisplayLevel >= 5 || test_display)
 		memmove(line, BITMAP_BatteryLevel5, sizeof(BITMAP_BatteryLevel5));
 	else

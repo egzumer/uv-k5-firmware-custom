@@ -47,7 +47,7 @@ ENABLE_STATUSBAR_PERCENTAGE   := 1       show the battery percentage on the top 
 * Better backlight times (inc always on)
 * Nicer/cleaner big numeric font than original Quansheng big numeric font
 * Various menu re-wordings (trying to reduce 'WTH does that mean ?')
-* Extra menu items (including hidden frequency calibration)
+* Extra menu items (including hidden ones)
 * plus others
 
 # Compiler

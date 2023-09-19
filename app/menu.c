@@ -266,6 +266,7 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 		case MENU_500TX:
 		case MENU_350EN:
 		case MENU_SCREN:
+		case MENU_TX_EN:
 			*pMin = 0;
 			*pMax = ARRAY_SIZE(gSubMenu_OFF_ON) - 1;
 			break;
@@ -684,6 +685,11 @@ void MENU_AcceptSetting(void)
 			gFlagReconfigureVfos    = true;
 			return;
 
+		case MENU_TX_EN:
+			gSetting_TX_EN       = gSubMenuSelection;
+			gRequestSaveSettings = true;
+			return;
+	
 		case MENU_F_CALI:
 			gEeprom.BK4819_XTAL_FREQ_LOW = gSubMenuSelection;
 			BK4819_WriteRegister(BK4819_REG_3B, 22656 + gEeprom.BK4819_XTAL_FREQ_LOW);
@@ -1026,6 +1032,10 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gSetting_ScrambleEnable;
 			break;
 
+		case MENU_TX_EN:
+			gSubMenuSelection = gSetting_TX_EN;
+			break;
+	
 		case MENU_F_CALI:
 			gSubMenuSelection = gEeprom.BK4819_XTAL_FREQ_LOW;
 			break;

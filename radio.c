@@ -908,6 +908,9 @@ void RADIO_PrepareTX(void)
 				State = VFO_STATE_TX_DISABLE;
 			else
 		#endif
+		if (!gSetting_TX_EN)
+			State = VFO_STATE_TX_DISABLE;
+		else
 		if (!FREQUENCY_Check(gCurrentVfo))
 		{
 			if (gCurrentVfo->BUSY_CHANNEL_LOCK && gCurrentFunction == FUNCTION_RECEIVE)

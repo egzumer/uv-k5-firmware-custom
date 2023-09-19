@@ -66,8 +66,11 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 {
 	if (Mode == BOOT_MODE_F_LOCK)
 	{
-		//gMenuListCount    += 6;               // enable the last 6 menu items
-		gMenuListCount    += 7;               // enable the last 7 menu items
+		// enable all the menu items
+		gMenuListCount = 0;
+		while (MenuList[gMenuListCount][0] != 0)
+			gMenuListCount++;
+
 		gMenuCursor        = MENU_350TX;
 		gSubMenuSelection  = gSetting_350TX;
 		GUI_SelectNextDisplay(DISPLAY_MENU);
