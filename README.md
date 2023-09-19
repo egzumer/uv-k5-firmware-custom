@@ -30,6 +30,7 @@ ENABLE_MAIN_KEY_HOLD          := 1       initial F-key press not needed, instead
 ENABLE_BOOT_BEEPS             := 0       give user audio feedback on volume knob position at boot-up
 ENABLE_COMPANDER              := 1       compander option - setting not yet saved
 ENABLE_SHOW_CHARGE_LEVEL      := 1       show the charge level when the radio is on charge 
+ENABLE_REVERSE_BAT_SYMBOL     := 1       reverse the battery symbol on the status bar
 ENABLE_STATUSBAR_VOLTAGE      := 0       show the battery voltage on the top status bar - when possible
 ENABLE_STATUSBAR_PERCENTAGE   := 1       show the battery percentage on the top status bar - when possible
 #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible
