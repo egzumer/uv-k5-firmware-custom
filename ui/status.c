@@ -23,10 +23,12 @@
 #include "bitmaps.h"
 #include "driver/keyboard.h"
 #include "driver/st7565.h"
+#include "external/printf/printf.h"
 #include "functions.h"
 #include "helper/battery.h"
 #include "misc.h"
 #include "settings.h"
+#include "ui/helper.h"
 #include "ui/ui.h"
 #include "ui/status.h"
 
@@ -100,12 +102,34 @@ void UI_DisplayStatus(const bool test_display)
 
 	// KEY-LOCK indicator
 	if (gEeprom.KEY_LOCK || test_display)
+	{
 		memmove(line, BITMAP_KeyLock, sizeof(BITMAP_KeyLock));
+		line += sizeof(BITMAP_KeyLock);
+	}
 	else
 	if (gWasFKeyPressed)
+	{
 		memmove(line, BITMAP_F_Key, sizeof(BITMAP_F_Key));
-	line += sizeof(BITMAP_F_Key);
+		line += sizeof(BITMAP_F_Key);
+	}
+	else
+	if (!gChargingWithTypeC)
+	{	// battery voltage/percentage
 
+		#if defined(ENABLE_STATUSBAR_VOLTAGE)
+			char s[6];
+			sprintf(s, "%u.%02u", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100);
+			UI_PrintStringSmallBuffer(s, line);
+		#elif defined(ENABLE_STATUSBAR_PERCENTAGE)
+			char s[6];
+			const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
+								   (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
+									gBatteryVoltageAverage;
+			sprintf(s, "%u%%", (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
+			UI_PrintStringSmallBuffer(s, line);
+		#endif
+	}
+	
 	// USB-C charge indicator
 	if (gChargingWithTypeC || test_display)
 		memmove(line, BITMAP_USB_C, sizeof(BITMAP_USB_C));

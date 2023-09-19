@@ -80,17 +80,19 @@ void BK4819_Init(void)
 		( 0u << 10) |     // AF Rx Gain-1
 		(58u <<  4) |     // AF Rx Gain-2
 		( 8u <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
-		
-//	const uint8_t dtmf_coeffs[] = {0x6F,0x6B,0x67,0x62,0x50,0x47,0x3A,0x2C,0x41,0x37,0x25,0x17,0xE4,0xCB,0xB5,0x9F};
-//	for (unsigned int i = 0; i < ARRAY_SIZE(dtmf_coeffs); i++)
-//		BK4819_WriteRegister(BK4819_REG_09, (i << 12) | dtmf_coeffs[i]);
-	
+
+#if 1
+	const uint8_t dtmf_coeffs[] = {111, 107, 103, 98, 80, 71, 58, 44, 65, 55, 37, 23, 228, 203, 181, 159};
+	for (unsigned int i = 0; i < ARRAY_SIZE(dtmf_coeffs); i++)
+		BK4819_WriteRegister(BK4819_REG_09, (i << 12) | dtmf_coeffs[i]);
+#else
+	// original code
 	BK4819_WriteRegister(BK4819_REG_09, 0x006F);  // 6F
 	BK4819_WriteRegister(BK4819_REG_09, 0x106B);  // 6B
 	BK4819_WriteRegister(BK4819_REG_09, 0x2067);  // 67
 	BK4819_WriteRegister(BK4819_REG_09, 0x3062);  // 62
 	BK4819_WriteRegister(BK4819_REG_09, 0x4050);  // 50
-	BK4819_WriteRegister(BK4819_REG_09, 0x5046);  // 47 **
+	BK4819_WriteRegister(BK4819_REG_09, 0x5047);  // 47
 	BK4819_WriteRegister(BK4819_REG_09, 0x603A);  // 3A
 	BK4819_WriteRegister(BK4819_REG_09, 0x702C);  // 2C
 	BK4819_WriteRegister(BK4819_REG_09, 0x8041);  // 41
@@ -101,6 +103,7 @@ void BK4819_Init(void)
 	BK4819_WriteRegister(BK4819_REG_09, 0xD0CB);  // CB
 	BK4819_WriteRegister(BK4819_REG_09, 0xE0B5);  // B5
 	BK4819_WriteRegister(BK4819_REG_09, 0xF09F);  // 9F
+#endif
 
 	BK4819_WriteRegister(BK4819_REG_1F, 0x5454);
 	BK4819_WriteRegister(BK4819_REG_3E, 0xA037);

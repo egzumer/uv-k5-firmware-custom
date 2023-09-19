@@ -104,6 +104,22 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 	}
 }
 
+void UI_PrintStringSmallBuffer(const char *pString, uint8_t *buffer)
+{
+	size_t i;
+	const unsigned int char_width   = ARRAY_SIZE(gFontSmall[0]);
+	const unsigned int char_spacing = char_width + 0;
+	for (i = 0; i < strlen(pString); i++)
+	{
+		if (pString[i] >= 32)
+		{
+			const unsigned int Index = (unsigned int)pString[i] - 32;
+			if (Index < ARRAY_SIZE(gFontSmall))
+				memmove(buffer + (i * char_spacing), &gFontSmall[Index], char_width);
+		}
+	}
+}
+
 void UI_DisplayFrequency(const char *pDigits, uint8_t X, uint8_t Y, bool bDisplayLeadingZero, bool bFlag)
 {
 	const unsigned int char_width  = 13;
