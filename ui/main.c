@@ -143,7 +143,7 @@ void UI_DisplayMain(void)
 				memmove(pLine0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 
-		uint32_t SomeValue = 0;
+		uint32_t duff_beer = 0;
 
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
 		{	// transmitting
@@ -151,7 +151,7 @@ void UI_DisplayMain(void)
 			#ifdef ENABLE_ALARM
 				if (gAlarmState == ALARM_STATE_ALARM)
 				{
-					SomeValue = 2;
+					duff_beer = 2;
 				}
 				else
 			#endif
@@ -159,14 +159,14 @@ void UI_DisplayMain(void)
 				Channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
 				if (Channel == vfo_num)
 				{	// show the TX symbol
-					SomeValue = 1;
+					duff_beer = 1;
 					UI_PrintStringSmall("TX", 14, 0, Line);
 				}
 			}
 		}
 		else
 		{	// receiving .. show the RX symbol
-			SomeValue = 2;
+			duff_beer = 2;
 			if ((gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR) && gEeprom.RX_CHANNEL == vfo_num)
 				UI_PrintStringSmall("RX", 14, 0, Line);
 		}
@@ -319,7 +319,7 @@ void UI_DisplayMain(void)
 				#else
 					// show the frequency in the main font
 					sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
-					UI_PrintString(String, 38, 112, Line, 8);
+					UI_PrintString(String, 31, 112, Line, 8);
 				#endif
 			}
 		}
@@ -329,7 +329,7 @@ void UI_DisplayMain(void)
 		{	// show the TX/RX level
 			uint8_t Level = 0;
 
-			if (SomeValue == 1)
+			if (duff_beer == 1)
 			{	// TX power level
 				switch (gRxVfo->OUTPUT_POWER)
 				{
@@ -339,7 +339,7 @@ void UI_DisplayMain(void)
 				}
 			}
 			else
-			if (SomeValue == 2)
+			if (duff_beer == 2)
 			{	// RX signal level
 				#ifdef ENABLE_DBM
 					// dBm
@@ -387,7 +387,7 @@ void UI_DisplayMain(void)
 		}
 		else
 		{	// or show the CTCSS/DCS symbol
-			const FREQ_Config_t *pConfig = (SomeValue == 1) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
+			const FREQ_Config_t *pConfig = (duff_beer == 1) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
 			const unsigned int code_type = pConfig->CodeType;
 			const char *code_list[] = {"", "CT", "DCS", "DCR"};
 			if (code_type >= 0 && code_type < ARRAY_SIZE(code_list))
@@ -448,15 +448,9 @@ void UI_DisplayMain(void)
 		if (gChargingWithTypeC)
 		{	// charging .. show the battery state
 			#ifdef ENABLE_SHOW_CHARGE_LEVEL
-				const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
-									   (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
-										gBatteryVoltageAverage;
-
-				sprintf(String, "Charge %u.%02uV %u%%",
-						gBatteryVoltageAverage / 100,
-						gBatteryVoltageAverage % 100,
-						(100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
-
+				const uint16_t volts   = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
+				const uint16_t percent = (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v);
+				sprintf(String, "Charge %u.%02uV %u%%", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100, percent);
 				UI_PrintStringSmall(String, 2, 0, 3);
 			#endif
 		}

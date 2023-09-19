@@ -122,17 +122,21 @@ void UI_DisplayStatus(const bool test_display)
 			UI_PrintStringSmallBuffer(s, line);
 			//line += 8 * 4;
 		#elif defined(ENABLE_STATUSBAR_PERCENTAGE)
-			char s[6];
-			const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
-			sprintf(s, "%u%%", (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
-			UI_PrintStringSmallBuffer(s, line);
+			const uint16_t     volts   = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
+			const uint16_t     percent = (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v);
+			const unsigned int x       = (percent >= 100) ? 0 : 4; // move to the right a bit
+			char s[8];
+			sprintf(s, "%u%%", percent);
+			UI_PrintStringSmallBuffer(s, line + x);
 			//line += 8 * 4;
 		#endif
 	}
-//	else
-//		line += sizeof(BITMAP_F_Key);
 		
-	line = gStatusLine + LCD_WIDTH - sizeof(BITMAP_BatteryLevel5) - sizeof(BITMAP_USB_C); // point to right side of the screen
+
+
+
+	// move to right side of the screen
+	line = gStatusLine + LCD_WIDTH - sizeof(BITMAP_BatteryLevel5) - sizeof(BITMAP_USB_C);
 	
 	// USB-C charge indicator
 	if (gChargingWithTypeC || test_display)

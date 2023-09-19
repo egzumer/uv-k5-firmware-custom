@@ -48,79 +48,79 @@
 #ifdef ENABLE_VOICE
 	static const VOICE_ID_t MenuVoices[] =
 	{
-		VOICE_ID_SQUELCH,
-		VOICE_ID_FREQUENCY_STEP,
-		VOICE_ID_POWER,
-		VOICE_ID_DCS,
-		VOICE_ID_CTCSS,
-		VOICE_ID_DCS,
-		VOICE_ID_CTCSS,
-		VOICE_ID_TX_OFFSET_FREQUENCY_DIRECTION,
-		VOICE_ID_TX_OFFSET_FREQUENCY,
-		VOICE_ID_CHANNEL_BANDWIDTH,
-		VOICE_ID_SCRAMBLER_ON,
-		VOICE_ID_BUSY_LOCKOUT,
-		VOICE_ID_MEMORY_CHANNEL,
-		VOICE_ID_SAVE_MODE,
-		VOICE_ID_VOX,
-		VOICE_ID_INVALID,
-		VOICE_ID_DUAL_STANDBY,
-		VOICE_ID_INVALID,
-		VOICE_ID_BEEP_PROMPT,
-		VOICE_ID_TRANSMIT_OVER_TIME,
-		#ifdef ENABLE_VOICE
-			VOICE_ID_VOICE_PROMPT,
-		#endif
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
+		VOICE_ID_SQUELCH,                         // SQL
+		VOICE_ID_FREQUENCY_STEP,                  // STEP
+		VOICE_ID_POWER,                           // T-PWR
+		VOICE_ID_DCS,                             // R-DCS
+		VOICE_ID_CTCSS,                           // R-CTCS
+		VOICE_ID_DCS,                             // T-DCS
+		VOICE_ID_CTCSS,                           // T-CTCS
+		VOICE_ID_TX_OFFSET_FREQUENCY_DIRECTION,   // T-DIR
+		VOICE_ID_TX_OFFSET_FREQUENCY,             // T-OFFS
+		VOICE_ID_INVALID,                         // T-VFO
+		VOICE_ID_TRANSMIT_OVER_TIME,              // T-TOUT
+		VOICE_ID_CHANNEL_BANDWIDTH,               // W/N
+		VOICE_ID_SCRAMBLER_ON,                    // SCRAM
+		VOICE_ID_BUSY_LOCKOUT,                    // BUSYCL
+		VOICE_ID_MEMORY_CHANNEL,                  // CH-SAV
+		VOICE_ID_DELETE_CHANNEL,                  // CH-DEL
+		VOICE_ID_INVALID,                         // CH-DIS
+		VOICE_ID_SAVE_MODE,                       // BATSAV
+		VOICE_ID_VOX,                             // VOX
+		VOICE_ID_INVALID,                         // BACKLT
+		VOICE_ID_DUAL_STANDBY,                    // DUALRX
+		VOICE_ID_BEEP_PROMPT,                     // BEEP
+		#ifdef ENABLE_VOICE                       
+			VOICE_ID_VOICE_PROMPT,                // VOICE
+		#endif                                    
+		VOICE_ID_INVALID,                         // SC-REV
+		VOICE_ID_INVALID,                         // KEYLOC
+		VOICE_ID_INVALID,                         // S-ADD1
+		VOICE_ID_INVALID,                         // S-ADD2
+		VOICE_ID_INVALID,                         // STE
+		VOICE_ID_INVALID,                         // RP-STE
+		VOICE_ID_INVALID,                         // MIC
 		#ifdef ENABLE_COMPANDER
-			VOICE_ID_INVALID,
+			VOICE_ID_INVALID,                     // COMPND
 		#endif
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
+		VOICE_ID_INVALID,                         // 1-CALL
+		VOICE_ID_INVALID,                         // SLIST
+		VOICE_ID_INVALID,                         // SLIST1
+		VOICE_ID_INVALID,                         // SLIST2
 		#ifdef ENABLE_ALARM
-			VOICE_ID_INVALID,
+			VOICE_ID_INVALID,                     // AL-MOD
 		#endif
-		VOICE_ID_ANI_CODE,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
+		VOICE_ID_ANI_CODE,                        // ANI-ID
+		VOICE_ID_INVALID,                         // UPCODE
+		VOICE_ID_INVALID,                         // DWCODE
+		VOICE_ID_INVALID,                         // D-ST
+		VOICE_ID_INVALID,                         // D-RSP
+		VOICE_ID_INVALID,                         // D-HOLD
+		VOICE_ID_INVALID,                         // D-PRE
+		VOICE_ID_INVALID,                         // PTT-ID
+		VOICE_ID_INVALID,                         // D-DCD
+		VOICE_ID_INVALID,                         // D-LIST
+		VOICE_ID_INVALID,                         // D-LIVE
+		VOICE_ID_INVALID,                         // PONMSG
+		VOICE_ID_INVALID,                         // ROGER
+		VOICE_ID_INVALID,                         // BATVOL
+		VOICE_ID_INVALID,                         // MODE
 		#ifdef ENABLE_NOAA
-			VOICE_ID_INVALID,
+			VOICE_ID_INVALID,                     // NOAA-S
 		#endif
-		VOICE_ID_DELETE_CHANNEL,
-		VOICE_ID_INITIALISATION,
+		VOICE_ID_INITIALISATION,                  // RESET
 
 		// hidden items
 
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID,
+		VOICE_ID_INVALID,                         // F-LOCK
+		VOICE_ID_INVALID,                         // TX-200
+		VOICE_ID_INVALID,                         // TX-350
+		VOICE_ID_INVALID,                         // TX-500
+		VOICE_ID_INVALID,                         // 350-EN
+		VOICE_ID_INVALID,                         // SCR-EN
 
-		VOICE_ID_INVALID,
-		VOICE_ID_INVALID
+		VOICE_ID_INVALID,                         // TX-EN
+		VOICE_ID_INVALID                          // F-CALI
 	};
 #endif
 

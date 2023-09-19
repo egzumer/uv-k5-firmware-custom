@@ -48,22 +48,23 @@ const char MenuList[][7] =
 	"T-CTCS",    // was "T_CTCS"
 	"T-DIR",     // was "SFT_D"
 	"T-OFFS",    // was "OFFSET"
+    "T-VFO",     // was "WX"
+	"T-TOUT",    // was "TOT"
 	"W/N",
 	"SCRAM",     // was "SCR"
     "BUSYCL",    // was "BCL"
-	"MEMSAV",    // was "MEM-CH"
+	"CH-SAV",    // was "MEM-CH"
+	"CH-DEL",    // was "DEL-CH"
+	"CH-DIS",    // was "MDF"
 	"BATSAV",    // was "SAVE"
     "VOX",
     "BACKLT",    // was "ABR"
 	"DUALRX",    // was "TDR"
-    "T-VFO",     // was "WX"
 	"BEEP",
-	"T-TOUT",    // was "TOT"
 	#ifdef ENABLE_VOICE
 		"VOICE",
 	#endif
 	"SC-REV",
-	"CHDISP",    // was "MDF"
     "KEYLOC",    // was "AUTOLk"
 	"S-ADD1",
 	"S-ADD2",
@@ -98,11 +99,10 @@ const char MenuList[][7] =
 	#ifdef ENABLE_NOAA
 		"NOAA-S",
 	#endif
-	"MEMDEL",    // was "Del-CH"
-	"RESET",
+	"RESET",     // might be better to move this to the hidden menu items ?
 
-	// hidden menu items from here on.
-	// enabled if pressing PTT and upper side button at power-on.
+	// hidden menu items from here on
+	// enabled if pressing both the PTT and upper side button at power-on
 
 	"F-LOCK",
 	"TX-200",    // was "200TX"
@@ -114,7 +114,7 @@ const char MenuList[][7] =
 	"TX-EN",     // enable TX
 	"F-CALI",    // reference xtal calibration
 
-	""           // end of list - DO NOT DELETE THIS !
+	""           // end of list - DO NOT DELETE THIS ! .. I use this to compute this list size
 };
 
 const char gSubMenu_TXP[3][5] =
@@ -555,8 +555,9 @@ void UI_DisplayMenu(void)
 
 			{	// 2nd text line .. percentage
 				UI_PrintString(String, 50, 127, 1, 8);
-				const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
-				sprintf(String, "%u%%", (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
+				const uint16_t volts   = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
+				const uint16_t percent = (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v);
+				sprintf(String, "%u%%", percent);
 				UI_PrintString(String, 50, 127, 3, 8);
 				#if 0
 					sprintf(String, "Curr %u", gBatteryCurrent);  // needs scaling into mA

@@ -31,22 +31,23 @@ enum
 	MENU_T_CTCS,
 	MENU_SFT_D,
 	MENU_OFFSET,
+	MENU_XB,
+	MENU_TOT,
 	MENU_W_N,
 	MENU_SCR,
 	MENU_BCL,
 	MENU_MEM_CH,
+	MENU_DEL_CH,
+	MENU_MDF,
 	MENU_SAVE,
 	MENU_VOX,
 	MENU_ABR,
 	MENU_TDR,
-	MENU_XB,
 	MENU_BEEP,
-	MENU_TOT,
 	#ifdef ENABLE_VOICE
 		MENU_VOICE,
 	#endif
 	MENU_SC_REV,
-	MENU_MDF,
 	MENU_AUTOLK,
 	MENU_S_ADD1,
 	MENU_S_ADD2,
@@ -81,7 +82,6 @@ enum
 	#ifdef ENABLE_NOAA
 		MENU_NOAA_S,
 	#endif
-	MENU_DEL_CH,
 	MENU_RESET,
 
 	// items after here are normally hidden
