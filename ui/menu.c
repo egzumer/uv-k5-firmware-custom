@@ -95,6 +95,7 @@ const char MenuList[][7] =
 	"PONMSG",
 	"ROGER",
 	"BATVOL",    // was "VOL"
+	"BATTXT",
 	"MODE",      // was "AM"
 	#ifdef ENABLE_NOAA
 		"NOAA-S",
@@ -247,6 +248,13 @@ const char gSubMenu_F_LOCK[6][4] =
 		"TX/RX"
 	};
 #endif
+
+const char gSubMenu_BAT_TXT[3][8] =
+{
+	"NONE",
+	"VOLTAGE",
+	"PERCENT"
+};
 
 bool    gIsInSubMenu;
 uint8_t gMenuCursor;
@@ -521,6 +529,10 @@ void UI_DisplayMenu(void)
 
 		case MENU_PTT_ID:
 			strcpy(String, gSubMenu_PTT_ID[gSubMenuSelection]);
+			break;
+
+		case MENU_BAT_TXT:
+			strcpy(String, gSubMenu_BAT_TXT[gSubMenuSelection]);
 			break;
 
 		case MENU_D_LIST:

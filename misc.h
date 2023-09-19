@@ -123,6 +123,7 @@ extern uint8_t               gSetting_F_LOCK;
 extern bool                  gSetting_ScrambleEnable;
 
 extern bool                  gSetting_live_DTMF_decoder;
+extern uint8_t               gSetting_battery_text;
 
 extern const uint32_t        gDefaultAesKey[4];
 extern uint32_t              gCustomAesKey[4];

@@ -711,6 +711,7 @@ void BOARD_EEPROM_Init(void)
 	gSetting_ScrambleEnable    = (Data[6] < 2) ? Data[6] : true;
 	gSetting_TX_EN             = (Data[7] & (1u << 0)) ? true : false;
 	gSetting_live_DTMF_decoder = (Data[7] & (1u << 1)) ? true : false;
+	gSetting_battery_text      = (((Data[7] >> 2) & 3u) <= 2) ? (Data[7] >> 2) & 3: 2;
 	
 	if (!gEeprom.VFO_OPEN)
 	{

@@ -66,6 +66,7 @@ uint8_t           gSetting_F_LOCK;
 bool              gSetting_ScrambleEnable;
 
 bool              gSetting_live_DTMF_decoder;
+uint8_t           gSetting_battery_text;
 
 uint32_t          gCustomAesKey[4];
 bool              bHasCustomAesKey;

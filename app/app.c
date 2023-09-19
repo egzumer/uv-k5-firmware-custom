@@ -654,6 +654,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 				uint16_t lna;
 				uint16_t mixer;
 				uint16_t pga;
+
 				// seems the RX gain abrutly reduces above this frequency, why ?
 				if (rx_frequency <= 22640000)
 				{
@@ -663,7 +664,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 					pga       = 3;   // reduced - seems to help reduce the AM demodulation distortion
 				}
 				else
-				{
+				{	// increasing the front ends gain decreases the dynamic range
 					lna_short = 3;   // original
 					lna       = 4;   // increased
 					mixer     = 3;   // original
@@ -679,16 +680,32 @@ void APP_StartListening(FUNCTION_Type_t Function)
 				//BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
 				//BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
 			}
+
 			BK4819_WriteRegister(BK4819_REG_48,
 				// max RX AF gain
 				(11u << 12) |     // ???
 				( 0u << 10) |     // AF Rx Gain-1
 				(63u <<  4) |     // AF Rx Gain-2
 				(15u <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
+
 			gNeverUsed = 0;
 		}
 		else
 		{	// FM
+
+			uint16_t lna_short;  // whats "LNA SHORT" mean ?
+			uint16_t lna;
+			uint16_t mixer;
+			uint16_t pga;
+
+			// original
+			lna_short = 3;
+			lna       = 2;
+			mixer     = 3;
+			pga       = 6;
+			
+			BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
+
 			BK4819_WriteRegister(BK4819_REG_48,
 				(11u << 12)                 |     // ???
 				( 0u << 10)                 |     // AF Rx Gain-1
@@ -1788,15 +1805,12 @@ void APP_TimeSlice500ms(void)
 				gBatteryVoltageIndex = 0;
 
 			BATTERY_GetReadings(true);
-
-			#if defined(ENABLE_STATUSBAR_VOLTAGE) || defined(ENABLE_STATUSBAR_PERCENTAGE)
-				// regular statusbar updates (once per sec) if battery voltage or percentage is enabled
-				gUpdateStatus = true;
-			#else
-				if (gChargingWithTypeC)
-					gUpdateDisplay = true;
-			#endif
 		}
+
+		// regular statusbar updates (once every 2 sec) if need be
+		if ((gBatteryCheckCounter & 3) == 0)
+			if (gChargingWithTypeC || gSetting_battery_text > 0)
+				gUpdateStatus = true;
 
 		if (gCurrentFunction != FUNCTION_POWER_SAVE)
 		{

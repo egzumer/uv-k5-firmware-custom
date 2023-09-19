@@ -104,6 +104,7 @@
 		VOICE_ID_INVALID,                         // PONMSG
 		VOICE_ID_INVALID,                         // ROGER
 		VOICE_ID_INVALID,                         // BATVOL
+		VOICE_ID_INVALID,                         // BATTXT
 		VOICE_ID_INVALID,                         // MODE
 		#ifdef ENABLE_NOAA
 			VOICE_ID_INVALID,                     // NOAA-S
@@ -322,6 +323,11 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 			*pMax = ARRAY_SIZE(gSubMenu_PTT_ID) - 1;
 			break;
 
+		case MENU_BAT_TXT:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_BAT_TXT) - 1;
+			break;
+
 		case MENU_D_HOLD:
 			*pMin = 5;
 			*pMax = 60;
@@ -365,11 +371,13 @@ void MENU_AcceptSetting(void)
 
 	switch (gMenuCursor)
 	{
+		default:
+			return;
+			
 		case MENU_SQL:
 			gEeprom.SQUELCH_LEVEL = gSubMenuSelection;
-			gRequestSaveSettings  = true;
 			gVfoConfigureMode     = VFO_CONFIGURE_1;
-			return;
+			break;
 
 		case MENU_STEP:
 			if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
@@ -484,9 +492,8 @@ void MENU_AcceptSetting(void)
 				gEeprom.VOX_LEVEL = gSubMenuSelection - 1;
 			BOARD_EEPROM_LoadMoreSettings();
 			gFlagReconfigureVfos = true;
-			gRequestSaveSettings = true;
 			gUpdateStatus = true;
-			return;
+			break;
 
 		case MENU_ABR:
 			gEeprom.BACKLIGHT = gSubMenuSelection;
@@ -499,9 +506,8 @@ void MENU_AcceptSetting(void)
 		case MENU_TDR:
 			gEeprom.DUAL_WATCH   = gSubMenuSelection;
 			gFlagReconfigureVfos = true;
-			gRequestSaveSettings = true;
 			gUpdateStatus        = true;
-			return;
+			break;
 
 		case MENU_XB:
 			#ifdef ENABLE_NOAA
@@ -513,9 +519,8 @@ void MENU_AcceptSetting(void)
 
 			gEeprom.CROSS_BAND_RX_TX = gSubMenuSelection;
 			gFlagReconfigureVfos     = true;
-			gRequestSaveSettings     = true;
 			gUpdateStatus            = true;
-			return;
+			break;
 
 		case MENU_BEEP:
 			gEeprom.BEEP_CONTROL = gSubMenuSelection;
@@ -528,9 +533,8 @@ void MENU_AcceptSetting(void)
 		#ifdef ENABLE_VOICE
 			case MENU_VOICE:
 				gEeprom.VOICE_PROMPT = gSubMenuSelection;
-				gRequestSaveSettings = true;
 				gUpdateStatus        = true;
-				return;
+				break;
 		#endif
 
 		case MENU_SC_REV:
@@ -571,9 +575,8 @@ void MENU_AcceptSetting(void)
 		case MENU_MIC:
 			gEeprom.MIC_SENSITIVITY = gSubMenuSelection;
 			BOARD_EEPROM_LoadMoreSettings();
-			gRequestSaveSettings = true;
 			gFlagReconfigureVfos = true;
-			return;
+			break;
 
 		#ifdef ENABLE_COMPANDER
 			case MENU_COMPAND:
@@ -617,6 +620,10 @@ void MENU_AcceptSetting(void)
 			gRequestSaveChannel         = 1;
 			return;
 
+		case MENU_BAT_TXT:
+			gSetting_battery_text = gSubMenuSelection;
+			break;
+		
 		case MENU_D_DCD:
 			gTxVfo->DTMF_DECODING_ENABLE = gSubMenuSelection;
 			gRequestSaveChannel          = 1;
@@ -624,8 +631,7 @@ void MENU_AcceptSetting(void)
 
 		case MENU_D_LIVE_DEC:
 			gSetting_live_DTMF_decoder = gSubMenuSelection;
-			gRequestSaveSettings       = true;
-			return;
+			break;
 
 		case MENU_D_LIST:
 			gDTMFChosenContact = gSubMenuSelection - 1;
@@ -655,9 +661,8 @@ void MENU_AcceptSetting(void)
 		#ifdef ENABLE_NOAA
 			case MENU_NOAA_S:
 				gEeprom.NOAA_AUTO_SCAN = gSubMenuSelection;
-				gRequestSaveSettings   = true;
 				gFlagReconfigureVfos   = true;
-				return;
+				break;
 		#endif
 
 		case MENU_DEL_CH:
@@ -688,21 +693,18 @@ void MENU_AcceptSetting(void)
 
 		case MENU_350EN:
 			gSetting_350EN       = gSubMenuSelection;
-			gRequestSaveSettings = true;
 			gVfoConfigureMode    = VFO_CONFIGURE_RELOAD;
 			gFlagResetVfos       = true;
-			return;
+			break;
 
 		case MENU_SCREN:
 			gSetting_ScrambleEnable = gSubMenuSelection;
-			gRequestSaveSettings    = true;
 			gFlagReconfigureVfos    = true;
-			return;
+			break;
 
 		case MENU_TX_EN:
-			gSetting_TX_EN       = gSubMenuSelection;
-			gRequestSaveSettings = true;
-			return;
+			gSetting_TX_EN = gSubMenuSelection;
+			break;
 
 		case MENU_F_CALI:
 			gEeprom.BK4819_XTAL_FREQ_LOW = gSubMenuSelection;
@@ -723,9 +725,6 @@ void MENU_AcceptSetting(void)
 				Misc.BK4819_XtalFreqLow = gEeprom.BK4819_XTAL_FREQ_LOW;
 				EEPROM_WriteBuffer(0x1F88, &Misc);
 			}
-			return;
-
-		default:
 			return;
 	}
 
@@ -988,6 +987,10 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gTxVfo->DTMF_PTT_ID_TX_MODE;
 			break;
 
+		case MENU_BAT_TXT:
+			gSubMenuSelection = gSetting_battery_text;
+			return;
+		
 		case MENU_D_DCD:
 			gSubMenuSelection = gTxVfo->DTMF_DECODING_ENABLE;
 			break;

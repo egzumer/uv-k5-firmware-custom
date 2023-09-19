@@ -256,30 +256,24 @@ const uint8_t BITMAP_USB_C[9] =
 	0b00011100
 };
 
-const uint8_t BITMAP_KeyLock[9] =
-{	// padlock symbol
+const uint8_t BITMAP_KeyLock[6] =
+{	// teeny padlock symbol
 	0b00000000,
 	0b01111100,
 	0b01000110,
-	0b01000101,
-	0b01000101,
-	0b01000101,
 	0b01000101,
 	0b01000110,
 	0b01111100
 };
 
-const uint8_t BITMAP_F_Key[9] =
+const uint8_t BITMAP_F_Key[6] =
 {	// F-Key symbol
-	0b11111111,
-	0b10000001,
-	0b10111101,
-	0b10010101,
-	0b10010101,
-	0b10010101,
-	0b10000101,
-	0b10000001,
-	0b11111111
+	0b00000000,
+	0b01011111,
+	0b01000101,
+	0b01000101,
+	0b01000101,
+	0b01000001
 };
 
 const uint8_t BITMAP_VOX[18] =

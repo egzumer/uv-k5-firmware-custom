@@ -78,6 +78,7 @@ enum
 	MENU_PONMSG,
 	MENU_ROGER,
 	MENU_VOL,
+	MENU_BAT_TXT,
 	MENU_AM,
 	#ifdef ENABLE_NOAA
 		MENU_NOAA_S,
@@ -122,6 +123,7 @@ extern const char gSubMenu_F_LOCK[6][4];
 #ifdef ENABLE_COMPANDER
 	extern const char gSubMenu_Compand[4][6];
 #endif
+extern const char gSubMenu_BAT_TXT[3][8];
 
 extern bool       gIsInSubMenu;
 
