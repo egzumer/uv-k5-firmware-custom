@@ -115,20 +115,23 @@ void UI_DisplayStatus(const bool test_display)
 	else
 	if (!gChargingWithTypeC)
 	{	// battery voltage or percentage
+		char s[8];
 
 		#ifdef ENABLE_STATUSBAR_VOLTAGE
-			char s[6];
-			sprintf(s, "%u.%02u", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100);
-			UI_PrintStringSmallBuffer(s, line);
-			//line += 8 * 4;
+
+			const char *fmt[] = {"%u.%02u", "%2u.%02uV"};
+			unsigned int i = gEeprom.VOX_SWITCH ? 0 : 1;  // add a 'V' and shift the text left a bit if the VOX is not showing
+			sprintf(s, fmt[i], gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100);
+			UI_PrintStringSmallBuffer(s, line - (i ? 20 : 0));
+
 		#elif defined(ENABLE_STATUSBAR_PERCENTAGE)
+
 			const uint16_t     volts   = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
 			const uint16_t     percent = (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v);
 			const unsigned int x       = (percent >= 100) ? 0 : 4; // move to the right a bit
-			char s[8];
 			sprintf(s, "%u%%", percent);
 			UI_PrintStringSmallBuffer(s, line + x);
-			//line += 8 * 4;
+
 		#endif
 	}
 		
