@@ -22,37 +22,21 @@
 
 void UI_DisplayBattery(uint8_t Level)
 {
-	const uint8_t *pBitmap;
-	bool           bClearMode = false;
-
-	if (gCurrentFunction != 1)
+	if (gCurrentFunction != FUNCTION_TRANSMIT)
 	{
-		const unsigned int x = LCD_WIDTH - sizeof(BITMAP_BatteryLevel5);
-
+		const unsigned int x       = LCD_WIDTH - sizeof(BITMAP_BatteryLevel5);
+		const uint8_t     *pBitmap = NULL;
 		switch (Level)
 		{
-			case 0:
-				pBitmap    = NULL;
-				bClearMode = true;
-				break;
-			case 1:
-				pBitmap = BITMAP_BatteryLevel1;
-				break;
-			case 2:
-				pBitmap = BITMAP_BatteryLevel2;
-				break;
-			case 3:
-				pBitmap = BITMAP_BatteryLevel3;
-				break;
-			case 4:
-				pBitmap = BITMAP_BatteryLevel4;
-				break;
 			default:
-				pBitmap = BITMAP_BatteryLevel5;
-				break;
+			case 0: break;
+			case 1: pBitmap = BITMAP_BatteryLevel1; break;
+			case 2: pBitmap = BITMAP_BatteryLevel2; break;
+			case 3: pBitmap = BITMAP_BatteryLevel3; break;
+			case 4: pBitmap = BITMAP_BatteryLevel4; break;
+			case 5: pBitmap = BITMAP_BatteryLevel5; break;
 		}
-		
-		//            col lne, siz, bm, clr/set-pixels
-		ST7565_DrawLine(x, 0, 18, pBitmap, bClearMode);
+		//            col lne, siz, bm
+		ST7565_DrawLine(x, 0, 18, pBitmap);
 	}
 }

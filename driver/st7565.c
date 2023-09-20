@@ -15,6 +15,7 @@
  */
 
 #include <stdint.h>
+#include <stdio.h>     // NULL
 
 #include "bsp/dp32g030/gpio.h"
 #include "bsp/dp32g030/spi.h"
@@ -27,9 +28,9 @@
 uint8_t gStatusLine[128];
 uint8_t gFrameBuffer[7][128];
 
-void ST7565_DrawLine(uint8_t Column, uint8_t Line, uint16_t Size, const uint8_t *pBitmap, bool bIsClearMode)
+void ST7565_DrawLine(const unsigned int Column, const unsigned int Line, const unsigned int Size, const uint8_t *pBitmap)
 {
-	uint16_t i;
+	unsigned int i;
 
 	SPI_ToggleMasterMode(&SPI0->CR, false);
 
@@ -37,7 +38,7 @@ void ST7565_DrawLine(uint8_t Column, uint8_t Line, uint16_t Size, const uint8_t 
 
 	GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_ST7565_A0);
 
-	if (!bIsClearMode)
+	if (pBitmap != NULL)
 	{
 		for (i = 0; i < Size; i++)
 		{

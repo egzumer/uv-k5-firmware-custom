@@ -102,7 +102,7 @@ void Render(const uint8_t rssi, const uint8_t RssiLevel, const uint8_t VFO)
 			memmove(pLine + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
 	}
 
-	ST7565_DrawLine(0, Line, 23, pLine, (pLine == NULL) ? true : false);
+	ST7565_DrawLine(0, Line, 23, pLine);
 }
 
 void UI_UpdateRSSI(uint16_t RSSI)

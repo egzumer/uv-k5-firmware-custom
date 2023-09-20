@@ -20,6 +20,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifndef ARRAY_SIZE
+	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+#endif
+
 #define IS_MR_CHANNEL(x)           ((x) >= MR_CHANNEL_FIRST   && (x) <= MR_CHANNEL_LAST)
 #define IS_FREQ_CHANNEL(x)         ((x) >= FREQ_CHANNEL_FIRST && (x) <= FREQ_CHANNEL_LAST)
 #define IS_VALID_CHANNEL(x)        ((x) < LAST_CHANNEL)
@@ -29,10 +33,6 @@
 	#define IS_NOT_NOAA_CHANNEL(x) ((x) >= MR_CHANNEL_FIRST   && (x) <= FREQ_CHANNEL_LAST)
 #endif
 
-#ifndef ARRAY_SIZE
-	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
-#endif
-
 enum {
 	MR_CHANNEL_FIRST   = 0,
 	MR_CHANNEL_LAST    = 199u,
@@ -40,7 +40,7 @@ enum {
 	FREQ_CHANNEL_LAST  = 206u,
 	#ifdef ENABLE_NOAA
 		NOAA_CHANNEL_FIRST = 207u,
-		NOAA_CHANNEL_LAST  = 216u
+		NOAA_CHANNEL_LAST  = 216u,
 	#endif
 	LAST_CHANNEL
 };
