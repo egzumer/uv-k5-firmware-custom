@@ -908,6 +908,14 @@ void MENU_ShowCurrentSetting(void)
 			break;
 
 		case MENU_ABR:
+			if (gEeprom.BACKLIGHT == 0)
+			{	// turn the light on so the user can see the screen
+				const uint8_t value = gEeprom.BACKLIGHT;
+				gEeprom.BACKLIGHT = 1;
+				BACKLIGHT_TurnOn();
+				gEeprom.BACKLIGHT = value;  // restore the setting
+			}
+
 			gSubMenuSelection = gEeprom.BACKLIGHT;
 			break;
 
@@ -1154,7 +1162,7 @@ static void MENU_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		#endif
 
 		NUMBER_Get(gInputBox, &Frequency);
-		gSubMenuSelection = FREQUENCY_FloorToStep(Frequency + 62, gTxVfo->StepFrequency, 0);
+		gSubMenuSelection = FREQUENCY_FloorToStep(Frequency + 75, gTxVfo->StepFrequency, 0);
 
 		gInputBoxIndex = 0;
 		return;

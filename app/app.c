@@ -1934,7 +1934,7 @@ void APP_TimeSlice500ms(void)
 						ST7565_Configure_GPIO_B11();
 
 						//if (gEeprom.BACKLIGHT < 5)
-							GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
+							GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  // turn the backlight off
 					}
 					#ifdef ENABLE_VOICE
 						else
@@ -2067,7 +2067,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 //	const bool backlight_was_on = (gBacklightCountdown > 0 || gEeprom.BACKLIGHT >= 5);
 	const bool backlight_was_on = GPIO_CheckBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
 
-	if (Key == KEY_EXIT && !backlight_was_on)
+	if (Key == KEY_EXIT && !backlight_was_on && gEeprom.BACKLIGHT > 0)
 	{	// just turn the light on for now
 		BACKLIGHT_TurnOn();
 		gBeepToPlay = BEEP_NONE;

@@ -264,7 +264,7 @@ void UI_DisplayMain(void)
 							// show the main large frequency digits
 							UI_DisplayFrequency(String, 32, Line, false, false);
 							// show the remaining 2 small frequency digits
-							UI_DisplaySmallDigits(2, String + 7, 113, Line + 1, true);
+							UI_DisplaySmallDigits(2, String + 6, 113, Line + 1, true);
 						#else
 							// show the frequency in the main font
 							sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
@@ -305,7 +305,7 @@ void UI_DisplayMain(void)
 					// show the main large frequency digits
 					UI_DisplayFrequency(String, 32, Line, false, false);
 					// show the remaining 2 small frequency digits
-					UI_DisplaySmallDigits(2, String + 7, 113, Line + 1, true);
+					UI_DisplaySmallDigits(2, String + 6, 113, Line + 1, true);
 				#else
 					// show the frequency in the main font
 					sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
