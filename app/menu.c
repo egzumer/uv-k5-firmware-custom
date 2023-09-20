@@ -1314,9 +1314,7 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		if (edit_index < 0)
 		{	// enter channel name edit mode
 			if (!RADIO_CheckValidChannel(gSubMenuSelection, false, 0))
-			{
 				return;
-			}
 			
 			BOARD_fetchChannelName(edit, gSubMenuSelection);
 	
@@ -1326,6 +1324,9 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 				edit[edit_index++] = '_';
 			edit[edit_index] = 0;
 			edit_index = 0;  // 'edit_index' is going to be used as the cursor position
+
+			// make a copy so we can test for change when exiting the menu item
+			memmove(edit_original, edit, sizeof(edit_original));
 			
 			return;
 		}
@@ -1337,57 +1338,74 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 				return;	// next char
 			
 			// exit
-			gFlagAcceptSetting  = false;
-			gAskForConfirmation = 0;
+			if (memcmp(edit_original, edit, sizeof(edit_original)) == 0)
+			{	// no change
+				gFlagAcceptSetting  = false;
+				gIsInSubMenu        = false;
+				gAskForConfirmation = 0;
+			}
+			else
+			{
+				gFlagAcceptSetting  = false;
+				gAskForConfirmation = 0;
+			}
+		}
+	}
+
+	// exiting the sub menu
+	
+	if (gIsInSubMenu)
+	{
+		if (gMenuCursor == MENU_RESET  ||
+			gMenuCursor == MENU_MEM_CH ||
+			gMenuCursor == MENU_DEL_CH ||
+			gMenuCursor == MENU_MEM_NAME)
+		{
+			switch (gAskForConfirmation)
+			{
+				case 0:
+					gAskForConfirmation = 1;
+					break;
+	
+				case 1:
+					gAskForConfirmation = 2;
+	
+					UI_DisplayMenu();
+	
+					if (gMenuCursor == MENU_RESET)
+					{
+						#ifdef ENABLE_VOICE
+							AUDIO_SetVoiceID(0, VOICE_ID_CONFIRM);
+							AUDIO_PlaySingleVoice(true);
+						#endif
+	
+						MENU_AcceptSetting();
+	
+						#if defined(ENABLE_OVERLAY)
+							overlay_FLASH_RebootToBootloader();
+						#else
+							NVIC_SystemReset();
+						#endif
+					}
+	
+					gFlagAcceptSetting  = true;
+					gIsInSubMenu        = false;
+					gAskForConfirmation = 0;
+			}
+		}
+		else
+		{
+			gFlagAcceptSetting = true;
+			gIsInSubMenu       = false;
 		}
 	}
 	
-	if (gMenuCursor == MENU_RESET  ||
-	    gMenuCursor == MENU_MEM_CH ||
-	    gMenuCursor == MENU_DEL_CH ||
-	    gMenuCursor == MENU_MEM_NAME)
+	if (gCssScanMode != CSS_SCAN_MODE_OFF)
 	{
-		switch (gAskForConfirmation)
-		{
-			case 0:
-				gAskForConfirmation = 1;
-				break;
-
-			case 1:
-				gAskForConfirmation = 2;
-
-				UI_DisplayMenu();
-
-				if (gMenuCursor == MENU_RESET)
-				{
-					#ifdef ENABLE_VOICE
-						AUDIO_SetVoiceID(0, VOICE_ID_CONFIRM);
-						AUDIO_PlaySingleVoice(true);
-					#endif
-
-					MENU_AcceptSetting();
-
-					#if defined(ENABLE_OVERLAY)
-						overlay_FLASH_RebootToBootloader();
-					#else
-						NVIC_SystemReset();
-					#endif
-				}
-
-				gFlagAcceptSetting  = true;
-				gIsInSubMenu        = false;
-				gAskForConfirmation = 0;
-		}
+		gCssScanMode  = CSS_SCAN_MODE_OFF;
+		gUpdateStatus = true;
 	}
-	else
-	{
-		gFlagAcceptSetting = true;
-		gIsInSubMenu       = false;
-	}
-
-	gCssScanMode  = CSS_SCAN_MODE_OFF;
-	gUpdateStatus = true;
-
+	
 	#ifdef ENABLE_VOICE
 		if (gMenuCursor == MENU_SCR)
 			gAnotherVoiceID = (gSubMenuSelection == 0) ? VOICE_ID_SCRAMBLER_OFF : VOICE_ID_SCRAMBLER_ON;

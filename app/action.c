@@ -160,7 +160,8 @@ void ACTION_Scan(bool bRestart)
 	#endif
 
 	if (gScreenToDisplay != DISPLAY_SCANNER)
-	{
+	{	// not scanning
+
 		RADIO_SelectVfos();
 
 		#ifdef ENABLE_NOAA
@@ -191,6 +192,18 @@ void ACTION_Scan(bool bRestart)
 				gUpdateStatus    = true;
 			}
 		}
+	}
+	else
+	if (!bRestart)
+	{	// scanning
+
+		SCANNER_Stop();
+
+		#ifdef ENABLE_VOICE
+			gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
+		#endif
+
+		gRequestDisplayScreen = DISPLAY_MAIN;
 	}
 }
 

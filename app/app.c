@@ -2068,7 +2068,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	const bool backlight_was_on = GPIO_CheckBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
 
 	if (Key == KEY_EXIT && !backlight_was_on && gEeprom.BACKLIGHT > 0)
-	{	// just turn the light on for now
+	{	// just turn the light on for now so the user can see what's what
 		BACKLIGHT_TurnOn();
 		gBeepToPlay = BEEP_NONE;
 		return;
@@ -2172,11 +2172,13 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	}
 
 	if (gScanState != SCAN_OFF &&
-	    Key != KEY_PTT  &&
-	    Key != KEY_UP   &&
-		Key != KEY_DOWN &&
-		Key != KEY_EXIT &&
-		Key != KEY_STAR)
+	    Key != KEY_PTT   &&
+	    Key != KEY_UP    &&
+	    Key != KEY_DOWN  &&
+	    Key != KEY_EXIT  &&
+	    Key != KEY_SIDE1 &&
+	    Key != KEY_SIDE2 &&
+	    Key != KEY_STAR)
 	{	// scanning
 		if (bKeyPressed && !bKeyHeld)
 			AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
@@ -2184,12 +2186,14 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	}
 
 	if (gCssScanMode != CSS_SCAN_MODE_OFF &&
-		Key != KEY_PTT  &&
-		Key != KEY_UP   &&
-		Key != KEY_DOWN &&
-		Key != KEY_EXIT &&
-		Key != KEY_STAR &&
-		Key != KEY_MENU)
+	    Key != KEY_PTT   &&
+	    Key != KEY_UP    &&
+	    Key != KEY_DOWN  &&
+	    Key != KEY_EXIT  &&
+	    Key != KEY_SIDE1 &&
+	    Key != KEY_SIDE2 &&
+	    Key != KEY_STAR  &&
+	    Key != KEY_MENU)
 	{	// code scanning
 		if (bKeyPressed && !bKeyHeld)
 			AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
@@ -2224,7 +2228,8 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		gUpdateStatus   = true;
 	}
 
-	if (gF_LOCK && (Key == KEY_PTT || Key == KEY_SIDE2 || Key == KEY_SIDE1))
+//	if (gF_LOCK && (Key == KEY_PTT || Key == KEY_SIDE2 || Key == KEY_SIDE1))
+	if (gF_LOCK && Key == KEY_PTT)
 		return;
 
 	if (!bFlag)

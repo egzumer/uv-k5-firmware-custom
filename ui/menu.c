@@ -275,6 +275,7 @@ int8_t  gMenuScrollDirection;
 int32_t gSubMenuSelection;
 
 // edit box
+char    edit_original[17]; // a copy of the text before editing
 char    edit[17];
 int     edit_index;
 
@@ -493,8 +494,8 @@ void UI_DisplayMenu(void)
 				{	// show the channel name being edited
 					UI_PrintString(edit, 50, 0, 2, 8);
 					if (edit_index < 10)
-//						UI_PrintString("^", 50 + (8 * edit_index), 0, 4, 8);  // show the cursor
-						UI_PrintStringSmall("^", 50 + (8 * edit_index), 0, 4);
+						UI_PrintString("^", 50 + (8 * edit_index), 0, 4, 8);  // show the cursor
+//						UI_PrintStringSmall("^", 50 + (8 * edit_index), 0, 4);
 				}
 	
 				if (!gAskForConfirmation)
