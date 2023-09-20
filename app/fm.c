@@ -59,7 +59,11 @@ uint8_t FM_FindNextChannel(uint8_t Channel, uint8_t Direction)
 
 	for (i = 0; i < ARRAY_SIZE(gFM_Channels); i++)
 	{
-		Channel %= ARRAY_SIZE(gFM_Channels);
+		if (Channel == 0xFF)
+			Channel = ARRAY_SIZE(gFM_Channels) - 1;
+		else
+		if (Channel >= ARRAY_SIZE(gFM_Channels))
+			Channel = 0;
 		if (FM_CheckValidChannel(Channel))
 			return Channel;
 		Channel += Direction;
@@ -182,7 +186,7 @@ int FM_CheckFrequencyLock(uint16_t Frequency, uint16_t LowerLimit)
 		const uint16_t Status = BK1080_ReadRegister(BK1080_REG_10);
 		if ((Status & BK1080_REG_10_MASK_AFCRL) == BK1080_REG_10_AFCRL_NOT_RAILED && BK1080_REG_10_GET_RSSI(Status) >= 10)
 		{
-			// if (Deviation > -281 && Deviation < 280)
+			//if (Deviation > -281 && Deviation < 280)
 			if (Deviation < 280 || Deviation > 3815)
 			{
 				// not BLE(less than or equal)

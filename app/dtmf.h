@@ -20,6 +20,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define    MAX_DTMF_CONTACTS   16
+
 enum DTMF_State_t {
 	DTMF_STATE_0 = 0,
 	DTMF_STATE_TX_SUCC,

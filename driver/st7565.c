@@ -22,6 +22,7 @@
 #include "driver/spi.h"
 #include "driver/st7565.h"
 #include "driver/system.h"
+#include "misc.h"
 
 uint8_t gStatusLine[128];
 uint8_t gFrameBuffer[7][128];
@@ -66,12 +67,12 @@ void ST7565_BlitFullScreen(void)
 
 	ST7565_WriteByte(0x40);
 
-	for (Line = 0; Line < 7; Line++)
+	for (Line = 0; Line < ARRAY_SIZE(gFrameBuffer); Line++)
 	{
 		unsigned int Column;
 		ST7565_SelectColumnAndLine(4, Line + 1);
 		GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_ST7565_A0);
-		for (Column = 0; Column < 128; Column++)
+		for (Column = 0; Column < ARRAY_SIZE(gFrameBuffer[0]); Column++)
 		{
 			while ((SPI0->FIFOST & SPI_FIFOST_TFF_MASK) != SPI_FIFOST_TFF_BITS_NOT_FULL) {}
 			SPI0->WDR = gFrameBuffer[Line][Column];
@@ -102,7 +103,7 @@ void ST7565_BlitStatusLine(void)
 
 	GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_ST7565_A0);
 
-	for (i = 0; i < sizeof(gStatusLine); i++)
+	for (i = 0; i < ARRAY_SIZE(gStatusLine); i++)
 	{
 		while ((SPI0->FIFOST & SPI_FIFOST_TFF_MASK) != SPI_FIFOST_TFF_BITS_NOT_FULL) {}
 		SPI0->WDR = gStatusLine[i];

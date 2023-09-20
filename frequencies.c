@@ -174,7 +174,7 @@ int FREQUENCY_Check(VFO_Info_t *pInfo)
 	const uint32_t Frequency = pInfo->pTX->Frequency;
 
 	#ifdef ENABLE_NOAA
-		if (pInfo->CHANNEL_SAVE >= NOAA_CHANNEL_FIRST)
+		if (pInfo->CHANNEL_SAVE > FREQ_CHANNEL_LAST)
 			return -1;
 	#endif
 

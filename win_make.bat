@@ -21,7 +21,7 @@ del /S /Q *.d >nul 2>nul
 ::    https://github.com/OneOfEleven/k5prog-win
 ::
 ::python -m pip install --upgrade pip crcmod
-fw-pack.py firmware.bin 230919 firmware.packed.bin
+fw-pack.py firmware.bin 230920 firmware.packed.bin
 
 ::arm-none-eabi-size firmware
 

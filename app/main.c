@@ -314,6 +314,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			gInputBoxIndex = 0;
 
 			Channel = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
+
 			if (!RADIO_CheckValidChannel(Channel, false, 0))
 			{
 				gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
@@ -398,7 +399,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				gInputBoxIndex = 0;
 
 				Channel = (gInputBox[0] * 10) + gInputBox[1];
-				if (Channel >= 1 && Channel <= 10)
+				if (Channel >= 1 && Channel <= ARRAY_SIZE(NoaaFrequencyTable))
 				{
 					Channel                   += NOAA_CHANNEL_FIRST;
 					#ifdef ENABLE_VOICE

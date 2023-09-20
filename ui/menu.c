@@ -19,6 +19,7 @@
 
 #include "app/dtmf.h"
 #include "bitmaps.h"
+#include "board.h"
 #include "dcs.h"
 #include "driver/bk4819.h"
 #include "driver/eeprom.h"   // EEPROM_ReadBuffer()
@@ -55,6 +56,7 @@ const char MenuList[][7] =
     "BUSYCL",    // was "BCL"
 	"CH-SAV",    // was "MEM-CH"
 	"CH-DEL",    // was "DEL-CH"
+	"CH-NAM",
 	"CH-DIS",    // was "MDF"
 	"BATSAV",    // was "SAVE"
     "VOX",
@@ -261,6 +263,10 @@ uint8_t gMenuCursor;
 int8_t  gMenuScrollDirection;
 int32_t gSubMenuSelection;
 
+// edit box
+char    edit[17];
+int     edit_index;
+
 void UI_DisplayMenu(void)
 {
 	unsigned int i;
@@ -281,26 +287,11 @@ void UI_DisplayMenu(void)
 	}
 
 	// draw vertical separating line
-	#if 0
-		// original thick line
-		for (i = 0; i < 7; i++)
-		{
-			gFrameBuffer[i][48] = 0xFF;
-			gFrameBuffer[i][49] = 0xFF;
-		}
-	#else
-		// a less intense thinner dotted line
-		for (i = 0; i < 6; i++)
-			gFrameBuffer[i][49] = 0xAA;
-	#endif
+	for (i = 0; i < 6; i++)
+		gFrameBuffer[i][49] = 0xAA;
 
-	#if 0
-		NUMBER_ToDigits(1 + gMenuCursor, String);
-		UI_DisplaySmallDigits(2, String + 6, 33, 6, false);
-	#else
-		sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
-		UI_PrintStringSmall(String, 8, 0, 6);
-	#endif
+	sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
+	UI_PrintStringSmall(String, 8, 0, 6);
 
 	if (gIsInSubMenu)
 		memmove(gFrameBuffer[0] + 50, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));
@@ -451,11 +442,76 @@ void UI_DisplayMenu(void)
 		case MENU_MEM_CH:
 		case MENU_1_CALL:
 		case MENU_DEL_CH:
-			UI_GenerateChannelStringEx(String, RADIO_CheckValidChannel(gSubMenuSelection, false, 0), gSubMenuSelection);
+		{
+			const bool valid = RADIO_CheckValidChannel(gSubMenuSelection, false, 0);
+			
+			UI_GenerateChannelStringEx(String, valid, gSubMenuSelection);
 			UI_PrintString(String, 50, 127, 0, 8);
+
+			if (valid && !gAskForConfirmation)
+			{	// show the frequency so that the user knows the channels frequency
+				struct
+				{
+					uint32_t Frequency;
+					uint32_t Offset;
+				} __attribute__((packed)) Info;
+				EEPROM_ReadBuffer(gSubMenuSelection * 16, &Info, sizeof(Info));
+
+				sprintf(String, "%03u.%05u", Info.Frequency / 100000, Info.Frequency % 100000);
+//				UI_PrintStringSmall(String, 50, 127, 5);
+				UI_PrintString(String, 50, 127, 4, 8);
+			}
+
 			already_printed = true;
 			break;
+		}
+		
+		case MENU_MEM_NAME:
+		{
+			const bool valid = RADIO_CheckValidChannel(gSubMenuSelection, false, 0);
+
+			UI_GenerateChannelStringEx(String, valid, gSubMenuSelection);
+			UI_PrintString(String, 50, 127, 0, 8);
+
+			if (valid)
+			{
+				struct
+				{
+					uint32_t Frequency;
+					uint32_t Offset;
+				} __attribute__((packed)) Info;
+				EEPROM_ReadBuffer(gSubMenuSelection * 16, &Info, sizeof(Info));
+
+				if (!gIsInSubMenu || edit_index < 0)
+				{	// show the channel name
+					BOARD_fetchChannelName(String, gSubMenuSelection);
+					if (String[0] == 0)
+						strcpy(String, "--");
+					UI_PrintString(String, 50, 127, 2, 8);
+				}
+				else
+				{	// show the channel name being edited
+					UI_PrintString(edit, 50, 0, 2, 8);
+					if (edit_index < 10)
+//						UI_PrintString("^", 50 + (8 * edit_index), 0, 4, 8);  // show the cursor
+						UI_PrintStringSmall("^", 50 + (8 * edit_index), 0, 4);
+				}
+	
+				if (!gAskForConfirmation)
+				{	// show the frequency so that the user knows the channels frequency
+					sprintf(String, "%03u.%05u", Info.Frequency / 100000, Info.Frequency % 100000);
+					if (!gIsInSubMenu || edit_index < 0)
+						UI_PrintString(String, 50, 127, 4, 8);
+					else
+						UI_PrintString(String, 50, 127, 5, 8);
+//						UI_PrintStringSmall(String, 50, 127, 5);
+				}
+			}
 			
+			already_printed = true;
+			break;
+		}
+		
 		case MENU_SAVE:
 			strcpy(String, gSubMenu_SAVE[gSubMenuSelection]);
 			break;
@@ -635,41 +691,17 @@ void UI_DisplayMenu(void)
 		}
 	}
 
-	if (gMenuCursor == MENU_MEM_CH ||
-	    gMenuCursor == MENU_DEL_CH ||
-	    gMenuCursor == MENU_1_CALL ||
-		gMenuCursor == MENU_SLIST1 ||
+	if (gMenuCursor == MENU_MEM_CH   ||
+	    gMenuCursor == MENU_DEL_CH   ||
+	    gMenuCursor == MENU_1_CALL   ||
+		gMenuCursor == MENU_SLIST1   ||
 		gMenuCursor == MENU_SLIST2)
 	{	// display the channel name
-		if (gSubMenuSelection >= 0)
-		{
-			const uint16_t channel = (uint16_t)gSubMenuSelection;
-			const bool valid = RADIO_CheckValidChannel(channel, false, 0);
-			if (valid)
-			{	// 16 bytes allocated to the channel name but only 12 used
-				char s[17] = {0};
-				EEPROM_ReadBuffer(0x0F50 + (channel * 16), s + 0, 8);
-				EEPROM_ReadBuffer(0x0F58 + (channel * 16), s + 8, 2);
-				{	// make invalid chars '0'
-					i = 0;
-					while (i < sizeof(s))
-					{
-						if (s[i] < 32 || s[i] >= 128)
-							break;
-						i++;
-					}
-					while (i < sizeof(s))
-						s[i++] = 0;
-					while (--i > 0)
-					{
-						if (s[i] != 0 && s[i] != 32)
-							break;
-						s[i] = 0;
-					}
-				}
-				UI_PrintString(s, 50, 127, 2, 8);
-			}
-		}
+		char s[11];
+		BOARD_fetchChannelName(s, gSubMenuSelection);
+		if (s[0] == 0)
+			strcpy(s, "--");
+		UI_PrintString(s, 50, 127, 2, 8);
 	}
 
 	if ((gMenuCursor == MENU_R_CTCS || gMenuCursor == MENU_R_DCS) && gCssScanMode != CSS_SCAN_MODE_OFF)
@@ -703,7 +735,10 @@ void UI_DisplayMenu(void)
 		UI_DisplaySmallDigits(Offset, String + (8 - Offset), 105, 0, false);
 	}
 
-	if ((gMenuCursor == MENU_RESET || gMenuCursor == MENU_MEM_CH || gMenuCursor == MENU_DEL_CH) && gAskForConfirmation)
+	if ((gMenuCursor == MENU_RESET    ||
+	     gMenuCursor == MENU_MEM_CH   ||
+	     gMenuCursor == MENU_MEM_NAME ||
+	     gMenuCursor == MENU_DEL_CH) && gAskForConfirmation)
 	{	// display confirmation
 		strcpy(String, (gAskForConfirmation == 1) ? "SURE?" : "WAIT!");
 		UI_PrintString(String, 50, 127, 5, 8);

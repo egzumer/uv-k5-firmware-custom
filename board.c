@@ -595,11 +595,8 @@ void BOARD_EEPROM_Init(void)
 	gEeprom.KEY_1_SHORT_PRESS_ACTION     = (Data[1] < ACTION_OPT_LEN) ? Data[1] : ACTION_OPT_MONITOR;
 	gEeprom.KEY_1_LONG_PRESS_ACTION      = (Data[2] < ACTION_OPT_LEN) ? Data[2] : ACTION_OPT_FLASHLIGHT;
 	gEeprom.KEY_2_SHORT_PRESS_ACTION     = (Data[3] < ACTION_OPT_LEN) ? Data[3] : ACTION_OPT_SCAN;
-	#ifdef ENABLE_FMRADIO
-		gEeprom.KEY_2_LONG_PRESS_ACTION  = (Data[4] < ACTION_OPT_LEN) ? Data[4] : ACTION_OPT_NONE;
-	#else
-		gEeprom.SCAN_RESUME_MODE         = (Data[5] < 3)              ? Data[5] : SCAN_RESUME_CO;
-	#endif
+	gEeprom.KEY_2_LONG_PRESS_ACTION      = (Data[4] < ACTION_OPT_LEN) ? Data[4] : ACTION_OPT_NONE;
+	gEeprom.SCAN_RESUME_MODE             = (Data[5] < 3)              ? Data[5] : SCAN_RESUME_CO;
 	gEeprom.AUTO_KEYPAD_LOCK             = (Data[6] < 2)              ? Data[6] : false;
 	gEeprom.POWER_ON_DISPLAY_MODE        = (Data[7] < 4)              ? Data[7] : POWER_ON_DISPLAY_MODE_VOLTAGE;
 
@@ -789,6 +786,35 @@ void BOARD_EEPROM_LoadMoreSettings(void)
 		BK4819_WriteRegister(BK4819_REG_3B, 22656 + gEeprom.BK4819_XTAL_FREQ_LOW);
 //		BK4819_WriteRegister(BK4819_REG_3C, gEeprom.BK4819_XTAL_FREQ_HIGH);
 	}
+}
+
+void BOARD_fetchChannelName(char *s, const int channel)
+{
+	int i;
+
+	if (s == NULL)
+		return;
+	
+	memset(s, 0, 11);  // 's' had better be large enough !
+	
+	if (channel < 0)
+		return;
+
+	if (!RADIO_CheckValidChannel(channel, false, 0))
+		return;
+
+
+	EEPROM_ReadBuffer(0x0F50 + (channel * 16), s + 0, 8);
+	EEPROM_ReadBuffer(0x0F58 + (channel * 16), s + 8, 2);
+
+	for (i = 0; i < 10; i++)
+		if (s[i] < 32 || s[i] > 127)
+			break;                // invalid char
+
+	s[i--] = 0;                   // null term
+
+	while (i >= 0 && s[i] == 32)  // trim trailing spaces
+		s[i--] = 0;               // null term
 }
 
 void BOARD_FactoryReset(bool bIsAll)

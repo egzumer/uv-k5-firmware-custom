@@ -86,7 +86,7 @@ bool DTMF_ValidateCodes(char *pCode, uint8_t Size)
 bool DTMF_GetContact(const int Index, char *pContact)
 {
 	int i = -1;
-	if (Index >= 0 && Index < 16 && pContact != NULL)  // max 16 DTMF contacts
+	if (Index >= 0 && Index < MAX_DTMF_CONTACTS && pContact != NULL)
 	{
 		EEPROM_ReadBuffer(0x1C00 + (Index * 16), pContact, 16);
 		i = (int)pContact[0] - ' ';
@@ -96,10 +96,10 @@ bool DTMF_GetContact(const int Index, char *pContact)
 
 bool DTMF_FindContact(const char *pContact, char *pResult)
 {
-	char Contact [16];
+	char         Contact[16];
 	unsigned int i;
 
-	for (i = 0; i < 16; i++)
+	for (i = 0; i < MAX_DTMF_CONTACTS; i++)
 	{
 		unsigned int j;
 
@@ -130,7 +130,6 @@ char DTMF_GetCharacter(const uint8_t code)
 bool DTMF_CompareMessage(const char *pMsg, const char *pTemplate, uint8_t Size, bool bCheckGroup)
 {
 	unsigned int i;
-
 	for (i = 0; i < Size; i++)
 	{
 		if (pMsg[i] != pTemplate[i])
@@ -147,7 +146,6 @@ bool DTMF_CompareMessage(const char *pMsg, const char *pTemplate, uint8_t Size, 
 bool DTMF_CheckGroupCall(const char *pMsg, uint32_t Size)
 {
 	uint32_t i;
-
 	for (i = 0; i < Size; i++)
 		if (pMsg[i] == gEeprom.DTMF_GROUP_CALL_CODE)
 			break;
@@ -189,12 +187,15 @@ void DTMF_HandleRequest(void)
 	{
 		Offset = gDTMF_WriteIndex - 9;
 		sprintf(String, "%s%c%s", gEeprom.ANI_DTMF_ID, gEeprom.DTMF_SEPARATE_CODE, gEeprom.KILL_CODE);
+
 		if (DTMF_CompareMessage(gDTMF_Received + Offset, String, 9, true))
 		{
 			if (gEeprom.PERMIT_REMOTE_KILL)
 			{
 				gSetting_KILLED = true;
+
 				SETTINGS_SaveSettings();
+
 				gDTMF_ReplyState = DTMF_REPLY_AB;
 
 				#ifdef ENABLE_FMRADIO
@@ -220,12 +221,12 @@ void DTMF_HandleRequest(void)
 		sprintf(String, "%s%c%s", gEeprom.ANI_DTMF_ID, gEeprom.DTMF_SEPARATE_CODE, gEeprom.REVIVE_CODE);
 		if (DTMF_CompareMessage(gDTMF_Received + Offset, String, 9, true))
 		{
-			gSetting_KILLED = false;
+			gSetting_KILLED  = false;
 			SETTINGS_SaveSettings();
 			gDTMF_ReplyState = DTMF_REPLY_AB;
-			gDTMF_CallState = DTMF_CALL_STATE_NONE;
-			gUpdateDisplay = true;
-			gUpdateStatus = true;
+			gDTMF_CallState  = DTMF_CALL_STATE_NONE;
+			gUpdateDisplay   = true;
+			gUpdateStatus    = true;
 			return;
 		}
 	}
@@ -234,7 +235,7 @@ void DTMF_HandleRequest(void)
 	{
 		if (DTMF_CompareMessage(gDTMF_Received + (gDTMF_WriteIndex - 2), "AB", 2, true))
 		{
-			gDTMF_State = DTMF_STATE_TX_SUCC;
+			gDTMF_State    = DTMF_STATE_TX_SUCC;
 			gUpdateDisplay = true;
 			return;
 		}
@@ -243,10 +244,12 @@ void DTMF_HandleRequest(void)
 	if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT && gDTMF_CallMode == DTMF_CALL_MODE_NOT_GROUP && gDTMF_WriteIndex >= 9)
 	{
 		Offset = gDTMF_WriteIndex - 9;
+
 		sprintf(String, "%s%c%s", gDTMF_String, gEeprom.DTMF_SEPARATE_CODE, "AAAAA");
+
 		if (DTMF_CompareMessage(gDTMF_Received + Offset, String, 9, false))
 		{
-			gDTMF_State = DTMF_STATE_CALL_OUT_RSP;
+			gDTMF_State    = DTMF_STATE_CALL_OUT_RSP;
 			gUpdateDisplay = true;
 		}
 	}
@@ -257,12 +260,16 @@ void DTMF_HandleRequest(void)
 	if (gDTMF_WriteIndex >= 7)
 	{
 		Offset = gDTMF_WriteIndex - 7;
+
 		sprintf(String, "%s%c", gEeprom.ANI_DTMF_ID, gEeprom.DTMF_SEPARATE_CODE);
+
 		gDTMF_IsGroupCall = false;
+
 		if (DTMF_CompareMessage(gDTMF_Received + Offset, String, 4, true))
 		{
 			gDTMF_CallState = DTMF_CALL_STATE_RECEIVED;
-			memmove(gDTMF_Callee, gDTMF_Received + Offset, 3);
+
+			memmove(gDTMF_Callee, gDTMF_Received + Offset + 0, 3);
 			memmove(gDTMF_Caller, gDTMF_Received + Offset + 4, 3);
 
 			gUpdateDisplay = true;
@@ -364,4 +371,3 @@ void DTMF_Reply(void)
 
 	BK4819_ExitDTMF_TX(false);
 }
-

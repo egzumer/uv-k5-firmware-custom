@@ -39,8 +39,6 @@ EEPROM_Config_t gEeprom;
 			uint8_t  Padding[4];
 		} State;
 	
-		UART_LogSend("sFm\r\n", 5);
-	
 		memset(&State, 0xFF, sizeof(State));
 		State.Channel           = gEeprom.FM_SelectedChannel;
 		State.Frequency         = gEeprom.FM_SelectedFrequency;
@@ -56,8 +54,10 @@ void SETTINGS_SaveVfoIndices(void)
 {
 	uint8_t State[8];
 
-	UART_LogSend("sidx\r\n", 6);
-
+	#ifndef ENABLE_NOAA
+		EEPROM_ReadBuffer(0x0E80, State, sizeof(State));
+	#endif
+	
 	State[0] = gEeprom.ScreenChannel[0];
 	State[1] = gEeprom.MrChannel[0];
 	State[2] = gEeprom.FreqChannel[0];
@@ -67,9 +67,6 @@ void SETTINGS_SaveVfoIndices(void)
 	#ifdef ENABLE_NOAA
 		State[6] = gEeprom.NoaaChannel[0];
 		State[7] = gEeprom.NoaaChannel[1];
-	#else
-		State[6] = NOAA_CHANNEL_FIRST;
-		State[7] = NOAA_CHANNEL_FIRST;
 	#endif
 
 	EEPROM_WriteBuffer(0x0E80, State);
@@ -79,8 +76,6 @@ void SETTINGS_SaveSettings(void)
 {
 	uint8_t  State[8];
 	uint32_t Password[2];
-
-	UART_LogSend("spub\r\n", 6);
 
 	State[0] = gEeprom.CHAN_1_CALL;
 	State[1] = gEeprom.SQUELCH_LEVEL;
@@ -178,8 +173,6 @@ void SETTINGS_SaveSettings(void)
 
 void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, uint8_t Mode)
 {
-	UART_LogSend("schn\r\n", 6);
-
 	#ifdef ENABLE_NOAA
 		if (IS_NOT_NOAA_CHANNEL(Channel))
 	#endif
@@ -218,22 +211,28 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 
 			SETTINGS_UpdateChannel(Channel, pVFO, true);
 
-			#ifndef KEEP_MEM_NAME
-				if (IS_MR_CHANNEL(Channel))
-				{	// clear/reset the channel name
+			if (IS_MR_CHANNEL(Channel))
+			{
+				#ifndef KEEP_MEM_NAME
+					// clear/reset the channel name
 					memset(&State8, 0xFF, sizeof(State8));
 					EEPROM_WriteBuffer(0x0F50 + OffsetMR, State8);
 					EEPROM_WriteBuffer(0x0F58 + OffsetMR, State8);
-				}
-			#endif
+				#else
+					// save the channel name
+					memmove(State8, pVFO->Name + 0, 8);
+					EEPROM_WriteBuffer(0x0F50 + OffsetMR, State8);
+					memset(State8, 0xFF, sizeof(State8));
+					memmove(State8, pVFO->Name + 8, 2);
+					EEPROM_WriteBuffer(0x0F58 + OffsetMR, State8);
+				#endif
+			}
 		}
 	}
 }
 
 void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool keep)
 {
-	UART_LogSend("svalid\r\n", 8);
-
 	#ifdef ENABLE_NOAA
 		if (IS_NOT_NOAA_CHANNEL(Channel))
 	#endif
@@ -265,12 +264,23 @@ void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool keep)
 		gMR_ChannelAttributes[Channel] = Attributes;
 
 //		#ifndef KEEP_MEM_NAME
-			if (IS_MR_CHANNEL(Channel) && !keep)
-			{	// clear/reset the channel name
+			if (IS_MR_CHANNEL(Channel))
+			{
 				const uint16_t OffsetMR = Channel * 16;
-				memset(&State, 0xFF, sizeof(State));
-				EEPROM_WriteBuffer(0x0F50 + OffsetMR, State);
-				EEPROM_WriteBuffer(0x0F58 + OffsetMR, State);
+				if (!keep)
+				{	// clear/reset the channel name
+					memset(&State, 0xFF, sizeof(State));
+					EEPROM_WriteBuffer(0x0F50 + OffsetMR, State);
+					EEPROM_WriteBuffer(0x0F58 + OffsetMR, State);
+				}
+//				else
+//				{	// update the channel name
+//					memmove(State, pVFO->Name + 0, 8);
+//					EEPROM_WriteBuffer(0x0F50 + OffsetMR, State);
+//					memset(State, 0xFF, sizeof(State));
+//					memmove(State, pVFO->Name + 8, 2);
+//					EEPROM_WriteBuffer(0x0F58 + OffsetMR, State);
+//				}
 			}
 //		#endif
 	}

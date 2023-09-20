@@ -100,7 +100,7 @@ uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScan
 {
 	unsigned int i;
 
-	for (i = 0; i < 200; i++)
+	for (i = 0; i <= MR_CHANNEL_LAST; i++)
 	{
 		if (Channel == 0xFF)
 			Channel = MR_CHANNEL_LAST;
@@ -159,11 +159,11 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 
 	if (!gSetting_350EN)
 	{
-		if (gEeprom.FreqChannel[VFO] == 204)
-			gEeprom.FreqChannel[VFO]++;
+		if (gEeprom.FreqChannel[VFO] == (FREQ_CHANNEL_LAST - 2))
+			gEeprom.FreqChannel[VFO] = FREQ_CHANNEL_LAST - 1;
 
-		if (gEeprom.ScreenChannel[VFO] == 204)
-			gEeprom.ScreenChannel[VFO]++;
+		if (gEeprom.ScreenChannel[VFO] == (FREQ_CHANNEL_LAST - 2))
+			gEeprom.ScreenChannel[VFO] = FREQ_CHANNEL_LAST - 1;
 	}
 
 	Channel = gEeprom.ScreenChannel[VFO];
@@ -201,7 +201,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		}
 	}
 	else
-		Channel = 205;
+		Channel = FREQ_CHANNEL_LAST - 1;
 
 	Attributes = gMR_ChannelAttributes[Channel];
 	if (Attributes == 0xFF)

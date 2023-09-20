@@ -39,6 +39,7 @@
 #endif
 #include "ui/inputbox.h"
 #include "ui/menu.h"
+#include "ui/menu.h"
 #include "ui/ui.h"
 
 #ifndef ARRAY_SIZE
@@ -64,15 +65,16 @@
 		VOICE_ID_BUSY_LOCKOUT,                    // BUSYCL
 		VOICE_ID_MEMORY_CHANNEL,                  // CH-SAV
 		VOICE_ID_DELETE_CHANNEL,                  // CH-DEL
+		VOICE_ID_INVALID,                         // CH-EDIT
 		VOICE_ID_INVALID,                         // CH-DIS
 		VOICE_ID_SAVE_MODE,                       // BATSAV
 		VOICE_ID_VOX,                             // VOX
 		VOICE_ID_INVALID,                         // BACKLT
 		VOICE_ID_DUAL_STANDBY,                    // DUALRX
 		VOICE_ID_BEEP_PROMPT,                     // BEEP
-		#ifdef ENABLE_VOICE                       
+		#ifdef ENABLE_VOICE
 			VOICE_ID_VOICE_PROMPT,                // VOICE
-		#endif                                    
+		#endif
 		VOICE_ID_INVALID,                         // SC-REV
 		VOICE_ID_INVALID,                         // KEYLOC
 		VOICE_ID_INVALID,                         // S-ADD1
@@ -285,17 +287,16 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 
 		case MENU_MEM_CH:
 		case MENU_1_CALL:
-//		case MENU_SLIST1:
-//		case MENU_SLIST2:
 		case MENU_DEL_CH:
+		case MENU_MEM_NAME:
 			*pMin = 0;
-			*pMax = 199;
+			*pMax = MR_CHANNEL_LAST;
 			break;
 
 		case MENU_SLIST1:
 		case MENU_SLIST2:
 			*pMin = -1;
-			*pMax = 199;
+			*pMax = MR_CHANNEL_LAST;
 			break;
 
 		case MENU_SAVE:
@@ -344,8 +345,8 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 			break;
 
 		case MENU_F_CALI:
-			*pMin = -1000;
-			*pMax = +1000;
+			*pMin = -50;
+			*pMax = +50;
 			break;
 
 		default:
@@ -373,7 +374,7 @@ void MENU_AcceptSetting(void)
 	{
 		default:
 			return;
-			
+
 		case MENU_SQL:
 			gEeprom.SQUELCH_LEVEL = gSubMenuSelection;
 			gVfoConfigureMode     = VFO_CONFIGURE_1;
@@ -479,7 +480,28 @@ void MENU_AcceptSetting(void)
 		case MENU_MEM_CH:
 			gTxVfo->CHANNEL_SAVE = gSubMenuSelection;
 			gRequestSaveChannel  = 2;
-			gEeprom.MrChannel[0] = gSubMenuSelection;
+			#if 0
+				gEeprom.MrChannel[0] = gSubMenuSelection;
+			#else
+				gEeprom.MrChannel[gEeprom.TX_CHANNEL] = gSubMenuSelection;
+			#endif
+			return;
+
+		case MENU_MEM_NAME:
+			{	// trailing trim
+				for (int i = 9; i >= 0; i--)
+				{
+					if (edit[i] != ' ' && edit[i] != '_' && edit[i] != 0 && edit[i] != 0xff)
+						break;
+					edit[i] = ' ';
+				}
+			}
+			
+			// save the channel name
+			memset(gTxVfo->Name, 0xff, sizeof(gTxVfo->Name));
+			memmove(gTxVfo->Name, edit, 10);
+			SETTINGS_SaveChannel(gSubMenuSelection, gEeprom.TX_CHANNEL, gTxVfo, 2);
+			gFlagReconfigureVfos = true;
 			return;
 
 		case MENU_SAVE:
@@ -623,13 +645,15 @@ void MENU_AcceptSetting(void)
 		case MENU_BAT_TXT:
 			gSetting_battery_text = gSubMenuSelection;
 			break;
-		
+
 		case MENU_D_DCD:
 			gTxVfo->DTMF_DECODING_ENABLE = gSubMenuSelection;
 			gRequestSaveChannel          = 1;
 			return;
 
 		case MENU_D_LIVE_DEC:
+			gDTMF_RecvTimeoutSaved = 0;
+			gDTMF_ReceivedSaved[0] = '\0';
 			gSetting_live_DTMF_decoder = gSubMenuSelection;
 			break;
 
@@ -873,6 +897,10 @@ void MENU_ShowCurrentSetting(void)
 			#endif
 			break;
 
+		case MENU_MEM_NAME:
+			gSubMenuSelection = gEeprom.MrChannel[gEeprom.TX_CHANNEL];
+			break;
+
 		case MENU_SAVE:
 			gSubMenuSelection = gEeprom.BATTERY_SAVE;
 			break;
@@ -990,7 +1018,7 @@ void MENU_ShowCurrentSetting(void)
 		case MENU_BAT_TXT:
 			gSubMenuSelection = gSetting_battery_text;
 			return;
-		
+
 		case MENU_D_DCD:
 			gSubMenuSelection = gTxVfo->DTMF_DECODING_ENABLE;
 			break;
@@ -1065,12 +1093,12 @@ void MENU_ShowCurrentSetting(void)
 
 static void MENU_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
+	uint8_t  Offset;
+	int32_t  Min;
+	int32_t  Max;
 	uint16_t Value = 0;
 
-	if (bKeyHeld)
-		return;
-
-	if (!bKeyPressed)
+	if (bKeyHeld || !bKeyPressed)
 		return;
 
 	gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
@@ -1106,89 +1134,92 @@ static void MENU_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		}
 
 		gInputBoxIndex = 0;
+
+		gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+		return;
 	}
-	else
+
+	if (gMenuCursor == MENU_OFFSET)
 	{
-		if (gMenuCursor == MENU_OFFSET)
-		{
-			uint32_t Frequency;
+		uint32_t Frequency;
 
-			if (gInputBoxIndex < 6)
-			{
-				#ifdef ENABLE_VOICE
-					gAnotherVoiceID = (VOICE_ID_t)Key;
-				#endif
-				return;
-			}
-
-			gInputBoxIndex = 0;
-			NUMBER_Get(gInputBox, &Frequency);
-			Frequency += 75;
+		if (gInputBoxIndex < 6)
+		{	// invalid frequency
 			#ifdef ENABLE_VOICE
 				gAnotherVoiceID = (VOICE_ID_t)Key;
 			#endif
-			gSubMenuSelection = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, 0);
 			return;
 		}
 
-		if (gMenuCursor == MENU_MEM_CH || gMenuCursor == MENU_DEL_CH || gMenuCursor == MENU_1_CALL)
+		#ifdef ENABLE_VOICE
+			gAnotherVoiceID = (VOICE_ID_t)Key;
+		#endif
+
+		NUMBER_Get(gInputBox, &Frequency);
+		gSubMenuSelection = FREQUENCY_FloorToStep(Frequency + 62, gTxVfo->StepFrequency, 0);
+
+		gInputBoxIndex = 0;
+		return;
+	}
+
+	if (gMenuCursor == MENU_MEM_CH || gMenuCursor == MENU_DEL_CH || gMenuCursor == MENU_1_CALL || gMenuCursor == MENU_MEM_NAME)
+	{	// enter 3-digit channel number
+
+		if (gInputBoxIndex < 3)
 		{
-			if (gInputBoxIndex < 3)
-			{
-				#ifdef ENABLE_VOICE
-					gAnotherVoiceID   = (VOICE_ID_t)Key;
-				#endif
-				gRequestDisplayScreen = DISPLAY_MENU;
-				return;
-			}
-
-			gInputBoxIndex = 0;
-
-			Value = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
-
-			if (IS_MR_CHANNEL(Value))
-			{
-				#ifdef ENABLE_VOICE
-					gAnotherVoiceID = (VOICE_ID_t)Key;
-				#endif
-				gSubMenuSelection = Value;
-				return;
-			}
+			#ifdef ENABLE_VOICE
+				gAnotherVoiceID   = (VOICE_ID_t)Key;
+			#endif
+			gRequestDisplayScreen = DISPLAY_MENU;
+			return;
 		}
-		else
+
+		gInputBoxIndex = 0;
+
+		Value = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
+
+		if (IS_MR_CHANNEL(Value))
 		{
-			int32_t Min;
-			int32_t Max;
-
-			if (!MENU_GetLimits(gMenuCursor, &Min, &Max))
-			{
-				const uint8_t Offset = (Max >= 100) ? 3 : (Max >= 10) ? 2 : 1;
-
-				switch (gInputBoxIndex)
-				{
-					case 1:
-						Value = gInputBox[0];
-						break;
-					case 2:
-						Value = (gInputBox[0] *  10) + gInputBox[1];
-						break;
-					case 3:
-						Value = (gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2];
-						break;
-				}
-
-				if (Offset == gInputBoxIndex)
-					gInputBoxIndex = 0;
-
-				if (Value <= Max)
-				{
-					gSubMenuSelection = Value;
-					return;
-				}
-			}
-			else
-				gInputBoxIndex = 0;
+			#ifdef ENABLE_VOICE
+				gAnotherVoiceID = (VOICE_ID_t)Key;
+			#endif
+			gSubMenuSelection = Value;
+			return;
 		}
+
+		gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+		return;
+	}
+
+	if (MENU_GetLimits(gMenuCursor, &Min, &Max))
+	{
+		gInputBoxIndex = 0;
+		gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+		return;
+	}
+
+	Offset = (Max >= 100) ? 3 : (Max >= 10) ? 2 : 1;
+
+	switch (gInputBoxIndex)
+	{
+		case 1:
+			Value = gInputBox[0];
+			break;
+		case 2:
+			Value = (gInputBox[0] *  10) + gInputBox[1];
+			break;
+		case 3:
+			Value = (gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2];
+			break;
+	}
+
+	if (Offset == gInputBoxIndex)
+		gInputBoxIndex = 0;
+
+	if (Value <= Max)
+	{
+		gSubMenuSelection = Value;
+		return;
 	}
 
 	gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
@@ -1196,162 +1227,213 @@ static void MENU_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 static void MENU_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 {
-	if (!bKeyHeld && bKeyPressed)
+	if (bKeyHeld || !bKeyPressed)
+		return;
+
+	gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
+	if (gCssScanMode == CSS_SCAN_MODE_OFF)
 	{
-		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-
-		if (gCssScanMode == CSS_SCAN_MODE_OFF)
+		if (gIsInSubMenu)
 		{
-			if (gIsInSubMenu)
+			if (gInputBoxIndex == 0 || gMenuCursor != MENU_OFFSET)
 			{
-				if (gInputBoxIndex == 0 || gMenuCursor != MENU_OFFSET)
-				{
-					gAskForConfirmation = 0;     // fix bug
-					gIsInSubMenu        = false;
-					gInputBoxIndex      = 0;
-					gFlagRefreshSetting = true;
-					#ifdef ENABLE_VOICE
-						gAnotherVoiceID = VOICE_ID_CANCEL;
-					#endif
-				}
-				else
-					gInputBox[--gInputBoxIndex] = 10;
+				gAskForConfirmation = 0;
+				gIsInSubMenu        = false;
+				gInputBoxIndex      = 0;
+				gFlagRefreshSetting = true;
 
-				gRequestDisplayScreen = DISPLAY_MENU;
-				return;
-			}
-
-			#ifdef ENABLE_VOICE
-				gAnotherVoiceID = VOICE_ID_CANCEL;
-			#endif
-			gRequestDisplayScreen = DISPLAY_MAIN;
-		}
-		else
-		{
-			MENU_StopCssScan();
-			#ifdef ENABLE_VOICE
-				gAnotherVoiceID   = VOICE_ID_SCANNING_STOP;
-			#endif
-			gRequestDisplayScreen = DISPLAY_MENU;
-		}
-
-		gPttWasReleased = true;
-	}
-}
-
-static void MENU_Key_MENU(bool bKeyPressed, bool bKeyHeld)
-{
-	if (!bKeyHeld && bKeyPressed)
-	{
-		gBeepToPlay           = BEEP_1KHZ_60MS_OPTIONAL;
-		gRequestDisplayScreen = DISPLAY_MENU;
-
-		if (!gIsInSubMenu)
-		{
-			#ifdef ENABLE_VOICE
-				if (gMenuCursor != MENU_SCR)
-					gAnotherVoiceID = MenuVoices[gMenuCursor];
-			#endif
-
-			gAskForConfirmation = 0;
-			gIsInSubMenu        = true;
-		}
-		else
-		{
-			if (gMenuCursor == MENU_RESET || gMenuCursor == MENU_MEM_CH || gMenuCursor == MENU_DEL_CH)
-			{
-				switch (gAskForConfirmation)
-				{
-					case 0:
-						gAskForConfirmation = 1;
-						break;
-					case 1:
-						gAskForConfirmation = 2;
-
-						UI_DisplayMenu();
-
-						if (gMenuCursor == MENU_RESET)
-						{
-							#ifdef ENABLE_VOICE
-								AUDIO_SetVoiceID(0, VOICE_ID_CONFIRM);
-								AUDIO_PlaySingleVoice(true);
-							#endif
-							MENU_AcceptSetting();
-
-							#if defined(ENABLE_OVERLAY)
-								overlay_FLASH_RebootToBootloader();
-							#else
-								NVIC_SystemReset();
-							#endif
-						}
-
-						gFlagAcceptSetting  = true;
-						gIsInSubMenu        = false;
-						gAskForConfirmation = 0;
-				}
+				#ifdef ENABLE_VOICE
+					gAnotherVoiceID = VOICE_ID_CANCEL;
+				#endif
 			}
 			else
-			{
-				gFlagAcceptSetting = true;
-				gIsInSubMenu       = false;
-			}
+				gInputBox[--gInputBoxIndex] = 10;
 
-			gCssScanMode  = CSS_SCAN_MODE_OFF;
-			gUpdateStatus = true;
-
-			#ifdef ENABLE_VOICE
-				if (gMenuCursor == MENU_SCR)
-					gAnotherVoiceID = (gSubMenuSelection == 0) ? VOICE_ID_SCRAMBLER_OFF : VOICE_ID_SCRAMBLER_ON;
-				else
-					gAnotherVoiceID = VOICE_ID_CONFIRM;
-			#endif
-		}
-
-		gInputBoxIndex = 0;
-	}
-}
-
-static void MENU_Key_STAR(bool bKeyPressed, bool bKeyHeld)
-{
-	if (!bKeyHeld && bKeyPressed)
-	{
-		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-
-		RADIO_SelectVfos();
-
-		#ifdef ENABLE_NOAA
-			if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && !gRxVfo->IsAM)
-		#else
-			if (!gRxVfo->IsAM)
-		#endif
-		{
-			if (gMenuCursor == MENU_R_CTCS || gMenuCursor == MENU_R_DCS)
-			{
-				if (gCssScanMode == CSS_SCAN_MODE_OFF)
-				{
-					MENU_StartCssScan(1);
-					gRequestDisplayScreen = DISPLAY_MENU;
-					#ifdef ENABLE_VOICE
-						AUDIO_SetVoiceID(0, VOICE_ID_SCANNING_BEGIN);
-						AUDIO_PlaySingleVoice(1);
-					#endif
-				}
-				else
-				{
-					MENU_StopCssScan();
-					gRequestDisplayScreen = DISPLAY_MENU;
-					#ifdef ENABLE_VOICE
-						gAnotherVoiceID       = VOICE_ID_SCANNING_STOP;
-					#endif
-				}
-			}
-
-			gPttWasReleased = true;
+			gRequestDisplayScreen = DISPLAY_MENU;
 			return;
 		}
 
-		gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+		#ifdef ENABLE_VOICE
+			gAnotherVoiceID = VOICE_ID_CANCEL;
+		#endif
+
+		gRequestDisplayScreen = DISPLAY_MAIN;
 	}
+	else
+	{
+		MENU_StopCssScan();
+
+		#ifdef ENABLE_VOICE
+			gAnotherVoiceID   = VOICE_ID_SCANNING_STOP;
+		#endif
+
+		gRequestDisplayScreen = DISPLAY_MENU;
+	}
+
+	gPttWasReleased = true;
+}
+
+static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
+{
+	if (bKeyHeld || !bKeyPressed)
+		return;
+
+	gBeepToPlay           = BEEP_1KHZ_60MS_OPTIONAL;
+	gRequestDisplayScreen = DISPLAY_MENU;
+
+	if (!gIsInSubMenu)
+	{
+		#ifdef ENABLE_VOICE
+			if (gMenuCursor != MENU_SCR)
+				gAnotherVoiceID = MenuVoices[gMenuCursor];
+		#endif
+
+		#if 1
+			if (gMenuCursor == MENU_DEL_CH || gMenuCursor == MENU_MEM_NAME)
+				if (!RADIO_CheckValidChannel(gSubMenuSelection, false, 0))
+					return;  // invalid channel
+		#endif
+
+		gAskForConfirmation = 0;
+		gIsInSubMenu        = true;
+		gInputBoxIndex      = 0;
+		edit_index          = -1;
+		
+		return;
+	}
+
+	if (gMenuCursor == MENU_MEM_NAME)
+	{
+		if (edit_index < 0)
+		{	// enter channel name edit mode
+			if (!RADIO_CheckValidChannel(gSubMenuSelection, false, 0))
+			{
+				return;
+			}
+			
+			BOARD_fetchChannelName(edit, gSubMenuSelection);
+	
+			// pad the channel name out with '_'
+			edit_index = strlen(edit);
+			while (edit_index < 10)
+				edit[edit_index++] = '_';
+			edit[edit_index] = 0;
+			edit_index = 0;  // 'edit_index' is going to be used as the cursor position
+			
+			return;
+		}
+		else
+		if (edit_index >= 0 && edit_index < 10)
+		{	// editing the channel name characters
+	
+			if (++edit_index < 10)
+				return;	// next char
+			
+			// exit
+			gFlagAcceptSetting  = false;
+			gAskForConfirmation = 0;
+		}
+	}
+	
+	if (gMenuCursor == MENU_RESET  ||
+	    gMenuCursor == MENU_MEM_CH ||
+	    gMenuCursor == MENU_DEL_CH ||
+	    gMenuCursor == MENU_MEM_NAME)
+	{
+		switch (gAskForConfirmation)
+		{
+			case 0:
+				gAskForConfirmation = 1;
+				break;
+
+			case 1:
+				gAskForConfirmation = 2;
+
+				UI_DisplayMenu();
+
+				if (gMenuCursor == MENU_RESET)
+				{
+					#ifdef ENABLE_VOICE
+						AUDIO_SetVoiceID(0, VOICE_ID_CONFIRM);
+						AUDIO_PlaySingleVoice(true);
+					#endif
+
+					MENU_AcceptSetting();
+
+					#if defined(ENABLE_OVERLAY)
+						overlay_FLASH_RebootToBootloader();
+					#else
+						NVIC_SystemReset();
+					#endif
+				}
+
+				gFlagAcceptSetting  = true;
+				gIsInSubMenu        = false;
+				gAskForConfirmation = 0;
+		}
+	}
+	else
+	{
+		gFlagAcceptSetting = true;
+		gIsInSubMenu       = false;
+	}
+
+	gCssScanMode  = CSS_SCAN_MODE_OFF;
+	gUpdateStatus = true;
+
+	#ifdef ENABLE_VOICE
+		if (gMenuCursor == MENU_SCR)
+			gAnotherVoiceID = (gSubMenuSelection == 0) ? VOICE_ID_SCRAMBLER_OFF : VOICE_ID_SCRAMBLER_ON;
+		else
+			gAnotherVoiceID = VOICE_ID_CONFIRM;
+	#endif
+
+	gInputBoxIndex = 0;
+}
+
+static void MENU_Key_STAR(const bool bKeyPressed, const bool bKeyHeld)
+{
+	if (bKeyHeld || !bKeyPressed)
+		return;
+
+	gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
+	RADIO_SelectVfos();
+
+	#ifdef ENABLE_NOAA
+		if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && !gRxVfo->IsAM)
+	#else
+		if (!gRxVfo->IsAM)
+	#endif
+	{
+		if (gMenuCursor == MENU_R_CTCS || gMenuCursor == MENU_R_DCS)
+		{	// scan CTCSS or DCS to find the tone/code of the incoming signal
+
+			if (gCssScanMode == CSS_SCAN_MODE_OFF)
+			{
+				MENU_StartCssScan(1);
+				gRequestDisplayScreen = DISPLAY_MENU;
+				#ifdef ENABLE_VOICE
+					AUDIO_SetVoiceID(0, VOICE_ID_SCANNING_BEGIN);
+					AUDIO_PlaySingleVoice(1);
+				#endif
+			}
+			else
+			{
+				MENU_StopCssScan();
+				gRequestDisplayScreen = DISPLAY_MENU;
+				#ifdef ENABLE_VOICE
+					gAnotherVoiceID       = VOICE_ID_SCANNING_STOP;
+				#endif
+			}
+		}
+
+		gPttWasReleased = true;
+		return;
+	}
+
+	gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 }
 
 static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
@@ -1360,12 +1442,76 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 	uint8_t Channel;
 	bool    bCheckScanList;
 
+	if (gMenuCursor == MENU_MEM_NAME && gIsInSubMenu && edit_index >= 0)
+	{	// change the character
+		if (bKeyPressed && edit_index < 10)
+		{
+			#if 0
+				char c1 = edit[edit_index];
+				char c2 = 0;
+	
+				if (Direction == 0)
+					return;
+	
+				if (Direction < 0)
+				{
+					switch (c1)
+					{
+						case 'a': c2 = 'Z'; break;
+						case 'A': c2 = '9'; break;
+						case '0': c2 = '.'; break;
+						case '.': c2 = '-'; break;
+						case '-': c2 = '_'; break;
+						case '_': c2 = ' '; break;
+						case ' ': c2 = 'z'; break;
+					}
+				}
+				else
+				{
+					switch (c1)
+					{
+						case ' ': c2 = '_'; break;
+						case '_': c2 = '-'; break;
+						case '-': c2 = '.'; break;
+						case '.': c2 = '0'; break;
+						case '9': c2 = 'A'; break;
+						case 'Z': c2 = 'a'; break;
+						case 'z': c2 = ' '; break;
+					}
+				}
+	
+				if (c2 == 0)
+				{
+					if ((c1 >= '0' && c1 <= '9') ||
+						(c1 >= 'A' && c1 <= 'Z') ||
+						(c1 >= 'a' && c1 <= 'z'))
+					{
+						c2 = c1 + Direction;
+					}
+					else
+					{
+						c2 = 'A';
+					}
+				}
+
+				edit[edit_index] = c2;
+			#else
+				const char c = edit[edit_index] + Direction;
+				edit[edit_index] = (c < 32) ? 126 : (c > 126) ? 32 : c;
+			#endif
+			
+			gRequestDisplayScreen = DISPLAY_MENU;
+		}
+		return;
+	}
+
 	if (!bKeyHeld)
 	{
 		if (!bKeyPressed)
 			return;
 
-		gBeepToPlay    = BEEP_1KHZ_60MS_OPTIONAL;
+		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
 		gInputBoxIndex = 0;
 	}
 	else
@@ -1375,6 +1521,7 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 	if (gCssScanMode != CSS_SCAN_MODE_OFF)
 	{
 		MENU_StartCssScan(Direction);
+
 		gPttWasReleased       = true;
 		gRequestDisplayScreen = DISPLAY_MENU;
 		return;
@@ -1410,14 +1557,12 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 	{
 		case MENU_DEL_CH:
 		case MENU_1_CALL:
+		case MENU_MEM_NAME:
 			bCheckScanList = false;
 			break;
 
 		case MENU_SLIST2:
 			VFO = 1;
-
-			// Fallthrough
-
 		case MENU_SLIST1:
 			bCheckScanList = true;
 			break;

@@ -38,6 +38,7 @@ enum
 	MENU_BCL,
 	MENU_MEM_CH,
 	MENU_DEL_CH,
+	MENU_MEM_NAME,
 	MENU_MDF,
 	MENU_SAVE,
 	MENU_VOX,
@@ -130,6 +131,9 @@ extern bool       gIsInSubMenu;
 extern uint8_t    gMenuCursor;
 extern int8_t     gMenuScrollDirection;
 extern int32_t    gSubMenuSelection;
+
+extern char       edit[17];
+extern int        edit_index;
 
 void UI_DisplayMenu(void);
 

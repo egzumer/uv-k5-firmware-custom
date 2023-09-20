@@ -22,10 +22,12 @@
 
 #define IS_MR_CHANNEL(x)           ((x) >= MR_CHANNEL_FIRST   && (x) <= MR_CHANNEL_LAST)
 #define IS_FREQ_CHANNEL(x)         ((x) >= FREQ_CHANNEL_FIRST && (x) <= FREQ_CHANNEL_LAST)
-#define IS_VALID_CHANNEL(x)        ((x) <= NOAA_CHANNEL_LAST)
+#define IS_VALID_CHANNEL(x)        ((x) < LAST_CHANNEL)
 
-#define IS_NOAA_CHANNEL(x)         ((x) >= NOAA_CHANNEL_FIRST && (x) <= NOAA_CHANNEL_LAST)
-#define IS_NOT_NOAA_CHANNEL(x)     ((x) >= MR_CHANNEL_FIRST   && (x) <= FREQ_CHANNEL_LAST)
+#ifdef ENABLE_NOAA
+	#define IS_NOAA_CHANNEL(x)     ((x) >= NOAA_CHANNEL_FIRST && (x) <= NOAA_CHANNEL_LAST)
+	#define IS_NOT_NOAA_CHANNEL(x) ((x) >= MR_CHANNEL_FIRST   && (x) <= FREQ_CHANNEL_LAST)
+#endif
 
 #ifndef ARRAY_SIZE
 	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
@@ -36,8 +38,11 @@ enum {
 	MR_CHANNEL_LAST    = 199u,
 	FREQ_CHANNEL_FIRST = 200u,
 	FREQ_CHANNEL_LAST  = 206u,
-	NOAA_CHANNEL_FIRST = 207u,
-	NOAA_CHANNEL_LAST  = 216u
+	#ifdef ENABLE_NOAA
+		NOAA_CHANNEL_FIRST = 207u,
+		NOAA_CHANNEL_LAST  = 216u
+	#endif
+	LAST_CHANNEL
 };
 
 enum {
