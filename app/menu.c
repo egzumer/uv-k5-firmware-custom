@@ -1508,61 +1508,20 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 
 	if (gMenuCursor == MENU_MEM_NAME && gIsInSubMenu && edit_index >= 0)
 	{	// change the character
-		if (bKeyPressed && edit_index < 10)
+		if (bKeyPressed && edit_index < 10 && Direction != 0)
 		{
-			#if 0
-				char c1 = edit[edit_index];
-				char c2 = 0;
-
-				if (Direction == 0)
-					return;
-
-				if (Direction < 0)
-				{
-					switch (c1)
-					{
-						case 'a': c2 = 'Z'; break;
-						case 'A': c2 = '9'; break;
-						case '0': c2 = '.'; break;
-						case '.': c2 = '-'; break;
-						case '-': c2 = '_'; break;
-						case '_': c2 = ' '; break;
-						case ' ': c2 = 'z'; break;
-					}
+			const char   unwanted[] = "$%&!\"':;?^`|{}";
+			char         c          = edit[edit_index] + Direction;
+			unsigned int i          = 0;
+			while (i < sizeof(unwanted) && c >= 32 && c <= 126)
+			{
+				if (c == unwanted[i++])
+				{	// choose next character
+					c += Direction;
+					i = 0;
 				}
-				else
-				{
-					switch (c1)
-					{
-						case ' ': c2 = '_'; break;
-						case '_': c2 = '-'; break;
-						case '-': c2 = '.'; break;
-						case '.': c2 = '0'; break;
-						case '9': c2 = 'A'; break;
-						case 'Z': c2 = 'a'; break;
-						case 'z': c2 = ' '; break;
-					}
-				}
-
-				if (c2 == 0)
-				{
-					if ((c1 >= '0' && c1 <= '9') ||
-						(c1 >= 'A' && c1 <= 'Z') ||
-						(c1 >= 'a' && c1 <= 'z'))
-					{
-						c2 = c1 + Direction;
-					}
-					else
-					{
-						c2 = 'A';
-					}
-				}
-
-				edit[edit_index] = c2;
-			#else
-				const char c = edit[edit_index] + Direction;
-				edit[edit_index] = (c < 32) ? 126 : (c > 126) ? 32 : c;
-			#endif
+			}
+			edit[edit_index] = (c < 32) ? 126 : (c > 126) ? 32 : c;
 
 			gRequestDisplayScreen = DISPLAY_MENU;
 		}
