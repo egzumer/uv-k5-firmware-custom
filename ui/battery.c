@@ -27,6 +27,8 @@ void UI_DisplayBattery(uint8_t Level)
 
 	if (gCurrentFunction != 1)
 	{
+		const unsigned int x = LCD_WIDTH - sizeof(BITMAP_BatteryLevel5);
+
 		switch (Level)
 		{
 			case 0:
@@ -49,6 +51,8 @@ void UI_DisplayBattery(uint8_t Level)
 				pBitmap = BITMAP_BatteryLevel5;
 				break;
 		}
-		ST7565_DrawLine(110, 0, 18, pBitmap, bClearMode);
+		
+		//            col lne, siz, bm, clr/set-pixels
+		ST7565_DrawLine(x, 0, 18, pBitmap, bClearMode);
 	}
 }
