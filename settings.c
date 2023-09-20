@@ -219,12 +219,14 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 					EEPROM_WriteBuffer(0x0F50 + OffsetMR, State8);
 					EEPROM_WriteBuffer(0x0F58 + OffsetMR, State8);
 				#else
-					// save the channel name
-					memmove(State8, pVFO->Name + 0, 8);
-					EEPROM_WriteBuffer(0x0F50 + OffsetMR, State8);
-					memset(State8, 0xFF, sizeof(State8));
-					memmove(State8, pVFO->Name + 8, 2);
-					EEPROM_WriteBuffer(0x0F58 + OffsetMR, State8);
+					if (Mode >= 3)
+					{	// save the channel name
+						memmove(State8, pVFO->Name + 0, 8);
+						EEPROM_WriteBuffer(0x0F50 + OffsetMR, State8);
+						memset(State8, 0xFF, sizeof(State8));
+						memmove(State8, pVFO->Name + 8, 2);
+						EEPROM_WriteBuffer(0x0F58 + OffsetMR, State8);
+					}
 				#endif
 			}
 		}
