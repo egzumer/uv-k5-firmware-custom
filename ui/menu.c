@@ -241,6 +241,16 @@ const char gSubMenu_F_LOCK[6][4] =
 	"438"
 };
 
+const char gSubMenu_BACK_LIGHT[6][7] =
+{
+	"OFF",
+	"10 sec",
+	"20 sec",
+	"40 sec",
+	"80 sec",
+	"ON"
+};
+
 #ifdef ENABLE_COMPANDER
 	const char gSubMenu_Compand[4][6] =
 	{
@@ -383,26 +393,7 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_ABR:
-			#if 0
-				if (gSubMenuSelection == 0)
-					strcpy(String, "OFF");
-				else
-				if (gSubMenuSelection < 5)
-					sprintf(String, "%d sec", gSubMenuSelection * 10);
-				else
-					strcpy(String, "ON");
-			#else
-				switch (gSubMenuSelection)
-				{
-					case 0:  strcpy(String, "OFF");    break;
-					case 1:  strcpy(String, "10 sec"); break;
-					case 2:  strcpy(String, "20 sec"); break;
-					case 3:  strcpy(String, "40 sec"); break;
-					case 4:  strcpy(String, "80 sec"); break;
-					case 5:  strcpy(String, "ON");     break;
-					default: strcpy(String, "???");    break;
-				}
-			#endif
+			strcpy(String, gSubMenu_BACK_LIGHT[gSubMenuSelection]);
 			break;
 
 		case MENU_AM:

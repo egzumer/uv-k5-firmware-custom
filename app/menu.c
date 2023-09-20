@@ -166,7 +166,7 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 
 		case MENU_ABR:
 			*pMin = 0;
-			*pMax = 5;
+			*pMax = ARRAY_SIZE(gSubMenu_BACK_LIGHT) - 1;
 			break;
 
 		case MENU_F_LOCK:
@@ -518,11 +518,9 @@ void MENU_AcceptSetting(void)
 			break;
 
 		case MENU_ABR:
+			gEeprom.BACKLIGHT = 1;    // turn the light on to let them find there way around for a bit
+			BACKLIGHT_TurnOn();
 			gEeprom.BACKLIGHT = gSubMenuSelection;
-			if (gSubMenuSelection == 0)
-				GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
-			else
-				BACKLIGHT_TurnOn();
 			break;
 
 		case MENU_TDR:
