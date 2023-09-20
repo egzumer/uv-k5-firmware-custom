@@ -186,7 +186,8 @@ void UI_DisplayMain(void)
 		{	// frequency mode
 			// show the frequency band number
 			const unsigned int x = 2;	// was 14
-			sprintf(String, "FB%u", 1 + gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST);
+//			sprintf(String, "FB%u", 1 + gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST);
+			sprintf(String, "VFO%u", 1 + gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST);
 			UI_PrintStringSmall(String, x, 0, Line + 1);
 		}
 		#ifdef ENABLE_NOAA

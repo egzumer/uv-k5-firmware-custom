@@ -50,7 +50,8 @@ const uint16_t    dual_watch_count_toggle_10ms     =   100 / 10;   // 100ms betw
 const uint16_t    battery_save_count_10ms          = 10000 / 10;   // 10 seconds
 
 const uint16_t    gMax_bat_v                       = 843;          // 8.43V
-const uint16_t    gMin_bat_v                       = 660;          // 6.6V
+//const uint16_t    gMin_bat_v                       = 660;          // 6.6V
+const uint16_t    gMin_bat_v                       = 710;          // 7.1V
 
 const uint32_t    gDefaultAesKey[4]                = {0x4AA5CC60, 0x0312CC5F, 0xFFD2DABB, 0x6BBA7F92};
 
