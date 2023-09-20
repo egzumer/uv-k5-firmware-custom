@@ -518,8 +518,6 @@ void MENU_AcceptSetting(void)
 			break;
 
 		case MENU_ABR:
-			gEeprom.BACKLIGHT = 1;    // turn the light on to let them find there way around for a bit
-			BACKLIGHT_TurnOn();
 			gEeprom.BACKLIGHT = gSubMenuSelection;
 			break;
 
@@ -908,15 +906,10 @@ void MENU_ShowCurrentSetting(void)
 			break;
 
 		case MENU_ABR:
-			if (gEeprom.BACKLIGHT == 0)
-			{	// turn the light on so the user can see the screen
-				const uint8_t value = gEeprom.BACKLIGHT;
-				gEeprom.BACKLIGHT = 1;
-				BACKLIGHT_TurnOn();
-				gEeprom.BACKLIGHT = value;  // restore the setting
-			}
-
 			gSubMenuSelection = gEeprom.BACKLIGHT;
+
+			gBacklightCountdown = 0;
+			GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  	// turn the backlight ON while in backlight menu
 			break;
 
 		case MENU_TDR:
@@ -1287,6 +1280,12 @@ static void MENU_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 		#endif
 
 		gRequestDisplayScreen = DISPLAY_MAIN;
+		
+		if (gEeprom.BACKLIGHT == 0)
+		{
+			gBacklightCountdown = 0;
+			GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
+		}
 	}
 	else
 	{
@@ -1597,6 +1596,13 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 		gMenuCursor           = NUMBER_AddWithWraparound(gMenuCursor, -Direction, 0, gMenuListCount - 1);
 		gFlagRefreshSetting   = true;
 		gRequestDisplayScreen = DISPLAY_MENU;
+
+		if (gMenuCursor != MENU_ABR && gEeprom.BACKLIGHT == 0)
+		{
+			gBacklightCountdown = 0;
+			GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
+		}
+		
 		return;
 	}
 
@@ -1632,7 +1638,7 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 			bCheckScanList = true;
 			break;
 
-		default:
+		default:			
 			MENU_ClampSelection(Direction);
 			gRequestDisplayScreen = DISPLAY_MENU;
 			return;

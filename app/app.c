@@ -1825,9 +1825,10 @@ void APP_TimeSlice500ms(void)
 		#endif
 		{
 			if (gBacklightCountdown > 0)
-				if (--gBacklightCountdown == 0)
-					if (gEeprom.BACKLIGHT < 5)
-						GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);   // turn backlight off
+				if (gScreenToDisplay != DISPLAY_MENU || gMenuCursor != MENU_ABR) // don't turn off backlight if user is in backlight menu option
+					if (--gBacklightCountdown == 0)
+						if (gEeprom.BACKLIGHT < 5)
+							GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);   // turn backlight off
 
 			#ifdef ENABLE_AIRCOPY
 				if (gScanState == SCAN_OFF && gScreenToDisplay != DISPLAY_AIRCOPY && (gScreenToDisplay != DISPLAY_SCANNER || gScanCssState >= SCAN_CSS_STATE_FOUND))
@@ -1847,6 +1848,12 @@ void APP_TimeSlice500ms(void)
 				{
 					if (--gVoltageMenuCountdown == 0)
 					{
+						if (gEeprom.BACKLIGHT == 0 && gScreenToDisplay == DISPLAY_MENU)
+						{
+							gBacklightCountdown = 0;
+							GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
+						}
+
 						if (gInputBoxIndex > 0 || gDTMF_InputMode || gScreenToDisplay == DISPLAY_MENU)
 							AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 

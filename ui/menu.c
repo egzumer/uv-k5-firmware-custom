@@ -395,14 +395,6 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_ABR:
-			if (gEeprom.BACKLIGHT == 0)
-			{	// turn the light on so the user can see the screen
-				const uint8_t value = gEeprom.BACKLIGHT;
-				gEeprom.BACKLIGHT = 1;
-				BACKLIGHT_TurnOn();
-				gEeprom.BACKLIGHT = value;  // restore the setting
-			}
-
 			strcpy(String, gSubMenu_BACK_LIGHT[gSubMenuSelection]);
 			break;
 
