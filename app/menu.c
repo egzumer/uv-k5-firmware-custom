@@ -1679,16 +1679,19 @@ void MENU_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		case KEY_F:
 			if (gMenuCursor == MENU_MEM_NAME && edit_index >= 0)
 			{	// currently editing the channel name
-				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-				if (edit_index < 10)
+				if (!bKeyHeld && bKeyPressed)
 				{
-					edit[edit_index] = ' ';
-					if (++edit_index >= 10)
-					{	// exit edit
-						gFlagAcceptSetting  = false;
-						gAskForConfirmation = 1;
+					gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+					if (edit_index < 10)
+					{
+						edit[edit_index] = ' ';
+						if (++edit_index >= 10)
+						{	// exit edit
+							gFlagAcceptSetting  = false;
+							gAskForConfirmation = 1;
+						}
+						gRequestDisplayScreen = DISPLAY_MENU;
 					}
-					gRequestDisplayScreen = DISPLAY_MENU;
 				}
 				break;
 			}
