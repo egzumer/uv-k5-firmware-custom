@@ -1314,7 +1314,7 @@ void APP_CheckKeys(void)
 	}
 }
 
-#ifdef ENABLE_AM_AGC_GAIN
+#ifdef ENABLE_AM_FIX
 	void adjustAMFrontEnd10ms(void)
 	{
 		if (!gRxVfo->IsAM)
@@ -1411,18 +1411,33 @@ void APP_CheckKeys(void)
 				else
 				if (new_lna < 7)
 					new_lna++;
+				else
+				if (new_lna_short < 3)
+					new_lna_short++;
 			}
 			else
 			if (avg_rssi > (desired_rssi + 4))
 			{	// decrease gain
+				if (new_pga > 6)
+					new_pga--;
+				else
+				if (new_mixer > 3)
+					new_mixer--;
+				else
+				if (new_lna > 2)
+					new_lna--;
+				else
+				if (new_lna_short > 0)
+					new_lna_short++;
+				else
 				if (new_pga > 0)
 					new_pga--;
 				else
-				if (new_mixer > 0)
-					new_mixer--;
-				else
 				if (new_lna > 0)
 					new_lna--;
+				else
+				if (new_mixer > 0)
+					new_mixer--;
 			}
 		}
 
@@ -1448,7 +1463,7 @@ void APP_TimeSlice10ms(void)
 				AUDIO_PlayBeep(BEEP_880HZ_40MS_OPTIONAL);
 	#endif
 
-	#ifdef ENABLE_AM_AGC_GAIN
+	#ifdef ENABLE_AM_FIX
 		if (gSetting_AM_fix)
 			adjustAMFrontEnd10ms();
 	#endif

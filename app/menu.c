@@ -186,7 +186,7 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 		case MENU_D_DCD:
 		case MENU_D_LIVE_DEC:
 		case MENU_AM:
-		#ifdef ENABLE_AM_AGC_GAIN
+		#ifdef ENABLE_AM_FIX
 			case MENU_AM_FIX:
 		#endif
 		#ifdef ENABLE_NOAA
@@ -609,7 +609,7 @@ void MENU_AcceptSetting(void)
 			gRequestSaveChannel     = 2;
 			return;
 
-		#ifdef ENABLE_AM_AGC_GAIN
+		#ifdef ENABLE_AM_FIX
 			case MENU_AM_FIX:
 				gSetting_AM_fix = gSubMenuSelection;
 				gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
@@ -987,7 +987,7 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gTxVfo->AM_CHANNEL_MODE;
 			break;
 
-		#ifdef ENABLE_AM_AGC_GAIN
+		#ifdef ENABLE_AM_FIX
 			case MENU_AM_FIX:
 				gSubMenuSelection = gSetting_AM_fix;
 				break;
