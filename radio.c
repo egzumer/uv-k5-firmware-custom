@@ -443,6 +443,7 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 		pInfo->SquelchOpenRSSIThresh    = 0x00;
 		pInfo->SquelchOpenNoiseThresh   = 0x7F;
 		pInfo->SquelchCloseGlitchThresh = 0xFF;
+
 		pInfo->SquelchCloseRSSIThresh   = 0x00;
 		pInfo->SquelchCloseNoiseThresh  = 0x7F;
 		pInfo->SquelchOpenGlitchThresh  = 0xFF;
@@ -450,10 +451,13 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 	else
 	{
 		Base += gEeprom.SQUELCH_LEVEL;
+
 		EEPROM_ReadBuffer(Base + 0x00, &pInfo->SquelchOpenRSSIThresh,    1);
 		EEPROM_ReadBuffer(Base + 0x10, &pInfo->SquelchCloseRSSIThresh,   1);
+
 		EEPROM_ReadBuffer(Base + 0x20, &pInfo->SquelchOpenNoiseThresh,   1);
 		EEPROM_ReadBuffer(Base + 0x30, &pInfo->SquelchCloseNoiseThresh,  1);
+
 		EEPROM_ReadBuffer(Base + 0x40, &pInfo->SquelchCloseGlitchThresh, 1);
 		EEPROM_ReadBuffer(Base + 0x50, &pInfo->SquelchOpenGlitchThresh,  1);
 

@@ -59,7 +59,7 @@ void BK4819_Init(void)
 
 	// RX AF level
 	//
-	// REG_48 <15:12> 11  ???
+	// REG_48 <15:12> 11  ???  0 to 15
 	//
 	// REG_48 <11:10> 0 AF Rx Gain-1
 	//                0 =   0dB
@@ -76,7 +76,7 @@ void BK4819_Init(void)
 	//                 0 = min
 	//
 	BK4819_WriteRegister(BK4819_REG_48,	//  0xB3A8);     // 1011 00 111010 1000
-		(11u << 12) |     // ???
+		(11u << 12) |     // ??? 0..15
 		( 0u << 10) |     // AF Rx Gain-1
 		(58u <<  4) |     // AF Rx Gain-2
 		( 8u <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)

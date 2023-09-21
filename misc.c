@@ -49,6 +49,9 @@ const uint16_t    dual_watch_count_toggle_10ms     =   100 / 10;   // 100ms betw
 
 const uint16_t    battery_save_count_10ms          = 10000 / 10;   // 10 seconds
 
+const uint16_t    power_save1_10ms                 =   100 / 10;   // 100ms
+const uint16_t    power_save2_10ms                 =   200 / 10;   // 200ms
+
 const uint16_t    gMax_bat_v                       = 843;          // 8.43V
 const uint16_t    gMin_bat_v                       = 660;          // 6.6V
 //const uint16_t    gMin_bat_v                       = 690;          // 6.9V
@@ -66,6 +69,9 @@ bool              gSetting_TX_EN;
 uint8_t           gSetting_F_LOCK;
 bool              gSetting_ScrambleEnable;
 
+#ifdef ENABLE_AM_AGC_GAIN
+	bool          gSetting_AM_fix;
+#endif
 #ifdef ENABLE_AUDIO_BAR
 	bool          gSetting_mic_bar;
 #endif
@@ -90,7 +96,8 @@ uint16_t          gEEPROM_1F8C;
 uint8_t           gMR_ChannelAttributes[FREQ_CHANNEL_LAST + 1];
 
 volatile uint16_t gBatterySaveCountdown_10ms = battery_save_count_10ms;
-volatile bool     gBatterySaveCountdownExpired;
+
+volatile bool     gPowerSaveCountdownExpired;
 volatile bool     gSchedulePowerSave;
 
 volatile bool     gScheduleDualWatch = true;

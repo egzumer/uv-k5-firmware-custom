@@ -93,6 +93,9 @@ enum
 	MENU_VOL,
 	MENU_BAT_TXT,
 	MENU_AM,
+	#ifdef ENABLE_AM_AGC_GAIN
+		MENU_AM_FIX,
+	#endif
 	#ifdef ENABLE_NOAA
 		MENU_NOAA_S,
 	#endif

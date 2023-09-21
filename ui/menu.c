@@ -101,6 +101,9 @@ const t_menu_item MenuList[] =
 	{"BATVOL", 0, VOICE_ID_INVALID,                       MENU_VOL        }, // was "VOL"
 	{"BATTXT", 0, VOICE_ID_INVALID,                       MENU_BAT_TXT    },
 	{"MODE",   0, VOICE_ID_INVALID,                       MENU_AM         }, // was "AM"
+#ifdef ENABLE_AM_AGC_GAIN
+	{"AM-FIX", 0, VOICE_ID_INVALID,                       MENU_AM_FIX     },
+#endif
 #ifdef ENABLE_NOAA
 	{"NOAA-S", 0, VOICE_ID_INVALID,                       MENU_NOAA_S     },
 #endif
@@ -415,6 +418,12 @@ void UI_DisplayMenu(void)
 		case MENU_AM:
 			strcpy(String, (gSubMenuSelection == 0) ? "FM" : "AM");
 			break;
+
+		#ifdef ENABLE_AM_AGC_GAIN
+			case MENU_AM_FIX:
+				strcpy(String, (gSubMenuSelection == 0) ? "OFF" : "FIXED");
+				break;
+		#endif
 
 		case MENU_AUTOLK:
 			strcpy(String, (gSubMenuSelection == 0) ? "OFF" : "AUTO");

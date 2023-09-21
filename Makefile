@@ -21,6 +21,7 @@ ENABLE_BOOT_BEEPS             := 0
 ENABLE_COMPANDER              := 1
 ENABLE_SHOW_CHARGE_LEVEL      := 0
 ENABLE_REVERSE_BAT_SYMBOL     := 1
+ENABLE_AM_AGC_GAIN            := 1
 ENABLE_AUDIO_BAR              := 0
 #ENABLE_SINGLE_VFO_CHAN       := 1
 #ENABLE_BAND_SCOPE            := 1
@@ -196,6 +197,9 @@ endif
 ifeq ($(ENABLE_REVERSE_BAT_SYMBOL),1)
 	CFLAGS  += -DENABLE_REVERSE_BAT_SYMBOL
 endif
+ifeq ($(ENABLE_AM_AGC_GAIN),1)
+	CFLAGS  += -DENABLE_AM_AGC_GAIN
+endif
 ifeq ($(ENABLE_AUDIO_BAR),1)
 	CFLAGS  += -DENABLE_AUDIO_BAR
 endif
@@ -253,4 +257,4 @@ bsp/dp32g030/%.h: hardware/dp32g030/%.def
 -include $(DEPS)
 
 clean:
-	rm -f $(TARGET).bin $(TARGET) $(OBJS) $(DEPS)
+	rm -f $(TARGET).bin $(TARGET).packed.bin $(TARGET) $(OBJS) $(DEPS)

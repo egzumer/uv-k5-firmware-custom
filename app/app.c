@@ -69,17 +69,22 @@ static void APP_CheckForIncoming(void)
 	if (!g_SquelchLost)
 		return;
 
+	// squelch is open
+
 	if (gScanState == SCAN_OFF)
-	{
+	{	// not RF scanning
+
 		if (gCssScanMode != CSS_SCAN_MODE_OFF && gRxReceptionMode == RX_MODE_NONE)
-		{
+		{	// CTCSS/DTS scanning
+
 			ScanPauseDelayIn_10ms = 100;      // 1 second
 			gScheduleScanListen   = false;
 			gRxReceptionMode      = RX_MODE_DETECTED;
 		}
 
 		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF)
-		{
+		{	// dual watch is disabled
+
 			#ifdef ENABLE_NOAA
 				if (gIsNoaaMode)
 				{
@@ -92,14 +97,16 @@ static void APP_CheckForIncoming(void)
 			return;
 		}
 
+		// dual watch is enabled and we're RX'ing a signal
+
 		if (gRxReceptionMode != RX_MODE_NONE)
 		{
 			FUNCTION_Select(FUNCTION_INCOMING);
 			return;
 		}
 
-		gDualWatchCountdown_10ms   = dual_watch_count_after_rx_10ms;
-		gScheduleDualWatch = false;
+		gDualWatchCountdown_10ms = dual_watch_count_after_rx_10ms;
+		gScheduleDualWatch       = false;
 
 		// let the user see DW is not active
 		gDualWatchActive = false;
@@ -127,7 +134,7 @@ static void APP_HandleIncoming(void)
 	bool bFlag;
 
 	if (!g_SquelchLost)
-	{
+	{	// squelch is closed
 		FUNCTION_Select(FUNCTION_FOREGROUND);
 		gUpdateDisplay = true;
 		return;
@@ -160,15 +167,15 @@ static void APP_HandleIncoming(void)
 	DTMF_HandleRequest();
 
 	if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF)
-	{
+	{	// not scanning
 		if (gRxVfo->DTMF_DECODING_ENABLE || gSetting_KILLED)
-		{
+		{	// DTMF is enabled
 			if (gDTMF_CallState == DTMF_CALL_STATE_NONE)
 			{
 				if (gRxReceptionMode == RX_MODE_DETECTED)
 				{
 					gDualWatchCountdown_10ms = dual_watch_count_after_1_10ms;
-					gScheduleDualWatch = false;
+					gScheduleDualWatch       = false;
 
 					gRxReceptionMode = RX_MODE_LISTENING;
 
@@ -398,344 +405,151 @@ static void APP_HandleFunction(void)
 
 void APP_StartListening(FUNCTION_Type_t Function)
 {
-	if (!gSetting_KILLED)
+	if (gSetting_KILLED)
+		return;
+
+	#ifdef ENABLE_FMRADIO
+		if (gFmRadioMode)
+			BK1080_Init(0, false);
+	#endif
+
+	gVFO_RSSI_Level[gEeprom.RX_CHANNEL == 0] = 0;
+
+	GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+
+	gEnableSpeaker = true;
+
+	BACKLIGHT_TurnOn();
+
+	if (gScanState != SCAN_OFF)
 	{
-		#ifdef ENABLE_FMRADIO
-			if (gFmRadioMode)
-				BK1080_Init(0, false);
-		#endif
-
-		gVFO_RSSI_Level[gEeprom.RX_CHANNEL == 0] = 0;
-
-		GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
-
-		gEnableSpeaker = true;
-
-		BACKLIGHT_TurnOn();
-
-		if (gScanState != SCAN_OFF)
+		switch (gEeprom.SCAN_RESUME_MODE)
 		{
-			switch (gEeprom.SCAN_RESUME_MODE)
-			{
-				case SCAN_RESUME_TO:
-					if (!gScanPauseMode)
-					{
-						ScanPauseDelayIn_10ms = 500;
-						gScheduleScanListen   = false;
-						gScanPauseMode        = true;
-					}
-					break;
-
-				case SCAN_RESUME_CO:
-				case SCAN_RESUME_SE:
-					ScanPauseDelayIn_10ms = 0;
+			case SCAN_RESUME_TO:
+				if (!gScanPauseMode)
+				{
+					ScanPauseDelayIn_10ms = 500;
 					gScheduleScanListen   = false;
-					break;
-			}
+					gScanPauseMode        = true;
+				}
+				break;
 
-			bScanKeepFrequency = true;
+			case SCAN_RESUME_CO:
+			case SCAN_RESUME_SE:
+				ScanPauseDelayIn_10ms = 0;
+				gScheduleScanListen   = false;
+				break;
 		}
 
-		#ifdef ENABLE_NOAA
-			if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gIsNoaaMode)
-			{
-				gRxVfo->CHANNEL_SAVE                      = gNoaaChannel + NOAA_CHANNEL_FIRST;
-				gRxVfo->pRX->Frequency                    = NoaaFrequencyTable[gNoaaChannel];
-				gRxVfo->pTX->Frequency                    = NoaaFrequencyTable[gNoaaChannel];
-				gEeprom.ScreenChannel[gEeprom.RX_CHANNEL] = gRxVfo->CHANNEL_SAVE;
-				gNOAA_Countdown_10ms                      = 500;   // 5 sec
-				gScheduleNOAA                             = false;
-			}
-		#endif
+		bScanKeepFrequency = true;
+	}
 
-		if (gCssScanMode != CSS_SCAN_MODE_OFF)
-			gCssScanMode = CSS_SCAN_MODE_FOUND;
-
-		if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
+	#ifdef ENABLE_NOAA
+		if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gIsNoaaMode)
 		{
-			gDualWatchCountdown_10ms = dual_watch_count_after_2_10ms;
-			gScheduleDualWatch = false;
-
-			gRxVfoIsActive = true;
-
-			// let the user see DW is not active
-			gDualWatchActive = false;
-			gUpdateStatus    = true;
+			gRxVfo->CHANNEL_SAVE                      = gNoaaChannel + NOAA_CHANNEL_FIRST;
+			gRxVfo->pRX->Frequency                    = NoaaFrequencyTable[gNoaaChannel];
+			gRxVfo->pTX->Frequency                    = NoaaFrequencyTable[gNoaaChannel];
+			gEeprom.ScreenChannel[gEeprom.RX_CHANNEL] = gRxVfo->CHANNEL_SAVE;
+			gNOAA_Countdown_10ms                      = 500;   // 5 sec
+			gScheduleNOAA                             = false;
 		}
+	#endif
+
+	if (gCssScanMode != CSS_SCAN_MODE_OFF)
+		gCssScanMode = CSS_SCAN_MODE_FOUND;
+
+	if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
+	{	// not scanning, dual watch is enabled
+
+		gDualWatchCountdown_10ms = dual_watch_count_after_2_10ms;
+		gScheduleDualWatch       = false;
+
+		gRxVfoIsActive = true;
+
+		// let the user see DW is not active
+		gDualWatchActive = false;
+		gUpdateStatus    = true;
+	}
+
+	if (gRxVfo->IsAM)
+	{	// AM
 
 		const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
-/*
-		if (gRxVfo->IsAM)
-		{	// AM
 
-			// RX AF level
-			//
-			// REG_48 <15:12> 11  ???
-			//
-			// REG_48 <11:10> 0 AF Rx Gain-1
-			//                0 =   0dB
-			//                1 =  -6dB
-			//                2 = -12dB
-			//                3 = -18dB
-			//
-			// REG_48 <9:4>   60 AF Rx Gain-2  -26dB ~ 5.5dB   0.5dB/step
-			//                63 = max
-			//                 0 = min = mute
-			//
-			// REG_48 <3:0>   15 AF DAC Gain (after Gain-1 and Gain-2) approx 2dB/step
-			//                15 = max
-			//                 0 = min
-			//
-			BK4819_WriteRegister(BK4819_REG_48,
-			#if 0
-				// QS calibrated RX AF gain
-				(11u << 12)                 |     // ???
-				( 0u << 10)                 |     // AF Rx Gain-1
-				(gEeprom.VOLUME_GAIN <<  4) |     // AF Rx Gain-2
-				(gEeprom.DAC_GAIN    <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
-			#else
-				// max RX AF gain
-				(11u << 12) |     // ???
-				( 0u << 10) |     // AF Rx Gain-1
-				(63u <<  4) |     // AF Rx Gain-2
-				(15u <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
-			#endif
+		uint16_t lna_short;  // whats "LNA SHORT" mean ?
+		uint16_t lna;
+		uint16_t mixer;
+		uint16_t pga;
 
-//			BK4819_WriteRegister(0x4B, BK4819_ReadRegister(0x4B) & ~(1u << 5));	// enable RX ALC
-
-			// help improve AM RX distorted audio by reducing the PGA gain (still very bad with stronge signals)
-			//
-			// I think a solution is to dynamically change these values as the RSSI moves up/down ?
-			// without a detailed datasheet on the chip it's difficult/impossible to fix things
-			//
-			// REG_10 <15:0> 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
-			//
-			//         <9:8> = LNA Gain Short
-			//                 3 =   0dB
-			//                 2 = -11dB
-			//                 1 = -16dB
-			//                 0 = -19dB
-			//
-			//         <7:5> = LNA Gain
-			//                 7 =   0dB
-			//                 6 =  -2dB
-			//                 5 =  -4dB
-			//                 4 =  -6dB
-			//                 3 =  -9dB
-			//                 2 = -14dB
-			//                 1 = -19dB
-			//                 0 = -24dB
-			//
-			//         <4:3> = MIXER Gain
-			//                 3 =  0dB
-			//                 2 = -3dB
-			//                 1 = -6dB
-			//                 0 = -8dB
-			//
-			//         <2:0> = PGA Gain
-			//                 7 =   0dB
-			//                 6 =  -3dB
-			//                 5 =  -6dB
-			//                 4 =  -9dB
-			//                 3 = -15dB
-			//                 2 = -21dB
-			//                 1 = -27dB
-			//                 0 = -33dB
-			//
-			// LNA_SHORT ..   0dB
-			// LNA ........  14dB
-			// MIXER ......   0dB
-			// PGA ........ -15dB
-			//
-			{
-				uint16_t lna_short;  // whats "LNA SHORT" mean ?
-				uint16_t lna;
-				uint16_t mixer;
-				uint16_t pga;
-				// seems the RX gain abrutly reduces above this frequency, why ?
-				if (rx_frequency <= 22640000)
-				{
-					lna_short = 3;   // original
-					lna       = 2;   // original
-					mixer     = 3;   // original
-					pga       = 3;   // reduced - seems to help reduce the AM demodulation distortion
-				}
-				else
-				{
-					lna_short = 3;   // original
-					lna       = 4;   // increased
-					mixer     = 3;   // original
-				//	pga       = 6;   // original
-					pga       = 7;   // increased
-				}
-
-				BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
-
-				// what do these 4 other gain tables do ???
-				//BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
-				//BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
-				//BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
-				//BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
-			}
-
-			gNeverUsed = 0;
+		// the RX gain abrutly reduces above this frequency, why ?
+		if (rx_frequency <= 22640000)
+		{	// decrease front end gain = better AM demodulation
+			lna_short = 3;   // 3 original
+			lna       = 2;   // 2 original
+			mixer     = 3;   // 3 original
+			pga       = 3;   // 6 original, 3 reduced
 		}
 		else
-		{	// FM
-
-			// RX AF level
-			//
-			// REG_48 <15:12> 11  ???
-			//
-			// REG_48 <11:10> 0 AF Rx Gain-1
-			//                0 =   0dB
-			//                1 =  -6dB
-			//                2 = -12dB
-			//                3 = -18dB
-			//
-			// REG_48 <9:4>   60 AF Rx Gain-2  -26dB ~ 5.5dB   0.5dB/step
-			//                63 = max
-			//                 0 = min = mute
-			//
-			// REG_48 <3:0>   15 AF DAC Gain (after Gain-1 and Gain-2) approx 2dB/step
-			//                15 = max
-			//                 0 = min
-			//
-			BK4819_WriteRegister(BK4819_REG_48,
-				(11u << 12)                 |     // ???
-				( 0u << 10)                 |     // AF Rx Gain-1
-				(gEeprom.VOLUME_GAIN <<  4) |     // AF Rx Gain-2
-				(gEeprom.DAC_GAIN    <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
-
-//			BK4819_WriteRegister(0x4B, BK4819_ReadRegister(0x4B) | (1u << 5));	// disable RX ALC
-
-			// REG_10 <15:0> 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
-			//
-			//         <9:8> = LNA Gain Short
-			//                 3 =   0dB
-			//                 2 = -11dB
-			//                 1 = -16dB
-			//                 0 = -19dB
-			//
-			//         <7:5> = LNA Gain
-			//                 7 =   0dB
-			//                 6 =  -2dB
-			//                 5 =  -4dB
-			//                 4 =  -6dB
-			//                 3 =  -9dB
-			//                 2 = -14dB
-			//                 1 = -19dB
-			//                 0 = -24dB
-			//
-			//         <4:3> = MIXER Gain
-			//                 3 =  0dB
-			//                 2 = -3dB
-			//                 1 = -6dB
-			//                 0 = -8dB
-			//
-			//         <2:0> = PGA Gain
-			//                 7 =   0dB
-			//                 6 =  -3dB
-			//                 5 =  -6dB
-			//                 4 =  -9dB
-			//                 3 = -15dB
-			//                 2 = -21dB
-			//                 1 = -27dB
-			//                 0 = -33dB
-			//
-			// LNA_SHORT ..   0dB
-			// LNA ........  14dB
-			// MIXER ......   0dB
-			// PGA ........  -3dB
-			//                                  LNA SHORT     LNA         MIXER        PGA
-			BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (6u << 0));
+		{	// increasing the front end to compensate the reduced gain, but more gain decreases dynamic range
+			lna_short = 3;   // 3 original
+			lna       = 4;   // 2 original, 4 increased
+			mixer     = 3;   // 3 original
+			pga       = 7;   // 6 original, 7 increased
 		}
-*/
-		if (gRxVfo->IsAM)
-		{	// AM
-			{
-				uint16_t lna_short;  // whats "LNA SHORT" mean ?
-				uint16_t lna;
-				uint16_t mixer;
-				uint16_t pga;
+		BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
 
-				// seems the RX gain abrutly reduces above this frequency, why ?
-				if (rx_frequency <= 22640000)
-				{
-					lna_short = 3;   // original
-					lna       = 2;   // original
-					mixer     = 3;   // original
-					pga       = 3;   // reduced - seems to help reduce the AM demodulation distortion
-				}
-				else
-				{	// increasing the front ends gain decreases the dynamic range
-					lna_short = 3;   // original
-					lna       = 4;   // increased
-					mixer     = 3;   // original
-				//	pga       = 6;   // original
-					pga       = 7;   // increased
-				}
+		// what do these 4 other gain settings do ???
+		//BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
+		//BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
+		//BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
+		//BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
 
-				BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
+		// AF gain (max it out) - see below FM mode bit for original setting
+		BK4819_WriteRegister(BK4819_REG_48,
+			(11u << 12) |    // ??? .. 0 to 15, doesn't seem to make any difference
+			( 0u << 10) |    // AF Rx Gain-1
+			(63u <<  4) |    // AF Rx Gain-2
+			(15u <<  0));    // AF DAC Gain (after Gain-1 and Gain-2)
 
-				// what do these 4 other gain tables do ???
-				//BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
-				//BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
-				//BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
-				//BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
-			}
-
-			BK4819_WriteRegister(BK4819_REG_48,
-				// max RX AF gain
-				(11u << 12) |     // ???
-				( 0u << 10) |     // AF Rx Gain-1
-				(63u <<  4) |     // AF Rx Gain-2
-				(15u <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
-
-			gNeverUsed = 0;
-		}
-		else
-		{	// FM
-
-			uint16_t lna_short;  // whats "LNA SHORT" mean ?
-			uint16_t lna;
-			uint16_t mixer;
-			uint16_t pga;
-
-			// original
-			lna_short = 3;
-			lna       = 2;
-			mixer     = 3;
-			pga       = 6;
-			
-			BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
-
-			BK4819_WriteRegister(BK4819_REG_48,
-				(11u << 12)                 |     // ???
-				( 0u << 10)                 |     // AF Rx Gain-1
-				(gEeprom.VOLUME_GAIN <<  4) |     // AF Rx Gain-2
-				(gEeprom.DAC_GAIN    <<  0));     // AF DAC Gain (after Gain-1 and Gain-2)
-		}
-		
-		#ifdef ENABLE_VOICE
-			if (gVoiceWriteIndex == 0)
-		#endif
-				BK4819_SetAF(gRxVfo->IsAM ? BK4819_AF_AM : BK4819_AF_OPEN);
-
-		FUNCTION_Select(Function);
-
-		#ifdef ENABLE_FMRADIO
-			if (Function == FUNCTION_MONITOR || gFmRadioMode)
-		#else
-			if (Function == FUNCTION_MONITOR)
-		#endif
-		{
-			GUI_SelectNextDisplay(DISPLAY_MAIN);
-			return;
-		}
-
-		gUpdateDisplay = true;
+		gNeverUsed = 0;
 	}
+	else
+	{	// FM
+
+		// original
+		const uint16_t lna_short = 3;   // whats 'LNA short' mean ?
+		const uint16_t lna       = 2;
+		const uint16_t mixer     = 3;
+		const uint16_t pga       = 6;
+		BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
+
+		// AF gain - original
+		BK4819_WriteRegister(BK4819_REG_48,
+			(11u << 12)                |     // ??? .. 0 to 15, doesn't seem to make any difference
+			( 0u << 10)                |     // AF Rx Gain-1
+			(gEeprom.VOLUME_GAIN << 4) |     // AF Rx Gain-2
+			(gEeprom.DAC_GAIN    << 0));     // AF DAC Gain (after Gain-1 and Gain-2)
+	}
+
+	#ifdef ENABLE_VOICE
+		if (gVoiceWriteIndex == 0)
+	#endif
+			BK4819_SetAF(gRxVfo->IsAM ? BK4819_AF_AM : BK4819_AF_OPEN);
+
+	FUNCTION_Select(Function);
+
+	#ifdef ENABLE_FMRADIO
+		if (Function == FUNCTION_MONITOR || gFmRadioMode)
+	#else
+		if (Function == FUNCTION_MONITOR)
+	#endif
+	{	// squelch is disabled
+		GUI_SelectNextDisplay(DISPLAY_MAIN);
+		return;
+	}
+
+	gUpdateDisplay = true;
 }
 
 void APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
@@ -851,7 +665,7 @@ static void DUALWATCH_Alternate(void)
 		if (gIsNoaaMode)
 		{
 			if (IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) || IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1]))
-				gEeprom.RX_CHANNEL = 1 - gEeprom.RX_CHANNEL;
+				gEeprom.RX_CHANNEL = (gEeprom.RX_CHANNEL + 1) & 1;
 			else
 				gEeprom.RX_CHANNEL = 0;
 
@@ -863,7 +677,7 @@ static void DUALWATCH_Alternate(void)
 		else
 	#endif
 	{	// toggle between VFO's
-		gEeprom.RX_CHANNEL = (1 - gEeprom.RX_CHANNEL) & 1;
+		gEeprom.RX_CHANNEL = (gEeprom.RX_CHANNEL + 1) & 1;
 		gRxVfo             = &gEeprom.VfoInfo[gEeprom.RX_CHANNEL];
 
 		if (!gDualWatchActive)
@@ -965,8 +779,8 @@ void APP_CheckRadioInterrupts(void)
 			{
 				if (gCurrentFunction == FUNCTION_POWER_SAVE && !gRxIdleMode)
 				{
-					gBatterySave_10ms = 20;     // 200ms
-					gBatterySaveCountdownExpired = 0;
+					gPowerSave_10ms            = power_save2_10ms;
+					gPowerSaveCountdownExpired = 0;
 				}
 
 				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && (gScheduleDualWatch || gDualWatchCountdown_10ms < dual_watch_count_after_vox_10ms))
@@ -1124,16 +938,14 @@ void APP_Update(void)
 	#endif
 
 	if (gCurrentFunction == FUNCTION_TRANSMIT && gTxTimeoutReached)
-	{
+	{	// transmitting, but just timed out
+
 		gTxTimeoutReached    = false;
 		gFlagEndTransmission = true;
 
 		APP_EndTransmission();
-
 		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP);
-
 		RADIO_SetVfoState(VFO_STATE_TIMEOUT);
-
 		GUI_DisplayScreen();
 	}
 
@@ -1291,17 +1103,18 @@ void APP_Update(void)
 			{
 				FUNCTION_Select(FUNCTION_POWER_SAVE);
 			}
-			
+
 			gSchedulePowerSave = false;
 		#endif
 	}
 
 	#ifdef ENABLE_VOICE
-		if (gBatterySaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE && gVoiceWriteIndex == 0)
+		if (gPowerSaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE && gVoiceWriteIndex == 0)
 	#else
-		if (gBatterySaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE)
+		if (gPowerSaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE)
 	#endif
-	{
+	{	// wake up, enable RX then go back to sleep
+
 		if (gRxIdleMode)
 		{
 			BK4819_Conditional_RX_TurnOn_and_GPIO6_Enable();
@@ -1310,25 +1123,29 @@ void APP_Update(void)
 				BK4819_EnableVox(gEeprom.VOX1_THRESHOLD, gEeprom.VOX0_THRESHOLD);
 
 			if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF)
-			{
-				DUALWATCH_Alternate();    // toggle between the two VFO's
+			{	// dual watch mode, toggle between the two VFO's
 
+				DUALWATCH_Alternate();
 				gUpdateRSSI = false;
 			}
 
 			FUNCTION_Init();
 
-			gBatterySave_10ms   = 10;    // 100ms
-			gRxIdleMode         = false;
+			gPowerSave_10ms = power_save1_10ms; // come back here in a bit
+			gRxIdleMode     = false;            // RX is awake
 		}
 		else
 		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF || gScanState != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF || gUpdateRSSI)
-		{
+		{	// dual watch mode, go back to sleep
+
+			// sample the RSSI
 			gCurrentRSSI = BK4819_GetRSSI();
 			UI_UpdateRSSI(gCurrentRSSI);
 
-			gBatterySave_10ms   = gEeprom.BATTERY_SAVE * 10;
-			gRxIdleMode         = true;
+			// go back to sleep
+
+			gPowerSave_10ms = gEeprom.BATTERY_SAVE * 10;
+			gRxIdleMode     = true;
 
 			BK4819_DisableVox();
 			BK4819_Sleep();
@@ -1338,14 +1155,16 @@ void APP_Update(void)
 
 		}
 		else
-		{
-			DUALWATCH_Alternate();    // toggle between the two VFO's
+		{	// no yet in power save mode
 
-			gUpdateRSSI         = true;
-			gBatterySave_10ms   = 10;   // 100ms
+			// toggle between the two VFO's
+			DUALWATCH_Alternate();
+
+			gUpdateRSSI       = true;
+			gPowerSave_10ms   = power_save1_10ms;
 		}
 
-		gBatterySaveCountdownExpired = false;
+		gPowerSaveCountdownExpired = false;
 	}
 }
 
@@ -1495,6 +1314,130 @@ void APP_CheckKeys(void)
 	}
 }
 
+#ifdef ENABLE_AM_AGC_GAIN
+	void adjustAMFrontEnd10ms(void)
+	{
+		if (!gRxVfo->IsAM)
+			return;	// FM
+
+		switch (gCurrentFunction)
+		{
+			case FUNCTION_TRANSMIT:
+			case FUNCTION_BAND_SCOPE:
+			case FUNCTION_POWER_SAVE:
+				return;
+
+			case FUNCTION_FOREGROUND:
+			case FUNCTION_RECEIVE:
+			case FUNCTION_MONITOR:
+			case FUNCTION_INCOMING:
+				break;
+		}
+
+		// AM
+
+		// REG_10 <15:0> 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
+		//
+		//         <9:8> = LNA Gain Short
+		//                 3 =   0dB
+		//                 2 = -11dB
+		//                 1 = -16dB
+		//                 0 = -19dB
+		//
+		//         <7:5> = LNA Gain
+		//                 7 =   0dB
+		//                 6 =  -2dB
+		//                 5 =  -4dB
+		//                 4 =  -6dB
+		//                 3 =  -9dB
+		//                 2 = -14dB
+		//                 1 = -19dB
+		//                 0 = -24dB
+		//
+		//         <4:3> = MIXER Gain
+		//                 3 =  0dB
+		//                 2 = -3dB
+		//                 1 = -6dB
+		//                 0 = -8dB
+		//
+		//         <2:0> = PGA Gain
+		//                 7 =   0dB
+		//                 6 =  -3dB
+		//                 5 =  -6dB
+		//                 4 =  -9dB
+		//                 3 = -15dB
+		//                 2 = -21dB
+		//                 1 = -27dB
+		//                 0 = -33dB
+		//
+		// LNA_SHORT ..   0dB
+		// LNA ........  14dB
+		// MIXER ......   0dB
+		// PGA ........  -3dB
+
+		// original settings
+		static uint16_t lna_short = 3;
+		static uint16_t lna       = 2;
+		static uint16_t mixer     = 3;
+		static uint16_t pga       = 6;
+
+		static unsigned int counter  = 0;
+		static unsigned int avg_rssi = 0;
+
+		register uint16_t new_lna_short = lna_short;
+		register uint16_t new_lna       = lna;
+		register uint16_t new_mixer     = mixer;
+		register uint16_t new_pga       = pga;
+
+		{
+			const uint16_t desired_rssi = (-86 + 160) * 2; // -86dBm
+
+			gCurrentRSSI = BK4819_GetRSSI();
+
+			avg_rssi += gCurrentRSSI;
+			if (++counter < 16)	// 160ms
+				return;
+
+			avg_rssi /= counter;
+			counter = 0;
+
+			if (avg_rssi < (desired_rssi - 4))
+			{	// increase gain
+				if (new_pga < 7)
+					new_pga++;
+				else
+				if (new_mixer < 3)
+					new_mixer++;
+				else
+				if (new_lna < 7)
+					new_lna++;
+			}
+			else
+			if (avg_rssi > (desired_rssi + 4))
+			{	// decrease gain
+				if (new_pga > 0)
+					new_pga--;
+				else
+				if (new_mixer > 0)
+					new_mixer--;
+				else
+				if (new_lna > 0)
+					new_lna--;
+			}
+		}
+
+		if (lna_short == new_lna_short && lna == new_lna && mixer == new_mixer && pga == new_pga)
+			return;    // no change
+
+		lna_short = new_lna_short;
+		lna       = new_lna;
+		mixer     = new_mixer;
+		pga       = new_pga;
+
+		BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
+	}
+#endif
+
 void APP_TimeSlice10ms(void)
 {
 	gFlashLightBlinkCounter++;
@@ -1503,6 +1446,11 @@ void APP_TimeSlice10ms(void)
 		if (boot_counter_10ms > 0)
 			if ((boot_counter_10ms % 25) == 0)
 				AUDIO_PlayBeep(BEEP_880HZ_40MS_OPTIONAL);
+	#endif
+
+	#ifdef ENABLE_AM_AGC_GAIN
+		if (gSetting_AM_fix)
+			adjustAMFrontEnd10ms();
 	#endif
 
 	if (UART_IsCommandAvailable())
@@ -1931,7 +1879,8 @@ void APP_TimeSlice500ms(void)
 		UI_DisplayBattery(gLowBatteryCountdown);
 
 		if (gCurrentFunction != FUNCTION_TRANSMIT)
-		{
+		{	// not transmitting
+
 			if (gLowBatteryCountdown < 30)
 			{
 				if (gLowBatteryCountdown == 29 && !gChargingWithTypeC)
@@ -1942,7 +1891,8 @@ void APP_TimeSlice500ms(void)
 				gLowBatteryCountdown = 0;
 
 				if (!gChargingWithTypeC)
-				{
+				{	// not on charge
+
 					AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP);
 
 					#ifdef ENABLE_VOICE
@@ -1961,7 +1911,7 @@ void APP_TimeSlice500ms(void)
 
 						ST7565_Configure_GPIO_B11();
 
-						//if (gEeprom.BACKLIGHT < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1))
+						if (gEeprom.BACKLIGHT < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1))
 							GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  // turn the backlight off
 					}
 					#ifdef ENABLE_VOICE

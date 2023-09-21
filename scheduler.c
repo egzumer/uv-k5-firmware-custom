@@ -73,7 +73,7 @@ void SystickHandler(void)
 		DECREMENT_AND_TRIGGER(gBatterySaveCountdown_10ms, gSchedulePowerSave);
 
 	if (gCurrentFunction == FUNCTION_POWER_SAVE)
-		DECREMENT_AND_TRIGGER(gBatterySave_10ms, gBatterySaveCountdownExpired);
+		DECREMENT_AND_TRIGGER(gPowerSave_10ms, gPowerSaveCountdownExpired);
 
 	if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE)

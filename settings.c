@@ -171,6 +171,9 @@ void SETTINGS_SaveSettings(void)
 	#ifdef ENABLE_AUDIO_BAR
 		if (!gSetting_mic_bar)           State[7] &= ~(1u << 4);
 	#endif
+	#ifdef ENABLE_AM_AGC_GAIN
+		if (!gSetting_AM_fix)            State[7] &= ~(1u << 5);
+	#endif
 	EEPROM_WriteBuffer(0x0F40, State);
 }
 
