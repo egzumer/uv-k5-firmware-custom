@@ -46,88 +46,6 @@
 	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #endif
 
-#ifdef ENABLE_VOICE
-	static const VOICE_ID_t MenuVoices[] =
-	{
-		VOICE_ID_SQUELCH,                         // SQL
-		VOICE_ID_FREQUENCY_STEP,                  // STEP
-		VOICE_ID_POWER,                           // T-PWR
-		VOICE_ID_DCS,                             // R-DCS
-		VOICE_ID_CTCSS,                           // R-CTCS
-		VOICE_ID_DCS,                             // T-DCS
-		VOICE_ID_CTCSS,                           // T-CTCS
-		VOICE_ID_TX_OFFSET_FREQUENCY_DIRECTION,   // T-DIR
-		VOICE_ID_TX_OFFSET_FREQUENCY,             // T-OFFS
-		VOICE_ID_INVALID,                         // T-VFO
-		VOICE_ID_TRANSMIT_OVER_TIME,              // T-TOUT
-		VOICE_ID_CHANNEL_BANDWIDTH,               // W/N
-		VOICE_ID_SCRAMBLER_ON,                    // SCRAM
-		VOICE_ID_BUSY_LOCKOUT,                    // BUSYCL
-		VOICE_ID_MEMORY_CHANNEL,                  // CH-SAV
-		VOICE_ID_DELETE_CHANNEL,                  // CH-DEL
-		VOICE_ID_INVALID,                         // CH-EDIT
-		VOICE_ID_INVALID,                         // CH-DIS
-		VOICE_ID_SAVE_MODE,                       // BATSAV
-		VOICE_ID_VOX,                             // VOX
-		VOICE_ID_INVALID,                         // BACKLT
-		VOICE_ID_DUAL_STANDBY,                    // DUALRX
-		VOICE_ID_BEEP_PROMPT,                     // BEEP
-		#ifdef ENABLE_VOICE
-			VOICE_ID_VOICE_PROMPT,                // VOICE
-		#endif
-		VOICE_ID_INVALID,                         // SC-REV
-		VOICE_ID_INVALID,                         // KEYLOC
-		VOICE_ID_INVALID,                         // S-ADD1
-		VOICE_ID_INVALID,                         // S-ADD2
-		VOICE_ID_INVALID,                         // STE
-		VOICE_ID_INVALID,                         // RP-STE
-		VOICE_ID_INVALID,                         // MIC
-		VOICE_ID_INVALID,                         // MICBAR
-		#ifdef ENABLE_COMPANDER
-			VOICE_ID_INVALID,                     // COMPND
-		#endif
-		VOICE_ID_INVALID,                         // 1-CALL
-		VOICE_ID_INVALID,                         // SLIST
-		VOICE_ID_INVALID,                         // SLIST1
-		VOICE_ID_INVALID,                         // SLIST2
-		#ifdef ENABLE_ALARM
-			VOICE_ID_INVALID,                     // AL-MOD
-		#endif
-		VOICE_ID_ANI_CODE,                        // ANI-ID
-		VOICE_ID_INVALID,                         // UPCODE
-		VOICE_ID_INVALID,                         // DWCODE
-		VOICE_ID_INVALID,                         // D-ST
-		VOICE_ID_INVALID,                         // D-RSP
-		VOICE_ID_INVALID,                         // D-HOLD
-		VOICE_ID_INVALID,                         // D-PRE
-		VOICE_ID_INVALID,                         // PTT-ID
-		VOICE_ID_INVALID,                         // D-DCD
-		VOICE_ID_INVALID,                         // D-LIST
-		VOICE_ID_INVALID,                         // D-LIVE
-		VOICE_ID_INVALID,                         // PONMSG
-		VOICE_ID_INVALID,                         // ROGER
-		VOICE_ID_INVALID,                         // BATVOL
-		VOICE_ID_INVALID,                         // BATTXT
-		VOICE_ID_INVALID,                         // MODE
-		#ifdef ENABLE_NOAA
-			VOICE_ID_INVALID,                     // NOAA-S
-		#endif
-		VOICE_ID_INITIALISATION,                  // RESET
-
-		// hidden items
-
-		VOICE_ID_INVALID,                         // F-LOCK
-		VOICE_ID_INVALID,                         // TX-200
-		VOICE_ID_INVALID,                         // TX-350
-		VOICE_ID_INVALID,                         // TX-500
-		VOICE_ID_INVALID,                         // 350-EN
-		VOICE_ID_INVALID,                         // SCR-EN
-
-		VOICE_ID_INVALID,                         // TX-EN
-		VOICE_ID_INVALID                          // F-CALI
-	};
-#endif
-
 void MENU_StartCssScan(int8_t Direction)
 {
 	gCssScanMode  = CSS_SCAN_MODE_SCANNING;
@@ -1329,7 +1247,7 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 	{
 		#ifdef ENABLE_VOICE
 			if (gMenuCursor != MENU_SCR)
-				gAnotherVoiceID = MenuVoices[gMenuCursor];
+				gAnotherVoiceID = MenuList[gMenuCursor].voice_id;
 		#endif
 
 		#if 1

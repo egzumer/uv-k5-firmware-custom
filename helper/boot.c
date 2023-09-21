@@ -68,8 +68,8 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 	{
 		// enable all the menu items
 		gMenuListCount = 0;
-		//while (MenuList[gMenuListCount][0] != 0)
-		while (MenuList[gMenuListCount] != NULL)
+//		while (MenuList[gMenuListCount].name != NULL)
+		while (MenuList[gMenuListCount].name[0] != '\0')
 			gMenuListCount++;
 
 		gMenuCursor        = MENU_350TX;

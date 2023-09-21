@@ -20,6 +20,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "audio.h"     // VOICE_ID_t
+
+typedef struct {
+	const char  name[7];    // menu display only has room for 6 characters
+	uint8_t     hidden;
+	VOICE_ID_t  voice_id;
+} t_menu_item;
+
 enum
 {
 	MENU_SQL = 0,
@@ -102,43 +110,43 @@ enum
 	MENU_F_CALI   // reference xtal calibration
 };
 
-extern const char *MenuList[];
+extern const t_menu_item MenuList[];
 
-extern const char gSubMenu_TXP[3][5];
-extern const char gSubMenu_SFT_D[3][4];
-extern const char gSubMenu_W_N[2][7];
-extern const char gSubMenu_OFF_ON[2][4];
-extern const char gSubMenu_SAVE[5][4];
-extern const char gSubMenu_CHAN[3][7];
+extern const char        gSubMenu_TXP[3][5];
+extern const char        gSubMenu_SFT_D[3][4];
+extern const char        gSubMenu_W_N[2][7];
+extern const char        gSubMenu_OFF_ON[2][4];
+extern const char        gSubMenu_SAVE[5][4];
+extern const char        gSubMenu_CHAN[3][7];
 #ifdef ENABLE_VOICE
-	extern const char gSubMenu_VOICE[3][4];
+	extern const char    gSubMenu_VOICE[3][4];
 #endif
-extern const char gSubMenu_SC_REV[3][3];
-extern const char gSubMenu_MDF[4][8];
+extern const char        gSubMenu_SC_REV[3][3];
+extern const char        gSubMenu_MDF[4][8];
 #ifdef ENABLE_ALARM
-	extern const char gSubMenu_AL_MOD[2][5];
+	extern const char    gSubMenu_AL_MOD[2][5];
 #endif
-extern const char gSubMenu_D_RSP[4][6];
-extern const char gSubMenu_PTT_ID[4][5];
-extern const char gSubMenu_PONMSG[4][5];
-extern const char gSubMenu_ROGER[3][6];
-extern const char gSubMenu_RESET[2][4];
-extern const char gSubMenu_F_LOCK[6][4];
-extern const char gSubMenu_BACK_LIGHT[6][7];
+extern const char        gSubMenu_D_RSP[4][6];
+extern const char        gSubMenu_PTT_ID[4][5];
+extern const char        gSubMenu_PONMSG[4][5];
+extern const char        gSubMenu_ROGER[3][6];
+extern const char        gSubMenu_RESET[2][4];
+extern const char        gSubMenu_F_LOCK[6][4];
+extern const char        gSubMenu_BACK_LIGHT[6][7];
 #ifdef ENABLE_COMPANDER
-	extern const char gSubMenu_Compand[4][6];
+	extern const char    gSubMenu_Compand[4][6];
 #endif
-extern const char gSubMenu_BAT_TXT[3][8];
-
-extern bool       gIsInSubMenu;
-
-extern uint8_t    gMenuCursor;
-extern int8_t     gMenuScrollDirection;
-extern int32_t    gSubMenuSelection;
-
-extern char       edit_original[17];
-extern char       edit[17];
-extern int        edit_index;
+extern const char        gSubMenu_BAT_TXT[3][8];
+				         
+extern bool              gIsInSubMenu;
+				         
+extern uint8_t           gMenuCursor;
+extern int8_t            gMenuScrollDirection;
+extern int32_t           gSubMenuSelection;
+				         
+extern char              edit_original[17];
+extern char              edit[17];
+extern int               edit_index;
 
 void UI_DisplayMenu(void);
 

@@ -96,13 +96,20 @@ void Main(void)
 
 	BATTERY_GetReadings(false);
 
-	// count the number of menu list items
-	gMenuListCount = 0;
-//	while (MenuList[gMenuListCount][0] != 0)
-	while (MenuList[gMenuListCount] != NULL)
-		gMenuListCount++;
-	gMenuListCount -= 8;       // disable the last few menu items .. they are the normally 'hidden' menu items
-
+	{	// count the number of menu list items
+		unsigned int hidden = 0;
+		gMenuListCount = 0;
+//		while (MenuList[gMenuListCount].name != NULL)
+		while (MenuList[gMenuListCount].name[0] != '\0')
+		{
+			if (MenuList[++gMenuListCount].hidden != 0)
+				hidden++;
+		}
+		// disable the items marked hidden
+		//gMenuListCount -= 8;
+		gMenuListCount -= hidden;
+	}
+	
 	boot_counter_10ms = 250;   // 2.5 sec
 	
 	if (!gChargingWithTypeC && !gBatteryDisplayLevel)

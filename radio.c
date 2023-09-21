@@ -711,7 +711,8 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 		BK4819_DisableVox();
 
 	#ifdef ENABLE_COMPANDER
-		BK4819_SetCompander(!gRxVfo->IsAM ? gRxVfo->Compander : 0);
+		// RX expander
+		BK4819_SetCompander((!gRxVfo->IsAM && gRxVfo->Compander >= 2) ? gRxVfo->Compander : 0);
 	#endif
 
 	#if 0
@@ -811,7 +812,8 @@ void RADIO_SetTxParameters(void)
 	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency);
 
 	#ifdef ENABLE_COMPANDER
-		BK4819_SetCompander(!gCurrentVfo->IsAM ? gCurrentVfo->Compander : 0);
+		// TX compressor
+		BK4819_SetCompander((!gRxVfo->IsAM && (gRxVfo->Compander == 1 || gRxVfo->Compander >= 3)) ? gRxVfo->Compander : 0);
 	#endif
 
 	BK4819_PrepareTransmit();

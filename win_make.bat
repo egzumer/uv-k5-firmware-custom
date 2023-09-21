@@ -13,7 +13,7 @@ del /S /Q *.o >nul 2>nul
 del /S /Q *.d >nul 2>nul
 
 :: If you have python installed, you can create a 'packed' .bin from the compiled firmware.bin file.
-:: The Quangsheng windows upload-to-radio program requires a 'packed' .bin file.
+:: The Quansheng windows upload-to-radio program requires a 'packed' .bin file.
 ::
 :: if you don't have python installed, then comment out the python line(s) below, in which case you'll need
 :: to upload the standard unpacked firmware.bin file another way.
