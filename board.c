@@ -27,6 +27,7 @@
 #include "bsp/dp32g030/saradc.h"
 #include "bsp/dp32g030/syscon.h"
 #include "driver/adc.h"
+//#include "driver/backlight.h"
 #ifdef ENABLE_FMRADIO
 	#include "driver/bk1080.h"
 #endif
@@ -44,10 +45,7 @@
 #if defined(ENABLE_OVERLAY)
 	#include "sram-overlay.h"
 #endif
-
-#ifndef ARRAY_SIZE
-	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
-#endif
+#include "ui/menu.h"
 
 static const uint32_t gDefaultFrequencyTable[] =
 {
@@ -545,7 +543,7 @@ void BOARD_EEPROM_Init(void)
 	gEeprom.CROSS_BAND_RX_TX      = (Data[2] < 3) ? Data[2] : CROSS_BAND_OFF;
 	gEeprom.BATTERY_SAVE          = (Data[3] < 5) ? Data[3] : 4;
 	gEeprom.DUAL_WATCH            = (Data[4] < 3) ? Data[4] : DUAL_WATCH_CHAN_A;
-	gEeprom.BACKLIGHT             = (Data[5] < 6) ? Data[5] : 4;
+	gEeprom.BACKLIGHT             = (Data[5] < ARRAY_SIZE(gSubMenu_BACKLIGHT)) ? Data[5] : 4;
 	gEeprom.TAIL_NOTE_ELIMINATION = (Data[6] < 2) ? Data[6] : false;
 	gEeprom.VFO_OPEN              = (Data[7] < 2) ? Data[7] : true;
 
@@ -789,6 +787,19 @@ void BOARD_EEPROM_LoadMoreSettings(void)
 		BK4819_WriteRegister(BK4819_REG_3B, 22656 + gEeprom.BK4819_XTAL_FREQ_LOW);
 //		BK4819_WriteRegister(BK4819_REG_3C, gEeprom.BK4819_XTAL_FREQ_HIGH);
 	}
+}
+
+uint32_t BOARD_fetchChannelFrequency(const int channel)
+{
+	struct
+	{
+		uint32_t frequency;
+		uint32_t offset;
+	} __attribute__((packed)) info;
+
+	EEPROM_ReadBuffer(channel * 16, &info, sizeof(info));
+	
+	return info.frequency;
 }
 
 void BOARD_fetchChannelName(char *s, const int channel)

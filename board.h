@@ -19,16 +19,17 @@
 
 #include <stdint.h>
 
-void BOARD_FLASH_Init(void);
-void BOARD_GPIO_Init(void);
-void BOARD_PORTCON_Init(void);
-void BOARD_ADC_Init(void);
-void BOARD_ADC_GetBatteryInfo(uint16_t *pVoltage, uint16_t *pCurrent);
-void BOARD_Init(void);
-void BOARD_EEPROM_Init(void);
-void BOARD_EEPROM_LoadMoreSettings(void);
-void BOARD_fetchChannelName(char *s, const int channel);
-void BOARD_FactoryReset(bool bIsAll);
+void     BOARD_FLASH_Init(void);
+void     BOARD_GPIO_Init(void);
+void     BOARD_PORTCON_Init(void);
+void     BOARD_ADC_Init(void);
+void     BOARD_ADC_GetBatteryInfo(uint16_t *pVoltage, uint16_t *pCurrent);
+void     BOARD_Init(void);
+void     BOARD_EEPROM_Init(void);
+void     BOARD_EEPROM_LoadMoreSettings(void);
+uint32_t BOARD_fetchChannelFrequency(const int channel);
+void     BOARD_fetchChannelName(char *s, const int channel);
+void     BOARD_FactoryReset(bool bIsAll);
 
 #endif
 

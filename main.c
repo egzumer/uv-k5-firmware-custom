@@ -116,7 +116,7 @@ void Main(void)
 	{
 		FUNCTION_Select(FUNCTION_POWER_SAVE);
 
-		if (gEeprom.BACKLIGHT < 5)
+		if (gEeprom.BACKLIGHT < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1))
 			GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
 		else
 			GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  	// turn the backlight ON

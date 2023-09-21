@@ -26,6 +26,7 @@ typedef struct {
 	const char  name[7];    // menu display only has room for 6 characters
 	uint8_t     hidden;
 	VOICE_ID_t  voice_id;
+	uint8_t     menu_id;
 } t_menu_item;
 
 enum
@@ -132,7 +133,7 @@ extern const char        gSubMenu_PONMSG[4][5];
 extern const char        gSubMenu_ROGER[3][6];
 extern const char        gSubMenu_RESET[2][4];
 extern const char        gSubMenu_F_LOCK[6][4];
-extern const char        gSubMenu_BACK_LIGHT[6][7];
+extern const char        gSubMenu_BACKLIGHT[7][7];
 #ifdef ENABLE_COMPANDER
 	extern const char    gSubMenu_Compand[4][6];
 #endif
