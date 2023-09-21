@@ -710,7 +710,7 @@ void BOARD_EEPROM_Init(void)
 	#ifdef ENABLE_AUDIO_BAR
 		gSetting_mic_bar       = (Data[7] & (1u << 4)) ? true : false;
 	#endif
-	#ifdef ENABLE_AM_AGC_GAIN
+	#ifdef ENABLE_AM_FIX
 		gSetting_AM_fix        = (Data[7] & (1u << 5)) ? true : false;
 	#endif
 

@@ -62,6 +62,18 @@
 #include "ui/status.h"
 #include "ui/ui.h"
 
+// original QS front end gains
+static uint16_t lna_short = 3;   //   0dB
+static uint16_t lna       = 2;   // -14dB
+static uint16_t mixer     = 3;   //   0dB
+static uint16_t pga       = 6;   //  -3dB
+
+#ifdef ENABLE_AM_FIX
+	// computes the average RSSI level over several samples
+	static unsigned int avg_rssi_counter = 0;
+	static uint16_t     avg_rssi         = 0;
+#endif
+
 static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
 static void APP_CheckForIncoming(void)
@@ -413,6 +425,11 @@ void APP_StartListening(FUNCTION_Type_t Function)
 			BK1080_Init(0, false);
 	#endif
 
+	#ifdef ENABLE_AM_FIX
+		avg_rssi_counter = 0;
+		avg_rssi         = 0;
+	#endif
+
 	gVFO_RSSI_Level[gEeprom.RX_CHANNEL == 0] = 0;
 
 	GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
@@ -474,63 +491,65 @@ void APP_StartListening(FUNCTION_Type_t Function)
 
 	if (gRxVfo->IsAM)
 	{	// AM
-
-		const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
-
-		uint16_t lna_short;  // whats "LNA SHORT" mean ?
-		uint16_t lna;
-		uint16_t mixer;
-		uint16_t pga;
-
-		// the RX gain abrutly reduces above this frequency, why ?
-		if (rx_frequency <= 22640000)
-		{	// decrease front end gain = better AM demodulation
-			lna_short = 3;   // 3 original
-			lna       = 2;   // 2 original
-			mixer     = 3;   // 3 original
-			pga       = 3;   // 6 original, 3 reduced
+	
+		#ifdef ENABLE_AM_FIX
+			if (gSetting_AM_fix)
+			{	// original
+				lna_short = 3;
+				lna       = 2;
+				mixer     = 3;
+				pga       = 6;
+			}
+			else
+		#endif
+		{
+			const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
+		
+			// the RX gain abrutly reduces above this frequency
+			// I guess this is (one of) the freq the hardware switches the front ends over ?
+			if (rx_frequency <= 22640000)
+			{	// decrease front end gain - AM demodulator saturates at a slightly higher signal level
+				lna_short = 3;   // 3 original
+				lna       = 2;   // 2 original
+				mixer     = 3;   // 3 original
+				pga       = 3;   // 6 original, 3 reduced
+			}
+			else
+			{	// increase the front end to compensate the reduced gain, but more gain decreases dynamic range :(
+				lna_short = 3;   // 3 original
+				lna       = 4;   // 2 original, 4 increased
+				mixer     = 3;   // 3 original
+				pga       = 7;   // 6 original, 7 increased
+			}
 		}
-		else
-		{	// increasing the front end to compensate the reduced gain, but more gain decreases dynamic range
-			lna_short = 3;   // 3 original
-			lna       = 4;   // 2 original, 4 increased
-			mixer     = 3;   // 3 original
-			pga       = 7;   // 6 original, 7 increased
-		}
-		BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
-
+	
 		// what do these 4 other gain settings do ???
 		//BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
 		//BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
 		//BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
 		//BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
-
-		// AF gain (max it out) - see below FM mode bit for original setting
-		BK4819_WriteRegister(BK4819_REG_48,
-			(11u << 12) |    // ??? .. 0 to 15, doesn't seem to make any difference
-			( 0u << 10) |    // AF Rx Gain-1
-			(63u <<  4) |    // AF Rx Gain-2
-			(15u <<  0));    // AF DAC Gain (after Gain-1 and Gain-2)
-
+	
 		gNeverUsed = 0;
 	}
 	else
 	{	// FM
 
 		// original
-		const uint16_t lna_short = 3;   // whats 'LNA short' mean ?
-		const uint16_t lna       = 2;
-		const uint16_t mixer     = 3;
-		const uint16_t pga       = 6;
-		BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
-
-		// AF gain - original
-		BK4819_WriteRegister(BK4819_REG_48,
-			(11u << 12)                |     // ??? .. 0 to 15, doesn't seem to make any difference
-			( 0u << 10)                |     // AF Rx Gain-1
-			(gEeprom.VOLUME_GAIN << 4) |     // AF Rx Gain-2
-			(gEeprom.DAC_GAIN    << 0));     // AF DAC Gain (after Gain-1 and Gain-2)
+		lna_short = 3;   // whats 'LNA short' mean ?
+		lna       = 2;
+		mixer     = 3;
+		pga       = 6;
 	}
+
+	// apply the front end gain settings
+	BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
+
+	// AF gain - original
+	BK4819_WriteRegister(BK4819_REG_48,
+		(11u << 12)                |     // ??? .. 0 to 15, doesn't seem to make any difference
+		( 0u << 10)                |     // AF Rx Gain-1
+		(gEeprom.VOLUME_GAIN << 4) |     // AF Rx Gain-2
+		(gEeprom.DAC_GAIN    << 0));     // AF DAC Gain (after Gain-1 and Gain-2)
 
 	#ifdef ENABLE_VOICE
 		if (gVoiceWriteIndex == 0)
@@ -1318,8 +1337,10 @@ void APP_CheckKeys(void)
 	void adjustAMFrontEnd10ms(void)
 	{
 		if (!gRxVfo->IsAM)
-			return;	// FM
+			return;	// we don't play with the front end gains if in FM mode
 
+		// we're in AM mode
+		
 		switch (gCurrentFunction)
 		{
 			case FUNCTION_TRANSMIT:
@@ -1327,14 +1348,13 @@ void APP_CheckKeys(void)
 			case FUNCTION_POWER_SAVE:
 				return;
 
+			// only adjust the front end gains if in one of these modes
 			case FUNCTION_FOREGROUND:
 			case FUNCTION_RECEIVE:
 			case FUNCTION_MONITOR:
 			case FUNCTION_INCOMING:
 				break;
 		}
-
-		// AM
 
 		// REG_10 <15:0> 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
 		//
@@ -1369,81 +1389,72 @@ void APP_CheckKeys(void)
 		//                 2 = -21dB
 		//                 1 = -27dB
 		//                 0 = -33dB
-		//
-		// LNA_SHORT ..   0dB
-		// LNA ........  14dB
-		// MIXER ......   0dB
-		// PGA ........  -3dB
 
-		// original settings
-		static uint16_t lna_short = 3;
-		static uint16_t lna       = 2;
-		static uint16_t mixer     = 3;
-		static uint16_t pga       = 6;
-
-		static unsigned int counter  = 0;
-		static unsigned int avg_rssi = 0;
-
+		// start with current settings
 		register uint16_t new_lna_short = lna_short;
 		register uint16_t new_lna       = lna;
 		register uint16_t new_mixer     = mixer;
 		register uint16_t new_pga       = pga;
 
-		{
-			const uint16_t desired_rssi = (-86 + 160) * 2; // -86dBm
+		// -86dBm, any higher and the AM demodulator starts to saturate
+		const uint16_t desired_rssi = (-86 + 160) * 2;
 
-			gCurrentRSSI = BK4819_GetRSSI();
+		// sample the current RSSI level
+		gCurrentRSSI = BK4819_GetRSSI();
 
-			avg_rssi += gCurrentRSSI;
-			if (++counter < 16)	// 160ms
-				return;
+		// compute the average
+		avg_rssi += gCurrentRSSI;
+		if (++avg_rssi_counter < 16)	// 160ms - rate at which we adjust the front end gains
+			return;
+		avg_rssi /= avg_rssi_counter;
 
-			avg_rssi /= counter;
-			counter = 0;
-
-			if (avg_rssi < (desired_rssi - 4))
-			{	// increase gain
-				if (new_pga < 7)
-					new_pga++;
-				else
-				if (new_mixer < 3)
-					new_mixer++;
-				else
-				if (new_lna < 7)
-					new_lna++;
-				else
-				if (new_lna_short < 3)
-					new_lna_short++;
-			}
+		if (avg_rssi < (desired_rssi - 4))
+		{	// increase gain
+			if (new_pga < 7)
+				new_pga++;
 			else
-			if (avg_rssi > (desired_rssi + 4))
-			{	// decrease gain
-				if (new_pga > 6)
-					new_pga--;
-				else
-				if (new_mixer > 3)
-					new_mixer--;
-				else
-				if (new_lna > 2)
-					new_lna--;
-				else
-				if (new_lna_short > 0)
-					new_lna_short++;
-				else
-				if (new_pga > 0)
-					new_pga--;
-				else
-				if (new_lna > 0)
-					new_lna--;
-				else
-				if (new_mixer > 0)
-					new_mixer--;
-			}
+			if (new_mixer < 3)
+				new_mixer++;
+			else
+			if (new_lna < 7)
+				new_lna++;
+			else
+			if (new_lna_short < 3)
+				new_lna_short++;
+		}
+		else
+		if (avg_rssi > (desired_rssi + 4))
+		{	// decrease gain
+			if (new_pga > 6)
+				new_pga--;
+			else
+			if (new_mixer > 3)
+				new_mixer--;
+			else
+			if (new_lna > 2)
+				new_lna--;
+			else
+			if (new_lna_short > 0)
+				new_lna_short++;
+			else
+			if (new_pga > 0)
+				new_pga--;
+			else
+			if (new_lna > 0)
+				new_lna--;
+			else
+			if (new_mixer > 0)
+				new_mixer--;
 		}
 
+		avg_rssi_counter = 0;
+		avg_rssi         = 0;
+		
 		if (lna_short == new_lna_short && lna == new_lna && mixer == new_mixer && pga == new_pga)
 			return;    // no change
 
+		// apply the adjusted gain settings
+		
 		lna_short = new_lna_short;
 		lna       = new_lna;
 		mixer     = new_mixer;
