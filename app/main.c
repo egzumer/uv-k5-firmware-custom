@@ -204,10 +204,13 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 					gRequestDisplayScreen = gScreenToDisplay;
 				#else
 					// toggle scanlist-1
-					gTxVfo->SCANLIST1_PARTICIPATION = gTxVfo->SCANLIST1_PARTICIPATION ? 0 : 1;
-					SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
-					gVfoConfigureMode = VFO_CONFIGURE_1;
-					gFlagResetVfos    = true;
+					if (gScreenToDisplay != DISPLAY_SCANNER)
+					{
+						gTxVfo->SCANLIST1_PARTICIPATION = gTxVfo->SCANLIST1_PARTICIPATION ? 0 : 1;
+						SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
+						gVfoConfigureMode = VFO_CONFIGURE_1;
+						gFlagResetVfos    = true;
+					}
 				#endif
 			#endif
 			break;

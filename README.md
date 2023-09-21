@@ -42,6 +42,7 @@ ENABLE_AUDIO_BAR              := 0       experimental, display an audo bar level
 * Finer RSSI bar steps
 * Mic menu includes max gain possible
 * AM RX everywhere
+* keypad-5/NOAA button now toggles scanlist-1 on/off for current channel when held down - IF NOAA is not used
 * Better backlight times (inc always on)
 * Nicer/cleaner big numeric font than original Quansheng big numeric font
 * Live DTMF decoder option, though the decoder needs some coeff tuning changes to decode other radios it seems
