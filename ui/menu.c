@@ -74,7 +74,9 @@ const char *MenuList[] =
 	"STE",
     "RP-STE",
 	"MIC",
-	"MICBAR",
+	#ifdef ENABLE_AUDIO_BAR
+		"MICBAR",
+	#endif
 	#ifdef ENABLE_COMPANDER
 		"COMPND",
 	#endif
@@ -119,7 +121,7 @@ const char *MenuList[] =
 	"TX-EN",     // enable TX
 	"F-CALI",    // reference xtal calibration
 
-	NULL         // end of list - DO NOT DELETE THIS
+	NULL         // end of list - DO NOT delete this
 };
 
 const char gSubMenu_TXP[3][5] =
