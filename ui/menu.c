@@ -39,7 +39,7 @@
 	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #endif
 
-const char MenuList[][7] =
+const char *MenuList[] =
 {
 	"SQL",
     "STEP",
@@ -74,6 +74,7 @@ const char MenuList[][7] =
 	"STE",
     "RP-STE",
 	"MIC",
+	"MICBAR",
 	#ifdef ENABLE_COMPANDER
 		"COMPND",
 	#endif
@@ -118,7 +119,7 @@ const char MenuList[][7] =
 	"TX-EN",     // enable TX
 	"F-CALI",    // reference xtal calibration
 
-	""           // end of list - DO NOT DELETE THIS ! .. I use this to compute this list size
+	NULL         // end of list - DO NOT DELETE THIS
 };
 
 const char gSubMenu_TXP[3][5] =
@@ -325,6 +326,12 @@ void UI_DisplayMenu(void)
 			}
 			break;
 
+		#ifdef ENABLE_AUDIO_BAR
+			case MENU_MIC_BAR:
+				strcpy(String, gSubMenu_OFF_ON[gSubMenuSelection]);
+				break;
+		#endif
+		
 		case MENU_STEP:
 			sprintf(String, "%d.%02uKHz", StepFrequencyTable[gSubMenuSelection] / 100, abs(StepFrequencyTable[gSubMenuSelection]) % 100);
 			break;

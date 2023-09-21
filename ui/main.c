@@ -19,6 +19,7 @@
 #include "app/dtmf.h"
 #include "bitmaps.h"
 #include "board.h"
+#include "driver/bk4819.h"
 #include "driver/st7565.h"
 #include "external/printf/printf.h"
 #include "functions.h"
@@ -32,6 +33,43 @@
 
 #ifndef ARRAY_SIZE
 	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+#endif
+
+#ifdef ENABLE_AUDIO_BAR
+	void UI_DisplayAudioBar(void)
+	{
+//		if (gCurrentFunction == FUNCTION_TRANSMIT && gSetting_mic_bar)
+		if (gSetting_mic_bar)
+		{
+			const unsigned int line = 3;
+			const unsigned int lcd_width = sizeof(gFrameBuffer[line]) - 2;
+			
+			#if 1
+				// TX audio level
+				const uint16_t voice_amp = BK4819_GetVoiceAmplitudeOut();  // 15:0
+				const unsigned int max   = 32767;
+				const unsigned int level = (((uint32_t)voice_amp * lcd_width) + (max / 2)) / max; // with rounding
+			#else
+				// TX/RX AF input level (dB)
+				const uint8_t  af_tx_rx  = BK4819_GetAfTxRx();             //  6:0
+				const unsigned int max   = 63;
+				const unsigned int level = (((uint16_t)af_tx_rx * lcd_width) + (max / 2)) / max; // with rounding
+			#endif
+	
+			const unsigned int len = (level <= lcd_width) ? level : lcd_width;
+			uint8_t *pLine = gFrameBuffer[line];
+			memset(pLine, 0, lcd_width);
+			#if 0
+				// solid bar
+				memset(pLine, 0x3e, len);
+			#else
+				for (unsigned int i = 0; i < len; i += 2)
+					pLine[i] = 0x3e;
+			#endif
+	
+			ST7565_BlitFullScreen();
+		}
+	}
 #endif
 
 void UI_DisplayMain(void)
@@ -256,7 +294,7 @@ void UI_DisplayMain(void)
 							memmove(pLine0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
 					#endif
 				#endif
-				
+
 				switch (gEeprom.CHANNEL_DISPLAY_MODE)
 				{
 					case MDF_FREQUENCY:	// show the channel frequency
@@ -397,6 +435,7 @@ void UI_DisplayMain(void)
 		}
 		UI_PrintStringSmall(String, LCD_WIDTH + 24, 0, Line + 1);
 
+		if (State != VFO_STATE_TX_DISABLE)
 		{	// show the TX power
 			const char pwr_list[] = "LMH";
 			const unsigned int i = gEeprom.VfoInfo[vfo_num].OUTPUT_POWER;
@@ -427,8 +466,8 @@ void UI_DisplayMain(void)
 			}
 			UI_PrintStringSmall(String, LCD_WIDTH + 70, 0, Line + 1);
 		}
-		
-		// show the DTMF decoding symbol
+
+		// show the DTMF decoding symbol(
 		if (gEeprom.VfoInfo[vfo_num].DTMF_DECODING_ENABLE || gSetting_KILLED)
 			UI_PrintStringSmall("DTMF", LCD_WIDTH + 78, 0, Line + 1);
 
@@ -439,6 +478,10 @@ void UI_DisplayMain(void)
 
 	if (center_line_is_free)
 	{
+		#ifdef ENABLE_AUDIO_BAR
+			UI_DisplayAudioBar();
+		#endif
+		
 		if (gSetting_live_DTMF_decoder && gDTMF_ReceivedSaved[0] >= 32)
 		{	// show live DTMF decode
 			UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);

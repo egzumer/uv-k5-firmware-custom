@@ -193,6 +193,9 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 				BK4819_DisableScramble();
 
 			break;
+
+		case FUNCTION_BAND_SCOPE:
+			break;
 	}
 
 	gBatterySaveCountdown_10ms = battery_save_count_10ms;

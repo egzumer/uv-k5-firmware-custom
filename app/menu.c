@@ -82,6 +82,7 @@
 		VOICE_ID_INVALID,                         // STE
 		VOICE_ID_INVALID,                         // RP-STE
 		VOICE_ID_INVALID,                         // MIC
+		VOICE_ID_INVALID,                         // MICBAR
 		#ifdef ENABLE_COMPANDER
 			VOICE_ID_INVALID,                     // COMPND
 		#endif
@@ -254,6 +255,9 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 			break;
 		#endif
 
+		#ifdef ENABLE_AUDIO_BAR
+			case MENU_MIC_BAR:
+		#endif
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_AUTOLK:
@@ -596,6 +600,12 @@ void MENU_AcceptSetting(void)
 			gFlagReconfigureVfos = true;
 			break;
 
+		#ifdef ENABLE_AUDIO_BAR
+			case MENU_MIC_BAR:
+				gSetting_mic_bar = gSubMenuSelection;
+				break;
+		#endif
+			
 		#ifdef ENABLE_COMPANDER
 			case MENU_COMPAND:
 				gTxVfo->Compander = gSubMenuSelection;
@@ -966,6 +976,12 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gEeprom.MIC_SENSITIVITY;
 			break;
 
+		#ifdef ENABLE_AUDIO_BAR
+			case MENU_MIC_BAR:
+				gSubMenuSelection = gSetting_mic_bar;
+				break;
+		#endif
+		
 		#ifdef ENABLE_COMPANDER
 			case MENU_COMPAND:
 				gSubMenuSelection = gTxVfo->Compander;

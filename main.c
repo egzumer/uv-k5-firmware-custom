@@ -15,6 +15,7 @@
  */
 
 #include <string.h>
+#include <stdio.h>     // NULL
 
 #include "app/app.h"
 #include "app/dtmf.h"
@@ -95,7 +96,12 @@ void Main(void)
 
 	BATTERY_GetReadings(false);
 
+	// count the number of menu list items
 	gMenuListCount = 0;
+//	while (MenuList[gMenuListCount][0] != 0)
+	while (MenuList[gMenuListCount] != NULL)
+		gMenuListCount++;
+	gMenuListCount -= 8;       // disable the last few menu items .. they are the normally 'hidden' menu items
 
 	boot_counter_10ms = 250;   // 2.5 sec
 	
@@ -113,13 +119,6 @@ void Main(void)
 	else
 	{
 		BOOT_Mode_t  BootMode;
-
-		// count the number of menu list items
-		while (MenuList[gMenuListCount][0] != 0)
-			gMenuListCount++;
-		// disable the N menu items
-		//gMenuListCount -= 6;
-		gMenuListCount -= 8;
 
 		UI_DisplayWelcome();
 		BACKLIGHT_TurnOn();

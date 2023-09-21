@@ -1,6 +1,8 @@
 
 # compile options (see Readme.md)
-# '0' = disable, 1 = enable
+# '0' = disable
+# '1' = enable
+#
 ENABLE_SWD                    := 0
 ENABLE_OVERLAY                := 1
 ENABLE_UART                   := 1
@@ -19,6 +21,7 @@ ENABLE_BOOT_BEEPS             := 0
 ENABLE_COMPANDER              := 1
 ENABLE_SHOW_CHARGE_LEVEL      := 0
 ENABLE_REVERSE_BAT_SYMBOL     := 1
+ENABLE_AUDIO_BAR              := 0
 #ENABLE_SINGLE_VFO_CHAN       := 1
 #ENABLE_BAND_SCOPE            := 1
 
@@ -127,7 +130,9 @@ LD = arm-none-eabi-gcc
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
 
+# the user might not have/want git installed
 GIT_HASH := $(shell git rev-parse --short HEAD)
+$(info GIT_HASH = $(GIT_HASH)) 
 
 ASFLAGS = -c -mcpu=cortex-m0
 ifeq ($(ENABLE_OVERLAY),1)
@@ -135,7 +140,6 @@ ifeq ($(ENABLE_OVERLAY),1)
 endif
 
 CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
-#CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD -fdata-sections -ffunction-sections
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
 ifeq ($(ENABLE_SWD),1)
@@ -192,6 +196,9 @@ endif
 ifeq ($(ENABLE_REVERSE_BAT_SYMBOL),1)
 	CFLAGS  += -DENABLE_REVERSE_BAT_SYMBOL
 endif
+ifeq ($(ENABLE_AUDIO_BAR),1)
+	CFLAGS  += -DENABLE_AUDIO_BAR
+endif
 ifeq ($(ENABLE_SINGLE_VFO_CHAN),1)
 	CFLAGS  += -DENABLE_SINGLE_VFO_CHAN
 endif
@@ -200,7 +207,6 @@ ifeq ($(ENABLE_BAND_SCOPE),1)
 endif
 
 LDFLAGS = -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld
-#LDFLAGS = -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld,--gc-sections
 
 ifeq ($(DEBUG),1)
 	ASFLAGS += -g
@@ -219,8 +225,8 @@ DEPS = $(OBJS:.o=.d)
 
 all: $(TARGET)
 	$(OBJCOPY) -O binary $< $<.bin
-#	-python fw-pack.py $<.bin $(GIT_HASH) $<.packed.bin
-#	-python3 fw-pack.py $<.bin $(GIT_HASH) $<.packed.bin
+	-python fw-pack.py $<.bin $(GIT_HASH) $<.packed.bin
+	-python3 fw-pack.py $<.bin $(GIT_HASH) $<.packed.bin
 	$(SIZE) $<
 
 debug:

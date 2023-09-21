@@ -30,6 +30,7 @@ ENABLE_BOOT_BEEPS             := 0       give user audio feedback on volume knob
 ENABLE_COMPANDER              := 1       compander option (per channel)
 ENABLE_SHOW_CHARGE_LEVEL      := 1       show the charge level when the radio is on charge 
 ENABLE_REVERSE_BAT_SYMBOL     := 1       mirror the battery symbol on the status bar (+ pole on the right)
+ENABLE_AUDIO_BAR              := 0       experimentle, display an audo bar level when TX'ing
 #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible
 #ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter
 ```
@@ -67,7 +68,8 @@ To compile directly in windows without the need of a linux virtual machine:
 ```
 1. Download and install "gcc-arm-none-eabi-10.3-2021.10-win32.exe" from https://developer.arm.com/downloads/-/gnu-rm
 2. Download and install "gnu_make-3.81.exe" from https://gnuwin32.sourceforge.net/packages/make.htm
-3. You may (or may not) need to reboot your PC after installing the above
+3. You may (or not) need to manualy add gcc path to you OS environment PATH, ie C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2021.10\bin
+4. You may (or not) need to reboot your PC after installing the above
 ```
 
 Then you can run 'win_make.bat' from the directory you saved this source code too.

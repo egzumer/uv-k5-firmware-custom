@@ -56,6 +56,7 @@
 #endif
 #include "ui/battery.h"
 #include "ui/inputbox.h"
+#include "ui/main.h"
 #include "ui/menu.h"
 #include "ui/rssi.h"
 #include "ui/status.h"
@@ -388,6 +389,9 @@ static void APP_HandleFunction(void)
 		case FUNCTION_POWER_SAVE:
 			if (!gRxIdleMode)
 				APP_CheckForIncoming();
+			break;
+
+		case FUNCTION_BAND_SCOPE:
 			break;
 	}
 }
@@ -1515,15 +1519,32 @@ void APP_TimeSlice10ms(void)
 		APP_CheckRadioInterrupts();
 
 	if (gCurrentFunction != FUNCTION_TRANSMIT)
-	{
+	{	// receiving
 		if (gUpdateStatus)
 			UI_DisplayStatus(false);
 
 		if (gUpdateDisplay)
 		{
-			GUI_DisplayScreen();
 			gUpdateDisplay = false;
+			GUI_DisplayScreen();
 		}
+	}
+	else
+	{	// transmitting
+		#ifdef ENABLE_AUDIO_BAR
+			if (gSetting_mic_bar && (gFlashLightBlinkCounter % (100 / 10)) == 0) // once every 100ms
+				UI_DisplayAudioBar();
+				//gUpdateDisplay = true;
+		#endif
+
+		if (gUpdateDisplay)
+		{
+			gUpdateDisplay = false;
+			GUI_DisplayScreen();
+		}
+
+		if (gUpdateStatus)
+			UI_DisplayStatus(false);
 	}
 
 	// Skipping authentic device checks

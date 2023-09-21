@@ -821,23 +821,27 @@ void BK4819_DisableDTMF(void)
 void BK4819_EnableDTMF(void)
 {
 	// no idea what this register does
-	BK4819_WriteRegister(BK4819_REG_21, 0x06D8);
+	BK4819_WriteRegister(BK4819_REG_21, 0x06D8);        // 0000 0110 1101 1000
 
-	// REG_24 <5>   0 DTMF/SelCall Enable
-	//              1 = Enable
-	//              0 = Disable
-	// REG_24 <4>   1 DTMF or SelCall Detection Mode
-	//              1 = for DTMF
-	//              0 = for SelCall
-	// REG_24 <3:0> 14 Max Symbol Number for SelCall Detection
+	// REG_24 <15>   1  ???
+	// REG_24 <14:7> 24 Threshold
+	// REG_24 <6>    1  ???
+	// REG_24 <5>    0  DTMF/SelCall enable
+	//               1 = Enable
+	//               0 = Disable
+	// REG_24 <4>    1  DTMF or SelCall detection mode
+	//               1 = for DTMF
+	//               0 = for SelCall
+	// REG_24 <3:0>  14 Max symbol number for SelCall detection
 	//
-	BK4819_WriteRegister(BK4819_REG_24,
-		  (1u  << BK4819_REG_24_SHIFT_UNKNOWN_15)
-		| (24u << BK4819_REG_24_SHIFT_THRESHOLD)
-		| (1u  << BK4819_REG_24_SHIFT_UNKNOWN_6)
-		|         BK4819_REG_24_ENABLE
-		|         BK4819_REG_24_SELECT_DTMF
-		| (14u << BK4819_REG_24_SHIFT_MAX_SYMBOLS));
+	const uint16_t threshold = 24;
+	BK4819_WriteRegister(BK4819_REG_24,                // 1 00011000 1 1 1 1110
+		  (1u        << BK4819_REG_24_SHIFT_UNKNOWN_15)
+		| (threshold << BK4819_REG_24_SHIFT_THRESHOLD)
+		| (1u        << BK4819_REG_24_SHIFT_UNKNOWN_6)
+		|               BK4819_REG_24_ENABLE
+		|               BK4819_REG_24_SELECT_DTMF
+		| (14u       << BK4819_REG_24_SHIFT_MAX_SYMBOLS));
 }
 
 void BK4819_PlayTone(uint16_t Frequency, bool bTuningGainSwitch)
@@ -1183,6 +1187,26 @@ void BK4819_EnableCTCSS(void)
 uint16_t BK4819_GetRSSI(void)
 {
 	return BK4819_ReadRegister(BK4819_REG_67) & 0x01FF;
+}
+
+uint8_t  BK4819_GetGlitchIndicator(void)
+{
+	return BK4819_ReadRegister(BK4819_REG_63) & 0x00FF;
+}
+
+uint8_t  BK4819_GetExNoiceIndicator(void)
+{
+	return BK4819_ReadRegister(BK4819_REG_65) & 0x007F;
+}
+
+uint16_t BK4819_GetVoiceAmplitudeOut(void)
+{
+	return BK4819_ReadRegister(BK4819_REG_64);
+}
+
+uint8_t BK4819_GetAfTxRx(void)
+{
+	return BK4819_ReadRegister(BK4819_REG_6F) & 0x003F;
 }
 
 bool BK4819_GetFrequencyScanResult(uint32_t *pFrequency)

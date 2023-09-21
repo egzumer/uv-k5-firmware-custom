@@ -55,6 +55,9 @@ enum
 	MENU_STE,
 	MENU_RP_STE,
 	MENU_MIC,
+	#ifdef ENABLE_AUDIO_BAR
+		MENU_MIC_BAR,
+	#endif
 	#ifdef ENABLE_COMPANDER
 		MENU_COMPAND,
 	#endif
@@ -99,7 +102,7 @@ enum
 	MENU_F_CALI   // reference xtal calibration
 };
 
-extern const char MenuList[][7];
+extern const char *MenuList[];
 
 extern const char gSubMenu_TXP[3][5];
 extern const char gSubMenu_SFT_D[3][4];

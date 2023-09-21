@@ -17,6 +17,7 @@
 #ifndef UI_MAIN_H
 #define UI_MAIN_H
 
+void UI_DisplayAudioBar(void);
 void UI_DisplayMain(void);
 
 #endif
