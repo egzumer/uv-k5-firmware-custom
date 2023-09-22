@@ -1400,8 +1400,8 @@ void APP_CheckKeys(void)
 		//                 1 = -27dB
 		//                 0 = -33dB
 
-		// -90dBm, any higher and the AM demodulator starts to saturate/clip (distort)
-		const uint16_t desired_rssi = (-90 + 160) * 2;   // dBm to ADC sample
+		// -87dBm, any higher and the AM demodulator starts to saturate/clip (distort)
+		const uint16_t desired_rssi = (-87 + 160) * 2;   // dBm to ADC sample
 
 		// start with current settings
 		register uint16_t new_lna_short = am_lna_short;
@@ -1424,7 +1424,8 @@ void APP_CheckKeys(void)
 		}
 		else
 		{
-			max_lna = 5;
+//			max_lna = 4;
+			max_lna = 7;
 			max_pga = 7;
 		}
 
@@ -1447,20 +1448,20 @@ void APP_CheckKeys(void)
 		if (rssi > desired_rssi)
 		{	// decrease gain
 
+			if (new_lna > orig_lna)
+				new_lna--;
+			else
 			if (new_pga > orig_pga)
 				new_pga--;
 			else
 			if (new_mixer > orig_mixer)
 				new_mixer--;
 			else
-			if (new_lna > orig_lna)
+			if (new_lna > 0)
 				new_lna--;
 			else
 			if (new_pga > 0)
 				new_pga--;
-			else
-			if (new_lna > 0)
-				new_lna--;
 			else
 			if (new_mixer > 0)
 				new_mixer--;
@@ -1477,7 +1478,7 @@ void APP_CheckKeys(void)
 		if (am_fix_increase_counter == 0)
 		{	// increase gain
 
-			if (rssi < (desired_rssi - 7))
+			if (rssi < (desired_rssi - 10))
 			{	// increase gain
 				if (new_pga < max_pga)
 				{
