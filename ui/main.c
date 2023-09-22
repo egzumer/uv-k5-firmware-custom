@@ -46,6 +46,11 @@
 			
 			#if 1
 				// TX audio level
+				
+				
+				// TODO: logify this to make the bar visible with the mostly small value
+				
+				
 				const uint16_t voice_amp = BK4819_GetVoiceAmplitudeOut();  // 15:0
 				const unsigned int max   = 32767;
 				const unsigned int level = (((uint32_t)voice_amp * lcd_width) + (max / 2)) / max; // with rounding
@@ -318,11 +323,13 @@ void UI_DisplayMain(void)
 
 					case MDF_NAME:		// show the channel name
 					case MDF_NAME_FREQ:	// show the channel name and frequency
+
 						BOARD_fetchChannelName(String, gEeprom.ScreenChannel[vfo_num]);
 						if (String[0] == 0)
 						{	// no channel name, show the channel number instead
 							sprintf(String, "CH-%03u", gEeprom.ScreenChannel[vfo_num] + 1);
 						}
+
 						if (gEeprom.CHANNEL_DISPLAY_MODE == MDF_NAME)
 						{
 							UI_PrintString(String, 32, 0, Line, 8);
@@ -334,6 +341,7 @@ void UI_DisplayMain(void)
 							sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
 							UI_PrintStringSmall(String, 32 + 4, 0, Line + 1);
 						}
+
 						break;
 				}
 			}
@@ -477,24 +485,28 @@ void UI_DisplayMain(void)
 	}
 
 	if (center_line_is_free)
-	{
+	{	// we're free to use the middle empty line for something
+
 		#ifdef ENABLE_AUDIO_BAR
 			UI_DisplayAudioBar();
-		#endif
 		
-		if (gSetting_live_DTMF_decoder && gDTMF_ReceivedSaved[0] >= 32)
-		{	// show live DTMF decode
-			UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);
-		}
-		else
-		if (gChargingWithTypeC)
-		{	// charging .. show the battery state
-			#ifdef ENABLE_SHOW_CHARGE_LEVEL
-				const uint16_t volts   = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
-				const uint16_t percent = (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v);
-				sprintf(String, "Charge %u.%02uV %u%%", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100, percent);
-				UI_PrintStringSmall(String, 2, 0, 3);
-			#endif
+			if (!gSetting_mic_bar)
+		#endif
+		{
+			if (gSetting_live_DTMF_decoder && gDTMF_ReceivedSaved[0] >= 32)
+			{	// show live DTMF decode
+				UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);
+			}
+			else
+			if (gChargingWithTypeC)
+			{	// charging .. show the battery state
+				#ifdef ENABLE_SHOW_CHARGE_LEVEL
+					const uint16_t volts   = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
+					const uint16_t percent = (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v);
+					sprintf(String, "Charge %u.%02uV %u%%", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100, percent);
+					UI_PrintStringSmall(String, 2, 0, 3);
+				#endif
+			}
 		}
 	}
 

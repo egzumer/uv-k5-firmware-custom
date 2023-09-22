@@ -63,32 +63,37 @@
 #include "ui/ui.h"
 
 // original QS front end gains
-static uint16_t lna_short = 3;   //   0dB
-static uint16_t lna       = 2;   // -14dB
-static uint16_t mixer     = 3;   //   0dB
-static uint16_t pga       = 6;   //  -3dB
-
+const uint16_t  orig_lna_short = 3;   //   0dB
+const uint16_t  orig_lna       = 2;   // -14dB
+const uint16_t  orig_mixer     = 3;   //   0dB
+const uint16_t  orig_pga       = 6;   //  -3dB
+	
 #ifdef ENABLE_AM_FIX
+	// stuff to overcome the AM demodulator saturation problem
+	
+	static uint16_t am_lna_short   = orig_lna_short;
+	static uint16_t am_lna         = orig_lna;      
+	static uint16_t am_mixer       = orig_mixer;    
+	static uint16_t am_pga         = orig_pga;      
+
 	// moving average RSSI buffer
 	struct {
 		unsigned int count;
 		unsigned int index;
-		uint16_t     samples[10];   // 100ms long buffer (10ms RSSI sample rate)
+		uint16_t     samples[4];    // 40ms long buffer (10ms RSSI sample rate)
 		uint16_t     sum;           // sum of all samples in the buffer
 	} moving_avg_rssi;
 
-	unsigned int rssi_peak_hold_val   = 0;
-	unsigned int rssi_peak_hold_count = 0;
+	unsigned int am_fix_increase_counter = 0;
 
 	void APP_reset_AM_fix(void)
 	{
 		// reset the moving average filter
 		memset(&moving_avg_rssi, 0, sizeof(moving_avg_rssi));
 
-		// reset the peak hold
-		rssi_peak_hold_val   = 0;
-		rssi_peak_hold_count = 0;
+		am_fix_increase_counter = 0;
 	}
+
 #endif
 
 static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
@@ -218,7 +223,7 @@ static void APP_HandleIncoming(void)
 		}
 	}
 
-	APP_StartListening(FUNCTION_RECEIVE);
+	APP_StartListening(FUNCTION_RECEIVE, false);
 }
 
 static void APP_HandleReceive(void)
@@ -432,7 +437,7 @@ static void APP_HandleFunction(void)
 	}
 }
 
-void APP_StartListening(FUNCTION_Type_t Function)
+void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 {
 	if (gSetting_KILLED)
 		return;
@@ -443,7 +448,8 @@ void APP_StartListening(FUNCTION_Type_t Function)
 	#endif
 
 	#ifdef ENABLE_AM_FIX
-		APP_reset_AM_fix();
+		if (reset_am_fix)
+			APP_reset_AM_fix();      // TODO: only reset it when moving channel/frequency
 	#endif
 
 	gVFO_RSSI_Level[gEeprom.RX_CHANNEL == 0] = 0;
@@ -505,20 +511,16 @@ void APP_StartListening(FUNCTION_Type_t Function)
 		gUpdateStatus    = true;
 	}
 
+	// original setting
+	uint16_t lna_short = orig_lna_short;
+	uint16_t lna       = orig_lna;      
+	uint16_t mixer     = orig_mixer;    
+	uint16_t pga       = orig_pga;      
+	
 	if (gRxVfo->IsAM)
 	{	// AM
 
-		#ifdef ENABLE_AM_FIX
-			if (gSetting_AM_fix)
-			{	// original
-				lna_short = 3;
-				lna       = 2;
-				mixer     = 3;
-				pga       = 6;
-			}
-			else
-		#endif
-		{
+		#ifndef ENABLE_AM_FIX
 			const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
 
 			// the RX gain abrutly reduces above this frequency
@@ -537,7 +539,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 				mixer     = 3;   // 3 original
 				pga       = 7;   // 6 original, 7 increased
 			}
-		}
+		#endif
 
 		// what do these 4 other gain settings do ???
 		//BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
@@ -546,15 +548,6 @@ void APP_StartListening(FUNCTION_Type_t Function)
 		//BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
 
 		gNeverUsed = 0;
-	}
-	else
-	{	// FM
-
-		// original
-		lna_short = 3;   // whats 'LNA short' mean ?
-		lna       = 2;
-		mixer     = 3;
-		pga       = 6;
 	}
 
 	// apply the front end gain settings
@@ -1004,14 +997,14 @@ void APP_Update(void)
 		if (IS_FREQ_CHANNEL(gNextMrChannel))
 		{
 			if (gCurrentFunction == FUNCTION_INCOMING)
-				APP_StartListening(FUNCTION_RECEIVE);
+				APP_StartListening(FUNCTION_RECEIVE, true);
 			else
 				FREQ_NextChannel();
 		}
 		else
 		{
 			if (gCurrentCodeType == CODE_TYPE_OFF && gCurrentFunction == FUNCTION_INCOMING)
-				APP_StartListening(FUNCTION_RECEIVE);
+				APP_StartListening(FUNCTION_RECEIVE, true);
 			else
 				MR_NextChannel();
 		}
@@ -1407,14 +1400,33 @@ void APP_CheckKeys(void)
 		//                 1 = -27dB
 		//                 0 = -33dB
 
-		// start with current settings
-		register uint16_t new_lna_short = lna_short;
-		register uint16_t new_lna       = lna;
-		register uint16_t new_mixer     = mixer;
-		register uint16_t new_pga       = pga;
+		// -90dBm, any higher and the AM demodulator starts to saturate/clip (distort)
+		const uint16_t desired_rssi = (-90 + 160) * 2;   // dBm to ADC sample
 
-		// -87dBm, any higher and the AM demodulator starts to saturate/clip (distort)
-		const uint16_t desired_rssi = (-87 + 160) * 2;   // dBm to ADC sample
+		// start with current settings
+		register uint16_t new_lna_short = am_lna_short;
+		register uint16_t new_lna       = am_lna;
+		register uint16_t new_mixer     = am_mixer;
+		register uint16_t new_pga       = am_pga;
+
+		// max gains to use
+//		uint16_t max_lna_short = orig_lna_short;
+		uint16_t max_lna       = orig_lna;
+		uint16_t max_mixer     = orig_mixer;
+		uint16_t max_pga       = orig_pga;
+		
+		const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
+
+		// the RX gain abrutly reduces above this frequency
+		if (rx_frequency <= 22640000)
+		{
+			max_pga = 7;
+		}
+		else
+		{
+			max_lna = 5;
+			max_pga = 7;
+		}
 
 		// sample the current RSSI level
 		uint16_t rssi = BK4819_GetRSSI(); // 9-bit value (0 .. 511)
@@ -1429,30 +1441,19 @@ void APP_CheckKeys(void)
 		if (++moving_avg_rssi.index >= ARRAY_SIZE(moving_avg_rssi.samples))     // next buffer slot
 			moving_avg_rssi.index = 0;                                          // wrap-a-round
 		rssi = moving_avg_rssi.sum / moving_avg_rssi.count;                     // compute the average of the past 'n' samples
-#if 1
-		if (rssi > rssi_peak_hold_val)
-		{	// enter hold mode (pause any gain increases)
-			rssi_peak_hold_val   = rssi;
-			rssi_peak_hold_count = 10;  // 100ms
-		}
-		else
-		if (rssi_peak_hold_count > 0)
-			rssi_peak_hold_count--;
-		else
-			rssi_peak_hold_val = rssi;
-#endif
-		// the register adjustments below to be a bit more inteligent in order to obtain a consitant fine step size
+
+		// the register adjustments below to be more inteligent in order to maintain a good stable setting
 
 		if (rssi > desired_rssi)
 		{	// decrease gain
 
-			if (new_pga > 6)
+			if (new_pga > orig_pga)
 				new_pga--;
 			else
-			if (new_mixer > 3)
+			if (new_mixer > orig_mixer)
 				new_mixer--;
 			else
-			if (new_lna > 2)
+			if (new_lna > orig_lna)
 				new_lna--;
 			else
 			if (new_pga > 0)
@@ -1466,41 +1467,55 @@ void APP_CheckKeys(void)
 //			else
 //			if (new_lna_short > 0)
 //				new_lna_short--;
+
+			am_fix_increase_counter = 50;           // 500ms
 		}
 
-		if (moving_avg_rssi.index > 0)
-		{	// increase gain once every 100ms
+		if (am_fix_increase_counter > 0)
+			am_fix_increase_counter--;
+		
+		if (am_fix_increase_counter == 0)
+		{	// increase gain
 
-			if (rssi_peak_hold_count == 0)
-			{
-				if (rssi < (desired_rssi - 7))
-				{	// increase gain
-					if (new_pga < 7)
-						new_pga++;
-					else
-					if (new_mixer < 3)
-						new_mixer++;
-					else
-					if (new_lna < 7)
-						new_lna++;
-//					else
-//					if (new_lna_short < 3)
-//						new_lna_short++;
+			if (rssi < (desired_rssi - 7))
+			{	// increase gain
+				if (new_pga < max_pga)
+				{
+					new_pga++;
+					am_fix_increase_counter = 10;   // 100ms
 				}
+				else
+				if (new_mixer < max_mixer)
+				{
+					new_mixer++;
+					am_fix_increase_counter = 10;   // 100ms
+				}
+				else
+				if (new_lna < max_lna)
+				{
+					new_lna++;
+					am_fix_increase_counter = 10;   // 100ms
+				}
+//				else
+//				if (new_lna_short < max_lna_short)
+//				{
+//					new_lna_short++;
+//					am_fix_increase_counter = 10;   // 100ms
+//				}
 			}
 		}
 
-		if (lna_short == new_lna_short && lna == new_lna && mixer == new_mixer && pga == new_pga)
+		if (am_lna_short == new_lna_short && am_lna == new_lna && am_mixer == new_mixer && am_pga == new_pga)
 			return;    // no gain changes
 
 		// apply the new gain settings to the front end
 
-		lna_short = new_lna_short;
-		lna       = new_lna;
-		mixer     = new_mixer;
-		pga       = new_pga;
+		am_lna_short = new_lna_short;
+		am_lna       = new_lna;
+		am_mixer     = new_mixer;
+		am_pga       = new_pga;
 
-		BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
+		BK4819_WriteRegister(BK4819_REG_13, (am_lna_short << 8) | (am_lna << 5) | (am_mixer << 3) | (am_pga << 0));
 
 
 
