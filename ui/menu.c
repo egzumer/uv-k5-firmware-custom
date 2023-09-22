@@ -676,31 +676,43 @@ void UI_DisplayMenu(void)
 //		if (gSubMenuSelection == 0xFF || !gEeprom.SCAN_LIST_ENABLED[i])
 		if (gSubMenuSelection < 0 || !gEeprom.SCAN_LIST_ENABLED[i])
 		{
+			// channel number
 			UI_PrintString(String, menu_item_x1, menu_item_x2, 0, 8);
+
+			// channel name
+			BOARD_fetchChannelName(String, gSubMenuSelection);
+			if (String[0] == 0)
+				strcpy(String, "--");
+			UI_PrintString(String, menu_item_x1, menu_item_x2, 2, 8);
 		}
 		else
 		{
+			// channel number
 			UI_PrintString(String, menu_item_x1, menu_item_x2, 0, 8);
+
+			// channel name
+			BOARD_fetchChannelName(String, gSubMenuSelection);
+			if (String[0] == 0)
+				strcpy(String, "--");
+			UI_PrintStringSmall(String, menu_item_x1, menu_item_x2, 2);
 
 			if (IS_MR_CHANNEL(gEeprom.SCANLIST_PRIORITY_CH1[i]))
 			{
 				sprintf(String, "PRI1:%u", gEeprom.SCANLIST_PRIORITY_CH1[i] + 1);
-				UI_PrintString(String, menu_item_x1, menu_item_x2, 2, 8);
+				UI_PrintString(String, menu_item_x1, menu_item_x2, 3, 8);
 			}
 
 			if (IS_MR_CHANNEL(gEeprom.SCANLIST_PRIORITY_CH2[i]))
 			{
 				sprintf(String, "PRI2:%u", gEeprom.SCANLIST_PRIORITY_CH2[i] + 1);
-				UI_PrintString(String, menu_item_x1, menu_item_x2, 4, 8);
+				UI_PrintString(String, menu_item_x1, menu_item_x2, 5, 8);
 			}
 		}
 	}
 
 	if (gMenuCursor == MENU_MEM_CH   ||
 	    gMenuCursor == MENU_DEL_CH   ||
-	    gMenuCursor == MENU_1_CALL   ||
-		gMenuCursor == MENU_SLIST1   ||
-		gMenuCursor == MENU_SLIST2)
+	    gMenuCursor == MENU_1_CALL)
 	{	// display the channel name
 		char s[11];
 		BOARD_fetchChannelName(s, gSubMenuSelection);
