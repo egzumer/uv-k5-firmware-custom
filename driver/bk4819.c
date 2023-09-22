@@ -515,7 +515,7 @@ void BK4819_EnableVox(uint16_t VoxEnableThreshold, uint16_t VoxDisableThreshold)
 	BK4819_WriteRegister(BK4819_REG_31, REG_31_Value | (1u << 2));    // VOX Enable
 }
 
-void BK4819_SetFilterBandwidth(BK4819_FilterBandwidth_t Bandwidth, const bool weak_no_different)
+void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const bool weak_no_different)
 {
 	// REG_43 <14:12> 4 RF filter bandwidth
 	//                0 = 1.7  kHz
@@ -557,11 +557,12 @@ void BK4819_SetFilterBandwidth(BK4819_FilterBandwidth_t Bandwidth, const bool we
 	// REG_43 <2>     0 Gain after FM Demodulation
 	//                0 = 0dB
 	//                1 = 6dB
-	//
+
 	if (Bandwidth == BK4819_FILTER_BW_WIDE)
 	{
 		if (weak_no_different)
-		{
+		{	// make the bandwidth the same with weak signals (sounds much better)
+
 			BK4819_WriteRegister(BK4819_REG_43,
 				(0u << 15) |     // 0
 				(3u << 12) |     // 3 RF filter bandwidth
@@ -618,10 +619,10 @@ void BK4819_SetFilterBandwidth(BK4819_FilterBandwidth_t Bandwidth, const bool we
 	{
 		if (weak_no_different)
 		{
-			BK4819_WriteRegister(BK4819_REG_43,                    // 0 100 000 001 01 1 0 00
+			BK4819_WriteRegister(BK4819_REG_43,
 				(0u << 15) |     // 0
-				(4u << 12) |     // 4 RF filter bandwidth
-				(4u <<  9) |     // 0 RF filter bandwidth when signal is weak
+				(2u << 12) |     // 4 RF filter bandwidth
+				(2u <<  9) |     // 0 RF filter bandwidth when signal is weak
 				(1u <<  6) |     // 1 AFTxLPF2 filter Band Width
 				(1u <<  4) |     // 1 BW Mode Selection
 				(1u <<  3) |     // 1
@@ -630,9 +631,9 @@ void BK4819_SetFilterBandwidth(BK4819_FilterBandwidth_t Bandwidth, const bool we
 		}
 		else
 		{
-			BK4819_WriteRegister(BK4819_REG_43,                    // 0 100 000 001 01 1 0 00
+			BK4819_WriteRegister(BK4819_REG_43,
 				(0u << 15) |     // 0
-				(4u << 12) |     // 4 RF filter bandwidth
+				(2u << 12) |     // 4 RF filter bandwidth
 				(0u <<  9) |     // 0 RF filter bandwidth when signal is weak
 				(1u <<  6) |     // 1 AFTxLPF2 filter Band Width
 				(1u <<  4) |     // 1 BW Mode Selection
@@ -643,28 +644,28 @@ void BK4819_SetFilterBandwidth(BK4819_FilterBandwidth_t Bandwidth, const bool we
 	}
 }
 
-void BK4819_SetupPowerAmplifier(uint16_t Bias, uint32_t Frequency)
+void BK4819_SetupPowerAmplifier(const uint8_t bias, const uint32_t frequency)
 {
-	uint8_t Gain;
-
-	if (Bias > 255)
-		Bias = 255;
-
-	if (Frequency < 28000000)
-	{
-		// Gain 1 = 1
-		// Gain 2 = 0
-		Gain = 0x08U;
-	}
-	else
-	{
-		// Gain 1 = 4
-		// Gain 2 = 2
-		Gain = 0x22U;
-	}
-
-	// Enable PACTLoutput
-	BK4819_WriteRegister(BK4819_REG_36, (Bias << 8) | 0x80U | Gain);
+	// REG_36 <15:8> 0 PA Bias output 0 ~ 3.2V
+	//               255 = 3.2V
+	//                 0 = 0V
+	//
+	// REG_36 <7>    0
+	//               1 = Enable PA-CTL output
+	//               0 = Disable (Output 0 V)
+	//
+	// REG_36 <5:3>  7 PA gain 1 tuning
+	//               7 = max
+	//               0 = min
+	//
+	// REG_36 <2:0>  7 PA gain 2 tuning
+	//               7 = max
+	//               0 = min
+	//
+	//                                  280MHz       gain 1 = 1  gain 2 = 0  gain 1 = 4  gain 2 = 2
+	const uint8_t gain   = (frequency < 28000000) ? (1u << 3) | (0u << 0) : (4u << 3) | (2u << 0);
+	const uint8_t enable = 1;
+	BK4819_WriteRegister(BK4819_REG_36, (bias << 8) | (enable << 7) | (gain << 0));
 }
 
 void BK4819_SetFrequency(uint32_t Frequency)
@@ -684,35 +685,63 @@ void BK4819_SetupSquelch(
 	// REG_70 <15>   0 Enable TONE1
 	//               1 = Enable
 	//               0 = Disable
+	//
 	// REG_70 <14:8> 0 TONE1 tuning gain
+	//               0 ~ 127
+	//
 	// REG_70 <7>    0 Enable TONE2
 	//               1 = Enable
 	//               0 = Disable
+	//
 	// REG_70 <6:0>  0 TONE2/FSK tuning gain
+	//               0 ~ 127
 	//
 	BK4819_WriteRegister(BK4819_REG_70, 0);
 
 	// Glitch threshold for Squelch
 	//
+	// 0 ~ 255
+	//
 	BK4819_WriteRegister(BK4819_REG_4D, 0xA000 | SquelchCloseGlitchThresh);
 
-	// REG_4E <13:11> 5 Squelch = 1 Delay Setting
-	// REG_4E <10: 9> 7 Squelch = 0 Delay Setting
-	// REG_4E < 7: 0> 8 Glitch threshold for Squelch = 1
+	// REG_4E <15:14> 1 ???
 	//
-	#if 1
-		BK4819_WriteRegister(BK4819_REG_4E, 0x6F00 | SquelchOpenGlitchThresh);
+	// REG_4E <13:11> 5 Squelch = 1 Delay Setting
+	//                0 ~ 7
+	//
+	// REG_4E <10: 9> 7 Squelch = 0 Delay Setting
+	//                0 ~ 3
+	//
+	// REG_4E <    8> 0 ???
+	//
+	// REG_4E < 7: 0> 8 Glitch threshold for Squelch = 1
+	//                0 ~ 255
+	//
+	BK4819_WriteRegister(BK4819_REG_4E,  // 01 101 11 1 00000000
+	#if 0
+		  (1u << 14)                // 1 ???
+		| (5u << 11)                // 5  squelch = 1 delay .. 0 ~ 7
+		| (3u <<  9)                // 3  squelch = 0 delay .. 0 ~ 3
+		| SquelchOpenGlitchThresh); // 0 ~ 255
 	#else
-		// https://github.com/fagci/uv-k5-firmware-fagci-mod
-		BK4819_WriteRegister(BK4819_REG_4E, 0x0040 | SquelchOpenGlitchThresh);
+		  (1u << 14)                // 1 ???
+		| (2u << 11)                // squelch = 1 delay .. 0 ~ 7
+		| (1u <<  9)                // squelch = 0 delay .. 0 ~ 3
+		| SquelchOpenGlitchThresh); // 0 ~ 255
 	#endif
-
+	
 	// REG_4F <14:8> 47 Ex-noise threshold for Squelch = 0
-	// REG_4F <6:0>  46 Ex-noise threshold for Squelch = 1
+	//               0 ~ 127
+	//
+	// REG_4F <   7> ???
+	//
+	// REG_4F < 6:0> 46 Ex-noise threshold for Squelch = 1
+	//               0 ~ 127
 	BK4819_WriteRegister(BK4819_REG_4F, ((uint16_t)SquelchCloseNoiseThresh << 8) | SquelchOpenNoiseThresh);
 
 	// REG_78 <15:8> 72 RSSI threshold for Squelch = 1   0.5dB/step
-	// REG_78  <7:0> 70 RSSI threshold for Squelch = 0   0.5dB/step
+	// REG_78 < 7:0> 70 RSSI threshold for Squelch = 0   0.5dB/step
+	//
 	BK4819_WriteRegister(BK4819_REG_78, ((uint16_t)SquelchOpenRSSIThresh   << 8) | SquelchCloseRSSIThresh);
 
 	BK4819_SetAF(BK4819_AF_MUTE);
@@ -881,9 +910,9 @@ void BK4819_PlayTone(uint16_t Frequency, bool bTuningGainSwitch)
 	BK4819_SetAF(BK4819_AF_BEEP);
 
 	if (bTuningGainSwitch == 0)
-		ToneConfig = BK4819_REG_70_ENABLE_TONE1 | (96U << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN);
+		ToneConfig = BK4819_REG_70_ENABLE_TONE1 | (96u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN);
 	else
-		ToneConfig = BK4819_REG_70_ENABLE_TONE1 | (28U << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN);
+		ToneConfig = BK4819_REG_70_ENABLE_TONE1 | (28u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN);
 	BK4819_WriteRegister(BK4819_REG_70, ToneConfig);
 
 	BK4819_WriteRegister(BK4819_REG_30, 0);

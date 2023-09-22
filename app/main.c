@@ -199,7 +199,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 						gRequestSaveVFO   = true;
 						gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
 					}
-					BK4819_SetFilterBandwidth(gTxVfo->CHANNEL_BANDWIDTH);
+					BK4819_SetFilterBandwidth(gTxVfo->CHANNEL_BANDWIDTH, );
 					gUpdateDisplay        = true;
 					gRequestDisplayScreen = gScreenToDisplay;
 				#else

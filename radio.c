@@ -440,30 +440,59 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 
 	if (gEeprom.SQUELCH_LEVEL == 0)
 	{
-		pInfo->SquelchOpenRSSIThresh    = 0x00;
-		pInfo->SquelchOpenNoiseThresh   = 0x7F;
-		pInfo->SquelchCloseGlitchThresh = 0xFF;
+		pInfo->SquelchOpenRSSIThresh    = 0;
+		pInfo->SquelchOpenNoiseThresh   = 127;
+		pInfo->SquelchCloseGlitchThresh = 255;
 
-		pInfo->SquelchCloseRSSIThresh   = 0x00;
-		pInfo->SquelchCloseNoiseThresh  = 0x7F;
-		pInfo->SquelchOpenGlitchThresh  = 0xFF;
+		pInfo->SquelchCloseRSSIThresh   = 0;
+		pInfo->SquelchCloseNoiseThresh  = 127;
+		pInfo->SquelchOpenGlitchThresh  = 255;
 	}
 	else
 	{
 		Base += gEeprom.SQUELCH_LEVEL;
+	                                                                          // my squelch-1
+																			  // VHF   UHF
+		EEPROM_ReadBuffer(Base + 0x00, &pInfo->SquelchOpenRSSIThresh,    1);  //  50    10
+		EEPROM_ReadBuffer(Base + 0x10, &pInfo->SquelchCloseRSSIThresh,   1);  //  40     5
 
-		EEPROM_ReadBuffer(Base + 0x00, &pInfo->SquelchOpenRSSIThresh,    1);
-		EEPROM_ReadBuffer(Base + 0x10, &pInfo->SquelchCloseRSSIThresh,   1);
+		EEPROM_ReadBuffer(Base + 0x20, &pInfo->SquelchOpenNoiseThresh,   1);  //  65    90
+		EEPROM_ReadBuffer(Base + 0x30, &pInfo->SquelchCloseNoiseThresh,  1);  //  70   100
 
-		EEPROM_ReadBuffer(Base + 0x20, &pInfo->SquelchOpenNoiseThresh,   1);
-		EEPROM_ReadBuffer(Base + 0x30, &pInfo->SquelchCloseNoiseThresh,  1);
+		EEPROM_ReadBuffer(Base + 0x40, &pInfo->SquelchCloseGlitchThresh, 1);  //  90    90
+		EEPROM_ReadBuffer(Base + 0x50, &pInfo->SquelchOpenGlitchThresh,  1);  // 100   100
 
-		EEPROM_ReadBuffer(Base + 0x40, &pInfo->SquelchCloseGlitchThresh, 1);
-		EEPROM_ReadBuffer(Base + 0x50, &pInfo->SquelchOpenGlitchThresh,  1);
-
+		#if ENABLE_SQUELCH1_LOWER
+			// make squelch-1 more sensitive
+			if (gEeprom.SQUELCH_LEVEL == 1)
+			{
+				if (Band < BAND4_174MHz)
+				{
+					pInfo->SquelchOpenRSSIThresh   = ((uint16_t)pInfo->SquelchOpenRSSIThresh     * 11) / 12;
+					pInfo->SquelchCloseRSSIThresh  = ((uint16_t)pInfo->SquelchOpenRSSIThresh     *  9) / 10;
+					
+					pInfo->SquelchOpenNoiseThresh   = ((uint16_t)pInfo->SquelchOpenNoiseThresh   *  9) /  8;
+					pInfo->SquelchCloseNoiseThresh  = ((uint16_t)pInfo->SquelchOpenNoiseThresh   * 10) /  9;
+					
+					pInfo->SquelchOpenGlitchThresh  = ((uint16_t)pInfo->SquelchOpenGlitchThresh  *  9) /  8;
+					pInfo->SquelchCloseGlitchThresh = ((uint16_t)pInfo->SquelchOpenGlitchThresh  * 10) /  9;
+				}
+				else
+				{
+					pInfo->SquelchOpenRSSIThresh   = ((uint16_t)pInfo->SquelchOpenRSSIThresh     *  3) /  4;
+					pInfo->SquelchCloseRSSIThresh  = ((uint16_t)pInfo->SquelchOpenRSSIThresh     *  9) / 10;
+					
+					pInfo->SquelchOpenNoiseThresh   = ((uint16_t)pInfo->SquelchOpenNoiseThresh   *  4) /  3;
+					pInfo->SquelchCloseNoiseThresh  = ((uint16_t)pInfo->SquelchOpenNoiseThresh   * 10) /  9;
+					
+					pInfo->SquelchOpenGlitchThresh  = ((uint16_t)pInfo->SquelchOpenGlitchThresh  *  4) /  3;
+					pInfo->SquelchCloseGlitchThresh = ((uint16_t)pInfo->SquelchOpenGlitchThresh  * 10) /  9;
+				}
+			}
+		#endif
+		
 		if (pInfo->SquelchOpenNoiseThresh > 127)
 			pInfo->SquelchOpenNoiseThresh = 127;
-
 		if (pInfo->SquelchCloseNoiseThresh > 127)
 			pInfo->SquelchCloseNoiseThresh = 127;
 	}
