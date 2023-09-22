@@ -69,9 +69,15 @@ static uint16_t mixer     = 3;   //   0dB
 static uint16_t pga       = 6;   //  -3dB
 
 #ifdef ENABLE_AM_FIX
-	// computes the average RSSI level over several samples
-	static unsigned int avg_rssi_counter = 0;
-	static uint16_t     avg_rssi         = 0;
+	// moving average RSSI buffer
+	struct {
+		unsigned int index;
+		uint16_t     samples[10];   // 100ms long buffer (10ms RSSI sample rate)
+		uint16_t     sum;           // sum of all samples in the buffer
+	} moving_avg_rssi;
+
+	unsigned int rssi_peak_hold_val   = 0;
+	unsigned int rssi_peak_hold_count = 0;
 #endif
 
 static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
@@ -426,8 +432,10 @@ void APP_StartListening(FUNCTION_Type_t Function)
 	#endif
 
 	#ifdef ENABLE_AM_FIX
-		avg_rssi_counter = 0;
-		avg_rssi         = 0;
+		// reset the moving average filter
+		memset(&moving_avg_rssi, 0, sizeof(moving_avg_rssi));
+		rssi_peak_hold_val   = 0;
+		rssi_peak_hold_count = 0;
 	#endif
 
 	gVFO_RSSI_Level[gEeprom.RX_CHANNEL == 0] = 0;
@@ -491,7 +499,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 
 	if (gRxVfo->IsAM)
 	{	// AM
-	
+
 		#ifdef ENABLE_AM_FIX
 			if (gSetting_AM_fix)
 			{	// original
@@ -504,7 +512,7 @@ void APP_StartListening(FUNCTION_Type_t Function)
 		#endif
 		{
 			const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
-		
+
 			// the RX gain abrutly reduces above this frequency
 			// I guess this is (one of) the freq the hardware switches the front ends over ?
 			if (rx_frequency <= 22640000)
@@ -522,13 +530,13 @@ void APP_StartListening(FUNCTION_Type_t Function)
 				pga       = 7;   // 6 original, 7 increased
 			}
 		}
-	
+
 		// what do these 4 other gain settings do ???
 		//BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
 		//BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
 		//BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
 		//BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
-	
+
 		gNeverUsed = 0;
 	}
 	else
@@ -1340,7 +1348,7 @@ void APP_CheckKeys(void)
 			return;	// we don't play with the front end gains if in FM mode
 
 		// we're in AM mode
-		
+
 		switch (gCurrentFunction)
 		{
 			case FUNCTION_TRANSMIT:
@@ -1359,7 +1367,7 @@ void APP_CheckKeys(void)
 		// REG_10 <15:0> 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
 		//
 		//         <9:8> = LNA Gain Short
-		//                 3 =   0dB
+		//                 3 =   0dB   < original value
 		//                 2 = -11dB
 		//                 1 = -16dB
 		//                 0 = -19dB
@@ -1370,19 +1378,19 @@ void APP_CheckKeys(void)
 		//                 5 =  -4dB
 		//                 4 =  -6dB
 		//                 3 =  -9dB
-		//                 2 = -14dB
+		//                 2 = -14dB   < original value
 		//                 1 = -19dB
 		//                 0 = -24dB
 		//
 		//         <4:3> = MIXER Gain
-		//                 3 =  0dB
-		//                 2 = -3dB
-		//                 1 = -6dB
-		//                 0 = -8dB
+		//                 3 =   0dB   < original value
+		//                 2 =  -3dB
+		//                 1 =  -6dB
+		//                 0 =  -8dB
 		//
 		//         <2:0> = PGA Gain
 		//                 7 =   0dB
-		//                 6 =  -3dB
+		//                 6 =  -3dB   < original value
 		//                 5 =  -6dB
 		//                 4 =  -9dB
 		//                 3 = -15dB
@@ -1397,34 +1405,36 @@ void APP_CheckKeys(void)
 		register uint16_t new_pga       = pga;
 
 		// -86dBm, any higher and the AM demodulator starts to saturate
-		const uint16_t desired_rssi = (-86 + 160) * 2;
+		const uint16_t desired_rssi = (-86 + 160) * 2;   // dBm to ADC sample
 
 		// sample the current RSSI level
-		gCurrentRSSI = BK4819_GetRSSI();
+		uint16_t rssi = BK4819_GetRSSI(); // 9-bit value
+		//gCurrentRSSI = rssi;
+
+		// compute the moving average RSSI
+		moving_avg_rssi.sum -= moving_avg_rssi.samples[moving_avg_rssi.index];  // remove the oldest sample
+		moving_avg_rssi.sum += rssi;                                            // add the newest sample
+		moving_avg_rssi.samples[moving_avg_rssi.index] = rssi;                  // save the newest sample
+		if (++moving_avg_rssi.index >= ARRAY_SIZE(moving_avg_rssi.samples))     //
+			moving_avg_rssi.index = 0;                                          // wrap-a-round
 
 		// compute the average
-		avg_rssi += gCurrentRSSI;
-		if (++avg_rssi_counter < 16)	// 160ms - rate at which we adjust the front end gains
-			return;
-		avg_rssi /= avg_rssi_counter;
+		rssi = moving_avg_rssi.sum / ARRAY_SIZE(moving_avg_rssi.samples);
 
-		if (avg_rssi < (desired_rssi - 4))
-		{	// increase gain
-			if (new_pga < 7)
-				new_pga++;
-			else
-			if (new_mixer < 3)
-				new_mixer++;
-			else
-			if (new_lna < 7)
-				new_lna++;
-			else
-			if (new_lna_short < 3)
-				new_lna_short++;
+		if (rssi >= rssi_peak_hold_val)
+		{	// enter hold mode (pause any gain increases)
+			rssi_peak_hold_val   = rssi;
+			rssi_peak_hold_count = 50;  // 500ms
 		}
 		else
-		if (avg_rssi > (desired_rssi + 4))
+		if (rssi_peak_hold_count > 0)
+			rssi_peak_hold_count--;
+		else
+			rssi_peak_hold_val = rssi;
+
+		if (rssi > (desired_rssi + 4))
 		{	// decrease gain
+
 			if (new_pga > 6)
 				new_pga--;
 			else
@@ -1447,14 +1457,33 @@ void APP_CheckKeys(void)
 				new_mixer--;
 		}
 
-		avg_rssi_counter = 0;
-		avg_rssi         = 0;
-		
+		if (moving_avg_rssi.index > 0)
+		{	// increase gain once every 100ms
+
+			if (rssi_peak_hold_count == 0)
+			{
+				if (rssi < (desired_rssi - 4))
+				{	// increase gain
+					if (new_pga < 7)
+						new_pga++;
+					else
+					if (new_mixer < 3)
+						new_mixer++;
+					else
+					if (new_lna < 7)
+						new_lna++;
+					else
+					if (new_lna_short < 3)
+						new_lna_short++;
+				}
+			}
+		}
+
 		if (lna_short == new_lna_short && lna == new_lna && mixer == new_mixer && pga == new_pga)
 			return;    // no change
 
-		// apply the adjusted gain settings
-		
+		// apply the new gain settings to the front end
+
 		lna_short = new_lna_short;
 		lna       = new_lna;
 		mixer     = new_mixer;
