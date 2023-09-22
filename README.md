@@ -31,6 +31,7 @@ ENABLE_COMPANDER              := 1       compander option (per channel)
 ENABLE_SHOW_CHARGE_LEVEL      := 1       show the charge level when the radio is on charge 
 ENABLE_REVERSE_BAT_SYMBOL     := 1       mirror the battery symbol on the status bar (+ pole on the right)
 ENABLE_AM_FIX                 := 1       dynamically adjust the front end gains when in AM mode to helo prevent AM demodulator saturation - ignore the on-screen RSSI (for now)
+ENABLE_SQUELCH1_LOWER         := 1       adjusts squelch setting '1' to be more sensitive - I plan to let user adjust it in the menu
 ENABLE_AUDIO_BAR              := 0       experimental, display an audo bar level when TX'ing
 #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible
 #ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter

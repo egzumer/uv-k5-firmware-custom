@@ -67,14 +67,14 @@ const uint16_t  orig_lna_short = 3;   //   0dB
 const uint16_t  orig_lna       = 2;   // -14dB
 const uint16_t  orig_mixer     = 3;   //   0dB
 const uint16_t  orig_pga       = 6;   //  -3dB
-	
+
 #ifdef ENABLE_AM_FIX
 	// stuff to overcome the AM demodulator saturation problem
-	
+
 	static uint16_t am_lna_short   = orig_lna_short;
-	static uint16_t am_lna         = orig_lna;      
-	static uint16_t am_mixer       = orig_mixer;    
-	static uint16_t am_pga         = orig_pga;      
+	static uint16_t am_lna         = orig_lna;
+	static uint16_t am_mixer       = orig_mixer;
+	static uint16_t am_pga         = orig_pga;
 
 	// moving average RSSI buffer
 	struct {
@@ -84,14 +84,14 @@ const uint16_t  orig_pga       = 6;   //  -3dB
 		uint16_t     sum;           // sum of all samples in the buffer
 	} moving_avg_rssi;
 
-	unsigned int am_fix_increase_counter = 0;
+	unsigned int am_gain_hold_counter = 0;
 
 	void APP_reset_AM_fix(void)
 	{
 		// reset the moving average filter
 		memset(&moving_avg_rssi, 0, sizeof(moving_avg_rssi));
 
-		am_fix_increase_counter = 0;
+		am_gain_hold_counter = 0;
 	}
 
 #endif
@@ -513,10 +513,10 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 
 	// original setting
 	uint16_t lna_short = orig_lna_short;
-	uint16_t lna       = orig_lna;      
-	uint16_t mixer     = orig_mixer;    
-	uint16_t pga       = orig_pga;      
-	
+	uint16_t lna       = orig_lna;
+	uint16_t mixer     = orig_mixer;
+	uint16_t pga       = orig_pga;
+
 	if (gRxVfo->IsAM)
 	{	// AM
 
@@ -1365,7 +1365,7 @@ void APP_CheckKeys(void)
 			case FUNCTION_INCOMING:
 				break;
 		}
-		
+
 		// REG_10 <15:0> 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
 		//
 		//         <9:8> = LNA Gain Short
@@ -1403,34 +1403,34 @@ void APP_CheckKeys(void)
 		// -87dBm, any higher and the AM demodulator starts to saturate/clip (distort)
 		const uint16_t desired_rssi = (-87 + 160) * 2;   // dBm to ADC sample
 
-		// start with current settings
+		// start with the current gain settings
 		register uint16_t new_lna_short = am_lna_short;
 		register uint16_t new_lna       = am_lna;
 		register uint16_t new_mixer     = am_mixer;
 		register uint16_t new_pga       = am_pga;
 
+		// current RX frequency
+		const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
+
 		// max gains to use
-//		uint16_t max_lna_short = orig_lna_short;
+//		uint16_t max_lna_short = orig_lna_short;     // we're not altering this one
 		uint16_t max_lna       = orig_lna;
 		uint16_t max_mixer     = orig_mixer;
 		uint16_t max_pga       = orig_pga;
-		
-		const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
 
-		// the RX gain abrutly reduces above this frequency
-		if (rx_frequency <= 22640000)
+		if (rx_frequency <= 22640000)         // the RX gain abrutly reduces above this frequency
 		{
 			max_pga = 7;
 		}
 		else
-		{
+		{	// allow a bit more gain
 //			max_lna = 4;
 			max_lna = 7;
 			max_pga = 7;
 		}
 
 		// sample the current RSSI level
-		uint16_t rssi = BK4819_GetRSSI(); // 9-bit value (0 .. 511)
+		uint16_t rssi = BK4819_GetRSSI();     // 9-bit value (0 .. 511)
 		//gCurrentRSSI = rssi;
 
 		// compute the moving average RSSI
@@ -1443,7 +1443,8 @@ void APP_CheckKeys(void)
 			moving_avg_rssi.index = 0;                                          // wrap-a-round
 		rssi = moving_avg_rssi.sum / moving_avg_rssi.count;                     // compute the average of the past 'n' samples
 
-		// the register adjustments below to be more inteligent in order to maintain a good stable setting
+		// the register adjustments below need to be more intelligent
+		// in order to maintain a good stable setting
 
 		if (rssi > desired_rssi)
 		{	// decrease gain
@@ -1469,39 +1470,40 @@ void APP_CheckKeys(void)
 //			if (new_lna_short > 0)
 //				new_lna_short--;
 
-			am_fix_increase_counter = 50;           // 500ms
+			am_gain_hold_counter = 50;           // 500ms
 		}
 
-		if (am_fix_increase_counter > 0)
-			am_fix_increase_counter--;
-		
-		if (am_fix_increase_counter == 0)
-		{	// increase gain
+		if (am_gain_hold_counter > 0)
+			am_gain_hold_counter--;
 
-			if (rssi < (desired_rssi - 10))
+		if (am_gain_hold_counter == 0)
+		{	// hold has been released, we're now free to increase gain
+
+			if (rssi < (desired_rssi - 10))      // 5dB hysterisis - to help prevent gain hunting
 			{	// increase gain
+
 				if (new_pga < max_pga)
 				{
 					new_pga++;
-					am_fix_increase_counter = 10;   // 100ms
+					am_gain_hold_counter = 10;   // 100ms
 				}
 				else
 				if (new_mixer < max_mixer)
 				{
 					new_mixer++;
-					am_fix_increase_counter = 10;   // 100ms
+					am_gain_hold_counter = 10;   // 100ms
 				}
 				else
 				if (new_lna < max_lna)
 				{
 					new_lna++;
-					am_fix_increase_counter = 10;   // 100ms
+					am_gain_hold_counter = 10;   // 100ms
 				}
 //				else
 //				if (new_lna_short < max_lna_short)
 //				{
 //					new_lna_short++;
-//					am_fix_increase_counter = 10;   // 100ms
+//					am_gain_hold_counter = 10;   // 100ms
 //				}
 			}
 		}
@@ -1511,6 +1513,7 @@ void APP_CheckKeys(void)
 
 		// apply the new gain settings to the front end
 
+		// remember the new gain settings - for the next time this function is called
 		am_lna_short = new_lna_short;
 		am_lna       = new_lna;
 		am_mixer     = new_mixer;
@@ -1519,10 +1522,9 @@ void APP_CheckKeys(void)
 		BK4819_WriteRegister(BK4819_REG_13, (am_lna_short << 8) | (am_lna << 5) | (am_mixer << 3) | (am_pga << 0));
 
 
-
 		// TODO: offset the RSSI reading to the rest of the firmware to cancel out the gain adjustments we've made here
-		
-		
+
+
 	}
 #endif
 
