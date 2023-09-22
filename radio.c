@@ -565,7 +565,11 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 			Bandwidth = BK4819_FILTER_BW_WIDE;
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
-			BK4819_SetFilterBandwidth(Bandwidth, gRxVfo->IsAM);
+			#ifdef ENABLE_AM_FIX
+				BK4819_SetFilterBandwidth(Bandwidth, gRxVfo->IsAM && gSetting_AM_fix);
+			#else
+				BK4819_SetFilterBandwidth(Bandwidth, false);
+			#endif
 			break;
 	}
 	
@@ -809,7 +813,11 @@ void RADIO_SetTxParameters(void)
 			Bandwidth = BK4819_FILTER_BW_WIDE;
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
-			BK4819_SetFilterBandwidth(Bandwidth, gCurrentVfo->IsAM);
+			#ifdef ENABLE_AM_FIX
+				BK4819_SetFilterBandwidth(Bandwidth, gCurrentVfo->IsAM && gSetting_AM_fix);
+			#else
+				BK4819_SetFilterBandwidth(Bandwidth, false);
+			#endif
 			break;
 	}
 
