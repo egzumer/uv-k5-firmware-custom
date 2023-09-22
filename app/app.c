@@ -1413,8 +1413,8 @@ void APP_CheckKeys(void)
 		register uint16_t new_mixer     = mixer;
 		register uint16_t new_pga       = pga;
 
-		// -84dBm, any higher and the AM demodulator starts to saturate/clip (distort)
-		const uint16_t desired_rssi = (-84 + 160) * 2;   // dBm to ADC sample
+		// -87dBm, any higher and the AM demodulator starts to saturate/clip (distort)
+		const uint16_t desired_rssi = (-87 + 160) * 2;   // dBm to ADC sample
 
 		// sample the current RSSI level
 		uint16_t rssi = BK4819_GetRSSI(); // 9-bit value (0 .. 511)
