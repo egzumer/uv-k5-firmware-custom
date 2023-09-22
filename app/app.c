@@ -1429,18 +1429,18 @@ void APP_CheckKeys(void)
 		if (++moving_avg_rssi.index >= ARRAY_SIZE(moving_avg_rssi.samples))     // next buffer slot
 			moving_avg_rssi.index = 0;                                          // wrap-a-round
 		rssi = moving_avg_rssi.sum / moving_avg_rssi.count;                     // compute the average of the past 'n' samples
-
-		if (rssi >= rssi_peak_hold_val)
+#if 1
+		if (rssi > rssi_peak_hold_val)
 		{	// enter hold mode (pause any gain increases)
 			rssi_peak_hold_val   = rssi;
-			rssi_peak_hold_count = 50;  // 500ms
+			rssi_peak_hold_count = 10;  // 100ms
 		}
 		else
 		if (rssi_peak_hold_count > 0)
 			rssi_peak_hold_count--;
 		else
 			rssi_peak_hold_val = rssi;
-
+#endif
 		// the register adjustments below to be a bit more inteligent in order to obtain a consitant fine step size
 
 		if (rssi > desired_rssi)
@@ -1463,9 +1463,9 @@ void APP_CheckKeys(void)
 			else
 			if (new_mixer > 0)
 				new_mixer--;
-			else
-			if (new_lna_short > 0)
-				new_lna_short--;
+//			else
+//			if (new_lna_short > 0)
+//				new_lna_short--;
 		}
 
 		if (moving_avg_rssi.index > 0)
@@ -1483,9 +1483,9 @@ void APP_CheckKeys(void)
 					else
 					if (new_lna < 7)
 						new_lna++;
-					else
-					if (new_lna_short < 3)
-						new_lna_short++;
+//					else
+//					if (new_lna_short < 3)
+//						new_lna_short++;
 				}
 			}
 		}
