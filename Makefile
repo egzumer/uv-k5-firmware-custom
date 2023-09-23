@@ -22,6 +22,7 @@ ENABLE_COMPANDER              := 1
 ENABLE_SHOW_CHARGE_LEVEL      := 0
 ENABLE_REVERSE_BAT_SYMBOL     := 1
 ENABLE_AM_FIX                 := 1
+ENABLE_AM_FIX_SHOW_DATA       := 1
 ENABLE_SQUELCH1_LOWER         := 1
 ENABLE_AUDIO_BAR              := 0
 #ENABLE_SINGLE_VFO_CHAN       := 1
@@ -86,6 +87,9 @@ OBJS += app/menu.o
 OBJS += app/scanner.o
 ifeq ($(ENABLE_UART),1)
 	OBJS += app/uart.o
+endif
+ifeq ($(ENABLE_AM_FIX),1)
+	OBJS += am_fix.o
 endif
 OBJS += audio.o
 OBJS += bitmaps.o
@@ -200,6 +204,9 @@ ifeq ($(ENABLE_REVERSE_BAT_SYMBOL),1)
 endif
 ifeq ($(ENABLE_AM_FIX),1)
 	CFLAGS  += -DENABLE_AM_FIX
+endif
+ifeq ($(ENABLE_AM_FIX_SHOW_DATA),1)
+	CFLAGS  += -DENABLE_AM_FIX_SHOW_DATA
 endif
 ifeq ($(ENABLE_SQUELCH1_LOWER),1)
 	CFLAGS  += -DENABLE_SQUELCH1_LOWER

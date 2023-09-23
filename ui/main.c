@@ -17,6 +17,9 @@
 #include <string.h>
 
 #include "app/dtmf.h"
+#ifdef ENABLE_AM_FIX_SHOW_DATA
+	#include "am_fix.h"
+#endif
 #include "bitmaps.h"
 #include "board.h"
 #include "driver/bk4819.h"
@@ -487,27 +490,32 @@ void UI_DisplayMain(void)
 	if (center_line_is_free)
 	{	// we're free to use the middle empty line for something
 
-		#ifdef ENABLE_AUDIO_BAR
-			UI_DisplayAudioBar();
-		
-			if (!gSetting_mic_bar)
+		#ifdef ENABLE_AM_FIX_SHOW_DATA
+			AM_fix_print_data(String);
+			UI_PrintStringSmall(String, 2, 0, 3);
+		#else
+			#ifdef ENABLE_AUDIO_BAR
+				UI_DisplayAudioBar();
+			
+				if (!gSetting_mic_bar)
+			#endif
+			{
+				if (gSetting_live_DTMF_decoder && gDTMF_ReceivedSaved[0] >= 32)
+				{	// show live DTMF decode
+					UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);
+				}
+				else
+				if (gChargingWithTypeC)
+				{	// charging .. show the battery state
+					#ifdef ENABLE_SHOW_CHARGE_LEVEL
+						const uint16_t volts   = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
+						const uint16_t percent = (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v);
+						sprintf(String, "Charge %u.%02uV %u%%", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100, percent);
+						UI_PrintStringSmall(String, 2, 0, 3);
+					#endif
+				}
+			}
 		#endif
-		{
-			if (gSetting_live_DTMF_decoder && gDTMF_ReceivedSaved[0] >= 32)
-			{	// show live DTMF decode
-				UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);
-			}
-			else
-			if (gChargingWithTypeC)
-			{	// charging .. show the battery state
-				#ifdef ENABLE_SHOW_CHARGE_LEVEL
-					const uint16_t volts   = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
-					const uint16_t percent = (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v);
-					sprintf(String, "Charge %u.%02uV %u%%", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100, percent);
-					UI_PrintStringSmall(String, 2, 0, 3);
-				#endif
-			}
-		}
 	}
 
 	ST7565_BlitFullScreen();
