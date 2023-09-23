@@ -96,6 +96,9 @@ enum
 	#ifdef ENABLE_AM_FIX
 		MENU_AM_FIX,
 	#endif
+	#ifdef ENABLE_AM_FIX_TEST1
+		MENU_AM_FIX_TEST1,
+	#endif
 	#ifdef ENABLE_NOAA
 		MENU_NOAA_S,
 	#endif
@@ -139,6 +142,9 @@ extern const char        gSubMenu_F_LOCK[6][4];
 extern const char        gSubMenu_BACKLIGHT[7][7];
 #ifdef ENABLE_COMPANDER
 	extern const char    gSubMenu_Compand[4][6];
+#endif
+#ifdef ENABLE_AM_FIX_TEST1
+	extern const char    gSubMenu_AM_fix_test1[4][8];
 #endif
 extern const char        gSubMenu_BAT_TXT[3][8];
 				         

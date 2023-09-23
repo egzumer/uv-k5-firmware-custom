@@ -504,12 +504,8 @@ void UI_DisplayMain(void)
 					case FUNCTION_RECEIVE:
 					case FUNCTION_MONITOR:
 					case FUNCTION_INCOMING:
-//						if (gScanState == SCAN_OFF && gScreenToDisplay != DISPLAY_SCANNER)
-//						if (gScreenToDisplay != DISPLAY_SCANNER)
-						{
-							AM_fix_print_data(String);
-							UI_PrintStringSmall(String, 2, 0, 3);
-						}
+						AM_fix_print_data(String);
+						UI_PrintStringSmall(String, 0, 0, 3);
 						break;
 				}
 			}

@@ -133,6 +133,9 @@ extern bool                  gSetting_ScrambleEnable;
 #ifdef ENABLE_AM_FIX
 	extern bool              gSetting_AM_fix;
 #endif
+#ifdef ENABLE_AM_FIX_TEST1
+	extern uint8_t           gSetting_AM_fix_test1;
+#endif
 #ifdef ENABLE_AUDIO_BAR
 	extern bool              gSetting_mic_bar;
 #endif

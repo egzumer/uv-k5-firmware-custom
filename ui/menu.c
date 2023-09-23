@@ -104,6 +104,9 @@ const t_menu_item MenuList[] =
 #ifdef ENABLE_AM_FIX
 	{"AM-FIX", 0, VOICE_ID_INVALID,                       MENU_AM_FIX     },
 #endif
+#ifdef ENABLE_AM_FIX_TEST1
+	{"AM-FT1", 0, VOICE_ID_INVALID,                       MENU_AM_FIX_TEST1},
+#endif
 #ifdef ENABLE_NOAA
 	{"NOAA-S", 0, VOICE_ID_INVALID,                       MENU_NOAA_S     },
 #endif
@@ -267,6 +270,16 @@ const char gSubMenu_BACKLIGHT[7][7] =
 	};
 #endif
 
+#ifdef ENABLE_AM_FIX_TEST1
+	const char gSubMenu_AM_fix_test1[4][8] =
+	{
+		"LNA-S 0",
+		"LNA-S 1",
+		"LNA-S 2",
+		"LNA-S 3"
+	};
+#endif
+
 const char gSubMenu_BAT_TXT[3][8] =
 {
 	"NONE",
@@ -422,6 +435,12 @@ void UI_DisplayMenu(void)
 		#ifdef ENABLE_AM_FIX
 			case MENU_AM_FIX:
 				strcpy(String, (gSubMenuSelection == 0) ? "OFF" : "FIXED");
+				break;
+		#endif
+
+		#ifdef ENABLE_AM_FIX_TEST1
+			case MENU_AM_FIX_TEST1:
+				strcpy(String, gSubMenu_AM_fix_test1[gSubMenuSelection]);
 				break;
 		#endif
 
