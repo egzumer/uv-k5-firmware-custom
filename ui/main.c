@@ -33,6 +33,7 @@
 #include "ui/helper.h"
 #include "ui/inputbox.h"
 #include "ui/main.h"
+#include "ui/ui.h"
 
 #ifndef ARRAY_SIZE
 	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
@@ -491,8 +492,27 @@ void UI_DisplayMain(void)
 	{	// we're free to use the middle empty line for something
 
 		#ifdef ENABLE_AM_FIX_SHOW_DATA
-			AM_fix_print_data(String);
-			UI_PrintStringSmall(String, 2, 0, 3);
+			if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].IsAM)
+			{
+				switch (gCurrentFunction)
+				{
+					case FUNCTION_TRANSMIT:
+					case FUNCTION_BAND_SCOPE:
+					case FUNCTION_POWER_SAVE:
+					case FUNCTION_FOREGROUND:
+						break;
+					case FUNCTION_RECEIVE:
+					case FUNCTION_MONITOR:
+					case FUNCTION_INCOMING:
+//						if (gScanState == SCAN_OFF && gScreenToDisplay != DISPLAY_SCANNER)
+//						if (gScreenToDisplay != DISPLAY_SCANNER)
+						{
+							AM_fix_print_data(String);
+							UI_PrintStringSmall(String, 2, 0, 3);
+						}
+						break;
+				}
+			}
 		#else
 			#ifdef ENABLE_AUDIO_BAR
 				UI_DisplayAudioBar();
