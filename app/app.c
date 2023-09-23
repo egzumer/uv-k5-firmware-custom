@@ -70,6 +70,8 @@ static const uint8_t orig_pga       = 6;   //  -3dB
 
 #ifdef ENABLE_AM_FIX
 	// stuff to overcome the AM demodulator saturation problem
+	//
+	// that is until someone works out how to properly configure the BK chip !!
 
 	// REG_10 AGC gain table
 	//
@@ -115,12 +117,12 @@ static const uint8_t orig_pga       = 6;   //  -3dB
 
 	typedef struct
 	{
-		uint8_t lna_short:2;
-		uint8_t       lna:3;
-		uint8_t     mixer:2;
-		uint8_t       pga:3;
-//	} __attribute__((packed)) t_am_fix_gain_table;
+		uint8_t lna_short:2;   // 0 ~ 3
+		uint8_t       lna:3;   // 0 ~ 7
+		uint8_t     mixer:2;   // 0 ~ 3
+		uint8_t       pga:3;   // 0 ~ 7
 	} t_am_fix_gain_table;
+//	} __attribute__((packed)) t_am_fix_gain_table;
 
 	static const t_am_fix_gain_table am_fix_gain_table[] =
 	{
@@ -170,22 +172,22 @@ static const uint8_t orig_pga       = 6;   //  -3dB
 		{3, 4, 0, 5},   // 42   0dB   -6dB  -8dB  -6dB .. -20dB
 		{3, 5, 1, 4},   // 43   0dB   -4dB  -6dB  -9dB .. -19dB
 		{3, 3, 3, 4},   // 44   0dB   -9dB   0dB  -9dB .. -18dB
-		{3, 3, 0, 7},   // 45   0dB   -9dB  -8dB   0dB .. -17dB
-		{3, 2, 3, 6},   // 46   0dB  -14dB   0dB  -3dB .. -17dB original
-		{3, 2, 2, 7},   // 47   0dB  -14dB  -3dB   0dB .. -17dB
-		{3, 5, 1, 5},   // 48   0dB   -4dB  -6dB  -6dB .. -16dB
-		{3, 3, 3, 5},   // 49   0dB   -9dB   0dB  -6dB .. -15dB
-		{3, 2, 3, 7},   // 50   0dB  -14dB   0dB   0dB .. -14dB
-		{3, 5, 1, 6},   // 51   0dB   -4dB  -6dB  -3dB .. -13dB
-		{3, 4, 2, 6},   // 52   0dB   -6dB  -3dB  -3dB .. -12dB
-		{3, 5, 2, 6},   // 53   0dB   -4dB  -3dB  -3dB .. -10dB
-		{3, 4, 3, 6},   // 54   0dB   -6dB   0dB  -3dB ..  -9dB
-		{3, 5, 2, 7},   // 55   0dB   -4dB  -3dB   0dB ..  -7dB
-		{3, 4, 3, 7},   // 56   0dB   -6dB   0dB   0dB ..  -6dB
-		{3, 5, 3, 7},   // 57   0dB   -4dB   0dB   0dB ..  -4dB
+		{3, 2, 3, 6},   // 45   0dB  -14dB   0dB  -3dB .. -17dB original
+		{3, 5, 1, 5},   // 46   0dB   -4dB  -6dB  -6dB .. -16dB
+		{3, 3, 3, 5},   // 47   0dB   -9dB   0dB  -6dB .. -15dB
+		{3, 2, 3, 7},   // 48   0dB  -14dB   0dB   0dB .. -14dB
+		{3, 5, 1, 6},   // 49   0dB   -4dB  -6dB  -3dB .. -13dB
+		{3, 4, 2, 6},   // 50   0dB   -6dB  -3dB  -3dB .. -12dB
+		{3, 5, 2, 6},   // 51   0dB   -4dB  -3dB  -3dB .. -10dB
+		{3, 4, 3, 6},   // 52   0dB   -6dB   0dB  -3dB ..  -9dB
+		{3, 5, 2, 7},   // 53   0dB   -4dB  -3dB   0dB ..  -7dB
+		{3, 4, 3, 7},   // 54   0dB   -6dB   0dB   0dB ..  -6dB
+		{3, 5, 3, 7}    // 55   0dB   -4dB   0dB   0dB ..  -4dB
 	};
 
-	unsigned int am_fix_gain_table_index      = 46;  // original
+	const unsigned int original_index = 45;
+
+	unsigned int am_fix_gain_table_index      = original_index;
 	unsigned int am_fix_gain_table_index_prev = 0;
 
 	int16_t rssi_db_gain_diff = 0;  // holds the compensation value to correct the RSSI reading
@@ -209,7 +211,7 @@ static const uint8_t orig_pga       = 6;   //  -3dB
 
 		rssi_db_gain_diff = 0;
 		
-		am_fix_gain_table_index      = 46;  // original
+		am_fix_gain_table_index      = original_index;
 		am_fix_gain_table_index_prev = 0;
 	}
 #endif
@@ -1992,7 +1994,7 @@ void APP_TimeSlice500ms(void)
 								GUI_SelectNextDisplay(DISPLAY_FM);
 							else
 						#endif
-							GUI_SelectNextDisplay(DISPLAY_MAIN);
+								GUI_SelectNextDisplay(DISPLAY_MAIN);
 					}
 				}
 			}
