@@ -71,12 +71,124 @@ static const uint8_t orig_pga       = 6;   //  -3dB
 #ifdef ENABLE_AM_FIX
 	// stuff to overcome the AM demodulator saturation problem
 
-	int16_t rssi_db_gain_diff = 0;  // holds the compensation value to correct the RSSI reading
+	// REG_10 AGC gain table
+	//
+	// <15:10> ???
+	//
+	//   <9:8> = LNA Gain Short
+	//           3 =   0dB   < original value
+	//           2 = -11dB
+	//           1 = -16dB
+	//           0 = -19dB
+	//
+	//   <7:5> = LNA Gain
+	//           7 =   0dB
+	//           6 =  -2dB
+	//           5 =  -4dB
+	//           4 =  -6dB
+	//           3 =  -9dB
+	//           2 = -14dB   < original value
+	//           1 = -19dB
+	//           0 = -24dB
+	//
+	//   <4:3> = MIXER Gain
+	//           3 =   0dB   < original value
+	//           2 =  -3dB
+	//           1 =  -6dB
+	//           0 =  -8dB
+	//
+	//   <2:0> = PGA Gain
+	//           7 =   0dB
+	//           6 =  -3dB   < original value
+	//           5 =  -6dB
+	//           4 =  -9dB
+	//           3 = -15dB
+	//           2 = -21dB
+	//           1 = -27dB
+	//           0 = -33dB
 
-	static uint8_t am_lna_short   = orig_lna_short;
-	static uint8_t am_lna         = orig_lna;
-	static uint8_t am_mixer       = orig_mixer;
-	static uint8_t am_pga         = orig_pga;
+	// front end register dB values
+	static const int8_t lna_short_dB[] = {-19, -16, -11,   0};
+	static const int8_t lna_dB[]       = {-24, -19, -14,  -9, -6, -4, -2, 0};
+	static const int8_t mixer_dB[]     = { -8,  -6,  -3,   0};
+	static const int8_t pga_dB[]       = {-33, -27, -21, -15, -9, -6, -3, 0};
+
+	typedef struct
+	{
+		uint8_t lna_short:2;
+		uint8_t       lna:3;
+		uint8_t     mixer:2;
+		uint8_t       pga:3;
+//	} __attribute__((packed)) t_am_fix_gain_table;
+	} t_am_fix_gain_table;
+
+	static const t_am_fix_gain_table am_fix_gain_table[] =
+	{
+		{.lna_short = 3, .lna = 2, .mixer = 3, .pga = 6},  //  0 0dB -14dB  0dB  -3dB .. -17dB original
+
+		{3, 0, 0, 0},   //  1   0dB  -24dB  -8dB -33dB .. -65dB
+		{3, 0, 1, 0},   //  2   0dB  -24dB  -6dB -33dB .. -63dB
+		{3, 0, 2, 0},   //  3   0dB  -24dB  -3dB -33dB .. -60dB
+		{3, 0, 0, 1},   //  4   0dB  -24dB  -8dB -27dB .. -59dB
+		{3, 1, 1, 0},   //  5   0dB  -19dB  -6dB -33dB .. -58dB
+		{3, 0, 1, 1},   //  6   0dB  -24dB  -6dB -27dB .. -57dB
+		{3, 1, 2, 0},   //  7   0dB  -19dB  -3dB -33dB .. -55dB
+		{3, 1, 0, 1},   //  8   0dB  -19dB  -8dB -27dB .. -54dB
+		{3, 0, 0, 2},   //  9   0dB  -24dB  -8dB -21dB .. -53dB
+		{3, 1, 1, 1},   // 10   0dB  -19dB  -6dB -27dB .. -52dB
+		{3, 0, 1, 2},   // 11   0dB  -24dB  -6dB -21dB .. -51dB
+		{3, 2, 2, 0},   // 12   0dB  -14dB  -3dB -33dB .. -50dB
+		{3, 2, 0, 1},   // 13   0dB  -14dB  -8dB -27dB .. -49dB
+		{3, 0, 2, 2},   // 14   0dB  -24dB  -3dB -21dB .. -48dB
+		{3, 2, 3, 0},   // 15   0dB  -14dB   0dB -33dB .. -47dB
+		{3, 1, 3, 1},   // 16   0dB  -19dB   0dB -27dB .. -46dB
+		{3, 0, 3, 2},   // 17   0dB  -24dB   0dB -21dB .. -45dB
+		{3, 3, 0, 1},   // 18   0dB   -9dB  -8dB -27dB .. -44dB
+		{3, 1, 2, 2},   // 19   0dB  -19dB  -3dB -21dB .. -43dB
+		{3, 0, 2, 3},   // 20   0dB  -24dB  -3dB -15dB .. -42dB
+		{3, 0, 0, 4},   // 21   0dB  -24dB  -8dB  -9dB .. -41dB
+		{3, 1, 1, 3},   // 22   0dB  -19dB  -6dB -15dB .. -40dB
+		{3, 0, 1, 4},   // 23   0dB  -24dB  -6dB  -9dB .. -39dB
+		{3, 0, 0, 5},   // 24   0dB  -24dB  -8dB  -6dB .. -38dB
+		{3, 1, 2, 3},   // 25   0dB  -19dB  -3dB -15dB .. -37dB
+		{3, 0, 2, 4},   // 26   0dB  -24dB  -3dB  -9dB .. -36dB
+		{3, 4, 0, 2},   // 27   0dB   -6dB  -8dB -21dB .. -35dB
+		{3, 1, 1, 4},   // 28   0dB  -19dB  -6dB  -9dB .. -34dB
+		{3, 1, 0, 5},   // 29   0dB  -19dB  -8dB  -6dB .. -33dB
+		{3, 3, 0, 3},   // 30   0dB   -9dB  -8dB -15dB .. -32dB
+		{3, 5, 1, 2},   // 31   0dB   -4dB  -6dB -21dB .. -31dB
+		{3, 1, 0, 6},   // 32   0dB  -19dB  -8dB  -3dB .. -30dB
+		{3, 2, 3, 3},   // 33   0dB  -14dB   0dB -15dB .. -29dB
+		{3, 1, 1, 6},   // 34   0dB  -19dB  -6dB  -3dB .. -28dB
+		{3, 4, 1, 3},   // 35   0dB   -6dB  -6dB -15dB .. -27dB
+		{3, 2, 2, 4},   // 36   0dB  -14dB  -3dB  -9dB .. -26dB
+		{3, 1, 2, 6},   // 37   0dB  -19dB  -3dB  -3dB .. -25dB
+		{3, 3, 1, 4},   // 38   0dB   -9dB  -6dB  -9dB .. -24dB
+		{3, 2, 1, 6},   // 39   0dB  -14dB  -6dB  -3dB .. -23dB
+		{3, 5, 2, 3},   // 40   0dB   -4dB  -3dB -15dB .. -22dB
+		{3, 4, 1, 4},   // 41   0dB   -6dB  -6dB  -9dB .. -21dB
+		{3, 4, 0, 5},   // 42   0dB   -6dB  -8dB  -6dB .. -20dB
+		{3, 5, 1, 4},   // 43   0dB   -4dB  -6dB  -9dB .. -19dB
+		{3, 3, 3, 4},   // 44   0dB   -9dB   0dB  -9dB .. -18dB
+		{3, 3, 0, 7},   // 45   0dB   -9dB  -8dB   0dB .. -17dB
+		{3, 2, 3, 6},   // 46   0dB  -14dB   0dB  -3dB .. -17dB original
+		{3, 2, 2, 7},   // 47   0dB  -14dB  -3dB   0dB .. -17dB
+		{3, 5, 1, 5},   // 48   0dB   -4dB  -6dB  -6dB .. -16dB
+		{3, 3, 3, 5},   // 49   0dB   -9dB   0dB  -6dB .. -15dB
+		{3, 2, 3, 7},   // 50   0dB  -14dB   0dB   0dB .. -14dB
+		{3, 5, 1, 6},   // 51   0dB   -4dB  -6dB  -3dB .. -13dB
+		{3, 4, 2, 6},   // 52   0dB   -6dB  -3dB  -3dB .. -12dB
+		{3, 5, 2, 6},   // 53   0dB   -4dB  -3dB  -3dB .. -10dB
+		{3, 4, 3, 6},   // 54   0dB   -6dB   0dB  -3dB ..  -9dB
+		{3, 5, 2, 7},   // 55   0dB   -4dB  -3dB   0dB ..  -7dB
+		{3, 4, 3, 7},   // 56   0dB   -6dB   0dB   0dB ..  -6dB
+		{3, 5, 3, 7},   // 57   0dB   -4dB   0dB   0dB ..  -4dB
+	};
+
+	unsigned int am_fix_gain_table_index      = 46;  // original
+	unsigned int am_fix_gain_table_index_prev = 0;
+
+	int16_t rssi_db_gain_diff = 0;  // holds the compensation value to correct the RSSI reading
 
 	// moving average RSSI buffer
 	struct {
@@ -96,6 +208,9 @@ static const uint8_t orig_pga       = 6;   //  -3dB
 		am_gain_hold_counter = 0;
 
 		rssi_db_gain_diff = 0;
+		
+		am_fix_gain_table_index      = 46;  // original
+		am_fix_gain_table_index_prev = 0;
 	}
 #endif
 
@@ -1353,12 +1468,6 @@ void APP_CheckKeys(void)
 
 #ifdef ENABLE_AM_FIX
 
-	// front end register dB values
-	static const int8_t lna_short_dB[] = {-19, -16, -11,   0};
-	static const int8_t lna_dB[]       = {-24, -19, -14,  -9, -6, -4, -2, 0};
-	static const int8_t mixer_dB[]     = { -8,  -6,  -3,   0};
-	static const int8_t pga_dB[]       = {-33, -27, -21, -15, -9, -6, -3, 0};
-
 	void adjust_AM_frontEnd_10ms(void)
 	{
 		// we don't play with the front end gains if in FM mode
@@ -1382,49 +1491,9 @@ void APP_CheckKeys(void)
 				break;
 		}
 
-		// REG_10 <15:0> 0x0038 Rx AGC Gain Table
-		//
-		//         <9:8> = LNA Gain Short
-		//                 3 =   0dB   < original value
-		//                 2 = -11dB
-		//                 1 = -16dB
-		//                 0 = -19dB
-		//
-		//         <7:5> = LNA Gain
-		//                 7 =   0dB
-		//                 6 =  -2dB
-		//                 5 =  -4dB
-		//                 4 =  -6dB
-		//                 3 =  -9dB
-		//                 2 = -14dB   < original value
-		//                 1 = -19dB
-		//                 0 = -24dB
-		//
-		//         <4:3> = MIXER Gain
-		//                 3 =   0dB   < original value
-		//                 2 =  -3dB
-		//                 1 =  -6dB
-		//                 0 =  -8dB
-		//
-		//         <2:0> = PGA Gain
-		//                 7 =   0dB
-		//                 6 =  -3dB   < original value
-		//                 5 =  -6dB
-		//                 4 =  -9dB
-		//                 3 = -15dB
-		//                 2 = -21dB
-		//                 1 = -27dB
-		//                 0 = -33dB
-
 		// -87dBm, any higher and the AM demodulator starts to saturate/clip (distort)
 		const uint16_t desired_rssi = (-87 + 160) * 2;   // dBm to ADC sample
-
-		// start with the current gain settings
-		uint8_t new_lna_short = am_lna_short;
-		uint8_t new_lna       = am_lna;
-		uint8_t new_mixer     = am_mixer;
-		uint8_t new_pga       = am_pga;
-
+/*
 		// current RX frequency
 		const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
 
@@ -1444,7 +1513,7 @@ void APP_CheckKeys(void)
 			max_lna = 7;
 			max_pga = 7;
 		}
-
+*/
 		// sample the current RSSI level
 		uint16_t rssi = BK4819_GetRSSI();     // 9-bit value (0 .. 511)
 		//gCurrentRSSI = rssi - (rssi_db_gain_diff * 2);
@@ -1459,32 +1528,11 @@ void APP_CheckKeys(void)
 			moving_avg_rssi.index = 0;                                          //
 		rssi = moving_avg_rssi.sum / moving_avg_rssi.count;                     // compute the average of the past 'n' samples
 
-		// the register adjustments below need to be a bit more intelligent
-		// in order to maintain a good stable setting
-
 		if (rssi > desired_rssi)
 		{	// decrease gain
 
-			if (new_lna > orig_lna)
-				new_lna--;
-			else
-			if (new_pga > orig_pga)
-				new_pga--;
-			else
-			if (new_mixer > orig_mixer)
-				new_mixer--;
-			else
-			if (new_lna > 0)
-				new_lna--;
-			else
-			if (new_pga > 0)
-				new_pga--;
-			else
-			if (new_mixer > 0)
-				new_mixer--;
-//			else
-//			if (new_lna_short > 0)
-//				new_lna_short--;
+			if (am_fix_gain_table_index > 1)
+				am_fix_gain_table_index--;
 
 			am_gain_hold_counter = 50;           // 500ms
 		}
@@ -1498,51 +1546,32 @@ void APP_CheckKeys(void)
 			if (rssi < (desired_rssi - 10))      // 5dB hysterisis (helps prevent gain hunting)
 			{	// increase gain
 
-				if (new_pga < max_pga)
-				{
-					new_pga++;
-					am_gain_hold_counter = 10;   // 100ms
-				}
-				else
-				if (new_mixer < max_mixer)
-				{
-					new_mixer++;
-					am_gain_hold_counter = 10;   // 100ms
-				}
-				else
-				if (new_lna < max_lna)
-				{
-					new_lna++;
-					am_gain_hold_counter = 10;   // 100ms
-				}
-//				else
-//				if (new_lna_short < max_lna_short)
-//				{
-//					new_lna_short++;
-//					am_gain_hold_counter = 10;   // 100ms
-//				}
+				if (am_fix_gain_table_index < (ARRAY_SIZE(am_fix_gain_table) - 1))
+					am_fix_gain_table_index++;
 			}
 		}
 
-		if (am_lna_short == new_lna_short && am_lna == new_lna && am_mixer == new_mixer && am_pga == new_pga)
+		if (am_fix_gain_table_index == am_fix_gain_table_index_prev)
 			return;    // no gain changes
 
 		// apply the new gain settings to the front end
 
 		// remember the new gain settings - for the next time this function is called
-		am_lna_short = new_lna_short;
-		am_lna       = new_lna;
-		am_mixer     = new_mixer;
-		am_pga       = new_pga;
+		const uint16_t lna_short = am_fix_gain_table[am_fix_gain_table_index].lna_short;
+		const uint16_t lna       = am_fix_gain_table[am_fix_gain_table_index].lna;
+		const uint16_t mixer     = am_fix_gain_table[am_fix_gain_table_index].mixer;
+		const uint16_t pga       = am_fix_gain_table[am_fix_gain_table_index].pga;
 
-		BK4819_WriteRegister(BK4819_REG_13, ((uint16_t)am_lna_short << 8) | ((uint16_t)am_lna << 5) | ((uint16_t)am_mixer << 3) | ((uint16_t)am_pga << 0));
+		BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
 
 		{	// offset the RSSI reading to the rest of the firmware to cancel out the gain adjustments we've made here
 			static const int16_t orig_dB_gain = lna_short_dB[orig_lna_short & 3u] + lna_dB[orig_lna & 7u] + mixer_dB[orig_mixer & 3u] + pga_dB[orig_pga & 7u];
-			       const int16_t   am_dB_gain = lna_short_dB[am_lna_short & 3u]   + lna_dB[am_lna & 7u]   + mixer_dB[am_mixer & 3u]   + pga_dB[am_pga & 7u];
+			       const int16_t   am_dB_gain = lna_short_dB[lna_short & 3u]      + lna_dB[lna & 7u]      + mixer_dB[mixer & 3u]      + pga_dB[pga & 7u];
 
 			rssi_db_gain_diff = am_dB_gain - orig_dB_gain;
 		}
+
+		am_fix_gain_table_index_prev = am_fix_gain_table_index;
 	}
 #endif
 
@@ -1961,7 +1990,7 @@ void APP_TimeSlice500ms(void)
 						#ifdef ENABLE_FMRADIO
 							if (gFmRadioMode && gCurrentFunction != FUNCTION_RECEIVE && gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
 								GUI_SelectNextDisplay(DISPLAY_FM);
-						else
+							else
 						#endif
 							GUI_SelectNextDisplay(DISPLAY_MAIN);
 					}

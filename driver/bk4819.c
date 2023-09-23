@@ -985,7 +985,38 @@ void BK4819_Idle(void)
 void BK4819_ExitBypass(void)
 {
 	BK4819_SetAF(BK4819_AF_MUTE);
-	BK4819_WriteRegister(BK4819_REG_7E, 0x302E);
+
+	// REG_7E
+	//
+	//    <15> 0 AGC fix mode
+	//         1 = fix
+	//         0 = auto
+	// 
+	// <14:12> 3 AGC fix index
+	//         3 ( 3) = max
+	//         2 ( 2)
+	//         1 ( 1)
+	//         0 ( 0)
+	//         7 (-1)
+	//         6 (-2)
+	//         5 (-3)
+	//         4 (-4) = min
+	// 
+	//  <11:6> 0 ???
+	// 
+	//   <5:3> 5 DC filter band width for Tx (MIC In)
+	//         0 ~ 7
+	//         0 = bypass DC filter
+	// 
+	//   <2:0> 6 DC filter band width for Rx (I.F In)
+	//         0 ~ 7
+	//         0 = bypass DC filter
+	// 
+	BK4819_WriteRegister(BK4819_REG_7E, // 0x302E);   // 0 011 000000 101 110
+			  (0u << 15)      // 0  AGC fix mode
+			| (3u << 12)      // 3  AGC fix index
+			| (5u <<  3)      // 5  DC Filter band width for Tx (MIC In)
+			| (6u <<  0));    // 6  DC Filter band width for Rx (I.F In)
 }
 
 void BK4819_PrepareTransmit(void)
