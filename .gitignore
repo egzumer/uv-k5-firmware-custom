@@ -1,0 +1,5 @@
+*.d
+*.o
+firmware
+firmware.bin
+firmware.packed.bin
