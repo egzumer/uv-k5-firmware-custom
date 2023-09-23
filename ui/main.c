@@ -491,7 +491,7 @@ void UI_DisplayMain(void)
 	if (center_line_is_free)
 	{	// we're free to use the middle empty line for something
 
-		#ifdef ENABLE_AM_FIX_SHOW_DATA
+		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
 			if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].IsAM)
 			{
 				switch (gCurrentFunction)

@@ -289,46 +289,42 @@ void BK4819_SetAGC(uint8_t Value)
 	{
 		unsigned int i;
 
-		// REG_10 <15:0> 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
+		// REG_10
+		// <15:0> 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
+		// 
+		//  <9:8> = LNA Gain Short
+		//          3 =   0dB   << original
+		//          2 = -24dB       // was -11
+		//          1 = -30dB       // was -16
+		//          0 = -33dB       // was -19
+		// 
+		//  <7:5> = LNA Gain
+		//          7 =   0dB
+		//          6 =  -2dB
+		//          5 =  -4dB
+		//          4 =  -6dB
+		//          3 =  -9dB
+		//          2 = -14dB   << original
+		//          1 = -19dB
+		//          0 = -24dB
+		// 
+		//  <4:3> = MIXER Gain
+		//          3 =   0dB   << original
+		//          2 =  -3dB
+		//          1 =  -6dB
+		//          0 =  -8dB
+		// 
+		//  <2:0> = PGA Gain
+		//          7 =   0dB
+		//          6 =  -3dB   << original
+		//          5 =  -6dB
+		//          4 =  -9dB
+		//          3 = -15dB
+		//          2 = -21dB
+		//          1 = -27dB
+		//          0 = -33dB
 		//
-		//         <9:8> = LNA Gain Short
-		//                 3 =   0dB
-		//                 2 = -11dB
-		//                 1 = -16dB
-		//                 0 = -19dB
-		//
-		//         <7:5> = LNA Gain
-		//                 7 =   0dB
-		//                 6 =  -2dB
-		//                 5 =  -4dB
-		//                 4 =  -6dB
-		//                 3 =  -9dB
-		//                 2 = -14dB
-		//                 1 = -19dB
-		//                 0 = -24dB
-		//
-		//         <4:3> = MIXER Gain
-		//                 3 =  0dB
-		//                 2 = -3dB
-		//                 1 = -6dB
-		//                 0 = -8dB
-		//
-		//         <2:0> = PGA Gain
-		//                 7 =   0dB
-		//                 6 =  -3dB
-		//                 5 =  -6dB
-		//                 4 =  -9dB
-		//                 3 = -15dB
-		//                 2 = -21dB
-		//                 1 = -27dB
-		//                 0 = -33dB
-		//
-		// LNA_SHORT ..   0dB
-		// LNA ........  14dB
-		// MIXER ......   0dB
-		// PGA ........  -3dB
-		//
-		BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (6u << 0));  // 000000 11 101 11 110
+		BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (6u << 0));
 
 		BK4819_WriteRegister(BK4819_REG_12, 0x037C);  // 000000 11 011 11 100
 		BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011

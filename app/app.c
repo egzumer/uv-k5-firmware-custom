@@ -2088,8 +2088,8 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		gUpdateStatus   = true;
 	}
 
-//	if (gF_LOCK && (Key == KEY_PTT || Key == KEY_SIDE2 || Key == KEY_SIDE1))
-	if (gF_LOCK && Key == KEY_PTT)
+	if (gF_LOCK && (Key == KEY_PTT || Key == KEY_SIDE2 || Key == KEY_SIDE1))
+//	if (gF_LOCK && Key == KEY_PTT)
 		return;
 
 	if (!bFlag)

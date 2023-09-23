@@ -332,8 +332,8 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		}
 
 #ifndef ENABLE_AM_FIX_TEST1
-		// -87dBm, any higher and the AM demodulator starts to saturate/clip (distort)
-		const uint16_t desired_rssi = (-87 + 160) * 2;   // dBm to ADC sample
+		// -89dBm, any higher and the AM demodulator starts to saturate/clip (distort)
+		const uint16_t desired_rssi = (-89 + 160) * 2;   // dBm to ADC sample
 #endif
 		// sample the current RSSI level
 		uint16_t rssi = BK4819_GetRSSI();     // 9-bit value (0 .. 511)
