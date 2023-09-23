@@ -28,7 +28,7 @@
 
 #ifdef ENABLE_DBM
 
-void UI_UpdateRSSI(uint16_t RSSI)
+void UI_UpdateRSSI(const int16_t RSSI)
 {	// dBm
 	//
 	// this doesn't yet quite fit into the available screen space
@@ -39,12 +39,11 @@ void UI_UpdateRSSI(uint16_t RSSI)
 	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
 		return;    // the screen is currently in use
 	
-	gVFO_RSSI[gEeprom.RX_CHANNEL]       = RSSI;
-	gVFO_RSSI_Level[gEeprom.RX_CHANNEL] = 0;
+	gVFO_RSSI[gEeprom.RX_CHANNEL]           = RSSI;
+	gVFO_RSSI_bar_level[gEeprom.RX_CHANNEL] = 0;
 
-	if (RSSI > 0)
 	{	// drop the '.5'
-		const int16_t dBm = (int16_t)(RSSI / 2) - 160;
+		const int16_t dBm = (RSSI / 2) - 160;
 		sprintf(s, "%-3d", dBm);
 	}
 	else
@@ -105,11 +104,11 @@ void Render(const uint8_t rssi, const uint8_t RssiLevel, const uint8_t VFO)
 	ST7565_DrawLine(0, Line, 23, pLine);
 }
 
-void UI_UpdateRSSI(uint16_t RSSI)
+void UI_UpdateRSSI(const int16_t RSSI)
 {
 	gVFO_RSSI[gEeprom.RX_CHANNEL] = RSSI;
 	
-	//const int16_t dBm = (int16_t)(RSSI / 2) - 160;
+	//const int16_t dBm = (RSSI / 2) - 160;
 
 	#if 0
 		//const unsigned int band = gRxVfo->Band;
@@ -144,9 +143,9 @@ void UI_UpdateRSSI(uint16_t RSSI)
 	else
 	if (RSSI >= level0)  Level = 1;
 
-	if (gVFO_RSSI_Level[gEeprom.RX_CHANNEL] != Level)
+	if (gVFO_RSSI_bar_level[gEeprom.RX_CHANNEL] != Level)
 	{
-		gVFO_RSSI_Level[gEeprom.RX_CHANNEL] = Level;
+		gVFO_RSSI_bar_level[gEeprom.RX_CHANNEL] = Level;
 		Render(RSSI, Level, gEeprom.RX_CHANNEL);
 	}
 }

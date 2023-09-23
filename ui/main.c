@@ -393,17 +393,17 @@ void UI_DisplayMain(void)
 					// dBm
 					//
 					// this doesn't yet quite fit into the available screen space
-					const uint16_t rssi = gVFO_RSSI[vfo_num];
+					const int16_t rssi = gVFO_RSSI[vfo_num];
 					if (rssi > 0)
 					{
-						const int16_t dBm = (int16_t)(rssi / 2) - 160;
+						const int16_t dBm = (rssi / 2) - 160;
 						sprintf(String, "%-3d", dBm);
 						UI_PrintStringSmall(String, 2, 0, Line + 2);
 					}
 				#else
 					// bar graph
-					if (gVFO_RSSI_Level[vfo_num] > 0)
-						Level = gVFO_RSSI_Level[vfo_num];
+					if (gVFO_RSSI_bar_level[vfo_num] > 0)
+						Level = gVFO_RSSI_bar_level[vfo_num];
 				#endif
 			}
 

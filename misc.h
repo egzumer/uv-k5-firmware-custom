@@ -187,8 +187,8 @@ extern uint8_t               gFoundCTCSS;
 extern uint8_t               gFoundCDCSS;
 extern bool                  gEndOfRxDetectedMaybe;
 
-extern uint16_t              gVFO_RSSI[2];
-extern uint8_t               gVFO_RSSI_Level[2];
+extern int16_t               gVFO_RSSI[2];
+extern uint8_t               gVFO_RSSI_bar_level[2];
 
 extern uint8_t               gReducedService;
 extern uint8_t               gBatteryVoltageIndex;
@@ -275,7 +275,7 @@ extern volatile bool         gFlagTailNoteEliminationComplete;
 #ifdef ENABLE_FMRADIO
 	extern volatile bool     gScheduleFM;
 #endif
-extern uint16_t              gCurrentRSSI;
+extern int16_t               gCurrentRSSI;
 extern uint8_t               gIsLocked;
 extern volatile uint8_t      boot_counter_10ms;
 

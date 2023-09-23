@@ -107,8 +107,8 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 
 			if (PreviousFunction == FUNCTION_TRANSMIT)
 			{
-				gVFO_RSSI_Level[0] = 0;
-				gVFO_RSSI_Level[1] = 0;
+				gVFO_RSSI_bar_level[0] = 0;
+				gVFO_RSSI_bar_level[1] = 0;
 			}
 			else
 			if (PreviousFunction != FUNCTION_RECEIVE)

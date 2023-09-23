@@ -123,8 +123,8 @@ uint8_t           gFoundCTCSS;
 uint8_t           gFoundCDCSS;
 bool              gEndOfRxDetectedMaybe;
 
-uint16_t          gVFO_RSSI[2];
-uint8_t           gVFO_RSSI_Level[2];
+int16_t           gVFO_RSSI[2];
+uint8_t           gVFO_RSSI_bar_level[2];
 
 uint8_t           gReducedService;
 uint8_t           gBatteryVoltageIndex;
@@ -218,7 +218,7 @@ volatile bool     gFlagTailNoteEliminationComplete;
 
 volatile uint8_t  boot_counter_10ms;
 
-uint16_t          gCurrentRSSI;
+int16_t           gCurrentRSSI = 0;
 
 uint8_t           gIsLocked = 0xFF;
 
