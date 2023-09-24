@@ -25,9 +25,9 @@
 
 	//   <9:8> = LNA Gain Short
 	//           3 =   0dB   < original value
-	//           2 = -11dB
-	//           1 = -16dB
-	//           0 = -19dB
+	//           2 = -24dB   // was -11
+	//           1 = -30dB   // was -16
+	//           0 = -33dB   // was -19
 	//
 	//   <7:5> = LNA Gain
 	//           7 =   0dB
@@ -121,10 +121,7 @@ void __fastcall create_gain_table(const char *filename)
 		entry.mixer_dB     = mixer_dB[mixer];
 		entry.pga_dB       = pga_dB[pga];
 
-		entry.sum_dB       = lna_short_dB[lna_short] +
-									lna_dB[lna] +
-									mixer_dB[mixer] +
-									pga_dB[pga];
+		entry.sum_dB       = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga];
 
 		if (entry.sum_dB != orig_gain_dB)
 			gain_table.push_back(entry);
@@ -176,9 +173,9 @@ void __fastcall create_gain_table(const char *filename)
 			const t_gain_table entry1 = gain_table[i++];
 
 			if (entry1.lna_short == orig_lna_short &&
-				 entry1.lna       == orig_lna &&
-				 entry1.mixer     == orig_mixer &&
-				 entry1.pga       == orig_pga)
+			    entry1.lna       == orig_lna &&
+			    entry1.mixer     == orig_mixer &&
+			    entry1.pga       == orig_pga)
 				continue;		// leave the original inplace
 
 			while (i < gain_table.size())
@@ -186,9 +183,9 @@ void __fastcall create_gain_table(const char *filename)
 				const t_gain_table entry2 = gain_table[i];
 
 				if (entry2.lna_short == orig_lna_short &&
-					 entry2.lna       == orig_lna &&
-					 entry2.mixer     == orig_mixer &&
-					 entry2.pga       == orig_pga)
+				    entry2.lna       == orig_lna &&
+				    entry2.mixer     == orig_mixer &&
+				    entry2.pga       == orig_pga)
 					break;		// leave the original inplace
 
 				if (entry2.sum_dB != entry1.sum_dB)
@@ -208,9 +205,9 @@ void __fastcall create_gain_table(const char *filename)
 			continue;
 
 		if (entry.lna_short != orig_lna_short ||
-			 entry.lna       != orig_lna       ||
-			 entry.mixer     != orig_mixer     ||
-			 entry.pga       != orig_pga)
+		    entry.lna       != orig_lna       ||
+		    entry.mixer     != orig_mixer     ||
+		    entry.pga       != orig_pga)
 			continue;
 
 		original_index = i;
@@ -227,15 +224,13 @@ void __fastcall create_gain_table(const char *filename)
 	fprintf(file, "\n");
 	fprintf(file, "\tconst t_am_fix_gain_table am_fix_gain_table[] =\n");
 	fprintf(file, "\t{\n");
-	fprintf(file, "\t\t{.lna_short = 3, .lna = 2, .mixer = 3, .pga = 6},      //  0 0dB -14dB  0dB  -3dB .. -17dB original\n");
-	fprintf(file, "\n");
+	fprintf(file, "\t\t{.lna_short = 3, .lna = 2, .mixer = 3, .pga = 6},      //  0 0dB -14dB  0dB  -3dB .. -17dB original\n\n");
 
 	for (unsigned int i = 0; i < gain_table.size(); i++)
 	{
 		char s[1024];
-		const t_gain_table entry = gain_table[i];
 
-		// {0, 0, 0, 0},      // 00 -19dB -24dB -8dB -33dB .. -84dB
+		const t_gain_table entry = gain_table[i];
 
 		sprintf(s, "\t\t{%u, %u, %u, %u},         // %3u .. %3ddB %3ddB %2ddB %3ddB .. %3ddB",
 			entry.lna_short,
@@ -252,13 +247,12 @@ void __fastcall create_gain_table(const char *filename)
 		if (i == original_index)
 			strcat(s, " original");
 
-		strcat(s, "\n");
-
-		fprintf(file, "%s", s);
+		fprintf(file, "%s\n", s);
 	}
 
-	fprintf(file, "\t};\n");
-	fprintf(file, "\n\tconst unsigned int original_index = %u;\n", 1 + original_index);
+	fprintf(file, "\t};\n\n");
+
+	fprintf(file, "\tconst unsigned int original_index = %u;\n", 1 + original_index);
 
 	fclose(file);
 }
@@ -298,15 +292,10 @@ void __fastcall rotate_font(const char *filename1, const char *filename2)
 	data.resize(file_size);
 
 	const size_t bytes_loaded = fread(&data[0], 1, file_size, file);
-	if (bytes_loaded != file_size)
-	{
-		fclose(file);
-		return;
-	}
 
 	fclose(file);
 
-	if (bytes_loaded != data.size())
+	if (bytes_loaded != file_size)
 		return;
 
 	// ***************************
@@ -332,14 +321,13 @@ void __fastcall rotate_font(const char *filename1, const char *filename2)
 	}
 
 	// ***************************
-	// save file
+	// save the file
 
 	file = fopen(filename2, "wt");
 	if (file == NULL)
 		return;
 
 	fprintf(file, "const uint8_t gFontSmall[95][7] =\n");
-//	fprintf(file, "const uint8_t gFontSmall[95][6] =\n");
 	fprintf(file, "{\n");
 
 	for (unsigned int i = 0; i < data.size(); )
@@ -370,7 +358,7 @@ void __fastcall rotate_font(const char *filename1, const char *filename2)
 		}
 
 		i++;
-		
+
 		fprintf(file, "%s", s);
 	}
 
@@ -391,4 +379,3 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
-

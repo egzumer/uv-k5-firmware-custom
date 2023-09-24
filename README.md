@@ -29,7 +29,7 @@ ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       standard CTCSS tail phase shift rather 
 ENABLE_MAIN_KEY_HOLD          := 1       initial F-key press not needed, instead hold down keys 0-9 to access the functions
 ENABLE_BOOT_BEEPS             := 0       give user audio feedback on volume knob position at boot-up
 ENABLE_COMPANDER              := 1       compander option (per channel)
-ENABLE_SHOW_CHARGE_LEVEL      := 1       show the charge level when the radio is on charge 
+ENABLE_SHOW_CHARGE_LEVEL      := 1       show the charge level when the radio is on charge
 ENABLE_REVERSE_BAT_SYMBOL     := 1       mirror the battery symbol on the status bar (+ pole on the right)
 ENABLE_AM_FIX                 := 1       dynamically adjust the front end gains when in AM mode to helo prevent AM demodulator saturation - ignore the on-screen RSSI (for now)
 ENABLE_AM_FIX_SHOW_DATA       := 1       show debug data for the AM fix
@@ -39,20 +39,18 @@ ENABLE_AUDIO_BAR              := 0       experimental, display an audo bar level
 #ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter
 ```
 
-# Some other changes made
+# Some changes made from the Quansheng firmware
 
 * Various Quansheng firmware bugs fixed
 * Added new bugs
-* Finer RSSI bar steps
 * Mic menu includes max gain possible
-* AM RX everywhere
-* keypad-5/NOAA button now toggles scanlist-1 on/off for current channel when held down - IF NOAA is not used
+* AM RX everywhere (left the TX as is)
+* An attempt to improve the AM RX audio (demodulator getting saturated/overloaded)
+* keypad-5/NOAA button now toggles scanlist-1 on/off for current channel when held down - IF NOAA not used
 * Better backlight times (inc always on)
-* Nicer/cleaner big numeric font than original Quansheng big numeric font
 * Live DTMF decoder option, though the decoder needs some coeff tuning changes to decode other radios it seems
 * Various menu re-wordings (trying to reduce 'WTH does that mean ?')
-* Extra menu items (including hidden ones)
-* plus others
+* ..
 
 # Compiler
 
