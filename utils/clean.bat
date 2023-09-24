@@ -9,7 +9,7 @@ del /S /Q *.ild
 del /S /Q *.ilf
 del /S /Q *.ils
 del /S /Q *.dcu
-::del /S /Q *.dsk
+del /S /Q *.dsk
 rd /S /Q Debug
 rd /S /Q Release
 rd /S /Q ipch
