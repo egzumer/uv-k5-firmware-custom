@@ -17,7 +17,7 @@
 #ifndef UI_RSSI_H
 #define UI_RSSI_H
 
-void UI_UpdateRSSI(const int16_t RSSI);
+void UI_UpdateRSSI(const int16_t RSSI, const int vfo);
 
 #endif
 

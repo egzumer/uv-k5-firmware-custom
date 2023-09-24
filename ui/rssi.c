@@ -28,22 +28,22 @@
 
 #ifdef ENABLE_DBM
 
-void UI_UpdateRSSI(const int16_t RSSI)
+void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 {	// dBm
 	//
 	// this doesn't yet quite fit into the available screen space
 
-	char          s[8];
-	const uint8_t line = (gEeprom.RX_CHANNEL == 0) ? 3 : 7;
+	char s[8];
+	const uint8_t line = (vfo == 0) ? 3 : 7;
 
 	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
 		return;    // the screen is currently in use
 	
-	gVFO_RSSI[gEeprom.RX_CHANNEL]           = RSSI;
-	gVFO_RSSI_bar_level[gEeprom.RX_CHANNEL] = 0;
+	gVFO_RSSI[vfo]           = rssi;
+	gVFO_RSSI_bar_level[vfo] = 0;
 
 	{	// drop the '.5'
-		const int16_t dBm = (RSSI / 2) - 160;
+		const int16_t dBm = (rssi / 2) - 160;
 		sprintf(s, "%-3d", dBm);
 	}
 	else
@@ -54,7 +54,7 @@ void UI_UpdateRSSI(const int16_t RSSI)
 
 #else
 	
-void Render(const uint8_t rssi, const uint8_t RssiLevel, const uint8_t VFO)
+void render(const int16_t rssi, const uint8_t rssi_level, const int vfo)
 {	// bar graph
 
 	uint8_t *pLine;
@@ -66,7 +66,7 @@ void Render(const uint8_t rssi, const uint8_t RssiLevel, const uint8_t VFO)
 	if (gCurrentFunction == FUNCTION_TRANSMIT || gScreenToDisplay != DISPLAY_MAIN)
 		return;    // it's still in use
 
-	if (VFO == 0)
+	if (vfo == 0)
 	{
 		pLine = gFrameBuffer[2];
 		Line  = 3;
@@ -79,36 +79,36 @@ void Render(const uint8_t rssi, const uint8_t RssiLevel, const uint8_t VFO)
 
 	memset(pLine, 0, 23);
 	
-	if (RssiLevel == 0)
+	if (rssi_level == 0)
 	{
 		pLine = NULL;
 	}
 	else
 	{
-		//if (RssiLevel >= 1)
+		//if (rssi_level >= 1)
 			memmove(pLine, BITMAP_Antenna, 5);
-		if (RssiLevel >= 2)
+		if (rssi_level >= 2)
 			memmove(pLine +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
-		if (RssiLevel >= 3)
+		if (rssi_level >= 3)
 			memmove(pLine +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
-		if (RssiLevel >= 4)
+		if (rssi_level >= 4)
 			memmove(pLine + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
-		if (RssiLevel >= 5)
+		if (rssi_level >= 5)
 			memmove(pLine + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
-		if (RssiLevel >= 6)
+		if (rssi_level >= 6)
 			memmove(pLine + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
-		if (RssiLevel >= 7)
+		if (rssi_level >= 7)
 			memmove(pLine + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
 	}
 
 	ST7565_DrawLine(0, Line, 23, pLine);
 }
 
-void UI_UpdateRSSI(const int16_t RSSI)
+void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 {
-	gVFO_RSSI[gEeprom.RX_CHANNEL] = RSSI;
+	gVFO_RSSI[vfo] = rssi;
 	
-	//const int16_t dBm = (RSSI / 2) - 160;
+	//const int16_t dBm = (rssi / 2) - 160;
 
 	#if 0
 		//const unsigned int band = gRxVfo->Band;
@@ -129,24 +129,24 @@ void UI_UpdateRSSI(const int16_t RSSI)
 	
 	uint8_t Level = 0;
 
-	if (RSSI >= level3)  Level = 7;
+	if (rssi >= level3)  Level = 7;
 	else
-	if (RSSI >= level23) Level = 6;
+	if (rssi >= level23) Level = 6;
 	else
-	if (RSSI >= level2)  Level = 5;
+	if (rssi >= level2)  Level = 5;
 	else
-	if (RSSI >= level12) Level = 4;
+	if (rssi >= level12) Level = 4;
 	else
-	if (RSSI >= level1)  Level = 3;
+	if (rssi >= level1)  Level = 3;
 	else
-	if (RSSI >= level01) Level = 2;
+	if (rssi >= level01) Level = 2;
 	else
-	if (RSSI >= level0)  Level = 1;
+	if (rssi >= level0)  Level = 1;
 
-	if (gVFO_RSSI_bar_level[gEeprom.RX_CHANNEL] != Level)
+	if (gVFO_RSSI_bar_level[vfo] != Level)
 	{
-		gVFO_RSSI_bar_level[gEeprom.RX_CHANNEL] = Level;
-		Render(RSSI, Level, gEeprom.RX_CHANNEL);
+		gVFO_RSSI_bar_level[vfo] = Level;
+		render(rssi, Level, vfo);
 	}
 }
 
