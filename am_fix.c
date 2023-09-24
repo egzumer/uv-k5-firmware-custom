@@ -117,13 +117,9 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 	const unsigned int original_index = 1;
 
-#elif 1
+#elif 0
 
-		// note:
-		//  adjusting the 'lna-short' register causes a 'clicking' sound in the
-		//  received audio, so playing with it whilst a signal is present is going
-		//  to be a no no it seems.
-		//  so in this table the 'lna-short' register I leave unchanged
+		//  in this table the 'lna-short' register I leave unchanged
 
 		{3, 0, 0, 0},         //   1   0dB  -24dB  -8dB -33dB ..  -65dB
 		{3, 0, 1, 0},         //   2   0dB  -24dB  -6dB -33dB ..  -63dB
@@ -186,123 +182,102 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 #else
 
-		// in this table I include adjusting the 'lna-short'  register ~
-		// more gain adjustment range from doing so but 'clicking' sound
-		// from doing so :(
+		// in this table I include adjusting the 'lna-short' register ~
+		// more gain adjustment range from doing so
 
-
-		{1, 0, 0, 0},         //   1 -54dB  -24dB  -8dB -33dB .. -119dB
-		{1, 0, 1, 0},         //   2 -54dB  -24dB  -6dB -33dB .. -117dB
-		{1, 0, 2, 0},         //   3 -54dB  -24dB  -3dB -33dB .. -114dB
-		{1, 0, 0, 1},         //   4 -54dB  -24dB  -8dB -27dB .. -113dB
-		{1, 1, 1, 0},         //   5 -54dB  -19dB  -6dB -33dB .. -112dB
-		{1, 0, 1, 1},         //   6 -54dB  -24dB  -6dB -27dB .. -111dB
-		{1, 1, 2, 0},         //   7 -54dB  -19dB  -3dB -33dB .. -109dB
-		{1, 1, 0, 1},         //   8 -54dB  -19dB  -8dB -27dB .. -108dB
-		{1, 0, 0, 2},         //   9 -54dB  -24dB  -8dB -21dB .. -107dB
-		{1, 1, 1, 1},         //  10 -54dB  -19dB  -6dB -27dB .. -106dB
-		{1, 0, 1, 2},         //  11 -54dB  -24dB  -6dB -21dB .. -105dB
-		{1, 2, 2, 0},         //  12 -54dB  -14dB  -3dB -33dB .. -104dB
-		{1, 2, 0, 1},         //  13 -54dB  -14dB  -8dB -27dB .. -103dB
-		{1, 0, 2, 2},         //  14 -54dB  -24dB  -3dB -21dB .. -102dB
-		{1, 2, 3, 0},         //  15 -54dB  -14dB   0dB -33dB .. -101dB
-		{1, 1, 3, 1},         //  16 -54dB  -19dB   0dB -27dB .. -100dB
-		{1, 0, 3, 2},         //  17 -54dB  -24dB   0dB -21dB ..  -99dB
-		{1, 3, 0, 1},         //  18 -54dB   -9dB  -8dB -27dB ..  -98dB
-		{1, 1, 2, 2},         //  19 -54dB  -19dB  -3dB -21dB ..  -97dB
-		{1, 3, 3, 0},         //  20 -54dB   -9dB   0dB -33dB ..  -96dB
-		{1, 0, 0, 4},         //  21 -54dB  -24dB  -8dB  -9dB ..  -95dB
-		{1, 1, 1, 3},         //  22 -54dB  -19dB  -6dB -15dB ..  -94dB
-		{0, 0, 2, 0},         //  23 -33dB  -24dB  -3dB -33dB ..  -93dB
-		{1, 3, 0, 2},         //  24 -54dB   -9dB  -8dB -21dB ..  -92dB
-		{1, 2, 0, 3},         //  25 -54dB  -14dB  -8dB -15dB ..  -91dB
-		{1, 4, 2, 1},         //  26 -54dB   -6dB  -3dB -27dB ..  -90dB
-		{1, 4, 0, 2},         //  27 -54dB   -6dB  -8dB -21dB ..  -89dB
-		{0, 2, 0, 0},         //  28 -33dB  -14dB  -8dB -33dB ..  -88dB
-		{0, 0, 2, 1},         //  29 -33dB  -24dB  -3dB -27dB ..  -87dB
-		{1, 2, 2, 3},         //  30 -54dB  -14dB  -3dB -15dB ..  -86dB
-		{1, 1, 1, 5},         //  31 -54dB  -19dB  -6dB  -6dB ..  -85dB
-		{1, 0, 3, 5},         //  32 -54dB  -24dB   0dB  -6dB ..  -84dB
-		{0, 3, 0, 0},         //  33 -33dB   -9dB  -8dB -33dB ..  -83dB
-		{0, 2, 0, 1},         //  34 -33dB  -14dB  -8dB -27dB ..  -82dB
-		{1, 4, 1, 3},         //  35 -54dB   -6dB  -6dB -15dB ..  -81dB
-		{0, 4, 0, 0},         //  36 -33dB   -6dB  -8dB -33dB ..  -80dB
-		{1, 1, 3, 5},         //  37 -54dB  -19dB   0dB  -6dB ..  -79dB
-		{1, 4, 2, 3},         //  38 -54dB   -6dB  -3dB -15dB ..  -78dB
-		{1, 2, 2, 5},         //  39 -54dB  -14dB  -3dB  -6dB ..  -77dB
-		{0, 5, 1, 0},         //  40 -33dB   -4dB  -6dB -33dB ..  -76dB
-		{0, 3, 1, 1},         //  41 -33dB   -9dB  -6dB -27dB ..  -75dB
-		{0, 2, 1, 2},         //  42 -33dB  -14dB  -6dB -21dB ..  -74dB
-		{0, 1, 3, 2},         //  43 -33dB  -19dB   0dB -21dB ..  -73dB
-		{1, 4, 2, 4},         //  44 -54dB   -6dB  -3dB  -9dB ..  -72dB
-		{1, 4, 0, 6},         //  45 -54dB   -6dB  -8dB  -3dB ..  -71dB
-		{0, 5, 1, 1},         //  46 -33dB   -4dB  -6dB -27dB ..  -70dB
-		{0, 1, 0, 4},         //  47 -33dB  -19dB  -8dB  -9dB ..  -69dB
-		{0, 2, 3, 2},         //  48 -33dB  -14dB   0dB -21dB ..  -68dB
-		{1, 5, 2, 5},         //  49 -54dB   -4dB  -3dB  -6dB ..  -67dB
-		{1, 4, 1, 7},         //  50 -54dB   -6dB  -6dB   0dB ..  -66dB
-		{0, 2, 2, 3},         //  51 -33dB  -14dB  -3dB -15dB ..  -65dB
-		{0, 2, 0, 4},         //  52 -33dB  -14dB  -8dB  -9dB ..  -64dB
-		{0, 1, 0, 6},         //  53 -33dB  -19dB  -8dB  -3dB ..  -63dB
-		{0, 2, 3, 3},         //  54 -33dB  -14dB   0dB -15dB ..  -62dB
-		{0, 1, 2, 5},         //  55 -33dB  -19dB  -3dB  -6dB ..  -61dB
-		{0, 4, 3, 2},         //  56 -33dB   -6dB   0dB -21dB ..  -60dB
-		{2, 0, 0, 1},         //  57   0dB  -24dB  -8dB -27dB ..  -59dB
-		{0, 1, 3, 5},         //  58 -33dB  -19dB   0dB  -6dB ..  -58dB
-		{0, 4, 2, 3},         //  59 -33dB   -6dB  -3dB -15dB ..  -57dB
-		{0, 2, 3, 4},         //  60 -33dB  -14dB   0dB  -9dB ..  -56dB
-		{0, 2, 0, 7},         //  61 -33dB  -14dB  -8dB   0dB ..  -55dB
-		{2, 1, 0, 1},         //  62   0dB  -19dB  -8dB -27dB ..  -54dB
-		{0, 2, 2, 6},         //  63 -33dB  -14dB  -3dB  -3dB ..  -53dB
-		{0, 1, 3, 7},         //  64 -33dB  -19dB   0dB   0dB ..  -52dB
-		{2, 0, 3, 1},         //  65   0dB  -24dB   0dB -27dB ..  -51dB
-		{0, 2, 3, 6},         //  66 -33dB  -14dB   0dB  -3dB ..  -50dB
-		{0, 5, 1, 5},         //  67 -33dB   -4dB  -6dB  -6dB ..  -49dB
-		{0, 3, 1, 7},         //  68 -33dB   -9dB  -6dB   0dB ..  -48dB
-		{0, 4, 0, 7},         //  69 -33dB   -6dB  -8dB   0dB ..  -47dB
-		{3, 1, 1, 2},         //  70   0dB  -19dB  -6dB -21dB ..  -46dB
-		{3, 0, 1, 3},         //  71   0dB  -24dB  -6dB -15dB ..  -45dB
-		{2, 2, 2, 1},         //  72   0dB  -14dB  -3dB -27dB ..  -44dB
-		{2, 5, 1, 0},         //  73   0dB   -4dB  -6dB -33dB ..  -43dB
-		{2, 0, 2, 3},         //  74   0dB  -24dB  -3dB -15dB ..  -42dB
-		{3, 0, 0, 4},         //  75   0dB  -24dB  -8dB  -9dB ..  -41dB
-		{0, 5, 3, 6},         //  76 -33dB   -4dB   0dB  -3dB ..  -40dB
-		{2, 4, 3, 0},         //  77   0dB   -6dB   0dB -33dB ..  -39dB
-		{2, 0, 0, 5},         //  78   0dB  -24dB  -8dB  -6dB ..  -38dB
-		{3, 1, 2, 3},         //  79   0dB  -19dB  -3dB -15dB ..  -37dB
-		{2, 1, 0, 4},         //  80   0dB  -19dB  -8dB  -9dB ..  -36dB
-		{2, 2, 1, 3},         //  81   0dB  -14dB  -6dB -15dB ..  -35dB
-		{2, 1, 1, 4},         //  82   0dB  -19dB  -6dB  -9dB ..  -34dB
-		{2, 0, 1, 6},         //  83   0dB  -24dB  -6dB  -3dB ..  -33dB
-		{3, 0, 0, 7},         //  84   0dB  -24dB  -8dB   0dB ..  -32dB
-		{2, 1, 1, 5},         //  85   0dB  -19dB  -6dB  -6dB ..  -31dB
-		{2, 3, 3, 2},         //  86   0dB   -9dB   0dB -21dB ..  -30dB
-		{2, 2, 1, 4},         //  87   0dB  -14dB  -6dB  -9dB ..  -29dB
-		{2, 1, 2, 5},         //  88   0dB  -19dB  -3dB  -6dB ..  -28dB
-		{3, 0, 3, 6},         //  89   0dB  -24dB   0dB  -3dB ..  -27dB
-		{3, 2, 2, 4},         //  90   0dB  -14dB  -3dB  -9dB ..  -26dB
-		{2, 5, 1, 3},         //  91   0dB   -4dB  -6dB -15dB ..  -25dB
-		{2, 3, 3, 3},         //  92   0dB   -9dB   0dB -15dB ..  -24dB
-		{2, 2, 3, 4},         //  93   0dB  -14dB   0dB  -9dB ..  -23dB
-		{3, 1, 3, 6},         //  94   0dB  -19dB   0dB  -3dB ..  -22dB
-		{2, 3, 2, 4},         //  95   0dB   -9dB  -3dB  -9dB ..  -21dB
-		{3, 4, 0, 5},         //  96   0dB   -6dB  -8dB  -6dB ..  -20dB
-		{2, 1, 3, 7},         //  97   0dB  -19dB   0dB   0dB ..  -19dB
-		{3, 4, 2, 4},         //  98   0dB   -6dB  -3dB  -9dB ..  -18dB
-		{3, 2, 3, 6},         //  99   0dB  -14dB   0dB  -3dB ..  -17dB original
-		{2, 5, 1, 5},         // 100   0dB   -4dB  -6dB  -6dB ..  -16dB
-		{3, 4, 2, 5},         // 101   0dB   -6dB  -3dB  -6dB ..  -15dB
-		{2, 4, 0, 7},         // 102   0dB   -6dB  -8dB   0dB ..  -14dB
-		{3, 5, 2, 5},         // 103   0dB   -4dB  -3dB  -6dB ..  -13dB
-		{2, 4, 1, 7},         // 104   0dB   -6dB  -6dB   0dB ..  -12dB
-		{2, 5, 3, 5},         // 105   0dB   -4dB   0dB  -6dB ..  -10dB
-		{3, 4, 3, 6},         // 106   0dB   -6dB   0dB  -3dB ..   -9dB
-		{2, 5, 3, 6},         // 107   0dB   -4dB   0dB  -3dB ..   -7dB
-		{3, 4, 3, 7},         // 108   0dB   -6dB   0dB   0dB ..   -6dB
-		{2, 5, 3, 7}          // 109   0dB   -4dB   0dB   0dB ..   -4dB
+		{0, 0, 0, 0},         //   1 -33dB  -24dB  -8dB -33dB ..  -98dB
+		{0, 0, 1, 0},         //   2 -33dB  -24dB  -6dB -33dB ..  -96dB
+		{1, 0, 0, 0},         //   3 -30dB  -24dB  -8dB -33dB ..  -95dB
+		{0, 1, 0, 0},         //   4 -33dB  -19dB  -8dB -33dB ..  -93dB
+		{0, 0, 0, 1},         //   5 -33dB  -24dB  -8dB -27dB ..  -92dB
+		{0, 1, 1, 0},         //   6 -33dB  -19dB  -6dB -33dB ..  -91dB
+		{0, 0, 1, 1},         //   7 -33dB  -24dB  -6dB -27dB ..  -90dB
+		{1, 0, 0, 1},         //   8 -30dB  -24dB  -8dB -27dB ..  -89dB
+		{0, 1, 2, 0},         //   9 -33dB  -19dB  -3dB -33dB ..  -88dB
+		{1, 0, 3, 0},         //  10 -30dB  -24dB   0dB -33dB ..  -87dB
+		{0, 0, 0, 2},         //  11 -33dB  -24dB  -8dB -21dB ..  -86dB
+		{1, 1, 2, 0},         //  12 -30dB  -19dB  -3dB -33dB ..  -85dB
+		{0, 0, 3, 1},         //  13 -33dB  -24dB   0dB -27dB ..  -84dB
+		{0, 3, 0, 0},         //  14 -33dB   -9dB  -8dB -33dB ..  -83dB
+		{1, 1, 3, 0},         //  15 -30dB  -19dB   0dB -33dB ..  -82dB
+		{1, 0, 3, 1},         //  16 -30dB  -24dB   0dB -27dB ..  -81dB
+		{0, 2, 3, 0},         //  17 -33dB  -14dB   0dB -33dB ..  -80dB
+		{1, 2, 0, 1},         //  18 -30dB  -14dB  -8dB -27dB ..  -79dB
+		{0, 3, 2, 0},         //  19 -33dB   -9dB  -3dB -33dB ..  -78dB
+		{1, 4, 0, 0},         //  20 -30dB   -6dB  -8dB -33dB ..  -77dB
+		{0, 2, 0, 2},         //  21 -33dB  -14dB  -8dB -21dB ..  -76dB
+		{0, 3, 3, 0},         //  22 -33dB   -9dB   0dB -33dB ..  -75dB
+		{1, 3, 0, 1},         //  23 -30dB   -9dB  -8dB -27dB ..  -74dB
+		{1, 2, 0, 2},         //  24 -30dB  -14dB  -8dB -21dB ..  -73dB
+		{1, 1, 0, 3},         //  25 -30dB  -19dB  -8dB -15dB ..  -72dB
+		{1, 4, 0, 1},         //  26 -30dB   -6dB  -8dB -27dB ..  -71dB
+		{1, 5, 2, 0},         //  27 -30dB   -4dB  -3dB -33dB ..  -70dB
+		{1, 4, 1, 1},         //  28 -30dB   -6dB  -6dB -27dB ..  -69dB
+		{2, 2, 2, 1},         //  29 -24dB  -14dB  -3dB -27dB ..  -68dB
+		{2, 1, 2, 2},         //  30 -24dB  -19dB  -3dB -21dB ..  -67dB
+		{2, 0, 2, 3},         //  31 -24dB  -24dB  -3dB -15dB ..  -66dB
+		{1, 0, 0, 6},         //  32 -30dB  -24dB  -8dB  -3dB ..  -65dB
+		{2, 1, 1, 3},         //  33 -24dB  -19dB  -6dB -15dB ..  -64dB
+		{0, 3, 1, 3},         //  34 -33dB   -9dB  -6dB -15dB ..  -63dB
+		{2, 3, 0, 2},         //  35 -24dB   -9dB  -8dB -21dB ..  -62dB
+		{2, 1, 2, 3},         //  36 -24dB  -19dB  -3dB -15dB ..  -61dB
+		{2, 3, 1, 2},         //  37 -24dB   -9dB  -6dB -21dB ..  -60dB
+		{2, 2, 3, 2},         //  38 -24dB  -14dB   0dB -21dB ..  -59dB
+		{2, 1, 1, 4},         //  39 -24dB  -19dB  -6dB  -9dB ..  -58dB
+		{2, 4, 1, 2},         //  40 -24dB   -6dB  -6dB -21dB ..  -57dB
+		{1, 2, 2, 4},         //  41 -30dB  -14dB  -3dB  -9dB ..  -56dB
+		{2, 1, 1, 5},         //  42 -24dB  -19dB  -6dB  -6dB ..  -55dB
+		{2, 3, 3, 2},         //  43 -24dB   -9dB   0dB -21dB ..  -54dB
+		{1, 3, 0, 5},         //  44 -30dB   -9dB  -8dB  -6dB ..  -53dB
+		{1, 5, 2, 3},         //  45 -30dB   -4dB  -3dB -15dB ..  -52dB
+		{1, 3, 1, 5},         //  46 -30dB   -9dB  -6dB  -6dB ..  -51dB
+		{0, 2, 2, 7},         //  47 -33dB  -14dB  -3dB   0dB ..  -50dB
+		{2, 1, 1, 7},         //  48 -24dB  -19dB  -6dB   0dB ..  -49dB
+		{0, 4, 2, 5},         //  49 -33dB   -6dB  -3dB  -6dB ..  -48dB
+		{1, 2, 3, 6},         //  50 -30dB  -14dB   0dB  -3dB ..  -47dB
+		{1, 5, 1, 5},         //  51 -30dB   -4dB  -6dB  -6dB ..  -46dB
+		{3, 0, 3, 2},         //  52   0dB  -24dB   0dB -21dB ..  -45dB
+		{3, 2, 2, 1},         //  53   0dB  -14dB  -3dB -27dB ..  -44dB
+		{2, 5, 1, 4},         //  54 -24dB   -4dB  -6dB  -9dB ..  -43dB
+		{1, 4, 2, 6},         //  55 -30dB   -6dB  -3dB  -3dB ..  -42dB
+		{3, 0, 0, 4},         //  56   0dB  -24dB  -8dB  -9dB ..  -41dB
+		{0, 5, 3, 6},         //  57 -33dB   -4dB   0dB  -3dB ..  -40dB
+		{2, 4, 2, 5},         //  58 -24dB   -6dB  -3dB  -6dB ..  -39dB
+		{3, 0, 0, 5},         //  59   0dB  -24dB  -8dB  -6dB ..  -38dB
+		{0, 5, 3, 7},         //  60 -33dB   -4dB   0dB   0dB ..  -37dB
+		{2, 3, 3, 6},         //  61 -24dB   -9dB   0dB  -3dB ..  -36dB
+		{3, 4, 0, 2},         //  62   0dB   -6dB  -8dB -21dB ..  -35dB
+		{3, 1, 1, 4},         //  63   0dB  -19dB  -6dB  -9dB ..  -34dB
+		{3, 0, 3, 4},         //  64   0dB  -24dB   0dB  -9dB ..  -33dB
+		{3, 3, 0, 3},         //  65   0dB   -9dB  -8dB -15dB ..  -32dB
+		{3, 1, 1, 5},         //  66   0dB  -19dB  -6dB  -6dB ..  -31dB
+		{3, 0, 2, 6},         //  67   0dB  -24dB  -3dB  -3dB ..  -30dB
+		{3, 2, 3, 3},         //  68   0dB  -14dB   0dB -15dB ..  -29dB
+		{3, 2, 0, 5},         //  69   0dB  -14dB  -8dB  -6dB ..  -28dB
+		{3, 4, 1, 3},         //  70   0dB   -6dB  -6dB -15dB ..  -27dB
+		{3, 2, 2, 4},         //  71   0dB  -14dB  -3dB  -9dB ..  -26dB
+		{3, 1, 2, 6},         //  72   0dB  -19dB  -3dB  -3dB ..  -25dB
+		{3, 3, 1, 4},         //  73   0dB   -9dB  -6dB  -9dB ..  -24dB
+		{3, 2, 1, 6},         //  74   0dB  -14dB  -6dB  -3dB ..  -23dB
+		{3, 5, 2, 3},         //  75   0dB   -4dB  -3dB -15dB ..  -22dB
+		{3, 4, 1, 4},         //  76   0dB   -6dB  -6dB  -9dB ..  -21dB
+		{3, 4, 0, 5},         //  77   0dB   -6dB  -8dB  -6dB ..  -20dB
+		{3, 5, 1, 4},         //  78   0dB   -4dB  -6dB  -9dB ..  -19dB
+		{3, 3, 3, 4},         //  79   0dB   -9dB   0dB  -9dB ..  -18dB
+		{3, 2, 3, 6},         //  80   0dB  -14dB   0dB  -3dB ..  -17dB original
+		{3, 5, 1, 5},         //  81   0dB   -4dB  -6dB  -6dB ..  -16dB
+		{3, 3, 1, 7},         //  82   0dB   -9dB  -6dB   0dB ..  -15dB
+		{3, 2, 3, 7},         //  83   0dB  -14dB   0dB   0dB ..  -14dB
+		{3, 5, 1, 6},         //  84   0dB   -4dB  -6dB  -3dB ..  -13dB
+		{3, 4, 2, 6},         //  85   0dB   -6dB  -3dB  -3dB ..  -12dB
+		{3, 5, 2, 6},         //  86   0dB   -4dB  -3dB  -3dB ..  -10dB
+		{3, 4, 3, 6},         //  87   0dB   -6dB   0dB  -3dB ..   -9dB
+		{3, 5, 2, 7},         //  88   0dB   -4dB  -3dB   0dB ..   -7dB
+		{3, 4, 3, 7},         //  89   0dB   -6dB   0dB   0dB ..   -6dB
+		{3, 5, 3, 7}          //  90   0dB   -4dB   0dB   0dB ..   -4dB
 	};
 
-	const unsigned int original_index = 99;
+	const unsigned int original_index = 80;
 
 #endif
 
