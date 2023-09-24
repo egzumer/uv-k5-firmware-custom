@@ -1134,11 +1134,11 @@ void APP_Update(void)
 		{	// dual watch mode, go back to sleep
 
 			// sample the RSSI
+			gCurrentRSSI = (int16_t)BK4819_GetRSSI();
 			#ifdef ENABLE_AM_FIX
 				// with compensation
-				gCurrentRSSI = (int16_t)BK4819_GetRSSI() - (rssi_db_gain_diff * 2);
-			#else
-				gCurrentRSSI = (int16_t)BK4819_GetRSSI();
+				if (gSetting_AM_fix)
+					gCurrentRSSI -= rssi_db_gain_diff * 2;
 			#endif
 
 			UI_UpdateRSSI(gCurrentRSSI);
@@ -1660,11 +1660,11 @@ void APP_TimeSlice500ms(void)
 
 		if (gCurrentFunction != FUNCTION_POWER_SAVE)
 		{
+			gCurrentRSSI = (int16_t)BK4819_GetRSSI();
 			#ifdef ENABLE_AM_FIX
 				// with compensation
-				gCurrentRSSI = (int16_t)BK4819_GetRSSI() - (rssi_db_gain_diff * 2);
-			#else
-				gCurrentRSSI = (int16_t)BK4819_GetRSSI();
+				if (gSetting_AM_fix)
+					gCurrentRSSI -= rssi_db_gain_diff * 2;
 			#endif
 
 			UI_UpdateRSSI(gCurrentRSSI);

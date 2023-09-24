@@ -497,7 +497,7 @@ void UI_DisplayMain(void)
 	{	// we're free to use the middle empty line for something
 
 		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
-			if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].IsAM)
+			if (gSetting_AM_fix && gEeprom.VfoInfo[gEeprom.RX_CHANNEL].IsAM)
 			{
 				switch (gCurrentFunction)
 				{
@@ -514,7 +514,9 @@ void UI_DisplayMain(void)
 						break;
 				}
 			}
-		#else
+			else
+		#endif
+		{
 			#ifdef ENABLE_AUDIO_BAR
 				UI_DisplayAudioBar();
 			
@@ -536,7 +538,7 @@ void UI_DisplayMain(void)
 					#endif
 				}
 			}
-		#endif
+		}
 	}
 
 	ST7565_BlitFullScreen();
