@@ -416,7 +416,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 
 	#ifdef ENABLE_AM_FIX
 		if (reset_am_fix)
-			AM_fix_reset();      // TODO: only reset it when moving channel/frequency
+			AM_fix_reset(gEeprom.RX_CHANNEL);      // TODO: only reset it when moving channel/frequency
 	#endif
 
 	gVFO_RSSI_bar_level[gEeprom.RX_CHANNEL == 0] = 0;
@@ -1138,7 +1138,7 @@ void APP_Update(void)
 			#ifdef ENABLE_AM_FIX
 				// with compensation
 				if (gRxVfo->IsAM && gSetting_AM_fix)
-					gCurrentRSSI[gEeprom.RX_CHANNEL] -= rssi_db_gain_diff * 2;
+					gCurrentRSSI[gEeprom.RX_CHANNEL] -= rssi_db_gain_diff[gEeprom.RX_CHANNEL]  * 2;
 			#endif
 
 			UI_UpdateRSSI(gCurrentRSSI[gEeprom.RX_CHANNEL], gEeprom.RX_CHANNEL);
@@ -1326,8 +1326,8 @@ void APP_TimeSlice10ms(void)
 	#endif
 
 	#ifdef ENABLE_AM_FIX
-		if (gSetting_AM_fix)
-			AM_fix_adjust_frontEnd_10ms();
+		if (gRxVfo->IsAM && gSetting_AM_fix)
+			AM_fix_adjust_frontEnd_10ms(gEeprom.RX_CHANNEL);
 	#endif
 
 	if (UART_IsCommandAvailable())
@@ -1664,7 +1664,7 @@ void APP_TimeSlice500ms(void)
 			#ifdef ENABLE_AM_FIX
 				// with compensation
 				if (gRxVfo->IsAM && gSetting_AM_fix)
-					gCurrentRSSI[gEeprom.RX_CHANNEL] -= rssi_db_gain_diff * 2;
+					gCurrentRSSI[gEeprom.RX_CHANNEL] -= rssi_db_gain_diff[gEeprom.RX_CHANNEL] * 2;
 			#endif
 
 			UI_UpdateRSSI(gCurrentRSSI[gEeprom.RX_CHANNEL], gEeprom.RX_CHANNEL);

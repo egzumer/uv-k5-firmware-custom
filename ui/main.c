@@ -509,7 +509,7 @@ void UI_DisplayMain(void)
 					case FUNCTION_RECEIVE:
 					case FUNCTION_MONITOR:
 					case FUNCTION_INCOMING:
-						AM_fix_print_data(String);
+						AM_fix_print_data(gEeprom.RX_CHANNEL, String);
 						UI_PrintStringSmall(String, 0, 0, 3);
 						break;
 				}

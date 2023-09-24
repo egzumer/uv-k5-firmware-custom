@@ -26,12 +26,12 @@ extern const uint8_t orig_mixer;
 extern const uint8_t orig_pga;
 
 #ifdef ENABLE_AM_FIX
-	extern int16_t rssi_db_gain_diff;
+	extern int16_t rssi_db_gain_diff[2];
 
-	void AM_fix_reset(void);
-	void AM_fix_adjust_frontEnd_10ms(void);
+	void AM_fix_reset(const int vfo);
+	void AM_fix_adjust_frontEnd_10ms(const int vfo);
 	#ifdef ENABLE_AM_FIX_SHOW_DATA
-		void AM_fix_print_data(char *s);
+		void AM_fix_print_data(const int vfo, char *s);
 	#endif
 		
 #endif
