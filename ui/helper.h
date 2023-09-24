@@ -24,6 +24,9 @@ void UI_GenerateChannelString(char *pString, const uint8_t Channel);
 void UI_GenerateChannelStringEx(char *pString, const bool bShowPrefix, const uint8_t ChannelNumber);
 void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Line, uint8_t Width);
 void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_t Line);
+#ifdef ENABLE_SMALL_BOLD
+	void UI_PrintStringSmallBold(const char *pString, uint8_t Start, uint8_t End, uint8_t Line);
+#endif
 void UI_PrintStringSmallBuffer(const char *pString, uint8_t *buffer);
 void UI_DisplayFrequency(const char *pDigits, uint8_t X, uint8_t Y, bool bDisplayLeadingZero, bool bFlag);
 void UI_DisplayFrequencySmall(const char *pDigits, uint8_t X, uint8_t Y, bool bDisplayLeadingZero);

@@ -176,42 +176,14 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				gRequestSaveVFO   = true;
 				gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
 			#else
-				#if 0				
-					// toggle wide/narrow
-					// TODO: FIX ME  .. not working for VFO, works for channel
-					switch (gTxVfo->CHANNEL_BANDWIDTH)
-					{
-						case BANDWIDTH_WIDE:
-							gTxVfo->CHANNEL_BANDWIDTH = BANDWIDTH_NARROW;
-							break;
-						default:
-						case BANDWIDTH_NARROW:
-							gTxVfo->CHANNEL_BANDWIDTH = BANDWIDTH_WIDE;
-							break;
-					}
-					if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
-					{
-						gRequestSaveChannel = 2;
-					}
-					else
-					//if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
-					{
-						gRequestSaveVFO   = true;
-						gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
-					}
-					BK4819_SetFilterBandwidth(gTxVfo->CHANNEL_BANDWIDTH, );
-					gUpdateDisplay        = true;
-					gRequestDisplayScreen = gScreenToDisplay;
-				#else
-					// toggle scanlist-1
-					if (gScreenToDisplay != DISPLAY_SCANNER)
-					{
-						gTxVfo->SCANLIST1_PARTICIPATION = gTxVfo->SCANLIST1_PARTICIPATION ? 0 : 1;
-						SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
-						gVfoConfigureMode = VFO_CONFIGURE_1;
-						gFlagResetVfos    = true;
-					}
-				#endif
+				// toggle scanlist-1
+				if (gScreenToDisplay != DISPLAY_SCANNER)
+				{
+					gTxVfo->SCANLIST1_PARTICIPATION = gTxVfo->SCANLIST1_PARTICIPATION ? 0 : 1;
+					SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
+					gVfoConfigureMode = VFO_CONFIGURE_1;
+					gFlagResetVfos    = true;
+				}
 			#endif
 			break;
 

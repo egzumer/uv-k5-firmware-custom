@@ -21,6 +21,7 @@ ENABLE_NOAA                   := 0       Everything NOAA
 ENABLE_VOICE                  := 0       want to hear voices ?
 ENABLE_ALARM                  := 0       TX alarms
 ENABLE_BIG_FREQ               := 0       big font frequencies
+ENABLE_SMALL_BOLD             := 1       bold channel name/no. (name + freq channel display mode)
 ENABLE_KEEP_MEM_NAME          := 1       maintain channel name when (re)saving memory channel
 ENABLE_WIDE_RX                := 1       full 18MHz to 1300MHz RX (though frontend not tuned over full range)
 ENABLE_TX_WHEN_AM             := 0       allow TX (always FM) when RX is set to AM

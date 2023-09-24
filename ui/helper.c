@@ -91,7 +91,7 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 		Start += (((End - Start) - (Length * 8)) + 1) / 2;
 
 	const unsigned int char_width   = ARRAY_SIZE(gFontSmall[0]);
-	const unsigned int char_spacing = char_width + 0;
+	const unsigned int char_spacing = char_width + 1;
 	uint8_t            *pFb         = gFrameBuffer[Line] + Start;
 	for (i = 0; i < Length; i++)
 	{
@@ -99,23 +99,47 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 		{
 			const unsigned int index = (unsigned int)pString[i] - 32;
 			if (index < ARRAY_SIZE(gFontSmall))
-				memmove(pFb + (i * char_spacing), &gFontSmall[index], char_width);
+				memmove(pFb + (i * char_spacing) + 1, &gFontSmall[index], char_width);
 		}
 	}
 }
+
+#ifdef ENABLE_SMALL_BOLD
+	void UI_PrintStringSmallBold(const char *pString, uint8_t Start, uint8_t End, uint8_t Line)
+	{
+		const size_t Length = strlen(pString);
+		size_t       i;
+	
+		if (End > Start)
+			Start += (((End - Start) - (Length * 8)) + 1) / 2;
+	
+		const unsigned int char_width   = ARRAY_SIZE(gFontSmallBold[0]);
+		const unsigned int char_spacing = char_width + 1;
+		uint8_t            *pFb         = gFrameBuffer[Line] + Start;
+		for (i = 0; i < Length; i++)
+		{
+			if (pString[i] >= 32)
+			{
+				const unsigned int index = (unsigned int)pString[i] - 32;
+				if (index < ARRAY_SIZE(gFontSmallBold))
+					memmove(pFb + (i * char_spacing) + 1, &gFontSmallBold[index], char_width);
+			}
+		}
+	}
+#endif
 
 void UI_PrintStringSmallBuffer(const char *pString, uint8_t *buffer)
 {
 	size_t i;
 	const unsigned int char_width   = ARRAY_SIZE(gFontSmall[0]);
-	const unsigned int char_spacing = char_width + 0;
+	const unsigned int char_spacing = char_width + 1;
 	for (i = 0; i < strlen(pString); i++)
 	{
 		if (pString[i] >= 32)
 		{
 			const unsigned int index = (unsigned int)pString[i] - 32;
 			if (index < ARRAY_SIZE(gFontSmall))
-				memmove(buffer + (i * char_spacing), &gFontSmall[index], char_width);
+				memmove(buffer + (i * char_spacing) + 1, &gFontSmall[index], char_width);
 		}
 	}
 }

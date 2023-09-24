@@ -340,7 +340,12 @@ void UI_DisplayMain(void)
 						}
 						else
 						{
-							UI_PrintStringSmall(String, 32 + 4, 0, Line);
+							#ifdef ENABLE_SMALL_BOLD
+								UI_PrintStringSmallBold(String, 32 + 4, 0, Line);
+							#else
+								UI_PrintStringSmall(String, 32 + 4, 0, Line);
+							#endif
+							
 							// show the channel frequency below the channel number/name
 							sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
 							UI_PrintStringSmall(String, 32 + 4, 0, Line + 1);
