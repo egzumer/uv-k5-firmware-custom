@@ -434,7 +434,7 @@ void UI_DisplayMenu(void)
 
 		#ifdef ENABLE_AM_FIX
 			case MENU_AM_FIX:
-				strcpy(String, (gSubMenuSelection == 0) ? "OFF" : "FIXED");
+				strcpy(String, (gSubMenuSelection == 0) ? "OFF" : "YES'ish");
 				break;
 		#endif
 

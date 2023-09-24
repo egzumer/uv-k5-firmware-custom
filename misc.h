@@ -278,7 +278,7 @@ extern volatile bool         gFlagTailNoteEliminationComplete;
 #ifdef ENABLE_FMRADIO
 	extern volatile bool     gScheduleFM;
 #endif
-extern int16_t               gCurrentRSSI;
+extern int16_t               gCurrentRSSI[2];   // now one per VFO
 extern uint8_t               gIsLocked;
 extern volatile uint8_t      boot_counter_10ms;
 

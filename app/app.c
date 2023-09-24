@@ -1134,14 +1134,14 @@ void APP_Update(void)
 		{	// dual watch mode, go back to sleep
 
 			// sample the RSSI
-			gCurrentRSSI = (int16_t)BK4819_GetRSSI();
+			gCurrentRSSI[gEeprom.RX_CHANNEL] = (int16_t)BK4819_GetRSSI();
 			#ifdef ENABLE_AM_FIX
 				// with compensation
 				if (gSetting_AM_fix)
-					gCurrentRSSI -= rssi_db_gain_diff * 2;
+					gCurrentRSSI[gEeprom.RX_CHANNEL] -= rssi_db_gain_diff * 2;
 			#endif
 
-			UI_UpdateRSSI(gCurrentRSSI);
+			UI_UpdateRSSI(gCurrentRSSI[gEeprom.RX_CHANNEL]);
 
 			// go back to sleep
 
@@ -1660,14 +1660,14 @@ void APP_TimeSlice500ms(void)
 
 		if (gCurrentFunction != FUNCTION_POWER_SAVE)
 		{
-			gCurrentRSSI = (int16_t)BK4819_GetRSSI();
+			gCurrentRSSI[gEeprom.RX_CHANNEL] = (int16_t)BK4819_GetRSSI();
 			#ifdef ENABLE_AM_FIX
 				// with compensation
 				if (gSetting_AM_fix)
-					gCurrentRSSI -= rssi_db_gain_diff * 2;
+					gCurrentRSSI[gEeprom.RX_CHANNEL] -= rssi_db_gain_diff * 2;
 			#endif
 
-			UI_UpdateRSSI(gCurrentRSSI);
+			UI_UpdateRSSI(gCurrentRSSI[gEeprom.RX_CHANNEL]);
 		}
 
 		#ifdef ENABLE_FMRADIO
