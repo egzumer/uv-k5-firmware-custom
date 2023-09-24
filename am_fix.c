@@ -15,33 +15,29 @@
  *     limitations under the License.
  */
 
+// code to 'try' and reduce the AM demodulator saturation problem
+//
+// that is until someone works out how to properly configure the BK chip !
+
 #include <string.h>
 
-#include "app/generic.h"
-#include "app/main.h"
-#include "ARMCM0.h"
 #include "am_fix.h"
+#include "app/main.h"
 #include "board.h"
 #include "driver/bk4819.h"
-#include "driver/system.h"
-#ifdef ENABLE_AM_FIX_SHOW_DATA
-	#include "external/printf/printf.h"
-#endif
+#include "external/printf/printf.h"
 #include "frequencies.h"
 #include "functions.h"
 #include "misc.h"
 #include "ui/rssi.h"
 
-// original QS front end gain settings
+// original QS front end register settings
 const uint8_t orig_lna_short = 3;   //   0dB
 const uint8_t orig_lna       = 2;   // -14dB
 const uint8_t orig_mixer     = 3;   //   0dB
 const uint8_t orig_pga       = 6;   //  -3dB
 
 #ifdef ENABLE_AM_FIX
-	// stuff to overcome the AM demodulator saturation problem
-	//
-	// that is until someone works out how to properly configure the BK chip !!
 
 	typedef struct
 	{
@@ -96,14 +92,15 @@ const uint8_t orig_pga       = 6;   //  -3dB
 	//           1 = -27dB
 	//           0 = -33dB
 
-	// front end register dB values
+	// front end register dB values - needs a measuring/calibration update really
 //	static const int16_t lna_short_dB[] = {-19, -16, -11,   0};   // was
-	static const int16_t lna_short_dB[] = {-33, -30  -24,   0};   // now
+	static const int16_t lna_short_dB[] = {-33, -30  -24,   0};   // corrected'ish
 	static const int16_t lna_dB[]       = {-24, -19, -14,  -9, -6, -4, -2, 0};
 	static const int16_t mixer_dB[]     = { -8,  -6,  -3,   0};
 	static const int16_t pga_dB[]       = {-33, -27, -21, -15, -9, -6, -3, 0};
 
 	// lookup table is by far easier than writing code to do the same
+	//
 	static const t_am_fix_gain_table am_fix_gain_table[] =
 	{
 		{.lna_short = 3, .lna = 2, .mixer = 3, .pga = 6},  //  0 0dB -14dB  0dB  -3dB .. -17dB original
@@ -111,6 +108,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 #ifdef ENABLE_AM_FIX_TEST1
 
 		// test table that lets me manually set the lna-short register
+		// to measure it's actual dB change using an RF signal generator
 
 		{0, 2, 3, 6},         // 1 -33dB  -14dB   0dB  -3dB ..  -50dB
 		{1, 2, 3, 6},         // 2 -30dB  -14dB   0dB  -3dB ..  -47dB
@@ -121,13 +119,11 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 #elif 1
 
-
-		// NOTE: adjusting the 'lna-short' register causes a 'clicking' sound in the
-		//       received audio, so playing with it whilst a signal is present is going
-		//       to be a no no it seems.
-		//       so in this table the 'lna-short' register I leave alone
-
-
+		// note:
+		//  adjusting the 'lna-short' register causes a 'clicking' sound in the
+		//  received audio, so playing with it whilst a signal is present is going
+		//  to be a no no it seems.
+		//  so in this table the 'lna-short' register I leave unchanged
 
 		{3, 0, 0, 0},         //   1   0dB  -24dB  -8dB -33dB ..  -65dB
 		{3, 0, 1, 0},         //   2   0dB  -24dB  -6dB -33dB ..  -63dB
