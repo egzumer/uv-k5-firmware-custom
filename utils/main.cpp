@@ -15,13 +15,10 @@
  *     limitations under the License.
  */
 
-#include <vcl.h>
-
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <vector>
-
-#pragma hdrstop
 
 // ************************************************************************
 // create a front end gain table for the firmware
@@ -71,10 +68,8 @@ typedef struct
 	int16_t sum_dB;
 } t_gain_table;
 
-void __fastcall create_gain_table(String filename)
+void __fastcall create_gain_table(const char *filename)
 {
-	String s;
-
 	std::vector <t_gain_table> gain_table;
 
 	// front end register dB values
@@ -222,28 +217,27 @@ void __fastcall create_gain_table(String filename)
 		break;
 	}
 
-	const int save_handle = FileCreate(filename);
-	if (save_handle <= 0)
+	// ***************************
+	// save the table to a file
+
+	FILE *file = fopen(filename, "w");
+	if (file == NULL)
 		return;
 
-	s = "\r\n";
-	FileWrite(save_handle, s.c_str(), s.Length());
-	s = "\tconst t_am_fix_gain_table am_fix_gain_table[] =\r\n";
-	FileWrite(save_handle, s.c_str(), s.Length());
-	s = "\t{\r\n";
-	FileWrite(save_handle, s.c_str(), s.Length());
-	s = "\t\t{.lna_short = 3, .lna = 2, .mixer = 3, .pga = 6},      //  0 0dB -14dB  0dB  -3dB .. -17dB original\r\n";
-	FileWrite(save_handle, s.c_str(), s.Length());
-	s = "\r\n";
-	FileWrite(save_handle, s.c_str(), s.Length());
+	fprintf(file, "\n");
+	fprintf(file, "\tconst t_am_fix_gain_table am_fix_gain_table[] =\n");
+	fprintf(file, "\t{\n");
+	fprintf(file, "\t\t{.lna_short = 3, .lna = 2, .mixer = 3, .pga = 6},      //  0 0dB -14dB  0dB  -3dB .. -17dB original\n");
+	fprintf(file, "\n");
 
 	for (unsigned int i = 0; i < gain_table.size(); i++)
 	{
+		char s[1024];
 		const t_gain_table entry = gain_table[i];
 
 		// {0, 0, 0, 0},      // 00 -19dB -24dB -8dB -33dB .. -84dB
 
-		s.printf("\t\t{%u, %u, %u, %u},         // %3u .. %3ddB %3ddB %2ddB %3ddB .. %3ddB",
+		sprintf(s, "\t\t{%u, %u, %u, %u},         // %3u .. %3ddB %3ddB %2ddB %3ddB .. %3ddB",
 			entry.lna_short,
 			entry.lna,
 			entry.mixer,
@@ -256,53 +250,63 @@ void __fastcall create_gain_table(String filename)
 			entry.sum_dB);
 
 		if (i == original_index)
-			s += " original";
+			strcat(s, " original");
 
-		s += "\r\n";
+		strcat(s, "\n");
 
-		FileWrite(save_handle, s.c_str(), s.Length());
+		fprintf(file, "%s", s);
 	}
 
-	s = "\t};\r\n";
-	FileWrite(save_handle, s.c_str(), s.Length());
+	fprintf(file, "\t};\n");
+	fprintf(file, "\n\tconst unsigned int original_index = %u;\n", 1 + original_index);
 
-	s.printf("\r\n\tconst unsigned int original_index = %u;\r\n", 1 + original_index);
-	FileWrite(save_handle, s.c_str(), s.Length());
-
-	FileClose(save_handle);
+	fclose(file);
 }
 
 	// ************************************************************************
 // "rotate_font()" has nothing to do with this program at all, I just needed
 // to write a bit of code to rotate some fonts I've drawn
 
-void __fastcall rotate_font(String filename1, String filename2)
+void __fastcall rotate_font(const char *filename1, const char *filename2)
 {
 	std::vector <uint8_t> data;
 
 	// ****************************
 	// load the file
 
-	const int load_handle = FileOpen(filename1, fmOpenRead | fmShareDenyNone);
-	if (load_handle <= 0)
+	FILE *file = fopen(filename1, "rb");
+	if (file == NULL)
 		return;
 
-	const int file_size = FileSeek(load_handle, 0, 2);
-	FileSeek(load_handle, 0, 0);
-
+	if (fseek(file, 0, SEEK_END) != 0)
+	{
+		fclose(file);
+		return;
+	}
+	const size_t file_size = ftell(file);
 	if (file_size <= 0)
 	{
-		FileClose(load_handle);
+		fclose(file);
+		return;
+	}
+	if (fseek(file, 0, SEEK_SET) != 0)
+	{
+		fclose(file);
 		return;
 	}
 
 	data.resize(file_size);
 
-	const int bytes_loaded = FileRead(load_handle, &data[0], file_size);
+	const size_t bytes_loaded = fread(&data[0], 1, file_size, file);
+	if (bytes_loaded != file_size)
+	{
+		fclose(file);
+		return;
+	}
 
-	FileClose(load_handle);
+	fclose(file);
 
-	if (bytes_loaded != (int)data.size())
+	if (bytes_loaded != data.size())
 		return;
 
 	// ***************************
@@ -330,41 +334,49 @@ void __fastcall rotate_font(String filename1, String filename2)
 	// ***************************
 	// save file
 
-	String s;
-
-	const int save_handle = FileCreate(filename2);
-	if (save_handle <= 0)
+	file = fopen(filename2, "wt");
+	if (file == NULL)
 		return;
 
-	s.printf("const uint8_t gFontSmall[95][7] =\r\n");
-	FileWrite(save_handle, s.c_str(), s.Length());
-	s = "{\r\n";
-	FileWrite(save_handle, s.c_str(), s.Length());
+	fprintf(file, "const uint8_t gFontSmall[95][7] =\n");
+//	fprintf(file, "const uint8_t gFontSmall[95][6] =\n");
+	fprintf(file, "{\n");
 
 	for (unsigned int i = 0; i < data.size(); )
 	{
-		s = "";
+		char s[1024];
+		memset(s, 0, sizeof(s));
+
 //		for (unsigned int k = 0; k < 8 && i < data.size(); k++)
 		for (unsigned int k = 0; k < 7 && i < data.size(); k++)
 		{
-			String s2;
-			s2.printf("0x%02X", data[i++]);
+			char s2[16];
+			sprintf(s2, "0x%02X", data[i++]);
+
 			if (k == 0)
-				s += "\t{";
+				strcat(s, "\t{");
+
 //			if (k < 7)
 			if (k < 6)
-				s += s2 + ", ";
+			{
+				strcat(s,  s2);
+				strcat(s, ", ");
+			}
 			else
-				s += s2 + "},\r\n";
+			{
+				strcat(s, s2);
+				strcat(s, "},\n");
+			}
 		}
+
 		i++;
-		FileWrite(save_handle, s.c_str(), s.Length());
+		
+		fprintf(file, "%s", s);
 	}
 
-	s = "};\r\n";
-	FileWrite(save_handle, s.c_str(), s.Length());
+	fprintf(file, "};\n");
 
-	FileClose(save_handle);
+	fclose(file);
 
 	// ***************************
 }
@@ -374,8 +386,8 @@ int main(int argc, char* argv[])
 {
 	create_gain_table("gain_table.c");
 
-//	rotate_font("uv-k5_small.bin",      "uv-k5_small.c");
-//	rotate_font("uv-k5_small_bold.bin", "uv-k5_small_bold.c");
+	rotate_font("uv-k5_small.bin",      "uv-k5_small.c");
+	rotate_font("uv-k5_small_bold.bin", "uv-k5_small_bold.c");
 
 	return 0;
 }

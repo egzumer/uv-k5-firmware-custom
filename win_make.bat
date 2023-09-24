@@ -15,7 +15,7 @@
 :: delete any left over files from any previous compile
 del /S /Q *.o >nul 2>nul
 del /S /Q *.d >nul 2>nul
-del /S /Q *.bin >nul 2>nul
+del /Q *.bin >nul 2>nul
 
 :: do the compile !
 "C:\Program Files (x86)\GnuWin32\bin\make"
