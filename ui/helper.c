@@ -190,7 +190,8 @@ void UI_DisplayFrequency(const char *pDigits, uint8_t X, uint8_t Y, bool bDispla
 
 void UI_DisplayFrequencySmall(const char *pDigits, uint8_t X, uint8_t Y, bool bDisplayLeadingZero)
 {
-	const unsigned int char_width  = 7;
+	const unsigned int char_width  = ARRAY_SIZE(gFontSmall[0]);
+	const unsigned int spacing     = 1 + char_width;
 	uint8_t           *pFb         = gFrameBuffer[Y] + X;
 	bool               bCanDisplay = false;
 	unsigned int       i           = 0;
@@ -202,12 +203,12 @@ void UI_DisplayFrequencySmall(const char *pDigits, uint8_t X, uint8_t Y, bool bD
 		if (bDisplayLeadingZero || bCanDisplay || c > 0)
 		{
 			#if 0
-				memmove(pFb, gFontSmallDigits[c], char_width);
+				memmove(pFb + 1, gFontSmallDigits[c], char_width);
 			#else
 				const unsigned int index = (c < 10) ? '0' - 32 + c : '-' - 32;
-				memmove(pFb, gFontSmall[index], char_width);
+				memmove(pFb + 1, gFontSmall[index], char_width);
 			#endif
-			pFb += char_width;
+			pFb += spacing;
 			bCanDisplay = true;
 		}
 	}
@@ -224,18 +225,19 @@ void UI_DisplayFrequencySmall(const char *pDigits, uint8_t X, uint8_t Y, bool bD
 	{
 		const unsigned int c = pDigits[i++];
 		#if 0
-			memmove(pFb, gFontSmallDigits[c], char_width);
+			memmove(pFb + 1, gFontSmallDigits[c], char_width);
 		#else
 			const unsigned int index = (c < 10) ? '0' - 32 + c : '-' - 32;
-			memmove(pFb, gFontSmall[index], char_width);
+			memmove(pFb + 1, gFontSmall[index], char_width);
 		#endif
-		pFb += char_width;
+		pFb += spacing;
 	}
 }
 
 void UI_DisplaySmallDigits(const uint8_t size, const char *str, const uint8_t x, const uint8_t y, const bool display_leading_zeros)
 {
-	const unsigned int char_width  = 7;
+	const unsigned int char_width  = ARRAY_SIZE(gFontSmall[0]);
+	const unsigned int spacing     = 1 + char_width;
 	bool               display     = display_leading_zeros;
 	unsigned int       xx;
 	unsigned int       i;
@@ -250,9 +252,9 @@ void UI_DisplaySmallDigits(const uint8_t size, const char *str, const uint8_t x,
 				memmove(gFrameBuffer[y] + xx, gFontSmallDigits[c], char_width);
 			#else
 				const unsigned int index = (c < 10) ? '0' - 32 + c : '-' - 32;
-				memmove(gFrameBuffer[y] + xx, gFontSmall[index], char_width);
+				memmove(gFrameBuffer[y] + xx + 1, gFontSmall[index], char_width);
 			#endif
-			xx += char_width;
+			xx += spacing;
 		}
 	}
 }
