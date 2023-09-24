@@ -20,7 +20,7 @@
 #include "settings.h"
 
 // this is decremented once every 500ms
-uint8_t gBacklightCountdown = 0;
+uint16_t gBacklightCountdown = 0;
 
 void BACKLIGHT_TurnOn(void)
 {
@@ -34,22 +34,27 @@ void BACKLIGHT_TurnOn(void)
 	{
 		default:
 		case 1:	// 5 sec
-			gBacklightCountdown = 2 * 5;
+			gBacklightCountdown = 5;
 			break;
 		case 2:	// 10 sec
-			gBacklightCountdown = 2 * 10;
+			gBacklightCountdown = 10;
 			break;
 		case 3:	// 20 sec
-			gBacklightCountdown = 2 * 20;
+			gBacklightCountdown = 20;
 			break;
-		case 4:	// 40 sec
-			gBacklightCountdown = 2 * 40;
+		case 4:	// 1 min
+			gBacklightCountdown = 60;
 			break;
-		case 5:	// 80 sec
-			gBacklightCountdown = 2 * 80;
+		case 5:	// 2 min
+			gBacklightCountdown = 60 * 2;
 			break;
-		case 6:	// always on
+		case 6:	// 4 min
+			gBacklightCountdown = 60 * 4;
+			break;
+		case 7:	// always on
 			gBacklightCountdown = 0;
 			break;
 	}
+
+	gBacklightCountdown *= 2;
 }

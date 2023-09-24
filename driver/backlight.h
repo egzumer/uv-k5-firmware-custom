@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 
-extern uint8_t gBacklightCountdown;
+extern uint16_t gBacklightCountdown;
 
 void BACKLIGHT_TurnOn(void);
 

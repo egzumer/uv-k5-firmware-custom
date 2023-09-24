@@ -68,9 +68,12 @@ typedef struct
 	int16_t sum_dB;
 } t_gain_table;
 
-void __fastcall create_gain_table(const char *filename)
+void create_gain_table(const char *filename)
 {
 	std::vector <t_gain_table> gain_table;
+
+	if (filename == NULL)
+		return;
 
 	// front end register dB values
 //	const int16_t lna_short_dB[4] = { (-19), (-16), (-11), (0)};  // was
@@ -149,7 +152,7 @@ void __fastcall create_gain_table(const char *filename)
 	}
 
 	// sort the table according top the sum dB
-	for (unsigned int i = 0; i < gain_table.size() - 1; i++)
+	for (unsigned int i = 0; i < (gain_table.size() - 1); i++)
 	{
 		t_gain_table entry1 = gain_table[i];
 		for (unsigned int k = i + 1; k < gain_table.size(); k++)
@@ -196,7 +199,7 @@ void __fastcall create_gain_table(const char *filename)
 		}
 	}
 
-	// find the QS original index
+	// find the index for the original Quansheng register settings
 	for (int i = (int)gain_table.size() - 1; i >= 0; i--)
 	{
 		const t_gain_table entry = gain_table[i];
@@ -216,6 +219,25 @@ void __fastcall create_gain_table(const char *filename)
 
 	// ***************************
 	// save the table to a file
+
+/*
+	typedef struct
+	{
+		#if 1
+			// bitfields take up less flash bytes
+			uint8_t lna_short:2;   // 0 ~ 3
+			uint8_t       lna:3;   // 0 ~ 7
+			uint8_t     mixer:2;   // 0 ~ 3
+			uint8_t       pga:3;   // 0 ~ 7
+		#else
+			uint8_t lna_short;     // 0 ~ 3
+			uint8_t       lna;     // 0 ~ 7
+			uint8_t     mixer;     // 0 ~ 3
+			uint8_t       pga;     // 0 ~ 7
+		#endif
+	} t_am_fix_gain_table;
+	//} __attribute__((packed)) t_am_fix_gain_table;
+*/
 
 	FILE *file = fopen(filename, "w");
 	if (file == NULL)
@@ -261,9 +283,12 @@ void __fastcall create_gain_table(const char *filename)
 // "rotate_font()" has nothing to do with this program at all, I just needed
 // to write a bit of code to rotate some fonts I've drawn
 
-void __fastcall rotate_font(const char *filename1, const char *filename2)
+void rotate_font(const char *filename1, const char *filename2)
 {
 	std::vector <uint8_t> data;
+
+	if (filename1 == NULL || filename2 == NULL)
+		return;
 
 	// ****************************
 	// load the file
