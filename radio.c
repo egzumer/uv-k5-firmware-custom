@@ -972,7 +972,8 @@ void RADIO_PrepareTX(void)
 			if (gBatteryDisplayLevel == 0)
 				State = VFO_STATE_BAT_LOW;
 			else
-			if (gBatteryDisplayLevel >= 6)
+//			if (gBatteryDisplayLevel >= 6)
+			if (gBatteryDisplayLevel >= 11)
 				State = VFO_STATE_VOLTAGE_HIGH;
 			else
 				goto Skip;

@@ -297,14 +297,11 @@ const uint8_t orig_pga       = 6;   //  -3dB
 	// used to simply detect we've changed our table index/register settings
 	unsigned int am_fix_gain_table_index_prev[2] = {0, 0};
 
-	// moving average RSSI buffer
-	// helps smooth out any spikey RSSI readings
-	struct {
-		unsigned int count;         //
-		unsigned int index;         // read/write buffer index
-		uint16_t     samples[4];    // 40ms long buffer (10ms RSSI sample rate)
-		uint16_t     sum;           // sum of all samples in the buffer
-	} moving_avg_rssi[2] = {0};
+	struct
+	{
+		unsigned int count;
+		uint16_t     level;
+	} rssi[2];
 
 	// to help reduce gain hunting, provides a peak hold time delay
 	unsigned int am_gain_hold_counter[2] = {0, 0};
@@ -315,8 +312,8 @@ const uint8_t orig_pga       = 6;   //  -3dB
 	void AM_fix_reset(const int vfo)
 	{	// reset the AM fixer
 
-		// reset the moving average filter
-		memset(&moving_avg_rssi[vfo], 0, sizeof(moving_avg_rssi[vfo]));
+		rssi[vfo].count = 0;
+		rssi[vfo].level = 0;
 
 		am_gain_hold_counter[vfo] = 0;
 
@@ -352,6 +349,8 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			case FUNCTION_TRANSMIT:
 			case FUNCTION_BAND_SCOPE:
 			case FUNCTION_POWER_SAVE:
+				return;
+
 			case FUNCTION_FOREGROUND:
 				return;
 
@@ -362,21 +361,16 @@ const uint8_t orig_pga       = 6;   //  -3dB
 				break;
 		}
 
-		// sample the current RSSI level
-		uint16_t rssi = BK4819_GetRSSI(); // supposed 9-bit value (0 .. 511) - never seen that though
-
-#if 1
-		// compute moving average RSSI - helps smooth any sharp spikes/troughs
-		// but can cause gain hunting/oscillation if too long a buffer (.samples)
-		if (moving_avg_rssi[vfo].count < ARRAY_SIZE(moving_avg_rssi[vfo].samples))
-			moving_avg_rssi[vfo].count++;
-		moving_avg_rssi[vfo].sum -= moving_avg_rssi[vfo].samples[moving_avg_rssi[vfo].index];  // subtract the oldest sample
-		moving_avg_rssi[vfo].sum += rssi;                             		               // add the newest sample
-		moving_avg_rssi[vfo].samples[moving_avg_rssi[vfo].index] = rssi;                  // save the newest sample
-		if (++moving_avg_rssi[vfo].index >= ARRAY_SIZE(moving_avg_rssi[vfo].samples)) 		    //
-			moving_avg_rssi[vfo].index = 0;                                          //
-		rssi = moving_avg_rssi[vfo].sum / moving_avg_rssi[vfo].count;                     // compute the average of the past 'n' samples
-#endif
+		// sample the current RSSI level, average it with the previous rssi
+		if (rssi[vfo].count < 1)
+		{
+			rssi[vfo].level = BK4819_GetRSSI();
+			rssi[vfo].count++;
+		}
+		else
+		{
+			rssi[vfo].level = (rssi[vfo].level + BK4819_GetRSSI()) >> 1;
+		}
 
 #ifdef ENABLE_AM_FIX_TEST1
 
@@ -388,18 +382,18 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		{
 			if (--am_gain_hold_counter[vfo] > 0)
 			{
-				gCurrentRSSI[vfo] = rssi - (rssi_db_gain_diff[vfo] * 2);
+				gCurrentRSSI[vfo] = (int16_t)rssi[vfo].level - (rssi_db_gain_diff[vfo] * 2);
 				return;
 			}
 		}
-		
+
 		am_gain_hold_counter[vfo] = 250;              // 250ms hold
 
 #else
 
 		// automatically choose a front end gain setting by monitoring the RSSI
 
-		if (rssi > desired_rssi)
+		if (rssi[vfo].level > desired_rssi)
 		{	// decrease gain
 
 			if (am_fix_gain_table_index[vfo] > 1)
@@ -413,14 +407,14 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 		if (am_gain_hold_counter[vfo] == 0)
 			// hold has been released, we're free to increase gain
-			if (rssi < (desired_rssi - 10))      // 5dB hysterisis (helps reduce gain hunting)
+			if (rssi[vfo].level < (desired_rssi - 10))      // 5dB hysterisis (helps reduce gain hunting)
 				// increase gain
 				if (am_fix_gain_table_index[vfo] < (ARRAY_SIZE(am_fix_gain_table) - 1))
 					am_fix_gain_table_index[vfo]++;
 
 		if (am_fix_gain_table_index[vfo] == am_fix_gain_table_index_prev[vfo])
 		{	// no gain changes have been made
-			gCurrentRSSI[vfo] = rssi - (rssi_db_gain_diff[vfo] * 2);
+			gCurrentRSSI[vfo] = (int16_t)rssi[vfo].level - (rssi_db_gain_diff[vfo] * 2);
 			return;
 		}
 
@@ -442,7 +436,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			rssi_db_gain_diff[vfo] = am_dB_gain - orig_dB_gain;
 
 			// shall we or sharn't we ?
-			gCurrentRSSI[vfo] = rssi - (rssi_db_gain_diff[vfo] * 2);
+			gCurrentRSSI[vfo] = (int16_t)rssi[vfo].level - (rssi_db_gain_diff[vfo] * 2);
 		}
 
 		// remember the new table index
@@ -470,7 +464,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			// compute the current front end gain
 			const int16_t dB_gain = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga];
 
-			sprintf(s, "idx %2d %4ddB %3u", am_fix_gain_table_index[vfo], dB_gain, BK4819_GetRSSI());
+			sprintf(s, "idx %2d %4ddB %3u", am_fix_gain_table_index[vfo], dB_gain, rssi[vfo].level);
 		}
 
 	#endif

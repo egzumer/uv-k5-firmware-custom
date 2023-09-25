@@ -433,12 +433,6 @@ void UI_DisplayMenu(void)
 			strcpy(String, (gSubMenuSelection == 0) ? "FM" : "AM");
 			break;
 
-		#ifdef ENABLE_AM_FIX
-			case MENU_AM_FIX:
-				strcpy(String, (gSubMenuSelection == 0) ? "OFF" : "YES'ish");
-				break;
-		#endif
-
 		#ifdef ENABLE_AM_FIX_TEST1
 			case MENU_AM_FIX_TEST1:
 				strcpy(String, gSubMenu_AM_fix_test1[gSubMenuSelection]);
@@ -455,6 +449,9 @@ void UI_DisplayMenu(void)
 				break;
 		#endif
 
+		#ifdef ENABLE_AM_FIX
+			case MENU_AM_FIX:
+		#endif
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_S_ADD1:

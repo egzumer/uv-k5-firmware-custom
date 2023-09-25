@@ -187,6 +187,9 @@ void ACTION_Scan(bool bRestart)
 					AUDIO_PlaySingleVoice(true);
 				#endif
 
+				// clear the other vfo's rssi level (to hide the antenna symbol)
+				gVFO_RSSI_bar_level[gEeprom.RX_CHANNEL == 0] = 0;
+
 				// let the user see DW is not active
 				gDualWatchActive = false;
 				gUpdateStatus    = true;

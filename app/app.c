@@ -65,6 +65,19 @@
 
 static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
+static void updateRSSI(const int vfo)
+{
+	int16_t rssi = BK4819_GetRSSI();
+	#ifdef ENABLE_AM_FIX
+		// with compensation
+		if (gEeprom.VfoInfo[vfo].IsAM && gSetting_AM_fix)
+			rssi -= rssi_db_gain_diff[vfo] * 2;
+	#endif
+	gCurrentRSSI[vfo] = rssi;
+
+	UI_UpdateRSSI(rssi, vfo);
+}
+
 static void APP_CheckForIncoming(void)
 {
 	if (!g_SquelchLost)
@@ -415,10 +428,11 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	#endif
 
 	#ifdef ENABLE_AM_FIX
-		if (reset_am_fix)
+		if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].IsAM && reset_am_fix)
 			AM_fix_reset(gEeprom.RX_CHANNEL);      // TODO: only reset it when moving channel/frequency
 	#endif
 
+	// clear the other vfo's rssi level (to hide the antenna symbol)
 	gVFO_RSSI_bar_level[gEeprom.RX_CHANNEL == 0] = 0;
 
 	GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
@@ -1119,8 +1133,8 @@ void APP_Update(void)
 
 			if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF)
 			{	// dual watch mode, toggle between the two VFO's
-
 				DUALWATCH_Alternate();
+
 				gUpdateRSSI = false;
 			}
 
@@ -1133,15 +1147,7 @@ void APP_Update(void)
 		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF || gScanState != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF || gUpdateRSSI)
 		{	// dual watch mode, go back to sleep
 
-			// sample the RSSI
-			gCurrentRSSI[gEeprom.RX_CHANNEL] = BK4819_GetRSSI();
-			#ifdef ENABLE_AM_FIX
-				// with compensation
-				if (gRxVfo->IsAM && gSetting_AM_fix)
-					gCurrentRSSI[gEeprom.RX_CHANNEL] -= rssi_db_gain_diff[gEeprom.RX_CHANNEL]  * 2;
-			#endif
-
-			UI_UpdateRSSI(gCurrentRSSI[gEeprom.RX_CHANNEL], gEeprom.RX_CHANNEL);
+			updateRSSI(gEeprom.RX_CHANNEL);
 
 			// go back to sleep
 
@@ -1156,8 +1162,7 @@ void APP_Update(void)
 
 		}
 		else
-		{	// no yet in power save mode
-
+		{
 			// toggle between the two VFO's
 			DUALWATCH_Alternate();
 
@@ -1326,7 +1331,7 @@ void APP_TimeSlice10ms(void)
 	#endif
 
 	#ifdef ENABLE_AM_FIX
-		if (gRxVfo->IsAM && gSetting_AM_fix)
+		if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].IsAM && gSetting_AM_fix)
 			AM_fix_adjust_frontEnd_10ms(gEeprom.RX_CHANNEL);
 	#endif
 
@@ -1659,16 +1664,7 @@ void APP_TimeSlice500ms(void)
 				gUpdateStatus = true;
 
 		if (gCurrentFunction != FUNCTION_POWER_SAVE)
-		{
-			gCurrentRSSI[gEeprom.RX_CHANNEL] = (int16_t)BK4819_GetRSSI();
-			#ifdef ENABLE_AM_FIX
-				// with compensation
-				if (gRxVfo->IsAM && gSetting_AM_fix)
-					gCurrentRSSI[gEeprom.RX_CHANNEL] -= rssi_db_gain_diff[gEeprom.RX_CHANNEL] * 2;
-			#endif
-
-			UI_UpdateRSSI(gCurrentRSSI[gEeprom.RX_CHANNEL], gEeprom.RX_CHANNEL);
-		}
+			updateRSSI(gEeprom.RX_CHANNEL);
 
 		#ifdef ENABLE_FMRADIO
 			if ((gFM_ScanState == FM_SCAN_OFF || gAskToSave) && gCssScanMode == CSS_SCAN_MODE_OFF)
@@ -1759,7 +1755,7 @@ void APP_TimeSlice500ms(void)
 	{
 		gLowBatteryBlink = ++gLowBatteryCountdown & 1;
 
-		UI_DisplayBattery(gLowBatteryCountdown);
+		UI_DisplayBattery(0, gLowBatteryBlink);
 
 		if (gCurrentFunction != FUNCTION_TRANSMIT)
 		{	// not transmitting
@@ -1808,16 +1804,20 @@ void APP_TimeSlice500ms(void)
 
 	if (gScreenToDisplay == DISPLAY_SCANNER && gScannerEditState == 0 && gScanCssState < SCAN_CSS_STATE_FOUND)
 	{
-		if (++gScanProgressIndicator > 32)
-		{
-			if (gScanCssState == SCAN_CSS_STATE_SCANNING && !gScanSingleFrequency)
-				gScanCssState = SCAN_CSS_STATE_FOUND;
-			else
-				gScanCssState = SCAN_CSS_STATE_FAILED;
-
-			gUpdateStatus = true;
-		}
-
+		gScanProgressIndicator++;
+		
+		#ifndef ENABLE_NO_SCAN_TIMEOUT
+			if (gScanProgressIndicator > 32)
+			{
+				if (gScanCssState == SCAN_CSS_STATE_SCANNING && !gScanSingleFrequency)
+					gScanCssState = SCAN_CSS_STATE_FOUND;
+				else
+					gScanCssState = SCAN_CSS_STATE_FAILED;
+	
+				gUpdateStatus = true;
+			}
+		#endif
+		
 		gUpdateDisplay = true;
 	}
 

@@ -36,28 +36,43 @@ volatile uint16_t gPowerSave_10ms;
 
 void BATTERY_GetReadings(bool bDisplayBatteryLevel)
 {
-	uint8_t  PreviousBatteryLevel = gBatteryDisplayLevel;
-	uint16_t Voltage              = (gBatteryVoltages[0] + gBatteryVoltages[1] + gBatteryVoltages[2] + gBatteryVoltages[3]) / 4;
+	const uint8_t  PreviousBatteryLevel = gBatteryDisplayLevel;
+	const uint16_t Voltage              = (gBatteryVoltages[0] + gBatteryVoltages[1] + gBatteryVoltages[2] + gBatteryVoltages[3]) / 4;
 
-	if (gBatteryCalibration[5] < Voltage)
+	gBatteryDisplayLevel = 0;
+
+	if (Voltage >= gBatteryCalibration[5])
+		gBatteryDisplayLevel = 11;
+	else
+	if (Voltage >= ((gBatteryCalibration[4] + gBatteryCalibration[5]) / 2))
+		gBatteryDisplayLevel = 10;
+	else
+	if (Voltage >= gBatteryCalibration[4])
+		gBatteryDisplayLevel = 9;
+	else
+	if (Voltage >= ((gBatteryCalibration[3] + gBatteryCalibration[4]) / 2))
+		gBatteryDisplayLevel = 8;
+	else
+	if (Voltage >= gBatteryCalibration[3])
+		gBatteryDisplayLevel = 7;
+	else
+	if (Voltage >= ((gBatteryCalibration[2] + gBatteryCalibration[3]) / 2))
 		gBatteryDisplayLevel = 6;
 	else
-	if (gBatteryCalibration[4] < Voltage)
+	if (Voltage >= gBatteryCalibration[2])
 		gBatteryDisplayLevel = 5;
 	else
-	if (gBatteryCalibration[3] < Voltage)
+	if (Voltage >= ((gBatteryCalibration[1] + gBatteryCalibration[2]) / 2))
 		gBatteryDisplayLevel = 4;
 	else
-	if (gBatteryCalibration[2] < Voltage)
+	if (Voltage >= gBatteryCalibration[1])
 		gBatteryDisplayLevel = 3;
 	else
-	if (gBatteryCalibration[1] < Voltage)
+	if (Voltage >= ((gBatteryCalibration[0] + gBatteryCalibration[1]) / 2))
 		gBatteryDisplayLevel = 2;
 	else
-	if (gBatteryCalibration[0] < Voltage)
+	if (Voltage >= gBatteryCalibration[0])
 		gBatteryDisplayLevel = 1;
-	else
-		gBatteryDisplayLevel = 0;
 
 	gBatteryVoltageAverage = (Voltage * 760) / gBatteryCalibration[3];
 
@@ -71,6 +86,7 @@ void BATTERY_GetReadings(bool bDisplayBatteryLevel)
 			gUpdateStatus  = true;
 			gUpdateDisplay = true;
 		}
+
 		gChargingWithTypeC = false;
 	}
 	else
@@ -81,6 +97,7 @@ void BATTERY_GetReadings(bool bDisplayBatteryLevel)
 			gUpdateDisplay = true;
 			BACKLIGHT_TurnOn();
 		}
+
 		gChargingWithTypeC = true;
 	}
 
@@ -93,9 +110,11 @@ void BATTERY_GetReadings(bool bDisplayBatteryLevel)
 		else
 		{
 			gLowBattery = false;
+
 			if (bDisplayBatteryLevel)
-				UI_DisplayBattery(gBatteryDisplayLevel);
+				UI_DisplayBattery(gBatteryDisplayLevel, gLowBatteryBlink);
 		}
+
 		gLowBatteryCountdown = 0;
 	}
 }

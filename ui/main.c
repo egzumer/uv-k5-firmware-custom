@@ -504,8 +504,11 @@ void UI_DisplayMain(void)
 					case FUNCTION_TRANSMIT:
 					case FUNCTION_BAND_SCOPE:
 					case FUNCTION_POWER_SAVE:
+						break;
+						
 					case FUNCTION_FOREGROUND:
 						break;
+
 					case FUNCTION_RECEIVE:
 					case FUNCTION_MONITOR:
 					case FUNCTION_INCOMING:
