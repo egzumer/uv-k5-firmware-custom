@@ -562,8 +562,8 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			BK4819_WriteRegister(BK4819_REG_43,
 				(0u << 15) |     // 0
 				(3u << 12) |     // 3 RF filter bandwidth
-				(3u <<  9) |     // 0 RF filter bandwidth when signal is weak
-				(0u <<  6) |     // 0 AFTxLPF2 filter Band Width
+				(3u <<  9) |     // *0 RF filter bandwidth when signal is weak
+				(7u <<  6) |     // *0 AFTxLPF2 filter Band Width
 				(2u <<  4) |     // 2 BW Mode Selection
 				(1u <<  3) |     // 1
 				(0u <<  2) |     // 0 Gain after FM Demodulation
@@ -574,9 +574,8 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			BK4819_WriteRegister(BK4819_REG_43, // 0x3028);         // 0 011 000 000 10 1 0 00
 				(0u << 15) |     // 0
 				(3u << 12) |     // 3 RF filter bandwidth
-//				(0u <<  9) |     // 0 RF filter bandwidth when signal is weak
-				(1u <<  9) |     // 0 RF filter bandwidth when signal is weak
-				(0u <<  6) |     // 0 AFTxLPF2 filter Band Width
+				(1u <<  9) |     // *0 RF filter bandwidth when signal is weak
+				(7u <<  6) |     // *0 AFTxLPF2 filter Band Width
 				(2u <<  4) |     // 2 BW Mode Selection
 				(1u <<  3) |     // 1
 				(0u <<  2) |     // 0 Gain after FM Demodulation
@@ -591,8 +590,8 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			BK4819_WriteRegister(BK4819_REG_43, // 0x4048);        // 0 100 000 001 00 1 0 00
 				(0u << 15) |     // 0
 				(3u << 12) |     // 4 RF filter bandwidth
-				(3u <<  9) |     // 0 RF filter bandwidth when signal is weak
-				(1u <<  6) |     // 1 AFTxLPF2 filter Band Width
+				(3u <<  9) |     // *0 RF filter bandwidth when signal is weak
+				(0u <<  6) |     // *1 AFTxLPF2 filter Band Width
 				(0u <<  4) |     // 0 BW Mode Selection
 				(1u <<  3) |     // 1
 				(0u <<  2) |     // 0 Gain after FM Demodulation
@@ -603,9 +602,8 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			BK4819_WriteRegister(BK4819_REG_43, // 0x4048);        // 0 100 000 001 00 1 0 00
 				(0u << 15) |     // 0
 				(3u << 12) |     // 4 RF filter bandwidth
-//				(0u <<  9) |     // 0 RF filter bandwidth when signal is weak
-				(1u <<  9) |     // 0 RF filter bandwidth when signal is weak
-				(1u <<  6) |     // 1 AFTxLPF2 filter Band Width
+				(1u <<  9) |     // *0 RF filter bandwidth when signal is weak
+				(0u <<  6) |     // *1 AFTxLPF2 filter Band Width
 				(0u <<  4) |     // 0 BW Mode Selection
 				(1u <<  3) |     // 1
 				(0u <<  2) |     // 0 Gain after FM Demodulation
@@ -889,15 +887,16 @@ void BK4819_EnableDTMF(void)
 	//               1 = for DTMF
 	//               0 = for SelCall
 	// REG_24 <3:0>  14 Max symbol number for SelCall detection
-	//
-	const uint16_t threshold = 24;
+
+//	const uint16_t threshold = 24;    // doesn't decode non-QS radios
+	const uint16_t threshold = 200;   // but 128 ~ 247 does
 	BK4819_WriteRegister(BK4819_REG_24,                // 1 00011000 1 1 1 1110
 		  (1u        << BK4819_REG_24_SHIFT_UNKNOWN_15)
-		| (threshold << BK4819_REG_24_SHIFT_THRESHOLD)
+		| (threshold << BK4819_REG_24_SHIFT_THRESHOLD)      // 0 ~ 255
 		| (1u        << BK4819_REG_24_SHIFT_UNKNOWN_6)
 		|               BK4819_REG_24_ENABLE
 		|               BK4819_REG_24_SELECT_DTMF
-		| (14u       << BK4819_REG_24_SHIFT_MAX_SYMBOLS));
+		| (14u       << BK4819_REG_24_SHIFT_MAX_SYMBOLS));  // 0 ~ 15
 }
 
 void BK4819_PlayTone(uint16_t Frequency, bool bTuningGainSwitch)
