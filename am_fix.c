@@ -362,15 +362,20 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		}
 
 		// sample the current RSSI level, average it with the previous rssi
+#if 0
 		if (rssi[vfo].count < 1)
 		{
 			rssi[vfo].level = BK4819_GetRSSI();
 			rssi[vfo].count++;
 		}
 		else
-		{
+		{	// average of new and old RSSI's
 			rssi[vfo].level = (rssi[vfo].level + BK4819_GetRSSI()) >> 1;
 		}
+#else
+		// no averaging with previous RSSI's
+		rssi[vfo].level = BK4819_GetRSSI();
+#endif
 
 #ifdef ENABLE_AM_FIX_TEST1
 
