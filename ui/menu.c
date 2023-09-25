@@ -35,6 +35,9 @@
 #include "ui/menu.h"
 #include "ui/ui.h"
 
+// NOTE. this menu list is half way through a change, what might seem
+// pointless at this time is for there for a reason.
+//
 const t_menu_item MenuList[] =
 {
 //   name,     voice ID,                               menu ID
@@ -112,7 +115,7 @@ const t_menu_item MenuList[] =
 #endif
 	{"RESET",  VOICE_ID_INITIALISATION,                MENU_RESET      }, // might be better to move this to the hidden menu items ?
 
-	// hidden menu items from here on (center param set to '1')
+	// hidden menu items from here on
 	// enabled if pressing both the PTT and upper side button at power-on
 
 	{"F-LOCK", VOICE_ID_INVALID,                       MENU_F_LOCK     },

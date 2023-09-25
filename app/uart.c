@@ -376,8 +376,8 @@ static void CMD_052F(const uint8_t *pBuffer)
 	gEeprom.RX_CHANNEL                               = 0;
 	gEeprom.DTMF_SIDE_TONE                           = false;
 	gEeprom.VfoInfo[0].FrequencyReverse              = false;
-	gEeprom.VfoInfo[0].pRX                           = &gEeprom.VfoInfo[0].ConfigRX;
-	gEeprom.VfoInfo[0].pTX                           = &gEeprom.VfoInfo[0].ConfigTX;
+	gEeprom.VfoInfo[0].pRX                           = &gEeprom.VfoInfo[0].freq_config_RX;
+	gEeprom.VfoInfo[0].pTX                           = &gEeprom.VfoInfo[0].freq_config_TX;
 	gEeprom.VfoInfo[0].TX_OFFSET_FREQUENCY_DIRECTION = TX_OFFSET_FREQUENCY_DIRECTION_OFF;
 	gEeprom.VfoInfo[0].DTMF_PTT_ID_TX_MODE           = PTT_ID_OFF;
 	gEeprom.VfoInfo[0].DTMF_DECODING_ENABLE          = false;

@@ -12,7 +12,6 @@
  *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
- *
  */
 
 #include <string.h>
@@ -871,8 +870,8 @@ void BOARD_FactoryReset(bool bIsAll)
 		for (i = 0; i < ARRAY_SIZE(gDefaultFrequencyTable); i++)
 		{
 			const uint32_t Frequency   = gDefaultFrequencyTable[i];
-			gRxVfo->ConfigRX.Frequency = Frequency;
-			gRxVfo->ConfigTX.Frequency = Frequency;
+			gRxVfo->freq_config_RX.Frequency = Frequency;
+			gRxVfo->freq_config_TX.Frequency = Frequency;
 			gRxVfo->Band               = FREQUENCY_GetBand(Frequency);
 			SETTINGS_SaveChannel(MR_CHANNEL_FIRST + i, 0, gRxVfo, 2);
 		}

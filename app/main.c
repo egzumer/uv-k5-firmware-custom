@@ -56,6 +56,43 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				// TODO: do something useful with the key
 				
 				
+				#ifdef ENABLE_COPY_CHAN_VFO
+					{	// copy channel to VFO
+						int channel = -1;
+						int vfo     = -1;
+						if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
+						{	// VFO mode
+							if (IS_MR_CHANNEL(gRxVfo->CHANNEL_SAVE))
+							{	// other vfo is in channel mode
+								channel = gRxVfo->CHANNEL_SAVE;
+								vfo     = gTxVfo->CHANNEL_SAVE;
+							}
+						}
+						else
+						if (IS_FREQ_CHANNEL((gRxVfo->CHANNEL_SAVE + 1) & 1))
+						{	// VFO mode
+							if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
+							{	// other vfo is in channel mode
+								channel = gTxVfo->CHANNEL_SAVE;
+								vfo     = gRxVfo->CHANNEL_SAVE;
+							}
+						}
+						
+						if (channel >= 0 && vfo >= 0)
+						{	// copy the channel into the VFO
+					
+							gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
+						
+//							gRequestSaveVFO       = true;
+//							gVfoConfigureMode     = VFO_CONFIGURE_RELOAD;
+//							gRequestDisplayScreen = DISPLAY_MAIN;
+						}
+					}
+				#endif
+
+
+
 			#endif
 			break;
 
@@ -71,7 +108,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			Band = gTxVfo->Band + 1;
 			if (gSetting_350EN || Band != BAND5_350MHz)
 			{
-				if (BAND7_470MHz < Band)
+				if (Band > BAND7_470MHz)
 					Band = BAND1_50MHz;
 			}
 			else
@@ -80,6 +117,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 			gEeprom.ScreenChannel[Vfo] = FREQ_CHANNEL_FIRST + Band;
 			gEeprom.FreqChannel[Vfo]   = FREQ_CHANNEL_FIRST + Band;
+
 			gRequestSaveVFO            = true;
 			gVfoConfigureMode          = VFO_CONFIGURE_RELOAD;
 			gRequestDisplayScreen      = DISPLAY_MAIN;
@@ -361,7 +399,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 						Frequency += 75;
 
-						gTxVfo->ConfigRX.Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, LowerLimitFrequencyBandTable[gTxVfo->Band]);
+						gTxVfo->freq_config_RX.Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, LowerLimitFrequencyBandTable[gTxVfo->Band]);
 
 						gRequestSaveChannel = 1;
 						return;

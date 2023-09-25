@@ -563,7 +563,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 
 void APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
 {
-	uint32_t Frequency = pInfo->ConfigRX.Frequency + (Step * pInfo->StepFrequency);
+	uint32_t Frequency = pInfo->freq_config_RX.Frequency + (Step * pInfo->StepFrequency);
 
 	if (pInfo->StepFrequency == 833)
 	{
@@ -584,7 +584,7 @@ void APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
 	if (Frequency < LowerLimitFrequencyBandTable[pInfo->Band])
 		Frequency = FREQUENCY_FloorToStep(UpperLimitFrequencyBandTable[pInfo->Band], pInfo->StepFrequency, LowerLimitFrequencyBandTable[pInfo->Band]);
 
-	pInfo->ConfigRX.Frequency = Frequency;
+	pInfo->freq_config_RX.Frequency = Frequency;
 }
 
 static void FREQ_NextChannel(void)
@@ -1912,7 +1912,7 @@ void CHANNEL_Next(bool bFlag, int8_t Direction)
 	else
 	{
 		if (bFlag)
-			gRestoreFrequency = gRxVfo->ConfigRX.Frequency;
+			gRestoreFrequency = gRxVfo->freq_config_RX.Frequency;
 		FREQ_NextChannel();
 	}
 

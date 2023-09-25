@@ -34,10 +34,6 @@
 #include "radio.h"
 #include "settings.h"
 
-#ifndef ARRAY_SIZE
-	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
-#endif
-
 VFO_Info_t    *gTxVfo;
 VFO_Info_t    *gRxVfo;
 VFO_Info_t    *gCurrentVfo;
@@ -129,10 +125,10 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, uint8_t ChannelSave, uint8_t Band, uint32
 	pInfo->CHANNEL_SAVE            = ChannelSave;
 	pInfo->FrequencyReverse        = false;
 	pInfo->OUTPUT_POWER            = OUTPUT_POWER_LOW;
-	pInfo->ConfigRX.Frequency      = Frequency;
-	pInfo->ConfigTX.Frequency      = Frequency;
-	pInfo->pRX                     = &pInfo->ConfigRX;
-	pInfo->pTX                     = &pInfo->ConfigTX;
+	pInfo->freq_config_RX.Frequency      = Frequency;
+	pInfo->freq_config_TX.Frequency      = Frequency;
+	pInfo->pRX                     = &pInfo->freq_config_RX;
+	pInfo->pTX                     = &pInfo->freq_config_TX;
 	pInfo->TX_OFFSET_FREQUENCY     = 1000000;
 	#ifdef ENABLE_COMPANDER
 		pInfo->Compander           = 0;  // off
@@ -274,15 +270,15 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 			Tmp = 0;
 		gEeprom.VfoInfo[VFO].SCRAMBLING_TYPE = Tmp;
 
-		gEeprom.VfoInfo[VFO].ConfigRX.CodeType = (Data[2] >> 0) & 0x0F;
-		gEeprom.VfoInfo[VFO].ConfigTX.CodeType = (Data[2] >> 4) & 0x0F;
+		gEeprom.VfoInfo[VFO].freq_config_RX.CodeType = (Data[2] >> 0) & 0x0F;
+		gEeprom.VfoInfo[VFO].freq_config_TX.CodeType = (Data[2] >> 4) & 0x0F;
 
 		Tmp = Data[0];
-		switch (gEeprom.VfoInfo[VFO].ConfigRX.CodeType)
+		switch (gEeprom.VfoInfo[VFO].freq_config_RX.CodeType)
 		{
 			default:
 			case CODE_TYPE_OFF:
-				gEeprom.VfoInfo[VFO].ConfigRX.CodeType = CODE_TYPE_OFF;
+				gEeprom.VfoInfo[VFO].freq_config_RX.CodeType = CODE_TYPE_OFF;
 				Tmp = 0;
 				break;
 
@@ -297,14 +293,14 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 					Tmp = 0;
 				break;
 		}
-		gEeprom.VfoInfo[VFO].ConfigRX.Code = Tmp;
+		gEeprom.VfoInfo[VFO].freq_config_RX.Code = Tmp;
 
 		Tmp = Data[1];
-		switch (gEeprom.VfoInfo[VFO].ConfigTX.CodeType)
+		switch (gEeprom.VfoInfo[VFO].freq_config_TX.CodeType)
 		{
 			default:
 			case CODE_TYPE_OFF:
-				gEeprom.VfoInfo[VFO].ConfigTX.CodeType = CODE_TYPE_OFF;
+				gEeprom.VfoInfo[VFO].freq_config_TX.CodeType = CODE_TYPE_OFF;
 				Tmp = 0;
 				break;
 
@@ -319,7 +315,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 					Tmp = 0;
 				break;
 		}
-		gEeprom.VfoInfo[VFO].ConfigTX.Code = Tmp;
+		gEeprom.VfoInfo[VFO].freq_config_TX.Code = Tmp;
 
 		if (Data[4] == 0xFF)
 		{
@@ -356,14 +352,14 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 
 		EEPROM_ReadBuffer(Base, &Info, sizeof(Info));
 
-		pRadio->ConfigRX.Frequency = Info.Frequency;
+		pRadio->freq_config_RX.Frequency = Info.Frequency;
 
 		if (Info.Offset >= 100000000)
 			Info.Offset = 1000000;
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY = Info.Offset;
 	}
 
-	Frequency = pRadio->ConfigRX.Frequency;
+	Frequency = pRadio->freq_config_RX.Frequency;
 
 #if 1
 	// fix previously set incorrect band
@@ -379,7 +375,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 	if (Channel >= FREQ_CHANNEL_FIRST)
 		Frequency = FREQUENCY_FloorToStep(Frequency, gEeprom.VfoInfo[VFO].StepFrequency, LowerLimitFrequencyBandTable[Band]);
 
-	pRadio->ConfigRX.Frequency = Frequency;
+	pRadio->freq_config_RX.Frequency = Frequency;
 
 	if (Frequency >= 10800000 && Frequency < 13600000)
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY_DIRECTION = TX_OFFSET_FREQUENCY_DIRECTION_OFF;
@@ -398,13 +394,13 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 
 	if (!gEeprom.VfoInfo[VFO].FrequencyReverse)
 	{
-		gEeprom.VfoInfo[VFO].pRX = &gEeprom.VfoInfo[VFO].ConfigRX;
-		gEeprom.VfoInfo[VFO].pTX = &gEeprom.VfoInfo[VFO].ConfigTX;
+		gEeprom.VfoInfo[VFO].pRX = &gEeprom.VfoInfo[VFO].freq_config_RX;
+		gEeprom.VfoInfo[VFO].pTX = &gEeprom.VfoInfo[VFO].freq_config_TX;
 	}
 	else
 	{
-		gEeprom.VfoInfo[VFO].pRX = &gEeprom.VfoInfo[VFO].ConfigTX;
-		gEeprom.VfoInfo[VFO].pTX = &gEeprom.VfoInfo[VFO].ConfigRX;
+		gEeprom.VfoInfo[VFO].pRX = &gEeprom.VfoInfo[VFO].freq_config_TX;
+		gEeprom.VfoInfo[VFO].pTX = &gEeprom.VfoInfo[VFO].freq_config_RX;
 	}
 
 	if (!gSetting_350EN)
@@ -419,8 +415,8 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 		gEeprom.VfoInfo[VFO].IsAM                 = true;
 		gEeprom.VfoInfo[VFO].SCRAMBLING_TYPE      = 0;
 		gEeprom.VfoInfo[VFO].DTMF_DECODING_ENABLE = false;
-		gEeprom.VfoInfo[VFO].ConfigRX.CodeType    = CODE_TYPE_OFF;
-		gEeprom.VfoInfo[VFO].ConfigTX.CodeType    = CODE_TYPE_OFF;
+		gEeprom.VfoInfo[VFO].freq_config_RX.CodeType    = CODE_TYPE_OFF;
+		gEeprom.VfoInfo[VFO].freq_config_TX.CodeType    = CODE_TYPE_OFF;
 	}
 	else
 		gEeprom.VfoInfo[VFO].IsAM = false;
@@ -513,7 +509,7 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 
 void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 {
-	uint32_t Frequency = pInfo->ConfigRX.Frequency;
+	uint32_t Frequency = pInfo->freq_config_RX.Frequency;
 
 	switch (pInfo->TX_OFFSET_FREQUENCY_DIRECTION)
 	{
@@ -542,7 +538,7 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 			Frequency = UpperLimitFrequencyBandTable[ARRAY_SIZE(UpperLimitFrequencyBandTable) - 1];
 	#endif
 	
-	pInfo->ConfigTX.Frequency = Frequency;
+	pInfo->freq_config_TX.Frequency = Frequency;
 }
 
 static void RADIO_SelectCurrentVfo(void)

@@ -6,6 +6,18 @@ https://github.com/DualTachyon/uv-k5-firmware
 
 A cool achievement
 
+# Radio performance
+
+Please note that the Quansheng uv-k radios are not professional quality transceivers, their
+performance is strictly limited, somewhat below that of a decent transceiver. The RX front
+end has no track-tuned band pass filtering at all, and so are wide band/wide open to any
+and all signals over a wide frequency range. Using the radio in high intensity RF environments
+will nearly always destroy your reception, the receiver simply doesn't have a great dynamic
+range, though are quite sensitive (weak signal wise).
+
+Saying that, they are nice toys for the price, fun to play with, though limited due to
+absolute minimal cost hardware design (£13 all in china to UK).
+
 # User customization
 
 You can customize the firmware by enabling/disabling various compile options.

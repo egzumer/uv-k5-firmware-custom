@@ -39,10 +39,6 @@
 #include "ui/menu.h"
 #include "version.h"
 
-#ifndef ARRAY_SIZE
-	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
-#endif
-
 void _putchar(char c)
 {
 	UART_Send((uint8_t *)&c, 1);

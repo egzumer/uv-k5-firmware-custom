@@ -144,8 +144,8 @@ static void AIRCOPY_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				gRxVfo->Band               = i;
 				Frequency                 += 75;
 				Frequency                  = FREQUENCY_FloorToStep(Frequency, gRxVfo->StepFrequency, 0);
-				gRxVfo->ConfigRX.Frequency = Frequency;
-				gRxVfo->ConfigTX.Frequency = Frequency;
+				gRxVfo->freq_config_RX.Frequency = Frequency;
+				gRxVfo->freq_config_TX.Frequency = Frequency;
 				RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
 				gCurrentVfo                = gRxVfo;
 				RADIO_SetupRegisters(true);

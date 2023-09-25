@@ -99,38 +99,51 @@ typedef struct
 
 typedef struct VFO_Info_t
 {
-	FREQ_Config_t  ConfigRX;
-	FREQ_Config_t  ConfigTX;
+	FREQ_Config_t  freq_config_RX;
+	FREQ_Config_t  freq_config_TX;
 	FREQ_Config_t *pRX;
 	FREQ_Config_t *pTX;
+
 	uint32_t       TX_OFFSET_FREQUENCY;
 	uint16_t       StepFrequency;
+
 	uint8_t        CHANNEL_SAVE;
+
 	uint8_t        TX_OFFSET_FREQUENCY_DIRECTION;
+
 	uint8_t        SquelchOpenRSSIThresh;
 	uint8_t        SquelchOpenNoiseThresh;
 	uint8_t        SquelchCloseGlitchThresh;
 	uint8_t        SquelchCloseRSSIThresh;
 	uint8_t        SquelchCloseNoiseThresh;
 	uint8_t        SquelchOpenGlitchThresh;
+
 	STEP_Setting_t STEP_SETTING;
 	uint8_t        OUTPUT_POWER;
 	uint8_t        TXP_CalculatedSetting;
 	bool           FrequencyReverse;
+
 	uint8_t        SCRAMBLING_TYPE;
 	uint8_t        CHANNEL_BANDWIDTH;
+
 	uint8_t        SCANLIST1_PARTICIPATION;
 	uint8_t        SCANLIST2_PARTICIPATION;
+
 	uint8_t        Band;
+
 	uint8_t        DTMF_DECODING_ENABLE;
 	PTT_ID_t       DTMF_PTT_ID_TX_MODE;
+
 	uint8_t        BUSY_CHANNEL_LOCK;
+
 	uint8_t        AM_CHANNEL_MODE;
 	bool           IsAM;
+
 	#ifdef ENABLE_COMPANDER
 		uint8_t    Compander;
 	#endif
-	char           Name[10 + 1];
+
+	char           Name[16];
 } VFO_Info_t;
 
 extern VFO_Info_t    *gTxVfo;

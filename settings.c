@@ -177,6 +177,10 @@ void SETTINGS_SaveSettings(void)
 	EEPROM_WriteBuffer(0x0F40, State);
 }
 
+void SETTINGS_LoadChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO)
+{
+}
+
 void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, uint8_t Mode)
 {
 	#ifdef ENABLE_NOAA
@@ -187,23 +191,24 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 		      uint16_t OffsetVFO = OffsetMR;
 
 		if (!IS_MR_CHANNEL(Channel))
-		{
+		{	// it's a VFO, not a channel
 			OffsetVFO  = (VFO == 0) ? 0x0C80 : 0x0C90;
 			OffsetVFO += (Channel - FREQ_CHANNEL_FIRST) * 32;
 		}
 
 		if (Mode >= 2 || !IS_MR_CHANNEL(Channel))
-		{
+		{	// copy VFO to a channel
+	
 			uint32_t State32[2];
 			uint8_t  State8[8];
 
-			State32[0] = pVFO->ConfigRX.Frequency;
+			State32[0] = pVFO->freq_config_RX.Frequency;
 			State32[1] = pVFO->TX_OFFSET_FREQUENCY;
 			EEPROM_WriteBuffer(OffsetVFO + 0, State32);
 
-			State8[0] =  pVFO->ConfigRX.Code;
-			State8[1] =  pVFO->ConfigTX.Code;
-			State8[2] = (pVFO->ConfigTX.CodeType << 4) | pVFO->ConfigRX.CodeType;
+			State8[0] =  pVFO->freq_config_RX.Code;
+			State8[1] =  pVFO->freq_config_TX.Code;
+			State8[2] = (pVFO->freq_config_TX.CodeType << 4) | pVFO->freq_config_RX.CodeType;
 			State8[3] = (pVFO->AM_CHANNEL_MODE   << 4) | pVFO->TX_OFFSET_FREQUENCY_DIRECTION;
 			State8[4] = 0
 				| (pVFO->BUSY_CHANNEL_LOCK << 4)

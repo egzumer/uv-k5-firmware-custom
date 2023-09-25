@@ -35,10 +35,6 @@
 #include "ui/main.h"
 #include "ui/ui.h"
 
-#ifndef ARRAY_SIZE
-	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
-#endif
-
 #ifdef ENABLE_AUDIO_BAR
 	void UI_DisplayAudioBar(void)
 	{
@@ -463,7 +459,7 @@ void UI_DisplayMain(void)
 			UI_PrintStringSmall(String, LCD_WIDTH + 46, 0, Line + 1);
 		}
 
-		if (gEeprom.VfoInfo[vfo_num].ConfigRX.Frequency != gEeprom.VfoInfo[vfo_num].ConfigTX.Frequency)
+		if (gEeprom.VfoInfo[vfo_num].freq_config_RX.Frequency != gEeprom.VfoInfo[vfo_num].freq_config_TX.Frequency)
 		{	// show the TX offset symbol
 			const char dir_list[] = "\0+-";
 			const unsigned int i = gEeprom.VfoInfo[vfo_num].TX_OFFSET_FREQUENCY_DIRECTION;

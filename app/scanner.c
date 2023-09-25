@@ -227,11 +227,11 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 
 				if (gScanUseCssResult)
 				{
-					gTxVfo->ConfigRX.CodeType = gScanCssResultType;
-					gTxVfo->ConfigRX.Code     = gScanCssResultCode;
+					gTxVfo->freq_config_RX.CodeType = gScanCssResultType;
+					gTxVfo->freq_config_RX.Code     = gScanCssResultCode;
 				}
 
-				gTxVfo->ConfigTX     = gTxVfo->ConfigRX;
+				gTxVfo->freq_config_TX     = gTxVfo->freq_config_RX;
 				gTxVfo->STEP_SETTING = gStepSetting;
 			}
 			else
@@ -239,10 +239,10 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 				RADIO_ConfigureChannel(0, 2);
 				RADIO_ConfigureChannel(1, 2);
 
-				gTxVfo->ConfigRX.CodeType = gScanCssResultType;
-				gTxVfo->ConfigRX.Code     = gScanCssResultCode;
-				gTxVfo->ConfigTX.CodeType = gScanCssResultType;
-				gTxVfo->ConfigTX.Code     = gScanCssResultCode;
+				gTxVfo->freq_config_RX.CodeType = gScanCssResultType;
+				gTxVfo->freq_config_RX.Code     = gScanCssResultCode;
+				gTxVfo->freq_config_TX.CodeType = gScanCssResultType;
+				gTxVfo->freq_config_TX.Code     = gScanCssResultCode;
 			}
 
 			if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
@@ -431,7 +431,7 @@ void SCANNER_Stop(void)
 		}
 		else
 		{
-			gRxVfo->ConfigRX.Frequency = gRestoreFrequency;
+			gRxVfo->freq_config_RX.Frequency = gRestoreFrequency;
 			RADIO_ApplyOffset(gRxVfo);
 			RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
 		}
