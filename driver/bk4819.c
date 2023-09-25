@@ -536,9 +536,9 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 	// if REG_43 <5> == 1 RF filter bandwidth * 2
 	//
 	// REG_43 <8:6>   1 AFTxLPF2 filter Band Width
-	//                1 = 2.5  kHz (for 12.5k Channel Space)
+	//                1 = 2.5  kHz (for 12.5k channel space)
 	//                2 = 2.75 kHz
-	//                0 = 3.0  kHz (for 25k   Channel Space)
+	//                0 = 3.0  kHz (for 25k   channel space)
 	//                3 = 3.5  kHz
 	//                4 = 4.5  kHz
 	//                5 = 4.25 kHz
@@ -571,7 +571,7 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 		}
 		else
 		{
-			BK4819_WriteRegister(BK4819_REG_43,
+			BK4819_WriteRegister(BK4819_REG_43, // 0x3028);         // 0 011 000 000 10 1 0 00
 				(0u << 15) |     // 0
 				(3u << 12) |     // 3 RF filter bandwidth
 //				(0u <<  9) |     // 0 RF filter bandwidth when signal is weak
