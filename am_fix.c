@@ -352,7 +352,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 				return;
 
 			case FUNCTION_FOREGROUND:
-				return;
+//				return;
 
 			// only adjust stuff if we're in one of these modes
 			case FUNCTION_RECEIVE:

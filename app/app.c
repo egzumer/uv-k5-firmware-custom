@@ -102,7 +102,7 @@ static void APP_CheckForIncoming(void)
 			#ifdef ENABLE_NOAA
 				if (gIsNoaaMode)
 				{
-					gNOAA_Countdown_10ms = 20;    // 200ms
+					gNOAA_Countdown_10ms = NOAA_countdown_3_10ms;
 					gScheduleNOAA        = false;
 				}
 			#endif
@@ -965,7 +965,8 @@ void APP_Update(void)
 		APP_HandleFunction();
 
 	#ifdef ENABLE_FMRADIO
-		if (gFmRadioCountdown_500ms > 0)
+//		if (gFmRadioCountdown_500ms > 0)
+		if (gFmRadioMode && gFmRadioCountdown_500ms > 0)    // 1of11
 			return;
 	#endif
 
@@ -1058,7 +1059,7 @@ void APP_Update(void)
 			gCurrentFunction != FUNCTION_MONITOR &&
 			gCurrentFunction != FUNCTION_RECEIVE &&
 			gCurrentFunction != FUNCTION_TRANSMIT)
-		{
+		{	// switch to FM radio mode
 			FM_Play();
 			gScheduleFM = false;
 		}
@@ -1091,7 +1092,7 @@ void APP_Update(void)
 			}
 			else
 			{
-				gBatterySaveCountdown_10ms   = battery_save_count_10ms;
+				gBatterySaveCountdown_10ms = battery_save_count_10ms;
 			}
 		#else
 			if (
@@ -1106,7 +1107,7 @@ void APP_Update(void)
 			    gScreenToDisplay != DISPLAY_MAIN  ||
 			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
 			{
-				gBatterySaveCountdown_10ms   = battery_save_count_10ms;
+				gBatterySaveCountdown_10ms = battery_save_count_10ms;
 			}
 			else
 			{
@@ -1362,9 +1363,8 @@ void APP_TimeSlice10ms(void)
 	else
 	{	// transmitting
 		#ifdef ENABLE_AUDIO_BAR
-			if (gSetting_mic_bar && (gFlashLightBlinkCounter % (100 / 10)) == 0) // once every 100ms
+			if (gSetting_mic_bar && (gFlashLightBlinkCounter % (150 / 10)) == 0) // once every 150ms
 				UI_DisplayAudioBar();
-				//gUpdateDisplay = true;
 		#endif
 
 		if (gUpdateDisplay)
@@ -1380,7 +1380,8 @@ void APP_TimeSlice10ms(void)
 	// Skipping authentic device checks
 
 	#ifdef ENABLE_FMRADIO
-		if (gFmRadioCountdown_500ms > 0)
+//		if (gFmRadioCountdown_500ms > 0)
+		if (gFmRadioMode && gFmRadioCountdown_500ms > 0)   // 1of11
 			return;
 	#endif
 
@@ -1454,10 +1455,10 @@ void APP_TimeSlice10ms(void)
 	}
 
 	#ifdef ENABLE_FMRADIO
-		if (gFmRadioMode && gFM_RestoreCountdown > 0)
+		if (gFmRadioMode && gFM_RestoreCountdown_10ms > 0)
 		{
-			if (--gFM_RestoreCountdown == 0)
-			{
+			if (--gFM_RestoreCountdown_10ms == 0)
+			{	// switch back to FM radio mode
 				FM_Start();
 				GUI_SelectNextDisplay(DISPLAY_FM);
 			}
@@ -1630,7 +1631,8 @@ void APP_TimeSlice500ms(void)
 		if (gFmRadioCountdown_500ms > 0)
 		{
 			gFmRadioCountdown_500ms--;
-			return;
+			if (gFmRadioMode)           // 1of11
+				return;
 		}
 	#endif
 
@@ -1743,7 +1745,7 @@ void APP_TimeSlice500ms(void)
 			{
 				RADIO_SetVfoState(VFO_STATE_NORMAL);
 				if (gCurrentFunction != FUNCTION_RECEIVE && gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_MONITOR && gFmRadioMode)
-				{
+				{	// switch back to FM radio mode
 					FM_Start();
 					GUI_SelectNextDisplay(DISPLAY_FM);
 				}

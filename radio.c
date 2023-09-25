@@ -595,8 +595,8 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
 			#ifdef ENABLE_AM_FIX
-//				BK4819_SetFilterBandwidth(Bandwidth, gRxVfo->IsAM && gSetting_AM_fix);
-				BK4819_SetFilterBandwidth(Bandwidth, false);
+				BK4819_SetFilterBandwidth(Bandwidth, gRxVfo->IsAM && gSetting_AM_fix);
+//				BK4819_SetFilterBandwidth(Bandwidth, false);
 			#else
 				BK4819_SetFilterBandwidth(Bandwidth, false);
 			#endif
@@ -815,7 +815,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 			{
 				gIsNoaaMode          = true;
 				gNoaaChannel         = gRxVfo->CHANNEL_SAVE - NOAA_CHANNEL_FIRST;
-				gNOAA_Countdown_10ms = 50;  // 500ms
+				gNOAA_Countdown_10ms = NOAA_countdown_2_10ms;
 				gScheduleNOAA        = false;
 			}
 			else
@@ -844,8 +844,8 @@ void RADIO_SetTxParameters(void)
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
 			#ifdef ENABLE_AM_FIX
-//				BK4819_SetFilterBandwidth(Bandwidth, gCurrentVfo->IsAM && gSetting_AM_fix);
-				BK4819_SetFilterBandwidth(Bandwidth, false);
+				BK4819_SetFilterBandwidth(Bandwidth, gCurrentVfo->IsAM && gSetting_AM_fix);
+//				BK4819_SetFilterBandwidth(Bandwidth, false);
 			#else
 				BK4819_SetFilterBandwidth(Bandwidth, false);
 			#endif

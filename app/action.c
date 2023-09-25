@@ -94,7 +94,7 @@ static void ACTION_Monitor(void)
 	#ifdef ENABLE_NOAA
 		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gIsNoaaMode)
 		{
-			gNOAA_Countdown_10ms = 500;   // 5 sec
+			gNOAA_Countdown_10ms = NOAA_countdown_10ms;
 			gScheduleNOAA        = false;
 		}
 	#endif
@@ -155,6 +155,7 @@ void ACTION_Scan(bool bRestart)
 					#endif
 				}
 			}
+			
 			return;
 		}
 	#endif

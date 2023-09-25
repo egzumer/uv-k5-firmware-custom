@@ -46,7 +46,7 @@ uint8_t           gFM_ChannelPosition;
 bool              gFM_FoundFrequency;
 bool              gFM_AutoScan;
 uint8_t           gFM_ResumeCountdown_500ms;
-uint16_t          gFM_RestoreCountdown;
+uint16_t          gFM_RestoreCountdown_10ms;
 
 bool FM_CheckValidChannel(uint8_t Channel)
 {
@@ -93,9 +93,9 @@ int FM_ConfigureChannelState(void)
 
 void FM_TurnOff(void)
 {
-	gFmRadioMode         = false;
-	gFM_ScanState        = FM_SCAN_OFF;
-	gFM_RestoreCountdown = 0;
+	gFmRadioMode              = false;
+	gFM_ScanState             = FM_SCAN_OFF;
+	gFM_RestoreCountdown_10ms = 0;
 
 	GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 
@@ -655,9 +655,9 @@ void FM_Play(void)
 
 void FM_Start(void)
 {
-	gFmRadioMode         = true;
-	gFM_ScanState        = FM_SCAN_OFF;
-	gFM_RestoreCountdown = 0;
+	gFmRadioMode              = true;
+	gFM_ScanState             = FM_SCAN_OFF;
+	gFM_RestoreCountdown_10ms = 0;
 
 	BK1080_Init(gEeprom.FM_FrequencyPlaying, true);
 

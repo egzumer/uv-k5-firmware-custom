@@ -42,7 +42,6 @@
 #ifdef ENABLE_AUDIO_BAR
 	void UI_DisplayAudioBar(void)
 	{
-//		if (gCurrentFunction == FUNCTION_TRANSMIT && gSetting_mic_bar)
 		if (gSetting_mic_bar)
 		{
 			const unsigned int line = 3;
@@ -51,6 +50,8 @@
 			#if 1
 				// TX audio level
 				
+				if (gCurrentFunction != FUNCTION_TRANSMIT)
+					return;
 				
 				// TODO: logify this to make the bar visible with the mostly small value
 				
@@ -76,7 +77,8 @@
 					pLine[i] = 0x3e;
 			#endif
 	
-			ST7565_BlitFullScreen();
+			if (gCurrentFunction == FUNCTION_TRANSMIT)
+				ST7565_BlitFullScreen();
 		}
 	}
 #endif

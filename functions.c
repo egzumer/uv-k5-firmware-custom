@@ -116,7 +116,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 
 			#if defined(ENABLE_FMRADIO)
 				if (gFmRadioMode)
-					gFM_RestoreCountdown = 500;
+					gFM_RestoreCountdown_10ms = fm_restore_countdown_10ms;
 			#endif
 
 			if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT || gDTMF_CallState == DTMF_CALL_STATE_RECEIVED)
@@ -201,6 +201,6 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 	gSchedulePowerSave         = false;
 
 	#if defined(ENABLE_FMRADIO)
-		gFM_RestoreCountdown   = 0;
+		gFM_RestoreCountdown_10ms = 0;
 	#endif
 }

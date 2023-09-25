@@ -22,6 +22,7 @@ const uint8_t     fm_resume_countdown_500ms        =  2500 / 500;  // 2.5 second
 const uint8_t     fm_radio_countdown_500ms         =  2000 / 500;  // 2 seconds
 const uint16_t    fm_play_countdown_scan_10ms      =   100 / 10;   // 100ms
 const uint16_t    fm_play_countdown_noscan_10ms    =  1200 / 10;   // 1.2 seconds
+const uint16_t    fm_restore_countdown_10ms        =  5000 / 10;   // 5 seconds
 
 const uint8_t     menu_timeout_500ms               = 20000 / 500;  // 20 seconds
 
@@ -38,7 +39,6 @@ const uint16_t    key_debounce_10ms                =    20 / 10;   // 20ms
 
 const uint8_t     scan_delay_10ms                  =   210 / 10;   // 210ms
 
-// 10ms count down resolution
 const uint16_t    dual_watch_count_after_tx_10ms   =  3600 / 10;   // 3.6 sec after TX ends
 const uint16_t    dual_watch_count_after_rx_10ms   =  1000 / 10;   // 1 sec after RX ends ?
 const uint16_t    dual_watch_count_after_1_10ms    =  5000 / 10;   // 5 sec
@@ -51,6 +51,10 @@ const uint16_t    battery_save_count_10ms          = 10000 / 10;   // 10 seconds
 
 const uint16_t    power_save1_10ms                 =   100 / 10;   // 100ms
 const uint16_t    power_save2_10ms                 =   200 / 10;   // 200ms
+
+const uint16_t    NOAA_countdown_10ms              =  5000 / 10;   // 5 seconds
+const uint16_t    NOAA_countdown_2_10ms            =   500 / 10;   // 500ms
+const uint16_t    NOAA_countdown_3_10ms            =   200 / 10;   // 200ms
 
 const uint16_t    gMax_bat_v                       = 840;          // 8.4V
 const uint16_t    gMin_bat_v                       = 660;          // 6.6V

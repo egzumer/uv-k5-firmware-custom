@@ -40,7 +40,7 @@ extern uint16_t          gFM_FrequencyDeviation;
 extern bool              gFM_FoundFrequency;
 extern bool              gFM_AutoScan;
 extern uint8_t           gFM_ResumeCountdown_500ms;
-extern uint16_t          gFM_RestoreCountdown;
+extern uint16_t          gFM_RestoreCountdown_10ms;
 
 bool    FM_CheckValidChannel(uint8_t Channel);
 uint8_t FM_FindNextChannel(uint8_t Channel, uint8_t Direction);

@@ -1,13 +1,13 @@
 
-# compile options (see Readme.md)
-# '0' = disable
-# '1' = enable
+# compile options (see README.md for descriptions)
+# 0 = disable
+# 1 = enable
 #
 ENABLE_SWD                    := 0
 ENABLE_OVERLAY                := 1
 ENABLE_UART                   := 1
 ENABLE_AIRCOPY                := 0
-ENABLE_FMRADIO                := 0
+ENABLE_FMRADIO                := 1
 ENABLE_NOAA                   := 0
 ENABLE_VOICE                  := 0
 ENABLE_ALARM                  := 0
@@ -137,7 +137,10 @@ OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
 
 # the user might not have/want git installed
+# can set own version string here (max 7 chars here)
 GIT_HASH := $(shell git rev-parse --short HEAD)
+#GIT_HASH := 230925b
+
 $(info GIT_HASH = $(GIT_HASH)) 
 
 ASFLAGS = -c -mcpu=cortex-m0

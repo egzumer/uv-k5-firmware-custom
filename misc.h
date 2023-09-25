@@ -87,6 +87,7 @@ extern const uint8_t         fm_resume_countdown_500ms;
 extern const uint8_t         fm_radio_countdown_500ms;
 extern const uint16_t        fm_play_countdown_scan_10ms;
 extern const uint16_t        fm_play_countdown_noscan_10ms;
+extern const uint16_t        fm_restore_countdown_10ms;
 
 extern const uint8_t         menu_timeout_500ms;
 
@@ -107,6 +108,10 @@ extern const uint16_t        battery_save_count_10ms;
 
 extern const uint16_t        power_save1_10ms;
 extern const uint16_t        power_save2_10ms;
+
+extern const uint16_t        NOAA_countdown_10ms;
+extern const uint16_t        NOAA_countdown_2_10ms;
+extern const uint16_t        NOAA_countdown_3_10ms;
 
 extern const uint16_t        dual_watch_count_after_tx_10ms;
 extern const uint16_t        dual_watch_count_after_rx_10ms;
