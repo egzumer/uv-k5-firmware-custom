@@ -15,8 +15,7 @@ and all signals over a wide frequency range. Using the radio in high intensity R
 will nearly always destroy your reception, the receiver simply doesn't have a great dynamic
 range, though are quite sensitive (weak signal wise).
 
-Saying that, they are nice toys for the price, fun to play with, though limited due to
-absolute minimal cost hardware design (£13 all in china to UK).
+Saying that, they are nice toys for the price, fun to play with.
 
 # User customization
 
@@ -136,4 +135,5 @@ You may obtain a copy of the License at
   <img src="/image1.png" width="300" />
   <img src="/image2.png" width="300" />
   <img src="/image3.png" width="300" />
+  <video src="/AM_fix.mp4" width="300" />
 </p>
