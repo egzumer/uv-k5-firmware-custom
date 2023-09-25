@@ -299,8 +299,8 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 	struct
 	{
-		unsigned int count;
-		uint16_t     level;
+		uint16_t prev_level;
+		uint16_t level;
 	} rssi[2];
 
 	// to help reduce gain hunting, provides a peak hold time delay
@@ -312,8 +312,8 @@ const uint8_t orig_pga       = 6;   //  -3dB
 	void AM_fix_reset(const int vfo)
 	{	// reset the AM fixer
 
-		rssi[vfo].count = 0;
-		rssi[vfo].level = 0;
+		rssi[vfo].prev_level = 0;
+		rssi[vfo].level      = 0;
 
 		am_gain_hold_counter[vfo] = 0;
 
@@ -362,20 +362,8 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		}
 
 		// sample the current RSSI level, average it with the previous rssi
-#if 0
-		if (rssi[vfo].count < 1)
-		{
-			rssi[vfo].level = BK4819_GetRSSI();
-			rssi[vfo].count++;
-		}
-		else
-		{	// average of new and old RSSI's
-			rssi[vfo].level = (rssi[vfo].level + BK4819_GetRSSI()) >> 1;
-		}
-#else
-		// no averaging with previous RSSI's
-		rssi[vfo].level = BK4819_GetRSSI();
-#endif
+		rssi[vfo].level      = (rssi[vfo].prev_level + BK4819_GetRSSI()) >> 1;
+		rssi[vfo].prev_level = BK4819_GetRSSI();
 
 #ifdef ENABLE_AM_FIX_TEST1
 
