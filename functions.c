@@ -185,6 +185,9 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 					break;
 				}
 			#endif
+
+			// if the DTMF decoder is enabled, it destroys the TX audio !! .. 1of11
+			BK4819_DisableDTMF();
 			
 			if (gCurrentVfo->SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
 				BK4819_EnableScramble(gCurrentVfo->SCRAMBLING_TYPE - 1);

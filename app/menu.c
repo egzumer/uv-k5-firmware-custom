@@ -589,6 +589,10 @@ void MENU_AcceptSetting(void)
 			gDTMF_RecvTimeoutSaved = 0;
 			gDTMF_ReceivedSaved[0] = '\0';
 			gSetting_live_DTMF_decoder = gSubMenuSelection;
+			if (!gSetting_live_DTMF_decoder)
+				BK4819_DisableDTMF();
+			gFlagReconfigureVfos     = true;
+			gUpdateStatus            = true;
 			break;
 
 		case MENU_D_LIST:

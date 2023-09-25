@@ -762,9 +762,14 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 			InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
 		}
 	#else
+		if (gCurrentFunction != FUNCTION_TRANSMIT && gSetting_live_DTMF_decoder)
 		{
 			BK4819_EnableDTMF();
 			InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
+		}
+		else
+		{
+			BK4819_DisableDTMF();
 		}
 	#endif
 
