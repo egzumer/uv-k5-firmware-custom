@@ -136,4 +136,7 @@ You may obtain a copy of the License at
   <img src="/image2.png" width="300" />
   <img src="/image3.png" width="300" />
 </p>
-https://github.com/OneOfEleven/uv-k5-firmware-custom/assets/51590168/2a3a9cdc-97da-4966-bf0d-1ce6ad09779c
+
+Video showing the AM fix working ..
+
+<video src="https://github.com/OneOfEleven/uv-k5-firmware-custom/assets/51590168/2a3a9cdc-97da-4966-bf0d-1ce6ad09779c"></video>
