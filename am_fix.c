@@ -361,7 +361,8 @@ const uint8_t orig_pga       = 6;   //  -3dB
 				break;
 		}
 
-		// sample the current RSSI level, average it with the previous rssi
+		// sample the current RSSI level
+		// average it with the previous rssi
 		rssi[vfo].level      = (rssi[vfo].prev_level + BK4819_GetRSSI()) >> 1;
 		rssi[vfo].prev_level = BK4819_GetRSSI();
 
