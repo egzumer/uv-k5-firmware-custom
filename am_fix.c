@@ -296,6 +296,10 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 #endif
 
+	unsigned int counter = 0;
+	
+	int16_t orig_dB_gain = -17;
+
 	#ifdef ENABLE_AM_FIX_TEST1
 		unsigned int am_fix_gain_table_index[2] = {1 + gSetting_AM_fix_test1, 1 + gSetting_AM_fix_test1};
 	#else
@@ -317,26 +321,23 @@ const uint8_t orig_pga       = 6;   //  -3dB
 	// used to limit the max front end gain
 	unsigned int max_index = ARRAY_SIZE(am_fix_gain_table) - 1;
 	
-	void AM_fix_reset(const int vfo)
-	{	// reset the AM fixer
-
-		prev_rssi[vfo] = 0;
-
-		am_gain_hold_counter[vfo] = 0;
-
-		rssi_db_gain_diff[vfo] = 0;
-
-		#ifdef ENABLE_AM_FIX_TEST1
-			am_fix_gain_table_index[vfo] = 1 + gSetting_AM_fix_test1;
-		#else
-			am_fix_gain_table_index[vfo] = original_index;  // re-start with original QS setting
-		#endif
-
-		am_fix_gain_table_index_prev[vfo] = 0;
+	void AM_fix_init(void)
+	{
+/*		unsigned int i;
+		for (i = 0; i < 2; i++)
+		{
+			#ifdef ENABLE_AM_FIX_TEST1
+				am_fix_gain_table_index[i] = 1 + gSetting_AM_fix_test1;
+			#else
+				am_fix_gain_table_index[i] = original_index;  // re-start with original QS setting
+			#endif
+		}
+*/
+		orig_dB_gain = lna_short_dB[orig_lna_short] + lna_dB[orig_lna] + mixer_dB[orig_mixer] + pga_dB[orig_pga];
 
 		#if 0
 		{	// set the maximum gain we want to use
-//			const int16_t max_gain_dB = lna_short_dB[orig_lna_short] + lna_dB[orig_lna] + mixer_dB[orig_mixer] + pga_dB[orig_pga];
+//			const int16_t max_gain_dB = orig_dB_gain;
 			const int16_t max_gain_dB = -10;
 			max_index = ARRAY_SIZE(am_fix_gain_table);
 			while (--max_index > 1)
@@ -353,6 +354,26 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		#else
 			max_index = ARRAY_SIZE(am_fix_gain_table) - 1;
 		#endif
+	}
+
+	void AM_fix_reset(const int vfo)
+	{	// reset the AM fixer
+
+		prev_rssi[vfo] = 0;
+
+		am_gain_hold_counter[vfo] = 0;
+
+		rssi_db_gain_diff[vfo] = 0;
+
+		#ifdef ENABLE_AM_FIX_TEST1
+			am_fix_gain_table_index[vfo] = 1 + gSetting_AM_fix_test1;
+		#else
+			am_fix_gain_table_index[vfo] = original_index;  // re-start with original QS setting
+		#endif
+
+		am_fix_gain_table_index_prev[vfo] = 0;
+		
+//		AM_fix_init();  // bootup calls this
 	}
 
 	// adjust the RX RF gain to try and prevent the AM demodulator from
@@ -372,6 +393,8 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			const int16_t desired_rssi = (-89 + 160) * 2;   // dBm to ADC sample
 		#endif
 
+		counter++;
+		
 		// but we're not in FM mode, we're in AM mode
 
 		switch (gCurrentFunction)
@@ -404,7 +427,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			if (gCurrentRSSI[vfo] != new_rssi)
 			{
 				gCurrentRSSI[vfo] = new_rssi;
-				gUpdateDisplay = true;
+				gUpdateDisplay    = ((counter & 15u) == 0);  // limit the screen update rate to once every 150ms
 			}
 		}
 		
@@ -501,20 +524,18 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 			const unsigned int index   = am_fix_gain_table_index[vfo];
 
-			const uint8_t lna_short    = am_fix_gain_table[index].lna_short;
-			const uint8_t lna          = am_fix_gain_table[index].lna;
-			const uint8_t mixer        = am_fix_gain_table[index].mixer;
-			const uint8_t pga          = am_fix_gain_table[index].pga;
-
-			const int16_t orig_dB_gain = lna_short_dB[orig_lna_short] + lna_dB[orig_lna] + mixer_dB[orig_mixer] + pga_dB[orig_pga];
-			const int16_t   am_dB_gain = lna_short_dB[lna_short]      + lna_dB[lna]      + mixer_dB[mixer]      + pga_dB[pga];
+			const uint8_t lna_short = am_fix_gain_table[index].lna_short;
+			const uint8_t lna       = am_fix_gain_table[index].lna;
+			const uint8_t mixer     = am_fix_gain_table[index].mixer;
+			const uint8_t pga       = am_fix_gain_table[index].pga;
+			const int16_t gain_dB   = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga];
 
 			BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
 
 			// offset the RSSI reading to the rest of the firmware to cancel out the gain adjustments we make
 
 			// gain difference from original QS setting
-			rssi_db_gain_diff[vfo] = am_dB_gain - orig_dB_gain;
+			rssi_db_gain_diff[vfo] = gain_dB - orig_dB_gain;
 
 			// remember the new table index
 			am_fix_gain_table_index_prev[vfo] = index;
@@ -524,13 +545,13 @@ const uint8_t orig_pga       = 6;   //  -3dB
 				if (gCurrentRSSI[vfo] != new_rssi)
 				{
 					gCurrentRSSI[vfo] = new_rssi;
-					gUpdateDisplay = true;
+					gUpdateDisplay    = ((counter & 15u) == 0);  // limit the screen update rate to once every 150ms
 				}
 			}
 		}
 
 		#ifdef ENABLE_AM_FIX_SHOW_DATA
-			gUpdateDisplay = true;
+			gUpdateDisplay = ((counter & 15u) == 0);  // limit the screen update rate to once every 150ms
 		#endif
 	}
 

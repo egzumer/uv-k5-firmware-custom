@@ -17,6 +17,9 @@
 #include <string.h>
 #include <stdio.h>     // NULL
 
+#ifdef ENABLE_AM_FIX
+	#include "am_fix.h"
+#endif
 #include "app/app.h"
 #include "app/dtmf.h"
 #include "audio.h"
@@ -93,6 +96,10 @@ void Main(void)
 		BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[i], &gBatteryCurrent);
 
 	BATTERY_GetReadings(false);
+
+	#ifdef ENABLE_AM_FIX
+		AM_fix_init();
+	#endif
 
 	// count the number of menu list items
 	gMenuListCount = 0;
