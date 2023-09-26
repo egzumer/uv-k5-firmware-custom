@@ -555,87 +555,87 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 	//                1 = 6dB
 
 	if (Bandwidth == BK4819_FILTER_BW_WIDE)
-	{
+	{	// 25kHz
 		if (weak_no_different)
-		{	// make the bandwidth the same with weak signals (sounds much better)
+		{	// make the RX bandwidth the same with weak signals (sounds better)
 
 			BK4819_WriteRegister(BK4819_REG_43,
-				(0u << 15) |     // 0
-				(3u << 12) |     // 3 RF filter bandwidth
+				(0u << 15) |     //  0
+				(3u << 12) |     //  3 RF filter bandwidth
 				(3u <<  9) |     // *0 RF filter bandwidth when signal is weak
-				(7u <<  6) |     // *0 AFTxLPF2 filter Band Width
-				(2u <<  4) |     // 2 BW Mode Selection
-				(1u <<  3) |     // 1
-				(0u <<  2) |     // 0 Gain after FM Demodulation
-				(0u <<  0));     // 0
+				(6u <<  6) |     // *0 AFTxLPF2 filter Band Width
+				(2u <<  4) |     //  2 BW Mode Selection
+				(1u <<  3) |     //  1
+				(0u <<  2) |     //  0 Gain after FM Demodulation
+				(0u <<  0));     //  0
 		}
 		else
-		{
+		{	// with weak RX signals the RX bandwidth is reduced
 			BK4819_WriteRegister(BK4819_REG_43, // 0x3028);         // 0 011 000 000 10 1 0 00
-				(0u << 15) |     // 0
-				(3u << 12) |     // 3 RF filter bandwidth
+				(0u << 15) |     //  0
+				(3u << 12) |     //  3 RF filter bandwidth
 				(1u <<  9) |     // *0 RF filter bandwidth when signal is weak
-				(7u <<  6) |     // *0 AFTxLPF2 filter Band Width
-				(2u <<  4) |     // 2 BW Mode Selection
-				(1u <<  3) |     // 1
-				(0u <<  2) |     // 0 Gain after FM Demodulation
-				(0u <<  0));     // 0
+				(6u <<  6) |     // *0 AFTxLPF2 filter Band Width
+				(2u <<  4) |     //  2 BW Mode Selection
+				(1u <<  3) |     //  1
+				(0u <<  2) |     //  0 Gain after FM Demodulation
+				(0u <<  0));     //  0
 		}
 	}
 	else
 	if (Bandwidth == BK4819_FILTER_BW_NARROW)
-	{
+	{	// 12.5kHz
 		if (weak_no_different)
 		{
 			BK4819_WriteRegister(BK4819_REG_43, // 0x4048);        // 0 100 000 001 00 1 0 00
-				(0u << 15) |     // 0
-				(3u << 12) |     // 4 RF filter bandwidth
+				(0u << 15) |     //  0
+				(3u << 12) |     //  4 RF filter bandwidth
 				(3u <<  9) |     // *0 RF filter bandwidth when signal is weak
 				(0u <<  6) |     // *1 AFTxLPF2 filter Band Width
-				(0u <<  4) |     // 0 BW Mode Selection
-				(1u <<  3) |     // 1
-				(0u <<  2) |     // 0 Gain after FM Demodulation
-				(0u <<  0));     // 0
+				(0u <<  4) |     //  0 BW Mode Selection
+				(1u <<  3) |     //  1
+				(0u <<  2) |     //  0 Gain after FM Demodulation
+				(0u <<  0));     //  0
 		}
 		else
 		{
 			BK4819_WriteRegister(BK4819_REG_43, // 0x4048);        // 0 100 000 001 00 1 0 00
-				(0u << 15) |     // 0
-				(3u << 12) |     // 4 RF filter bandwidth
+				(0u << 15) |     //  0
+				(3u << 12) |     //  4 RF filter bandwidth
 				(1u <<  9) |     // *0 RF filter bandwidth when signal is weak
 				(0u <<  6) |     // *1 AFTxLPF2 filter Band Width
-				(0u <<  4) |     // 0 BW Mode Selection
-				(1u <<  3) |     // 1
-				(0u <<  2) |     // 0 Gain after FM Demodulation
-				(0u <<  0));     // 0
+				(0u <<  4) |     //  0 BW Mode Selection
+				(1u <<  3) |     //  1
+				(0u <<  2) |     //  0 Gain after FM Demodulation
+				(0u <<  0));     //  0
 		}
 	}
 	else
 	if (Bandwidth == BK4819_FILTER_BW_NARROWER)
-	{
+	{	// 6.25kHz
 		if (weak_no_different)
 		{
 			BK4819_WriteRegister(BK4819_REG_43,
-				(0u << 15) |     // 0
-				(2u << 12) |     // 4 RF filter bandwidth
-				(2u <<  9) |     // 0 RF filter bandwidth when signal is weak
-				(1u <<  6) |     // 1 AFTxLPF2 filter Band Width
-				(1u <<  4) |     // 1 BW Mode Selection
-				(1u <<  3) |     // 1
-				(0u <<  2) |     // 0 Gain after FM Demodulation
-				(0u <<  0));     // 0
+				(0u << 15) |     //  0
+				(2u << 12) |     //  4 RF filter bandwidth
+				(2u <<  9) |     //  0 RF filter bandwidth when signal is weak
+				(1u <<  6) |     //  1 AFTxLPF2 filter Band Width
+				(1u <<  4) |     //  1 BW Mode Selection
+				(1u <<  3) |     //  1
+				(0u <<  2) |     //  0 Gain after FM Demodulation
+				(0u <<  0));     //  0
 		}
 		else
 		{
 			BK4819_WriteRegister(BK4819_REG_43,
-				(0u << 15) |     // 0
-				(2u << 12) |     // 4 RF filter bandwidth
-				(0u <<  9) |     // 0 RF filter bandwidth when signal is weak
-				(1u <<  6) |     // 1 AFTxLPF2 filter Band Width
-				(1u <<  4) |     // 1 BW Mode Selection
-				(1u <<  3) |     // 1
-				(0u <<  2) |     // 0 Gain after FM Demodulation
-				(0u <<  0));     // 0
+				(0u << 15) |     //  0
+				(2u << 12) |     //  4 RF filter bandwidth
+				(0u <<  9) |     //  0 RF filter bandwidth when signal is weak
+				(1u <<  6) |     //  1 AFTxLPF2 filter Band Width
+				(1u <<  4) |     //  1 BW Mode Selection
+				(1u <<  3) |     //  1
+				(0u <<  2) |     //  0 Gain after FM Demodulation
+				(0u <<  0));     //  0
 		}
 	}
 }

@@ -40,7 +40,7 @@
 //
 const t_menu_item MenuList[] =
 {
-//   name,     voice ID,                               menu ID
+//   text,     voice ID,                               menu ID
 
 	{"SQL",    VOICE_ID_SQUELCH,                       MENU_SQL        },
 	{"STEP",   VOICE_ID_FREQUENCY_STEP,                MENU_STEP       },
@@ -86,7 +86,7 @@ const t_menu_item MenuList[] =
 	{"SLIST1", VOICE_ID_INVALID,                       MENU_SLIST1     },
 	{"SLIST2", VOICE_ID_INVALID,                       MENU_SLIST2     },
 #ifdef ENABLE_ALARM
-	"AL-MOD",  VOICE_ID_INVALID,                       MENU_AL_MOD     },
+	{"AL-MOD", VOICE_ID_INVALID,                       MENU_AL_MOD     },
 #endif
 	{"ANI-ID", VOICE_ID_ANI_CODE,                      MENU_ANI_ID     },
 	{"UPCODE", VOICE_ID_INVALID,                       MENU_UPCODE     },
