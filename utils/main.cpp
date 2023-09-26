@@ -99,7 +99,7 @@ void create_gain_table(const char *filename)
 	const uint8_t pga_min       = 0;  // 0
 
 	const uint8_t lna_short_max = 3;  // 3
-	const uint8_t lna_max       = 5;  // 5
+	const uint8_t lna_max       = 7;  // 5
 	const uint8_t mixer_max     = 3;  // 3
 	const uint8_t pga_max       = 7;  // 7
 

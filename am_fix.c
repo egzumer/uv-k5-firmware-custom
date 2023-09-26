@@ -99,11 +99,13 @@ const uint8_t orig_pga       = 6;   //  -3dB
 	//
 	// these 4 tables need a measuring/calibration update
 	//
-//	static const int16_t lna_short_dB[] = {-19, -16, -11,   0};   // was
-	static const int16_t lna_short_dB[] = {-33, -30  -24,   0};   // corrected'ish
-	static const int16_t lna_dB[]       = {-24, -19, -14,  -9, -6, -4, -2, 0};
-	static const int16_t mixer_dB[]     = { -8,  -6,  -3,   0};
-	static const int16_t pga_dB[]       = {-33, -27, -21, -15, -9, -6, -3, 0};
+	// QUESTION: why do I have to surround the negative numbers in brackets ??? .. if I don't then the table contains wrong numbers
+	//
+//	static const int16_t lna_short_dB[] = {  -19,   -16,   -11,     0};   // was (but wrong)
+	static const int16_t lna_short_dB[] = { (-33), (-30), (-24),    0};   // corrected'ish
+	static const int16_t lna_dB[]       = { (-24), (-19), (-14), ( -9), (-6), (-4), (-2), 0};
+	static const int16_t mixer_dB[]     = { ( -8), ( -6), ( -3),    0};
+	static const int16_t pga_dB[]       = { (-33), (-27), (-21), (-15), (-9), (-6), (-3), 0};
 
 	// lookup table is hugely easier than writing code to do the same
 	//
@@ -212,76 +214,82 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		{1, 2, 0, 1},         //  18 .. -30dB -14dB -8dB -27dB .. -79dB
 		{0, 3, 2, 0},         //  19 .. -33dB  -9dB -3dB -33dB .. -78dB
 		{1, 4, 0, 0},         //  20 .. -30dB  -6dB -8dB -33dB .. -77dB
-		{0, 2, 0, 2},         //  21 .. -33dB -14dB -8dB -21dB .. -76dB
-		{0, 3, 3, 0},         //  22 .. -33dB  -9dB  0dB -33dB .. -75dB
+		{1, 1, 3, 1},         //  21 .. -30dB -19dB  0dB -27dB .. -76dB
+		{0, 0, 2, 3},         //  22 .. -33dB -24dB -3dB -15dB .. -75dB
 		{1, 3, 0, 1},         //  23 .. -30dB  -9dB -8dB -27dB .. -74dB
-		{1, 2, 0, 2},         //  24 .. -30dB -14dB -8dB -21dB .. -73dB
-		{1, 1, 0, 3},         //  25 .. -30dB -19dB -8dB -15dB .. -72dB
-		{1, 4, 0, 1},         //  26 .. -30dB  -6dB -8dB -27dB .. -71dB
-		{1, 5, 2, 0},         //  27 .. -30dB  -4dB -3dB -33dB .. -70dB
-		{1, 4, 1, 1},         //  28 .. -30dB  -6dB -6dB -27dB .. -69dB
-		{2, 2, 2, 1},         //  29 .. -24dB -14dB -3dB -27dB .. -68dB
-		{2, 1, 2, 2},         //  30 .. -24dB -19dB -3dB -21dB .. -67dB
-		{2, 0, 2, 3},         //  31 .. -24dB -24dB -3dB -15dB .. -66dB
-		{1, 0, 0, 6},         //  32 .. -30dB -24dB -8dB  -3dB .. -65dB
+		{1, 6, 0, 0},         //  24 .. -30dB  -2dB -8dB -33dB .. -73dB
+		{0, 7, 1, 0},         //  25 .. -33dB   0dB -6dB -33dB .. -72dB
+		{0, 6, 2, 0},         //  26 .. -33dB  -2dB -3dB -33dB .. -71dB
+		{2, 1, 3, 1},         //  27 .. -24dB -19dB  0dB -27dB .. -70dB
+		{0, 3, 1, 2},         //  28 .. -33dB  -9dB -6dB -21dB .. -69dB
+		{0, 0, 0, 6},         //  29 .. -33dB -24dB -8dB  -3dB .. -68dB
+		{0, 5, 2, 1},         //  30 .. -33dB  -4dB -3dB -27dB .. -67dB
+		{0, 0, 1, 6},         //  31 .. -33dB -24dB -6dB  -3dB .. -66dB
+		{1, 2, 3, 2},         //  32 .. -30dB -14dB  0dB -21dB .. -65dB
 		{2, 1, 1, 3},         //  33 .. -24dB -19dB -6dB -15dB .. -64dB
-		{0, 3, 1, 3},         //  34 .. -33dB  -9dB -6dB -15dB .. -63dB
-		{2, 3, 0, 2},         //  35 .. -24dB  -9dB -8dB -21dB .. -62dB
-		{2, 1, 2, 3},         //  36 .. -24dB -19dB -3dB -15dB .. -61dB
-		{2, 3, 1, 2},         //  37 .. -24dB  -9dB -6dB -21dB .. -60dB
-		{2, 2, 3, 2},         //  38 .. -24dB -14dB  0dB -21dB .. -59dB
-		{2, 1, 1, 4},         //  39 .. -24dB -19dB -6dB  -9dB .. -58dB
-		{2, 4, 1, 2},         //  40 .. -24dB  -6dB -6dB -21dB .. -57dB
-		{1, 2, 2, 4},         //  41 .. -30dB -14dB -3dB  -9dB .. -56dB
-		{2, 1, 1, 5},         //  42 .. -24dB -19dB -6dB  -6dB .. -55dB
-		{2, 3, 3, 2},         //  43 .. -24dB  -9dB  0dB -21dB .. -54dB
-		{1, 3, 0, 5},         //  44 .. -30dB  -9dB -8dB  -6dB .. -53dB
-		{1, 5, 2, 3},         //  45 .. -30dB  -4dB -3dB -15dB .. -52dB
-		{1, 3, 1, 5},         //  46 .. -30dB  -9dB -6dB  -6dB .. -51dB
-		{0, 2, 2, 7},         //  47 .. -33dB -14dB -3dB   0dB .. -50dB
-		{2, 1, 1, 7},         //  48 .. -24dB -19dB -6dB   0dB .. -49dB
-		{0, 4, 2, 5},         //  49 .. -33dB  -6dB -3dB  -6dB .. -48dB
-		{1, 2, 3, 6},         //  50 .. -30dB -14dB  0dB  -3dB .. -47dB
-		{1, 5, 1, 5},         //  51 .. -30dB  -4dB -6dB  -6dB .. -46dB
-		{3, 0, 3, 2},         //  52 ..   0dB -24dB  0dB -21dB .. -45dB
-		{3, 2, 2, 1},         //  53 ..   0dB -14dB -3dB -27dB .. -44dB
-		{2, 5, 1, 4},         //  54 .. -24dB  -4dB -6dB  -9dB .. -43dB
-		{1, 4, 2, 6},         //  55 .. -30dB  -6dB -3dB  -3dB .. -42dB
-		{3, 0, 0, 4},         //  56 ..   0dB -24dB -8dB  -9dB .. -41dB
-		{0, 5, 3, 6},         //  57 .. -33dB  -4dB  0dB  -3dB .. -40dB
-		{2, 4, 2, 5},         //  58 .. -24dB  -6dB -3dB  -6dB .. -39dB
-		{3, 0, 0, 5},         //  59 ..   0dB -24dB -8dB  -6dB .. -38dB
-		{0, 5, 3, 7},         //  60 .. -33dB  -4dB  0dB   0dB .. -37dB
-		{2, 3, 3, 6},         //  61 .. -24dB  -9dB  0dB  -3dB .. -36dB
-		{3, 4, 0, 2},         //  62 ..   0dB  -6dB -8dB -21dB .. -35dB
-		{3, 1, 1, 4},         //  63 ..   0dB -19dB -6dB  -9dB .. -34dB
-		{3, 0, 3, 4},         //  64 ..   0dB -24dB  0dB  -9dB .. -33dB
-		{3, 3, 0, 3},         //  65 ..   0dB  -9dB -8dB -15dB .. -32dB
-		{3, 1, 1, 5},         //  66 ..   0dB -19dB -6dB  -6dB .. -31dB
-		{3, 0, 2, 6},         //  67 ..   0dB -24dB -3dB  -3dB .. -30dB
-		{3, 2, 3, 3},         //  68 ..   0dB -14dB  0dB -15dB .. -29dB
+		{1, 7, 3, 0},         //  34 .. -30dB   0dB  0dB -33dB .. -63dB
+		{1, 3, 0, 3},         //  35 .. -30dB  -9dB -8dB -15dB .. -62dB
+		{0, 1, 2, 5},         //  36 .. -33dB -19dB -3dB  -6dB .. -61dB
+		{2, 0, 2, 4},         //  37 .. -24dB -24dB -3dB  -9dB .. -60dB
+		{1, 6, 3, 1},         //  38 .. -30dB  -2dB  0dB -27dB .. -59dB
+		{1, 2, 0, 5},         //  39 .. -30dB -14dB -8dB  -6dB .. -58dB
+		{2, 5, 0, 2},         //  40 .. -24dB  -4dB -8dB -21dB .. -57dB
+		{2, 6, 2, 1},         //  41 .. -24dB  -2dB -3dB -27dB .. -56dB
+		{0, 5, 2, 3},         //  42 .. -33dB  -4dB -3dB -15dB .. -55dB
+		{2, 0, 2, 6},         //  43 .. -24dB -24dB -3dB  -3dB .. -54dB
+		{0, 3, 0, 6},         //  44 .. -33dB  -9dB -8dB  -3dB .. -53dB
+		{0, 6, 0, 4},         //  45 .. -33dB  -2dB -8dB  -9dB .. -52dB
+		{0, 3, 1, 6},         //  46 .. -33dB  -9dB -6dB  -3dB .. -51dB
+		{1, 2, 3, 5},         //  47 .. -30dB -14dB  0dB  -6dB .. -50dB
+		{0, 5, 1, 5},         //  48 .. -33dB  -4dB -6dB  -6dB .. -49dB
+		{0, 3, 3, 5},         //  49 .. -33dB  -9dB  0dB  -6dB .. -48dB
+		{0, 6, 2, 4},         //  50 .. -33dB  -2dB -3dB  -9dB .. -47dB
+		{1, 5, 2, 4},         //  51 .. -30dB  -4dB -3dB  -9dB .. -46dB
+		{3, 0, 1, 3},         //  52 ..   0dB -24dB -6dB -15dB .. -45dB
+		{0, 6, 1, 6},         //  53 .. -33dB  -2dB -6dB  -3dB .. -44dB
+		{1, 5, 2, 5},         //  54 .. -30dB  -4dB -3dB  -6dB .. -43dB
+		{0, 4, 2, 7},         //  55 .. -33dB  -6dB -3dB   0dB .. -42dB
+		{2, 2, 2, 7},         //  56 .. -24dB -14dB -3dB   0dB .. -41dB
+		{2, 5, 2, 4},         //  57 .. -24dB  -4dB -3dB  -9dB .. -40dB
+		{2, 3, 3, 5},         //  58 .. -24dB  -9dB  0dB  -6dB .. -39dB
+		{1, 6, 3, 5},         //  59 .. -30dB  -2dB  0dB  -6dB .. -38dB
+		{2, 5, 1, 6},         //  60 .. -24dB  -4dB -6dB  -3dB .. -37dB
+		{3, 3, 3, 1},         //  61 ..   0dB  -9dB  0dB -27dB .. -36dB
+		{3, 2, 3, 2},         //  62 ..   0dB -14dB  0dB -21dB .. -35dB
+		{2, 5, 2, 6},         //  63 .. -24dB  -4dB -3dB  -3dB .. -34dB
+		{3, 0, 1, 6},         //  64 ..   0dB -24dB -6dB  -3dB .. -33dB
+		{3, 0, 0, 7},         //  65 ..   0dB -24dB -8dB   0dB .. -32dB
+		{2, 5, 3, 6},         //  66 .. -24dB  -4dB  0dB  -3dB .. -31dB
+		{3, 3, 3, 2},         //  67 ..   0dB  -9dB  0dB -21dB .. -30dB
+		{2, 6, 3, 6},         //  68 .. -24dB  -2dB  0dB  -3dB .. -29dB
 		{3, 2, 0, 5},         //  69 ..   0dB -14dB -8dB  -6dB .. -28dB
-		{3, 4, 1, 3},         //  70 ..   0dB  -6dB -6dB -15dB .. -27dB
-		{3, 2, 2, 4},         //  71 ..   0dB -14dB -3dB  -9dB .. -26dB
-		{3, 1, 2, 6},         //  72 ..   0dB -19dB -3dB  -3dB .. -25dB
-		{3, 3, 1, 4},         //  73 ..   0dB  -9dB -6dB  -9dB .. -24dB
-		{3, 2, 1, 6},         //  74 ..   0dB -14dB -6dB  -3dB .. -23dB
-		{3, 5, 2, 3},         //  75 ..   0dB  -4dB -3dB -15dB .. -22dB
-		{3, 4, 1, 4},         //  76 ..   0dB  -6dB -6dB  -9dB .. -21dB
-		{3, 4, 0, 5},         //  77 ..   0dB  -6dB -8dB  -6dB .. -20dB
-		{3, 5, 1, 4},         //  78 ..   0dB  -4dB -6dB  -9dB .. -19dB
+		{3, 5, 0, 3},         //  70 ..   0dB  -4dB -8dB -15dB .. -27dB
+		{3, 3, 0, 4},         //  71 ..   0dB  -9dB -8dB  -9dB .. -26dB
+		{3, 1, 1, 7},         //  72 ..   0dB -19dB -6dB   0dB .. -25dB
+		{3, 4, 2, 3},         //  73 ..   0dB  -6dB -3dB -15dB .. -24dB
+		{3, 4, 0, 4},         //  74 ..   0dB  -6dB -8dB  -9dB .. -23dB
+		{3, 2, 0, 7},         //  75 ..   0dB -14dB -8dB   0dB .. -22dB
+		{3, 7, 1, 3},         //  76 ..   0dB   0dB -6dB -15dB .. -21dB
+		{3, 6, 2, 3},         //  77 ..   0dB  -2dB -3dB -15dB .. -20dB
+		{3, 5, 3, 3},         //  78 ..   0dB  -4dB  0dB -15dB .. -19dB
 		{3, 3, 3, 4},         //  79 ..   0dB  -9dB  0dB  -9dB .. -18dB
 		{3, 2, 3, 6},         //  80 ..   0dB -14dB  0dB  -3dB .. -17dB original
-		{3, 5, 1, 5},         //  81 ..   0dB  -4dB -6dB  -6dB .. -16dB
-		{3, 3, 1, 7},         //  82 ..   0dB  -9dB -6dB   0dB .. -15dB
+		{3, 6, 0, 5},         //  81 ..   0dB  -2dB -8dB  -6dB .. -16dB
+		{3, 7, 1, 4},         //  82 ..   0dB   0dB -6dB  -9dB .. -15dB
 		{3, 2, 3, 7},         //  83 ..   0dB -14dB  0dB   0dB .. -14dB
-		{3, 5, 1, 6},         //  84 ..   0dB  -4dB -6dB  -3dB .. -13dB
-		{3, 4, 2, 6},         //  85 ..   0dB  -6dB -3dB  -3dB .. -12dB
-		{3, 5, 2, 6},         //  86 ..   0dB  -4dB -3dB  -3dB .. -10dB
-		{3, 4, 3, 6},         //  87 ..   0dB  -6dB  0dB  -3dB ..  -9dB
-		{3, 5, 2, 7},         //  88 ..   0dB  -4dB -3dB   0dB ..  -7dB
-		{3, 4, 3, 7},         //  89 ..   0dB  -6dB  0dB   0dB ..  -6dB
-		{3, 5, 3, 7}          //  90 ..   0dB  -4dB  0dB   0dB ..  -4dB
+		{3, 6, 0, 6},         //  84 ..   0dB  -2dB -8dB  -3dB .. -13dB
+		{3, 3, 2, 7},         //  85 ..   0dB  -9dB -3dB   0dB .. -12dB
+		{3, 7, 0, 6},         //  86 ..   0dB   0dB -8dB  -3dB .. -11dB
+		{3, 5, 3, 5},         //  87 ..   0dB  -4dB  0dB  -6dB .. -10dB
+		{3, 7, 2, 5},         //  88 ..   0dB   0dB -3dB  -6dB ..  -9dB
+		{3, 6, 3, 5},         //  89 ..   0dB  -2dB  0dB  -6dB ..  -8dB
+		{3, 5, 2, 7},         //  90 ..   0dB  -4dB -3dB   0dB ..  -7dB
+		{3, 7, 2, 6},         //  91 ..   0dB   0dB -3dB  -3dB ..  -6dB
+		{3, 6, 2, 7},         //  92 ..   0dB  -2dB -3dB   0dB ..  -5dB
+		{3, 5, 3, 7},         //  93 ..   0dB  -4dB  0dB   0dB ..  -4dB
+		{3, 7, 2, 7},         //  94 ..   0dB   0dB -3dB   0dB ..  -3dB
+		{3, 6, 3, 7},         //  95 ..   0dB  -2dB  0dB   0dB ..  -2dB
+		{3, 7, 3, 7}          //  96 ..   0dB   0dB  0dB   0dB ..   0dB
 	};
 
 	const unsigned int original_index = 80;
@@ -306,6 +314,9 @@ const uint8_t orig_pga       = 6;   //  -3dB
 	// used to correct the RSSI readings after our front end gain adjustments
 	int16_t rssi_db_gain_diff[2] = {0, 0};
 
+	// used to limit the max front end gain
+	unsigned int max_index = ARRAY_SIZE(am_fix_gain_table) - 1;
+	
 	void AM_fix_reset(const int vfo)
 	{	// reset the AM fixer
 
@@ -322,6 +333,26 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		#endif
 
 		am_fix_gain_table_index_prev[vfo] = 0;
+
+		#if 0
+		{	// set the maximum gain we want to use
+//			const int16_t max_gain_dB = lna_short_dB[orig_lna_short] + lna_dB[orig_lna] + mixer_dB[orig_mixer] + pga_dB[orig_pga];
+			const int16_t max_gain_dB = -10;
+			max_index = ARRAY_SIZE(am_fix_gain_table);
+			while (--max_index > 1)
+			{
+				const uint8_t lna_short = am_fix_gain_table[max_index].lna_short;
+				const uint8_t lna       = am_fix_gain_table[max_index].lna;
+				const uint8_t mixer     = am_fix_gain_table[max_index].mixer;
+				const uint8_t pga       = am_fix_gain_table[max_index].pga;
+				const int16_t gain_dB   = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga];
+				if (gain_dB <= max_gain_dB)
+					break;
+			}
+		}
+		#else
+			max_index = ARRAY_SIZE(am_fix_gain_table) - 1;
+		#endif
 	}
 
 	// adjust the RX RF gain to try and prevent the AM demodulator from
@@ -360,35 +391,36 @@ const uint8_t orig_pga       = 6;   //  -3dB
 				break;
 		}
 
-		{	// sample the current RSSI level, average it with the previous rssi
+		{	// sample the current RSSI level
+			// average it with the previous rssi (a bit of noise/spike immunity)
 			const int16_t new_rssi = BK4819_GetRSSI();
-//			rssi                   = (prev_rssi[vfo] > 0) ? (prev_rssi[vfo] + new_rssi) / 2 : new_rssi;
-			rssi                   = (prev_rssi[vfo] > 0 && new_rssi > prev_rssi[vfo]) ? (prev_rssi[vfo] + new_rssi) / 2 : new_rssi;
+			rssi                   = (prev_rssi[vfo] > 0) ? (prev_rssi[vfo] + new_rssi) / 2 : new_rssi;
+//			rssi                   = (new_rssi > prev_rssi[vfo] && prev_rssi[vfo] > 0) ? (prev_rssi[vfo] + new_rssi) / 2 : new_rssi;
 			prev_rssi[vfo]         = new_rssi;
 		}
 
+		{	// save the corrected RSSI level
+			const int16_t new_rssi = rssi - (rssi_db_gain_diff[vfo] * 2);
+			if (gCurrentRSSI[vfo] != new_rssi)
+			{
+				gCurrentRSSI[vfo] = new_rssi;
+				gUpdateDisplay = true;
+			}
+		}
+		
 #ifdef ENABLE_AM_FIX_TEST1
 		// user is manually adjusting a gain register - don't do anything automatically
 
-		{
+		{		
 			int i = 1 + (int)gSetting_AM_fix_test1;
 			i = (i < 1) ? 1 : (i > ((int)ARRAY_SIZE(am_fix_gain_table) - 1) ? ARRAY_SIZE(am_fix_gain_table) - 1 : i;
-			am_fix_gain_table_index[vfo] = i;
+			
+			if (am_fix_gain_table_index[vfo] == i)
+				return;    // no change
 		}
-		
-		if (am_gain_hold_counter[vfo] > 0)
-		{
-			if (--am_gain_hold_counter[vfo] > 0)
-			{
-				gCurrentRSSI[vfo] = rssi - (rssi_db_gain_diff[vfo] * 2); // save the corrected RSSI level
-				return;
-			}
-		}
-
-		am_gain_hold_counter[vfo] = 30;              // update register once every 300ms
 
 #else
-		// automatically choose a front end gain setting by monitoring the RSSI
+		// automatically adjust the RF RX gain
 
 		if (am_gain_hold_counter[vfo] > 0)
 			am_gain_hold_counter[vfo]--;
@@ -399,19 +431,19 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		if (diff_dB > 0)
 		{	// decrease gain
 
-			if (diff_dB >= 12)
+			unsigned int index = am_fix_gain_table_index[vfo];   // current position we're at
+
+			if (diff_dB >= 10)
 			{	// jump immediately to a new gain setting
 				// this greatly speeds up initial gain reduction (but reduces noise/spike immunity)
 
-				unsigned int index     = am_fix_gain_table_index[vfo];   // current position we're at
-
-				unsigned int lna_short = am_fix_gain_table[index].lna_short;
-				unsigned int lna       = am_fix_gain_table[index].lna;
-				unsigned int mixer     = am_fix_gain_table[index].mixer;
-				unsigned int pga       = am_fix_gain_table[index].pga;
+				uint8_t lna_short  = am_fix_gain_table[index].lna_short;
+				uint8_t lna        = am_fix_gain_table[index].lna;
+				uint8_t mixer      = am_fix_gain_table[index].mixer;
+				uint8_t pga        = am_fix_gain_table[index].pga;
 
 //				const int16_t desired_gain_dB = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga] - diff_dB;
-				const int16_t desired_gain_dB = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga] - diff_dB + 6; // 6dB headroom
+				const int16_t desired_gain_dB = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga] - diff_dB + 8; // get no closer than 8dB (bit of noise/spike immunity)
 
 				// scan the table to see what index to jump straight too
 				while (index > 1)
@@ -430,43 +462,38 @@ const uint8_t orig_pga       = 6;   //  -3dB
 					}
 				}
 
-				//am_fix_gain_table_index[vfo] = (am_fix_gain_table_index[vfo] + index) / 2;  // easy does it
-				am_fix_gain_table_index[vfo] = index;                                         // noo, go now !
+				//index = (am_fix_gain_table_index[vfo] + index) / 2;  // easy does it
 			}
 			else
 			{	// incrementally reduce the gain .. taking it slow improves noise/spike immunity
 
-//				if (am_fix_gain_table_index[vfo] >= (1 + 3) && diff_dB >= 3)
-//					am_fix_gain_table_index[vfo] -= 3;  // faster gain reduction
+//				if (index >= (1 + 3) && diff_dB >= 3)
+//					index -= 3;  // faster gain reduction
 //				else
-				if (am_fix_gain_table_index[vfo] > 1)
-					am_fix_gain_table_index[vfo]--;     // slow step-by-step gain reduction
+				if (index > 1)
+					index--;     // slow step-by-step gain reduction
 			}
+
+			index = (index < 1) ? 1 : (index > max_index) ? max_index : index;
 			
-			am_gain_hold_counter[vfo] = 30;   // 300ms hold
+			if (am_fix_gain_table_index[vfo] != index)
+			{
+				am_fix_gain_table_index[vfo] = index;
+				am_gain_hold_counter[vfo]    = 30;   // 300ms hold
+			}
 		}
 
-		else
 		if (diff_dB >= -4)                    // 4dB hysterisis (help reduce gain hunting)
 			am_gain_hold_counter[vfo] = 30;   // 300ms hold
 
 		if (am_gain_hold_counter[vfo] == 0)
 		{	// hold has been released, we're free to increase gain
-
-			if (diff_dB < -4)                 // 4dB hysterisis (help reduce gain hunting)
-			{	// increase gain
-
-				if (am_fix_gain_table_index[vfo] < (ARRAY_SIZE(am_fix_gain_table) - 1))
-					am_fix_gain_table_index[vfo]++;
-			}
+			const unsigned int index = am_fix_gain_table_index[vfo] + 1;
+			am_fix_gain_table_index[vfo] = (index > max_index) ? max_index : index;      // limit the gain
 		}
 
 		if (am_fix_gain_table_index[vfo] == am_fix_gain_table_index_prev[vfo])
-		{	// no gain changes have been made
-
-			gCurrentRSSI[vfo] = rssi - (rssi_db_gain_diff[vfo] * 2);    // save the corrected RSSI level
-			return;
-		}
+			return;     // no gain changes have been made
 
 #endif
 
@@ -474,10 +501,10 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 			const unsigned int index   = am_fix_gain_table_index[vfo];
 
-			const uint16_t lna_short   = am_fix_gain_table[index].lna_short;
-			const uint16_t lna         = am_fix_gain_table[index].lna;
-			const uint16_t mixer       = am_fix_gain_table[index].mixer;
-			const uint16_t pga         = am_fix_gain_table[index].pga;
+			const uint8_t lna_short    = am_fix_gain_table[index].lna_short;
+			const uint8_t lna          = am_fix_gain_table[index].lna;
+			const uint8_t mixer        = am_fix_gain_table[index].mixer;
+			const uint8_t pga          = am_fix_gain_table[index].pga;
 
 			const int16_t orig_dB_gain = lna_short_dB[orig_lna_short] + lna_dB[orig_lna] + mixer_dB[orig_mixer] + pga_dB[orig_pga];
 			const int16_t   am_dB_gain = lna_short_dB[lna_short]      + lna_dB[lna]      + mixer_dB[mixer]      + pga_dB[pga];
@@ -489,15 +516,20 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			// gain difference from original QS setting
 			rssi_db_gain_diff[vfo] = am_dB_gain - orig_dB_gain;
 
-			// save the corrected RSSI level
-			gCurrentRSSI[vfo] = rssi - (rssi_db_gain_diff[vfo] * 2);
-
 			// remember the new table index
 			am_fix_gain_table_index_prev[vfo] = index;
+			
+			{	// save the corrected RSSI level
+				const int16_t new_rssi = rssi - (rssi_db_gain_diff[vfo] * 2);
+				if (gCurrentRSSI[vfo] != new_rssi)
+				{
+					gCurrentRSSI[vfo] = new_rssi;
+					gUpdateDisplay = true;
+				}
+			}
 		}
 
 		#ifdef ENABLE_AM_FIX_SHOW_DATA
-			// trigger display update so the user can see the data as it changes
 			gUpdateDisplay = true;
 		#endif
 	}
@@ -506,19 +538,15 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 		void AM_fix_print_data(const int vfo, char *s)
 		{
-			if (s == NULL)
-				return;
-
 			// fetch current register settings
-			const uint16_t lna_short = am_fix_gain_table[am_fix_gain_table_index[vfo]].lna_short;
-			const uint16_t lna       = am_fix_gain_table[am_fix_gain_table_index[vfo]].lna;
-			const uint16_t mixer     = am_fix_gain_table[am_fix_gain_table_index[vfo]].mixer;
-			const uint16_t pga       = am_fix_gain_table[am_fix_gain_table_index[vfo]].pga;
-
-			// compute the current front end gain
-			const int16_t dB_gain = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga];
-
-			sprintf(s, "idx %2d %4ddB %3u", am_fix_gain_table_index[vfo], dB_gain, prev_rssi[vfo]);
+			const unsigned int index = am_fix_gain_table_index[vfo];
+			const uint8_t lna_short  = am_fix_gain_table[index].lna_short;
+			const uint8_t lna        = am_fix_gain_table[index].lna;
+			const uint8_t mixer      = am_fix_gain_table[index].mixer;
+			const uint8_t pga        = am_fix_gain_table[index].pga;
+			const int16_t gain_dB    = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga];
+			if (s != NULL)
+				sprintf(s, "idx %2d %4ddB %3u", index, gain_dB, prev_rssi[vfo]);
 		}
 
 	#endif
