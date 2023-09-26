@@ -66,27 +66,25 @@ void ACTION_Power(void)
 	gRequestDisplayScreen = gScreenToDisplay;
 }
 
-static void ACTION_Monitor(void)
+void ACTION_Monitor(void)
 {
 	if (gCurrentFunction != FUNCTION_MONITOR)
-	{
+	{	// enable the monitor
 		RADIO_SelectVfos();
-
 		#ifdef ENABLE_NOAA
 			if (gRxVfo->CHANNEL_SAVE >= NOAA_CHANNEL_FIRST && gIsNoaaMode)
 				gNoaaChannel = gRxVfo->CHANNEL_SAVE - NOAA_CHANNEL_FIRST;
 		#endif
-		
 		RADIO_SetupRegisters(true);
-
 		APP_StartListening(FUNCTION_MONITOR, false);
-
 		return;
 	}
 
+	gMonitor = false;
+	
 	if (gScanState != SCAN_OFF)
 	{
-		ScanPauseDelayIn_10ms = 500;     // 5 seconds
+		ScanPauseDelayIn_10ms = scan_pause_delay_in_1_10ms;
 		gScheduleScanListen   = false;
 		gScanPauseMode        = true;
 	}
@@ -98,7 +96,7 @@ static void ACTION_Monitor(void)
 			gScheduleNOAA        = false;
 		}
 	#endif
-	
+
 	RADIO_SetupRegisters(true);
 
 	#ifdef ENABLE_FMRADIO
@@ -117,14 +115,18 @@ void ACTION_Scan(bool bRestart)
 	#ifdef ENABLE_FMRADIO
 		if (gFmRadioMode)
 		{
-			if (gCurrentFunction != FUNCTION_RECEIVE && gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
+			if (gCurrentFunction != FUNCTION_RECEIVE &&
+			    gCurrentFunction != FUNCTION_MONITOR &&
+			    gCurrentFunction != FUNCTION_TRANSMIT)
 			{
 				GUI_SelectNextDisplay(DISPLAY_FM);
-	
+
+				gMonitor = false;
+
 				if (gFM_ScanState != FM_SCAN_OFF)
 				{
 					FM_PlayAndUpdate();
-	
+
 					#ifdef ENABLE_VOICE
 						gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
 					#endif
@@ -132,7 +134,7 @@ void ACTION_Scan(bool bRestart)
 				else
 				{
 					uint16_t Frequency;
-	
+
 					if (bRestart)
 					{
 						gFM_AutoScan        = true;
@@ -146,22 +148,24 @@ void ACTION_Scan(bool bRestart)
 						gFM_ChannelPosition = 0;
 						Frequency           = gEeprom.FM_FrequencyPlaying;
 					}
-	
+
 					BK1080_GetFrequencyDeviation(Frequency);
 					FM_Tune(Frequency, 1, bRestart);
-	
+
 					#ifdef ENABLE_VOICE
 						gAnotherVoiceID = VOICE_ID_SCANNING_BEGIN;
 					#endif
 				}
 			}
-			
+
 			return;
 		}
 	#endif
 
 	if (gScreenToDisplay != DISPLAY_SCANNER)
 	{	// not scanning
+
+		gMonitor = false;
 
 		RADIO_SelectVfos();
 
@@ -200,6 +204,8 @@ void ACTION_Scan(bool bRestart)
 	else
 	if (!bRestart)
 	{	// scanning
+
+		gMonitor = false;
 
 		SCANNER_Stop();
 
@@ -241,19 +247,21 @@ void ACTION_Vox(void)
 			if (gFmRadioMode)
 			{
 				FM_TurnOff();
-	
+
 				gInputBoxIndex        = 0;
 				gVoxResumeCountdown   = 80;
 				gFlagReconfigureVfos  = true;
 				gRequestDisplayScreen = DISPLAY_MAIN;
 				return;
 			}
-			
+
+			gMonitor = false;
+
 			RADIO_SelectVfos();
 			RADIO_SetupRegisters(true);
-	
+
 			FM_Start();
-	
+
 			gInputBoxIndex        = 0;
 			gRequestDisplayScreen = DISPLAY_FM;
 		}
@@ -280,7 +288,7 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					return;
 				}
 			}
-			
+
 			#ifdef ENABLE_VOICE
 				gAnotherVoiceID   = VOICE_ID_CANCEL;
 			#endif

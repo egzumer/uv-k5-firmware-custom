@@ -297,7 +297,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 #endif
 
 	unsigned int counter = 0;
-	
+
 	int16_t orig_dB_gain = -17;
 
 	#ifdef ENABLE_AM_FIX_TEST1
@@ -321,8 +321,14 @@ const uint8_t orig_pga       = 6;   //  -3dB
 	// used to limit the max front end gain
 	unsigned int max_index = ARRAY_SIZE(am_fix_gain_table) - 1;
 	
+	#ifndef ENABLE_AM_FIX_TEST1
+		// -89dBm, any higher and the AM demodulator starts to saturate/clip/distort
+		const int16_t desired_rssi = (-89 + 160) * 2;
+	#endif
+	
 	void AM_fix_init(void)
-	{
+	{	// called at boot-up
+	
 /*		unsigned int i;
 		for (i = 0; i < 2; i++)
 		{
@@ -359,6 +365,8 @@ const uint8_t orig_pga       = 6;   //  -3dB
 	void AM_fix_reset(const int vfo)
 	{	// reset the AM fixer
 
+		counter = 0;
+		
 		prev_rssi[vfo] = 0;
 
 		am_gain_hold_counter[vfo] = 0;
@@ -372,8 +380,6 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		#endif
 
 		am_fix_gain_table_index_prev[vfo] = 0;
-		
-//		AM_fix_init();  // bootup calls this
 	}
 
 	// adjust the RX RF gain to try and prevent the AM demodulator from
@@ -388,13 +394,6 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		int16_t diff_dB;
 		int16_t rssi;
 
-		#ifndef ENABLE_AM_FIX_TEST1
-			// -89dBm, any higher and the AM demodulator starts to saturate/clip/distort
-			const int16_t desired_rssi = (-89 + 160) * 2;   // dBm to ADC sample
-		#endif
-
-		counter++;
-		
 		// but we're not in FM mode, we're in AM mode
 
 		switch (gCurrentFunction)
@@ -402,6 +401,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			case FUNCTION_TRANSMIT:
 			case FUNCTION_BAND_SCOPE:
 			case FUNCTION_POWER_SAVE:
+				counter = 0;
 				return;
 
 			case FUNCTION_FOREGROUND:
@@ -414,6 +414,10 @@ const uint8_t orig_pga       = 6;   //  -3dB
 				break;
 		}
 
+		if (counter > 0)
+			if (++counter >= 20)    // limit display update rate to 200ms
+				counter = 0;
+		
 		{	// sample the current RSSI level
 			// average it with the previous rssi (a bit of noise/spike immunity)
 			const int16_t new_rssi = BK4819_GetRSSI();
@@ -427,7 +431,11 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			if (gCurrentRSSI[vfo] != new_rssi)
 			{
 				gCurrentRSSI[vfo] = new_rssi;
-				gUpdateDisplay    = ((counter & 15u) == 0);  // limit the screen update rate to once every 150ms
+				if (counter == 0)
+				{
+					counter        = 1;
+					gUpdateDisplay = true;
+				}
 			}
 		}
 		
@@ -545,13 +553,21 @@ const uint8_t orig_pga       = 6;   //  -3dB
 				if (gCurrentRSSI[vfo] != new_rssi)
 				{
 					gCurrentRSSI[vfo] = new_rssi;
-					gUpdateDisplay    = ((counter & 15u) == 0);  // limit the screen update rate to once every 150ms
+					if (counter == 0)
+					{
+						counter        = 1;
+						gUpdateDisplay = true;
+					}
 				}
 			}
 		}
 
 		#ifdef ENABLE_AM_FIX_SHOW_DATA
-			gUpdateDisplay = ((counter & 15u) == 0);  // limit the screen update rate to once every 150ms
+			if (counter == 0)
+			{
+				counter        = 1;
+				gUpdateDisplay = true;
+			}
 		#endif
 	}
 
@@ -568,6 +584,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			const int16_t gain_dB    = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga];
 			if (s != NULL)
 				sprintf(s, "idx %2d %4ddB %3u", index, gain_dB, prev_rssi[vfo]);
+			counter = 1;
 		}
 
 	#endif

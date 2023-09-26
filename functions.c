@@ -125,8 +125,12 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			return;
 	
 		case FUNCTION_MONITOR:
+			gMonitor = true;
+			break;
+			
 		case FUNCTION_INCOMING:
 		case FUNCTION_RECEIVE:
+			gMonitor = false;
 			break;
 	
 		case FUNCTION_POWER_SAVE:
@@ -134,6 +138,8 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			gPowerSaveCountdownExpired = false;
 
 			gRxIdleMode = true;
+			
+			gMonitor = false;
 
 			BK4819_DisableVox();
 			BK4819_Sleep();

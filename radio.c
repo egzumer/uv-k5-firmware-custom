@@ -669,11 +669,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 					//	BK4819_SetTailDetection(670);       // 67Hz
 					//#endif
 
-					InterruptMask = 0
-						| BK4819_REG_3F_CxCSS_TAIL
-						| BK4819_REG_3F_SQUELCH_FOUND
-						| BK4819_REG_3F_SQUELCH_LOST;
-
+					InterruptMask = BK4819_REG_3F_CxCSS_TAIL | BK4819_REG_3F_SQUELCH_FOUND | BK4819_REG_3F_SQUELCH_LOST;
 					break;
 
 				case CODE_TYPE_CONTINUOUS_TONE:

@@ -21,7 +21,7 @@
 
 //static void ACTION_FlashLight(void)
 void ACTION_Power(void);
-//static void ACTION_Monitor(void)
+void ACTION_Monitor(void);
 void ACTION_Scan(bool bFlag);
 void ACTION_Vox(void);
 #ifdef ENABLE_ALARM

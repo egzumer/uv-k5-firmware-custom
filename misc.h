@@ -121,6 +121,11 @@ extern const uint16_t        dual_watch_count_toggle_10ms;
 extern const uint16_t        dual_watch_count_noaa_10ms;
 extern const uint16_t        dual_watch_count_after_vox_10ms;
 
+extern const uint16_t        scan_pause_delay_in_1_10ms;
+extern const uint16_t        scan_pause_delay_in_2_10ms;
+extern const uint16_t        scan_pause_delay_in_3_10ms;
+extern const uint16_t        scan_pause_delay_in_4_10ms;
+
 extern const uint16_t        gMax_bat_v;
 extern const uint16_t        gMin_bat_v;
 
@@ -146,6 +151,8 @@ extern bool                  gSetting_ScrambleEnable;
 #endif
 extern bool                  gSetting_live_DTMF_decoder;
 extern uint8_t               gSetting_battery_text;
+
+extern bool                  gMonitor;
 
 extern const uint32_t        gDefaultAesKey[4];
 extern uint32_t              gCustomAesKey[4];

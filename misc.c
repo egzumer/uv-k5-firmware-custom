@@ -47,6 +47,11 @@ const uint16_t    dual_watch_count_noaa_10ms       =    70 / 10;   // 70ms
 const uint16_t    dual_watch_count_after_vox_10ms  =   200 / 10;   // 200ms
 const uint16_t    dual_watch_count_toggle_10ms     =   100 / 10;   // 100ms between VFO toggles
 
+const uint16_t    scan_pause_delay_in_1_10ms       =  5000 / 10;   // 5 seconds
+const uint16_t    scan_pause_delay_in_2_10ms       =   500 / 10;   // 500ms
+const uint16_t    scan_pause_delay_in_3_10ms       =   200 / 10;   // 200ms
+const uint16_t    scan_pause_delay_in_4_10ms       =   300 / 10;   // 300ms
+
 const uint16_t    battery_save_count_10ms          = 10000 / 10;   // 10 seconds
 
 const uint16_t    power_save1_10ms                 =   100 / 10;   // 100ms
@@ -83,6 +88,8 @@ bool              gSetting_ScrambleEnable;
 #endif
 bool              gSetting_live_DTMF_decoder;
 uint8_t           gSetting_battery_text;
+
+bool              gMonitor = false;           // true opens the squelch
 
 uint32_t          gCustomAesKey[4];
 bool              bHasCustomAesKey;
