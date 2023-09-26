@@ -84,19 +84,16 @@ void FUNCTION_Init(void)
 
 void FUNCTION_Select(FUNCTION_Type_t Function)
 {
-	FUNCTION_Type_t PreviousFunction = gCurrentFunction;
-	bool            bWasPowerSave    = (PreviousFunction == FUNCTION_POWER_SAVE);
+	const FUNCTION_Type_t PreviousFunction = gCurrentFunction;
+	const bool            bWasPowerSave    = (PreviousFunction == FUNCTION_POWER_SAVE);
 
 	gCurrentFunction = Function;
 
-	if (bWasPowerSave)
+	if (bWasPowerSave && Function != FUNCTION_POWER_SAVE)
 	{
-		if (Function != FUNCTION_POWER_SAVE)
-		{
-			BK4819_Conditional_RX_TurnOn_and_GPIO6_Enable();
-			gRxIdleMode = false;
-			UI_DisplayStatus(false);
-		}
+		BK4819_Conditional_RX_TurnOn_and_GPIO6_Enable();
+		gRxIdleMode = false;
+		UI_DisplayStatus(false);
 	}
 
 	switch (Function)
@@ -130,7 +127,6 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			
 		case FUNCTION_INCOMING:
 		case FUNCTION_RECEIVE:
-//			gMonitor = false;
 			break;
 	
 		case FUNCTION_POWER_SAVE:
@@ -151,6 +147,10 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			return;
 	
 		case FUNCTION_TRANSMIT:
+
+			// if DTMF is enabled when TX'ing, it changes the TX audio filtering !! .. 1of11
+			BK4819_DisableDTMF();
+
 			#if defined(ENABLE_FMRADIO)
 				if (gFmRadioMode)
 					BK1080_Init(0, false);
@@ -160,22 +160,32 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 				if (gAlarmState == ALARM_STATE_TXALARM && gEeprom.ALARM_MODE != ALARM_MODE_TONE)
 				{
 					gAlarmState = ALARM_STATE_ALARM;
+
 					GUI_DisplayScreen();
+
 					GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+
 					SYSTEM_DelayMs(20);
 					BK4819_PlayTone(500, 0);
 					SYSTEM_DelayMs(2);
+
 					GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+
 					gEnableSpeaker = true;
+
 					SYSTEM_DelayMs(60);
 					BK4819_ExitTxMute();
+
 					gAlarmToneCounter = 0;
 					break;
 				}
 			#endif
 			
 			GUI_DisplayScreen();
+
 			RADIO_SetTxParameters();
+
+			// turn the LED on RED
 			BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, true);
 	
 			DTMF_Reply();
@@ -191,10 +201,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 					break;
 				}
 			#endif
-
-			// if the DTMF decoder is enabled, it destroys the TX audio !! .. 1of11
-			BK4819_DisableDTMF();
-			
+		
 			if (gCurrentVfo->SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
 				BK4819_EnableScramble(gCurrentVfo->SCRAMBLING_TYPE - 1);
 			else

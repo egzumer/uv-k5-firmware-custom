@@ -57,6 +57,8 @@ const uint16_t    battery_save_count_10ms          = 10000 / 10;   // 10 seconds
 const uint16_t    power_save1_10ms                 =   100 / 10;   // 100ms
 const uint16_t    power_save2_10ms                 =   200 / 10;   // 200ms
 
+const uint16_t    vox_stop_count_down_10ms         =  1000 / 10;   // 1 second
+
 const uint16_t    NOAA_countdown_10ms              =  5000 / 10;   // 5 seconds
 const uint16_t    NOAA_countdown_2_10ms            =   500 / 10;   // 500ms
 const uint16_t    NOAA_countdown_3_10ms            =   200 / 10;   // 200ms

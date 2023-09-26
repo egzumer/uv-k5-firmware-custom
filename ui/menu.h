@@ -146,6 +146,8 @@ extern const char        gSubMenu_BACKLIGHT[8][7];
 	extern const char    gSubMenu_AM_fix_test1[4][8];
 #endif
 extern const char        gSubMenu_BAT_TXT[3][8];
+
+extern const char        gSubMenu_SCRAMBLER[11][7];
 				         
 extern bool              gIsInSubMenu;
 				         

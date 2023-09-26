@@ -76,9 +76,7 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 	uint16_t ToneFrequency;
 	uint16_t Duration;
 
-	if (Beep != BEEP_500HZ_60MS_DOUBLE_BEEP &&
-	    Beep != BEEP_440HZ_500MS &&
-		!gEeprom.BEEP_CONTROL)
+	if (Beep != BEEP_500HZ_60MS_DOUBLE_BEEP && Beep != BEEP_440HZ_500MS && !gEeprom.BEEP_CONTROL)
 		return;
 
 	#ifdef ENABLE_AIRCOPY

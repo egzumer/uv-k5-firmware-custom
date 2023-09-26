@@ -291,6 +291,21 @@ const char gSubMenu_BAT_TXT[3][8] =
 	"PERCENT"
 };
 
+const char gSubMenu_SCRAMBLER[11][7] =
+{
+	"OFF",
+	"2600Hz",
+	"2700Hz",
+	"2800Hz",
+	"2900Hz",
+	"3000Hz",
+	"3100Hz",
+	"3200Hz",
+	"3300Hz",
+	"3400Hz",
+	"3500Hz"
+};
+
 bool    gIsInSubMenu;
 uint8_t gMenuCursor;
 int8_t  gMenuScrollDirection;
@@ -421,6 +436,9 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_SCR:
+			strcpy(String, gSubMenu_SCRAMBLER[gSubMenuSelection]);
+			break;
+
 		case MENU_VOX:
 			if (gSubMenuSelection == 0)
 				strcpy(String, "OFF");

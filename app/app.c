@@ -861,80 +861,79 @@ void APP_EndTransmission(void)
 	}
 
 	RADIO_SetupRegisters(false);
-
-	if (gMonitor)
-		ACTION_Monitor();   // 1of11
 }
 
 static void APP_HandleVox(void)
 {
-	if (!gSetting_KILLED)
+	if (gSetting_KILLED)
+		return;
+
+	if (gVoxResumeCountdown == 0)
 	{
-		if (gVoxResumeCountdown == 0)
-		{
-			if (gVoxPauseCountdown)
-				return;
-		}
+		if (gVoxPauseCountdown)
+			return;
+	}
+	else
+	{
+		g_VOX_Lost         = false;
+		gVoxPauseCountdown = 0;
+	}
+
+	#ifdef ENABLE_FMRADIO
+		if (gFmRadioMode)
+			return;
+	#endif
+
+	if (gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR)
+		return;
+
+	if (gScanState != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF)
+		return;
+
+	if (gVOX_NoiseDetected)
+	{
+		if (g_VOX_Lost)
+			gVoxStopCountdown_10ms = vox_stop_count_down_10ms;
 		else
-		{
-			g_VOX_Lost         = false;
-			gVoxPauseCountdown = 0;
-		}
+		if (gVoxStopCountdown_10ms == 0)
+			gVOX_NoiseDetected = false;
 
-		if (gCurrentFunction != FUNCTION_RECEIVE  &&
-		    gCurrentFunction != FUNCTION_MONITOR  &&
-		    gScanState       == SCAN_OFF          &&
-		    gCssScanMode     == CSS_SCAN_MODE_OFF
-			#ifdef ENABLE_FMRADIO
-				&& !gFmRadioMode
-			#endif
-		)
+		if (gCurrentFunction == FUNCTION_TRANSMIT && !gPttIsPressed && !gVOX_NoiseDetected)
 		{
-			if (gVOX_NoiseDetected)
+			if (gFlagEndTransmission)
 			{
-				if (g_VOX_Lost)
-					gVoxStopCountdown_10ms = 100;    // 1 sec
-				else
-				if (gVoxStopCountdown_10ms == 0)
-					gVOX_NoiseDetected = false;
-
-				if (gCurrentFunction == FUNCTION_TRANSMIT && !gPttIsPressed && !gVOX_NoiseDetected)
-				{
-					if (gFlagEndTransmission)
-					{
-						FUNCTION_Select(FUNCTION_FOREGROUND);
-					}
-					else
-					{
-						APP_EndTransmission();
-
-						if (gEeprom.REPEATER_TAIL_TONE_ELIMINATION == 0)
-							FUNCTION_Select(FUNCTION_FOREGROUND);
-						else
-							gRTTECountdown = gEeprom.REPEATER_TAIL_TONE_ELIMINATION * 10;
-					}
-
-					gUpdateDisplay       = true;
-					gFlagEndTransmission = false;
-
-					return;
-				}
+				FUNCTION_Select(FUNCTION_FOREGROUND);
 			}
 			else
-			if (g_VOX_Lost)
 			{
-				gVOX_NoiseDetected = true;
+				APP_EndTransmission();
 
-				if (gCurrentFunction == FUNCTION_POWER_SAVE)
-					FUNCTION_Select(FUNCTION_FOREGROUND);
-
-				if (gCurrentFunction != FUNCTION_TRANSMIT)
+				if (gEeprom.REPEATER_TAIL_TONE_ELIMINATION == 0)
 				{
-					gDTMF_ReplyState = DTMF_REPLY_NONE;
-					RADIO_PrepareTX();
-					gUpdateDisplay = true;
+					FUNCTION_Select(FUNCTION_FOREGROUND);
 				}
+				else
+					gRTTECountdown = gEeprom.REPEATER_TAIL_TONE_ELIMINATION * 10;
 			}
+
+			gUpdateDisplay       = true;
+			gFlagEndTransmission = false;
+		}
+		return;
+	}
+
+	if (g_VOX_Lost)
+	{
+		gVOX_NoiseDetected = true;
+
+		if (gCurrentFunction == FUNCTION_POWER_SAVE)
+			FUNCTION_Select(FUNCTION_FOREGROUND);
+
+		if (gCurrentFunction != FUNCTION_TRANSMIT)
+		{
+			gDTMF_ReplyState = DTMF_REPLY_NONE;
+			RADIO_PrepareTX();
+			gUpdateDisplay = true;
 		}
 	}
 }
@@ -1452,6 +1451,7 @@ void APP_TimeSlice10ms(void)
 			if (--gRTTECountdown == 0)
 			{
 				FUNCTION_Select(FUNCTION_FOREGROUND);
+
 				gUpdateDisplay = true;
 			}
 		}

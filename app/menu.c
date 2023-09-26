@@ -210,6 +210,10 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 			break;
 
 		case MENU_SCR:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_SCRAMBLER) - 1;
+			break;
+
 		case MENU_VOX:
 		case MENU_TOT:
 		case MENU_RP_STE:

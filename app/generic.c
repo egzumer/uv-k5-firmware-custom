@@ -132,6 +132,9 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 
 			RADIO_SetVfoState(VFO_STATE_NORMAL);
 
+			// beep when you release the PTT
+			//gBeepToPlay = BEEP_880HZ_40MS_OPTIONAL;   // 1of11
+
 			gRequestDisplayScreen = DISPLAY_MAIN;
 			return;
 		}
