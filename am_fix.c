@@ -329,7 +329,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 	void AM_fix_init(void)
 	{	// called at boot-up
 	
-/*		unsigned int i;
+		unsigned int i;
 		for (i = 0; i < 2; i++)
 		{
 			#ifdef ENABLE_AM_FIX_TEST1
@@ -338,7 +338,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 				am_fix_gain_table_index[i] = original_index;  // re-start with original QS setting
 			#endif
 		}
-*/
+
 		orig_dB_gain = lna_short_dB[orig_lna_short] + lna_dB[orig_lna] + mixer_dB[orig_mixer] + pga_dB[orig_pga];
 
 		#if 0
@@ -374,9 +374,9 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		rssi_db_gain_diff[vfo] = 0;
 
 		#ifdef ENABLE_AM_FIX_TEST1
-			am_fix_gain_table_index[vfo] = 1 + gSetting_AM_fix_test1;
+//			am_fix_gain_table_index[vfo] = 1 + gSetting_AM_fix_test1;
 		#else
-			am_fix_gain_table_index[vfo] = original_index;  // re-start with original QS setting
+//			am_fix_gain_table_index[vfo] = original_index;  // re-start with original QS setting
 		#endif
 
 		am_fix_gain_table_index_prev[vfo] = 0;

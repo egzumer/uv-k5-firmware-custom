@@ -130,7 +130,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			
 		case FUNCTION_INCOMING:
 		case FUNCTION_RECEIVE:
-			gMonitor = false;
+//			gMonitor = false;
 			break;
 	
 		case FUNCTION_POWER_SAVE:

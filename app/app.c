@@ -861,6 +861,9 @@ void APP_EndTransmission(void)
 	}
 
 	RADIO_SetupRegisters(false);
+
+	if (gMonitor)
+		ACTION_Monitor();   // 1of11
 }
 
 static void APP_HandleVox(void)
@@ -2103,7 +2106,6 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	}
 
 	if (gF_LOCK && (Key == KEY_PTT || Key == KEY_SIDE2 || Key == KEY_SIDE1))
-//	if (gF_LOCK && Key == KEY_PTT)
 		return;
 
 	if (!bFlag)
