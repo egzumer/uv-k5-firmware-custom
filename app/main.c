@@ -51,45 +51,14 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			#ifdef ENABLE_FMRADIO
 				ACTION_FM();
 			#else
-				
-			
-				// TODO: do something useful with the key
-				
-				
-				#ifdef ENABLE_COPY_CHAN_VFO
-					{	// copy channel to VFO
-						int channel = -1;
-						int vfo     = -1;
-						if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
-						{	// VFO mode
-							if (IS_MR_CHANNEL(gRxVfo->CHANNEL_SAVE))
-							{	// other vfo is in channel mode
-								channel = gRxVfo->CHANNEL_SAVE;
-								vfo     = gTxVfo->CHANNEL_SAVE;
-							}
-						}
-						else
-						if (IS_FREQ_CHANNEL((gRxVfo->CHANNEL_SAVE + 1) & 1))
-						{	// VFO mode
-							if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
-							{	// other vfo is in channel mode
-								channel = gTxVfo->CHANNEL_SAVE;
-								vfo     = gRxVfo->CHANNEL_SAVE;
-							}
-						}
-						
-						if (channel >= 0 && vfo >= 0)
-						{	// copy the channel into the VFO
-					
-							gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 
-						
-//							gRequestSaveVFO       = true;
-//							gVfoConfigureMode     = VFO_CONFIGURE_RELOAD;
-//							gRequestDisplayScreen = DISPLAY_MAIN;
-						}
-					}
-				#endif
+
+
+
+
+				// TODO: do something useful with the key
+
+
 
 
 
@@ -124,7 +93,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 			if (beep)
 				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-			
+
 			break;
 
 		case KEY_2:
@@ -148,7 +117,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 			if (beep)
 				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-			
+
 			break;
 
 		case KEY_3:
@@ -188,7 +157,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 			if (beep)
 				gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
-			
+
 			break;
 
 		case KEY_4:
@@ -201,7 +170,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 			if (beep)
 				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-		
+
 			break;
 
 		case KEY_5:
@@ -282,8 +251,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			if (bKeyPressed)
 			{
 				if (gScreenToDisplay == DISPLAY_MAIN)
-				{	// we're going to go straight to the 0-9 key function
-					// without the need of the F-key
+				{
 					if (gInputBoxIndex > 0)
 					{	// delete any inputted chars
 						gInputBoxIndex        = 0;
@@ -300,7 +268,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 		return;
 	}
-	
+
 	#ifdef ENABLE_MAIN_KEY_HOLD
 		if (bKeyPressed)
 		{	// key is pressed
@@ -310,16 +278,17 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	#else
 		if (!bKeyPressed)
 			return;
-		
+
 		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 	#endif
-	
+
 	if (!gWasFKeyPressed)
 	{	// F-key wasn't pressed
 
-		uint8_t Vfo = gEeprom.TX_CHANNEL;
+		const uint8_t Vfo = gEeprom.TX_CHANNEL;
 
 		gKeyInputCountdown = key_input_timeout_500ms;
+
 		INPUTBOX_Append(Key);
 
 		gRequestDisplayScreen = DISPLAY_MAIN;
@@ -490,7 +459,7 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 		#ifdef ENABLE_FMRADIO
 			ACTION_FM();
 		#endif
-		
+
 		return;
 	}
 
@@ -508,9 +477,78 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 	}
 }
 
-static void MAIN_Key_MENU(bool bKeyPressed, bool bKeyHeld)
+static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 {
-	if (!bKeyHeld && bKeyPressed)
+	if (bKeyHeld)
+	{	// key held down (long press)
+
+		if (bKeyPressed)
+		{
+			if (gScreenToDisplay == DISPLAY_MAIN)
+			{
+				if (gInputBoxIndex > 0)
+				{	// delete any inputted chars
+					gInputBoxIndex        = 0;
+					gRequestDisplayScreen = DISPLAY_MAIN;
+				}
+
+				gWasFKeyPressed = false;
+				gUpdateStatus   = true;
+
+
+
+				// TODO: long press M-key
+
+
+
+				#ifdef ENABLE_COPY_CHAN_TO_VFO
+				{	// copy channel to VFO
+					int channel  = -1;
+					int vfo      = -1;
+					//int selected = -1;
+
+					if (IS_FREQ_CHANNEL(gRxVfo->CHANNEL_SAVE))
+					{	// VFO mode
+						if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
+						{	// other VFO is in channel mode
+							channel = gTxVfo->CHANNEL_SAVE;
+							vfo     = gRxVfo->CHANNEL_SAVE;
+						}
+					}
+					else
+					if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
+					{	// VFO mode
+						if (IS_MR_CHANNEL(gRxVfo->CHANNEL_SAVE))
+						{	// other VFO is in channel mode
+							channel = gRxVfo->CHANNEL_SAVE;
+							vfo     = gTxVfo->CHANNEL_SAVE;
+						}
+					}
+
+					if (channel >= 0 && vfo >= 0)
+					{	// copy the channel into the VFO
+
+						gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
+
+
+						//gEeprom.RX_CHANNEL = () & 1;   // swap to the VFO
+
+
+//						gRequestSaveVFO       = true;
+//						gVfoConfigureMode     = VFO_CONFIGURE_RELOAD;
+//						gRequestDisplayScreen = DISPLAY_MAIN;
+					}
+				}
+				#endif
+
+			}
+		}
+
+		return;
+	}
+
+	if (!bKeyPressed)
 	{
 		bool bFlag;
 

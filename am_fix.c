@@ -53,8 +53,8 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			uint8_t     mixer;     // 0 ~ 3
 			uint8_t       pga;     // 0 ~ 7
 		#endif
-	} t_am_fix_gain_table;
-	//} __attribute__((packed)) t_am_fix_gain_table;
+	} t_gain_table;
+	//} __attribute__((packed)) t_gain_table;
 
 	// REG_10 AGC gain table
 	//
@@ -109,7 +109,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 	// lookup table is hugely easier than writing code to do the same
 	//
-	static const t_am_fix_gain_table am_fix_gain_table[] =
+	static const t_gain_table gain_table[] =
 	{
 		{.lna_short = 3, .lna = 2, .mixer = 3, .pga = 6},  //  0 0dB -14dB  0dB  -3dB .. -17dB original
 
@@ -126,73 +126,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 	const unsigned int original_index = 1;
 
-#elif 0
-
-		//  in this table the 'lna-short' register I leave unchanged
-
-		{3, 0, 0, 0},         //   1 .. 0dB  -24dB  -8dB -33dB .. -65dB
-		{3, 0, 1, 0},         //   2 .. 0dB  -24dB  -6dB -33dB .. -63dB
-		{3, 0, 2, 0},         //   3 .. 0dB  -24dB  -3dB -33dB .. -60dB
-		{3, 0, 0, 1},         //   4 .. 0dB  -24dB  -8dB -27dB .. -59dB
-		{3, 1, 1, 0},         //   5 .. 0dB  -19dB  -6dB -33dB .. -58dB
-		{3, 0, 1, 1},         //   6 .. 0dB  -24dB  -6dB -27dB .. -57dB
-		{3, 1, 2, 0},         //   7 .. 0dB  -19dB  -3dB -33dB .. -55dB
-		{3, 1, 0, 1},         //   8 .. 0dB  -19dB  -8dB -27dB .. -54dB
-		{3, 0, 0, 2},         //   9 .. 0dB  -24dB  -8dB -21dB .. -53dB
-		{3, 1, 1, 1},         //  10 .. 0dB  -19dB  -6dB -27dB .. -52dB
-		{3, 0, 1, 2},         //  11 .. 0dB  -24dB  -6dB -21dB .. -51dB
-		{3, 2, 2, 0},         //  12 .. 0dB  -14dB  -3dB -33dB .. -50dB
-		{3, 2, 0, 1},         //  13 .. 0dB  -14dB  -8dB -27dB .. -49dB
-		{3, 0, 2, 2},         //  14 .. 0dB  -24dB  -3dB -21dB .. -48dB
-		{3, 2, 3, 0},         //  15 .. 0dB  -14dB   0dB -33dB .. -47dB
-		{3, 1, 3, 1},         //  16 .. 0dB  -19dB   0dB -27dB .. -46dB
-		{3, 0, 3, 2},         //  17 .. 0dB  -24dB   0dB -21dB .. -45dB
-		{3, 3, 0, 1},         //  18 .. 0dB   -9dB  -8dB -27dB .. -44dB
-		{3, 1, 2, 2},         //  19 .. 0dB  -19dB  -3dB -21dB .. -43dB
-		{3, 0, 2, 3},         //  20 .. 0dB  -24dB  -3dB -15dB .. -42dB
-		{3, 0, 0, 4},         //  21 .. 0dB  -24dB  -8dB  -9dB .. -41dB
-		{3, 1, 1, 3},         //  22 .. 0dB  -19dB  -6dB -15dB .. -40dB
-		{3, 0, 1, 4},         //  23 .. 0dB  -24dB  -6dB  -9dB .. -39dB
-		{3, 0, 0, 5},         //  24 .. 0dB  -24dB  -8dB  -6dB .. -38dB
-		{3, 1, 2, 3},         //  25 .. 0dB  -19dB  -3dB -15dB .. -37dB
-		{3, 0, 2, 4},         //  26 .. 0dB  -24dB  -3dB  -9dB .. -36dB
-		{3, 4, 0, 2},         //  27 .. 0dB   -6dB  -8dB -21dB .. -35dB
-		{3, 1, 1, 4},         //  28 .. 0dB  -19dB  -6dB  -9dB .. -34dB
-		{3, 1, 0, 5},         //  29 .. 0dB  -19dB  -8dB  -6dB .. -33dB
-		{3, 3, 0, 3},         //  30 .. 0dB   -9dB  -8dB -15dB .. -32dB
-		{3, 5, 1, 2},         //  31 .. 0dB   -4dB  -6dB -21dB .. -31dB
-		{3, 1, 0, 6},         //  32 .. 0dB  -19dB  -8dB  -3dB .. -30dB
-		{3, 2, 3, 3},         //  33 .. 0dB  -14dB   0dB -15dB .. -29dB
-		{3, 1, 1, 6},         //  34 .. 0dB  -19dB  -6dB  -3dB .. -28dB
-		{3, 4, 1, 3},         //  35 .. 0dB   -6dB  -6dB -15dB .. -27dB
-		{3, 2, 2, 4},         //  36 .. 0dB  -14dB  -3dB  -9dB .. -26dB
-		{3, 1, 2, 6},         //  37 .. 0dB  -19dB  -3dB  -3dB .. -25dB
-		{3, 3, 1, 4},         //  38 .. 0dB   -9dB  -6dB  -9dB .. -24dB
-		{3, 2, 1, 6},         //  39 .. 0dB  -14dB  -6dB  -3dB .. -23dB
-		{3, 5, 2, 3},         //  40 .. 0dB   -4dB  -3dB -15dB .. -22dB
-		{3, 4, 1, 4},         //  41 .. 0dB   -6dB  -6dB  -9dB .. -21dB
-		{3, 4, 0, 5},         //  42 .. 0dB   -6dB  -8dB  -6dB .. -20dB
-		{3, 5, 1, 4},         //  43 .. 0dB   -4dB  -6dB  -9dB .. -19dB
-		{3, 3, 3, 4},         //  44 .. 0dB   -9dB   0dB  -9dB .. -18dB
-		{3, 2, 3, 6},         //  45 .. 0dB  -14dB   0dB  -3dB .. -17dB original
-		{3, 5, 1, 5},         //  46 .. 0dB   -4dB  -6dB  -6dB .. -16dB
-		{3, 3, 1, 7},         //  47 .. 0dB   -9dB  -6dB   0dB .. -15dB
-		{3, 2, 3, 7},         //  48 .. 0dB  -14dB   0dB   0dB .. -14dB
-		{3, 5, 1, 6},         //  49 .. 0dB   -4dB  -6dB  -3dB .. -13dB
-		{3, 4, 2, 6},         //  50 .. 0dB   -6dB  -3dB  -3dB .. -12dB
-		{3, 5, 2, 6},         //  51 .. 0dB   -4dB  -3dB  -3dB .. -10dB
-		{3, 4, 3, 6},         //  52 .. 0dB   -6dB   0dB  -3dB ..  -9dB
-		{3, 5, 2, 7},         //  53 .. 0dB   -4dB  -3dB   0dB ..  -7dB
-		{3, 4, 3, 7},         //  54 .. 0dB   -6dB   0dB   0dB ..  -6dB
-		{3, 5, 3, 7}          //  55 .. 0dB   -4dB   0dB   0dB ..  -4dB
-	};
-
-	const unsigned int original_index = 45;
-
 #else
-
-		// in this table I include adjusting the 'lna-short' register ~
-		// more gain adjustment range from doing so
 
 		{0, 0, 0, 0},         //   1 .. -33dB -24dB -8dB -33dB .. -98dB
 		{0, 0, 1, 0},         //   2 .. -33dB -24dB -6dB -33dB .. -96dB
@@ -296,18 +230,21 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 #endif
 
+	// the total gain for each table index
+	int8_t gain_dB[ARRAY_SIZE(gain_table)] = {0};
+	
 	unsigned int counter = 0;
 
 	int16_t orig_dB_gain = -17;
 
 	#ifdef ENABLE_AM_FIX_TEST1
-		unsigned int am_fix_gain_table_index[2] = {1 + gSetting_AM_fix_test1, 1 + gSetting_AM_fix_test1};
+		unsigned int gain_table_index[2] = {1 + gSetting_AM_fix_test1, 1 + gSetting_AM_fix_test1};
 	#else
-		unsigned int am_fix_gain_table_index[2] = {original_index, original_index};
+		unsigned int gain_table_index[2] = {original_index, original_index};
 	#endif
 
 	// used to simply detect we've changed our table index/register settings
-	unsigned int am_fix_gain_table_index_prev[2] = {0, 0};
+	unsigned int gain_table_index_prev[2] = {0, 0};
 
 	// holds the previous RSSI level
 	int16_t prev_rssi[2] = {0, 0};
@@ -319,7 +256,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 	int16_t rssi_db_gain_diff[2] = {0, 0};
 
 	// used to limit the max front end gain
-	unsigned int max_index = ARRAY_SIZE(am_fix_gain_table) - 1;
+	unsigned int max_index = ARRAY_SIZE(gain_table) - 1;
 	
 	#ifndef ENABLE_AM_FIX_TEST1
 		// -89dBm, any higher and the AM demodulator starts to saturate/clip/distort
@@ -330,35 +267,36 @@ const uint8_t orig_pga       = 6;   //  -3dB
 	{	// called at boot-up
 	
 		unsigned int i;
+
 		for (i = 0; i < 2; i++)
 		{
 			#ifdef ENABLE_AM_FIX_TEST1
-				am_fix_gain_table_index[i] = 1 + gSetting_AM_fix_test1;
+				gain_table_index[i] = 1 + gSetting_AM_fix_test1;
 			#else
-				am_fix_gain_table_index[i] = original_index;  // re-start with original QS setting
+				gain_table_index[i] = original_index;  // re-start with original QS setting
 			#endif
 		}
 
+		// pre-compute the total gain DB for each table index
+		for (i = 0; i < ARRAY_SIZE(gain_table); i++)
+		{
+			const t_gain_table gains = gain_table[i];
+			gain_dB[i] = lna_short_dB[gains.lna_short] + lna_dB[gains.lna] + mixer_dB[gains.mixer] + pga_dB[gains.pga];
+		}
+		
 		orig_dB_gain = lna_short_dB[orig_lna_short] + lna_dB[orig_lna] + mixer_dB[orig_mixer] + pga_dB[orig_pga];
 
 		#if 0
-		{	// set the maximum gain we want to use
+		{	// set a maximum gain to use
 //			const int16_t max_gain_dB = orig_dB_gain;
 			const int16_t max_gain_dB = -10;
-			max_index = ARRAY_SIZE(am_fix_gain_table);
+			max_index = ARRAY_SIZE(gain_table);
 			while (--max_index > 1)
-			{
-				const uint8_t lna_short = am_fix_gain_table[max_index].lna_short;
-				const uint8_t lna       = am_fix_gain_table[max_index].lna;
-				const uint8_t mixer     = am_fix_gain_table[max_index].mixer;
-				const uint8_t pga       = am_fix_gain_table[max_index].pga;
-				const int16_t gain_dB   = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga];
-				if (gain_dB <= max_gain_dB)
+				if (gain_dB[max_index] <= max_gain_dB)
 					break;
-			}
 		}
 		#else
-			max_index = ARRAY_SIZE(am_fix_gain_table) - 1;
+			max_index = ARRAY_SIZE(gain_table) - 1;
 		#endif
 	}
 
@@ -374,12 +312,12 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		rssi_db_gain_diff[vfo] = 0;
 
 		#ifdef ENABLE_AM_FIX_TEST1
-//			am_fix_gain_table_index[vfo] = 1 + gSetting_AM_fix_test1;
+//			gain_table_index[vfo] = 1 + gSetting_AM_fix_test1;
 		#else
-//			am_fix_gain_table_index[vfo] = original_index;  // re-start with original QS setting
+//			gain_table_index[vfo] = original_index;  // re-start with original QS setting
 		#endif
 
-		am_fix_gain_table_index_prev[vfo] = 0;
+		gain_table_index_prev[vfo] = 0;
 	}
 
 	// adjust the RX RF gain to try and prevent the AM demodulator from
@@ -415,8 +353,13 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		}
 
 		if (counter > 0)
+		{
 			if (++counter >= 20)    // limit display update rate to 200ms
-				counter = 0;
+			{
+				counter        = 0;
+				gUpdateDisplay = true;
+			}
+		}
 		
 		{	// sample the current RSSI level
 			// average it with the previous rssi (a bit of noise/spike immunity)
@@ -444,9 +387,9 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 		{		
 			int i = 1 + (int)gSetting_AM_fix_test1;
-			i = (i < 1) ? 1 : (i > ((int)ARRAY_SIZE(am_fix_gain_table) - 1) ? ARRAY_SIZE(am_fix_gain_table) - 1 : i;
+			i = (i < 1) ? 1 : (i > ((int)ARRAY_SIZE(gain_table) - 1) ? ARRAY_SIZE(gain_table) - 1 : i;
 			
-			if (am_fix_gain_table_index[vfo] == i)
+			if (gain_table_index[vfo] == i)
 				return;    // no change
 		}
 
@@ -462,38 +405,18 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		if (diff_dB > 0)
 		{	// decrease gain
 
-			unsigned int index = am_fix_gain_table_index[vfo];   // current position we're at
+			unsigned int index = gain_table_index[vfo];   // current position we're at
 
 			if (diff_dB >= 10)
 			{	// jump immediately to a new gain setting
 				// this greatly speeds up initial gain reduction (but reduces noise/spike immunity)
-
-				uint8_t lna_short  = am_fix_gain_table[index].lna_short;
-				uint8_t lna        = am_fix_gain_table[index].lna;
-				uint8_t mixer      = am_fix_gain_table[index].mixer;
-				uint8_t pga        = am_fix_gain_table[index].pga;
-
-//				const int16_t desired_gain_dB = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga] - diff_dB;
-				const int16_t desired_gain_dB = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga] - diff_dB + 8; // get no closer than 8dB (bit of noise/spike immunity)
-
+				const int16_t desired_gain_dB = (int16_t)gain_dB[index] - diff_dB + 8; // get no closer than 8dB (bit of noise/spike immunity)
 				// scan the table to see what index to jump straight too
 				while (index > 1)
-				{
-					index--;
-
-					lna_short = am_fix_gain_table[index].lna_short;
-					lna       = am_fix_gain_table[index].lna;
-					mixer     = am_fix_gain_table[index].mixer;
-					pga       = am_fix_gain_table[index].pga;
-
-					{
-						const int16_t gain_dB = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga];
-						if (gain_dB <= desired_gain_dB)
-							break;
-					}
-				}
-
-				//index = (am_fix_gain_table_index[vfo] + index) / 2;  // easy does it
+					if (gain_dB[--index] <= desired_gain_dB)
+						break;
+					
+				//index = (gain_table_index[vfo] + index) / 2;  // easy does it
 			}
 			else
 			{	// incrementally reduce the gain .. taking it slow improves noise/spike immunity
@@ -507,10 +430,10 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 			index = (index < 1) ? 1 : (index > max_index) ? max_index : index;
 			
-			if (am_fix_gain_table_index[vfo] != index)
+			if (gain_table_index[vfo] != index)
 			{
-				am_fix_gain_table_index[vfo] = index;
-				am_gain_hold_counter[vfo]    = 30;   // 300ms hold
+				gain_table_index[vfo]     = index;
+				am_gain_hold_counter[vfo] = 30;   // 300ms hold
 			}
 		}
 
@@ -519,34 +442,30 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 		if (am_gain_hold_counter[vfo] == 0)
 		{	// hold has been released, we're free to increase gain
-			const unsigned int index = am_fix_gain_table_index[vfo] + 1;
-			am_fix_gain_table_index[vfo] = (index > max_index) ? max_index : index;      // limit the gain
+			const unsigned int index = gain_table_index[vfo] + 1;
+			gain_table_index[vfo] = (index > max_index) ? max_index : index;      // limit the gain
 		}
 
-		if (am_fix_gain_table_index[vfo] == am_fix_gain_table_index_prev[vfo])
+		if (gain_table_index[vfo] == gain_table_index_prev[vfo])
 			return;     // no gain changes have been made
 
 #endif
 
 		{	// apply the new settings to the front end registers
 
-			const unsigned int index   = am_fix_gain_table_index[vfo];
+			const unsigned int index = gain_table_index[vfo];
 
-			const uint8_t lna_short = am_fix_gain_table[index].lna_short;
-			const uint8_t lna       = am_fix_gain_table[index].lna;
-			const uint8_t mixer     = am_fix_gain_table[index].mixer;
-			const uint8_t pga       = am_fix_gain_table[index].pga;
-			const int16_t gain_dB   = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga];
+			const t_gain_table gains = gain_table[index];
 
-			BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
+			BK4819_WriteRegister(BK4819_REG_13, ((uint16_t)gains.lna_short << 8) | ((uint16_t)gains.lna << 5) | ((uint16_t)gains.mixer << 3) | ((uint16_t)gains.pga << 0));
 
 			// offset the RSSI reading to the rest of the firmware to cancel out the gain adjustments we make
 
 			// gain difference from original QS setting
-			rssi_db_gain_diff[vfo] = gain_dB - orig_dB_gain;
+			rssi_db_gain_diff[vfo] = (int16_t)gain_dB[index] - orig_dB_gain;
 
 			// remember the new table index
-			am_fix_gain_table_index_prev[vfo] = index;
+			gain_table_index_prev[vfo] = index;
 			
 			{	// save the corrected RSSI level
 				const int16_t new_rssi = rssi - (rssi_db_gain_diff[vfo] * 2);
@@ -576,14 +495,11 @@ const uint8_t orig_pga       = 6;   //  -3dB
 		void AM_fix_print_data(const int vfo, char *s)
 		{
 			// fetch current register settings
-			const unsigned int index = am_fix_gain_table_index[vfo];
-			const uint8_t lna_short  = am_fix_gain_table[index].lna_short;
-			const uint8_t lna        = am_fix_gain_table[index].lna;
-			const uint8_t mixer      = am_fix_gain_table[index].mixer;
-			const uint8_t pga        = am_fix_gain_table[index].pga;
-			const int16_t gain_dB    = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga];
 			if (s != NULL)
-				sprintf(s, "idx %2d %4ddB %3u", index, gain_dB, prev_rssi[vfo]);
+			{
+				const unsigned int index = gain_table_index[vfo];
+				sprintf(s, "idx %2d %4ddB %3u", index, gain_dB[index], prev_rssi[vfo]);
+			}
 			counter = 1;
 		}
 

@@ -151,6 +151,8 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			// if DTMF is enabled when TX'ing, it changes the TX audio filtering !! .. 1of11
 			BK4819_DisableDTMF();
 
+			gDTMF_ReceivedSaved[0] = 0;
+			
 			#if defined(ENABLE_FMRADIO)
 				if (gFmRadioMode)
 					BK1080_Init(0, false);

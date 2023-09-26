@@ -36,33 +36,57 @@
 #include "ui/ui.h"
 
 #ifdef ENABLE_AUDIO_BAR
+
+	unsigned int sqrt16(unsigned int value)
+	{	// return square root of 'value'
+		unsigned int shift = 15;
+		unsigned int bit   = 1u << shift;
+		unsigned int sqrti = 0;
+		do {
+			const unsigned int temp = ((sqrti << 1) | bit) << shift--;
+			if (value >= temp)
+			{
+				value -= temp;
+				sqrti |= bit;
+			}
+		} while (bit >>= 1);
+		return sqrti;
+	}
+
 	void UI_DisplayAudioBar(void)
 	{
 		if (gSetting_mic_bar)
 		{
 			const unsigned int line = 3;
 			const unsigned int lcd_width = sizeof(gFrameBuffer[line]) - 2;
-			
+
 			#if 1
 				// TX audio level
-				
+
 				if (gCurrentFunction != FUNCTION_TRANSMIT)
 					return;
-				
-				// TODO: logify this to make the bar visible with the mostly small value
-				
-				
-				const uint16_t voice_amp = BK4819_GetVoiceAmplitudeOut();  // 15:0
-				const unsigned int max   = 32767;
-				const unsigned int level = (((uint32_t)voice_amp * lcd_width) + (max / 2)) / max; // with rounding
+
+				const unsigned int voice_amp  = BK4819_GetVoiceAmplitudeOut();  // 15:0
+
+//				const unsigned int max        = 65535;
+//				const unsigned int level      = ((voice_amp * lcd_width) + (max / 2)) / max;            // with rounding
+//				const unsigned int len        = (level <= lcd_width) ? level : lcd_width;
+
+				// make non-linear to make more sensitive at low values
+				const unsigned int level      = voice_amp * 8;
+				const unsigned int sqrt_level = sqrt16((level < 65535) ? level : 65535);
+				const unsigned int len        = (sqrt_level <= lcd_width) ? sqrt_level : lcd_width;
+
 			#else
 				// TX/RX AF input level (dB)
-				const uint8_t  af_tx_rx  = BK4819_GetAfTxRx();             //  6:0
-				const unsigned int max   = 63;
-				const unsigned int level = (((uint16_t)af_tx_rx * lcd_width) + (max / 2)) / max; // with rounding
+
+				const uint8_t      af_tx_rx   = BK4819_GetAfTxRx();             //  6:0
+				const unsigned int max        = 63;
+				const unsigned int level      = (((uint16_t)af_tx_rx * lcd_width) + (max / 2)) / max;   // with rounding
+				const unsigned int len        = (level <= lcd_width) ? level : lcd_width;
+
 			#endif
-	
-			const unsigned int len = (level <= lcd_width) ? level : lcd_width;
+
 			uint8_t *pLine = gFrameBuffer[line];
 			memset(pLine, 0, lcd_width);
 			#if 0
@@ -72,7 +96,8 @@
 				for (unsigned int i = 0; i < len; i += 2)
 					pLine[i] = 0x3e;
 			#endif
-	
+
+
 			if (gCurrentFunction == FUNCTION_TRANSMIT)
 				ST7565_BlitFullScreen();
 		}
@@ -343,7 +368,7 @@ void UI_DisplayMain(void)
 							#else
 								UI_PrintStringSmall(String, 32 + 4, 0, Line);
 							#endif
-							
+
 							// show the channel frequency below the channel number/name
 							sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
 							UI_PrintStringSmall(String, 32 + 4, 0, Line + 1);
@@ -503,7 +528,7 @@ void UI_DisplayMain(void)
 					case FUNCTION_BAND_SCOPE:
 					case FUNCTION_POWER_SAVE:
 						break;
-						
+
 					case FUNCTION_FOREGROUND:
 						break;
 
@@ -520,9 +545,10 @@ void UI_DisplayMain(void)
 		{
 			#ifdef ENABLE_AUDIO_BAR
 				UI_DisplayAudioBar();
-			
-				if (!gSetting_mic_bar)
+
+//				if (!gSetting_mic_bar)
 			#endif
+			if (gCurrentFunction != FUNCTION_TRANSMIT)
 			{
 				if (gSetting_live_DTMF_decoder && gDTMF_ReceivedSaved[0] >= 32)
 				{	// show live DTMF decode

@@ -1294,7 +1294,8 @@ void APP_CheckKeys(void)
 		    Key == KEY_SIDE1 ||
 		    Key == KEY_UP    ||
 		    Key == KEY_DOWN  ||
-		    Key == KEY_EXIT
+		    Key == KEY_EXIT  ||
+		    Key == KEY_MENU
 		    #ifdef ENABLE_MAIN_KEY_HOLD
 		        || Key <= KEY_9       // keys 0-9 can be held down to bypass pressing the F-Key
 		    #endif
@@ -2048,33 +2049,20 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		}
 	}
 
-	if (gScanState != SCAN_OFF &&
-	    Key != KEY_PTT   &&
+	if (Key != KEY_PTT   &&
 	    Key != KEY_UP    &&
 	    Key != KEY_DOWN  &&
 	    Key != KEY_EXIT  &&
 	    Key != KEY_SIDE1 &&
 	    Key != KEY_SIDE2 &&
 	    Key != KEY_STAR)
-	{	// scanning
-		if (bKeyPressed && !bKeyHeld)
-			AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
-		return;
-	}
-
-	if (gCssScanMode != CSS_SCAN_MODE_OFF &&
-	    Key != KEY_PTT   &&
-	    Key != KEY_UP    &&
-	    Key != KEY_DOWN  &&
-	    Key != KEY_EXIT  &&
-	    Key != KEY_SIDE1 &&
-	    Key != KEY_SIDE2 &&
-	    Key != KEY_STAR  &&
-	    Key != KEY_MENU)
-	{	// code scanning
-		if (bKeyPressed && !bKeyHeld)
-			AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
-		return;
+	{
+		if (gScanState != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF)
+		{	// frequency or CTCSS/DCS scanning
+			if (bKeyPressed && !bKeyHeld)
+				AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
+			return;
+		}
 	}
 
 	if (gPttWasPressed && Key == KEY_PTT)
@@ -2099,7 +2087,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		}
 	}
 
-	if (gWasFKeyPressed && Key > KEY_9 && Key != KEY_F && Key != KEY_STAR)
+	if (gWasFKeyPressed && Key > KEY_9 && Key != KEY_F && Key != KEY_STAR && Key != KEY_MENU)
 	{
 		gWasFKeyPressed = false;
 		gUpdateStatus   = true;

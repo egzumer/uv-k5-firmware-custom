@@ -47,6 +47,7 @@ ENABLE_AM_FIX                 := 1       dynamically adjust the front end gains 
 ENABLE_AM_FIX_SHOW_DATA       := 1       show debug data for the AM fix
 ENABLE_SQUELCH1_LOWER         := 0       adjusts squelch setting '1' to be more sensitive - I plan to let user adjust it in the menu
 ENABLE_AUDIO_BAR              := 0       experimental, display an audo bar level when TX'ing
+#ENABLE_COPY_CHAN_TO_VFO      := 1       not yet implemented - copy the channel into the VFO
 #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible
 #ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter
 ```
