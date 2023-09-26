@@ -362,16 +362,20 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 		{	// sample the current RSSI level, average it with the previous rssi
 			const int16_t new_rssi = BK4819_GetRSSI();
-			rssi                   = (prev_rssi[vfo] > 0) ? (prev_rssi[vfo] + new_rssi) / 2 : new_rssi;
+//			rssi                   = (prev_rssi[vfo] > 0) ? (prev_rssi[vfo] + new_rssi) / 2 : new_rssi;
+			rssi                   = (prev_rssi[vfo] > 0 && new_rssi > prev_rssi[vfo]) ? (prev_rssi[vfo] + new_rssi) / 2 : new_rssi;
 			prev_rssi[vfo]         = new_rssi;
 		}
 
 #ifdef ENABLE_AM_FIX_TEST1
-
 		// user is manually adjusting a gain register - don't do anything automatically
 
-		am_fix_gain_table_index[vfo] = 1 + gSetting_AM_fix_test1;
-
+		{
+			int i = 1 + (int)gSetting_AM_fix_test1;
+			i = (i < 1) ? 1 : (i > ((int)ARRAY_SIZE(am_fix_gain_table) - 1) ? ARRAY_SIZE(am_fix_gain_table) - 1 : i;
+			am_fix_gain_table_index[vfo] = i;
+		}
+		
 		if (am_gain_hold_counter[vfo] > 0)
 		{
 			if (--am_gain_hold_counter[vfo] > 0)
@@ -381,16 +385,15 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			}
 		}
 
-		am_gain_hold_counter[vfo] = 250;              // 250ms hold
+		am_gain_hold_counter[vfo] = 30;              // update register once every 300ms
 
 #else
+		// automatically choose a front end gain setting by monitoring the RSSI
 
 		if (am_gain_hold_counter[vfo] > 0)
 			am_gain_hold_counter[vfo]--;
 
-		// automatically choose a front end gain setting by monitoring the RSSI
-
-		// compute the dB different
+		// dB difference between actual and desired RSSI level
 		diff_dB = (rssi - desired_rssi) / 2;
 
 		if (diff_dB > 0)
@@ -398,6 +401,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 			if (diff_dB >= 12)
 			{	// jump immediately to a new gain setting
+				// this greatly speeds up initial gain reduction (but reduces noise/spike immunity)
 
 				unsigned int index     = am_fix_gain_table_index[vfo];   // current position we're at
 
@@ -407,9 +411,9 @@ const uint8_t orig_pga       = 6;   //  -3dB
 				unsigned int pga       = am_fix_gain_table[index].pga;
 
 //				const int16_t desired_gain_dB = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga] - diff_dB;
-				const int16_t desired_gain_dB = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga] - diff_dB + 6;
+				const int16_t desired_gain_dB = lna_short_dB[lna_short] + lna_dB[lna] + mixer_dB[mixer] + pga_dB[pga] - diff_dB + 6; // 6dB headroom
 
-				// scan the table to see what index to jump too
+				// scan the table to see what index to jump straight too
 				while (index > 1)
 				{
 					index--;
@@ -426,30 +430,30 @@ const uint8_t orig_pga       = 6;   //  -3dB
 					}
 				}
 
-				am_fix_gain_table_index[vfo] = index;
-				//am_fix_gain_table_index[vfo] = (am_fix_gain_table_index[vfo] + index) / 2;
+				//am_fix_gain_table_index[vfo] = (am_fix_gain_table_index[vfo] + index) / 2;  // easy does it
+				am_fix_gain_table_index[vfo] = index;                                         // noo, go now !
 			}
 			else
-			{	// incrementally reduce the gain
+			{	// incrementally reduce the gain .. taking it slow improves noise/spike immunity
 
 //				if (am_fix_gain_table_index[vfo] >= (1 + 3) && diff_dB >= 3)
 //					am_fix_gain_table_index[vfo] -= 3;  // faster gain reduction
 //				else
 				if (am_fix_gain_table_index[vfo] > 1)
-					am_fix_gain_table_index[vfo]--;     // slow gain reduction
+					am_fix_gain_table_index[vfo]--;     // slow step-by-step gain reduction
 			}
 			
-			am_gain_hold_counter[vfo] = 50;           // 500ms hold
+			am_gain_hold_counter[vfo] = 30;   // 300ms hold
 		}
 
 		else
-		if (diff_dB >= -5)                            // 5dB hysterisis (help reduce gain hunting)
-			am_gain_hold_counter[vfo] = 50;           // 500ms hold
+		if (diff_dB >= -4)                    // 4dB hysterisis (help reduce gain hunting)
+			am_gain_hold_counter[vfo] = 30;   // 300ms hold
 
 		if (am_gain_hold_counter[vfo] == 0)
 		{	// hold has been released, we're free to increase gain
 
-			if (diff_dB <= -5)                        // 5dB hysterisis (help reduce gain hunting)
+			if (diff_dB < -4)                 // 4dB hysterisis (help reduce gain hunting)
 			{	// increase gain
 
 				if (am_fix_gain_table_index[vfo] < (ARRAY_SIZE(am_fix_gain_table) - 1))
