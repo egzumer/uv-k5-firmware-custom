@@ -334,6 +334,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 //		#endif
 		if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
 		{	// user is entering frequency
+	
 			uint32_t Frequency;
 
 			if (gInputBoxIndex < 6)
@@ -349,16 +350,22 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			NUMBER_Get(gInputBox, &Frequency);
 
-//			if (Frequency < bx_start1_Hz || Frequency >= bx_stop2_Hz)
-//			{	// the BK4819 chip does not do this frequency range
-//			}
-//			else
-//			if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
-//			{	// the BK4819 chip does not do this frequency range
-//			}
-//			else
-//			if (gSetting_350EN || Frequency < 35000000 || Frequency >= 40000000)
-			if (RX_FREQUENCY_Check(Frequency) == 0)
+			if (Frequency < LowerLimitFrequencyBandTable[0])
+			{
+				Frequency = LowerLimitFrequencyBandTable[0];
+			}
+			else
+			if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
+			{	// move the frequency to the closest limit
+				const uint32_t center = (bx_stop1_Hz + bx_start2_Hz) / 2;
+				Frequency = (Frequency < center) ? bx_stop1_Hz - 10 : bx_start2_Hz;
+			}
+			else
+			if (Frequency > UpperLimitFrequencyBandTable[6])
+			{
+				Frequency = UpperLimitFrequencyBandTable[6];
+			}
+			
 			{
 				unsigned int i;
 				for (i = 0; i < 7; i++)
@@ -380,8 +387,9 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 							RADIO_ConfigureChannel(Vfo, 2);
 						}
 
-						Frequency += 75;
-
+//						Frequency += 75;                        // is this for rounding
+						Frequency += gTxVfo->StepFrequency / 2; // this is though
+						
 						gTxVfo->freq_config_RX.Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, LowerLimitFrequencyBandTable[gTxVfo->Band]);
 
 						gRequestSaveChannel = 1;

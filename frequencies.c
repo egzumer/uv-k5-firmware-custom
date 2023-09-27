@@ -21,7 +21,7 @@
 // the BK4819 has 2 bands it covers, 18MHz ~ 630MHz and 760MHz ~ 1300MHz
 
 const uint32_t bx_start1_Hz = 1800000;		// 18MHz
-const uint32_t bx_stop1_Hz  = 1800000;		// 630MHz
+const uint32_t bx_stop1_Hz  = 63000000;		// 630MHz
 
 const uint32_t bx_start2_Hz = 76000000;		// 760MHz
 const uint32_t bx_stop2_Hz  = 130000000;	// 1300MHz
@@ -189,7 +189,7 @@ int TX_FREQUENCY_Check(const uint32_t Frequency)
 
 	if (Frequency < LowerLimitFrequencyBandTable[0] || Frequency > UpperLimitFrequencyBandTable[6])
 		return -1;
-	if (Frequency >= 63000000 && Frequency < 75700000)
+	if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
 		return -1;
 
 	switch (gSetting_F_LOCK)
@@ -254,7 +254,7 @@ int RX_FREQUENCY_Check(const uint32_t Frequency)
 
 	if (Frequency < LowerLimitFrequencyBandTable[0] || Frequency > UpperLimitFrequencyBandTable[6])
 		return -1;
-	if (Frequency >= 63000000 && Frequency < 75700000)
+	if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
 		return -1;
 
 	return 0;   // OK frequency
