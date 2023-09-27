@@ -21,8 +21,11 @@
 
 #include "radio.h"
 
-extern const uint32_t bx_min_Hz;
-extern const uint32_t bx_max_Hz;
+extern const uint32_t bx_start1_Hz;
+extern const uint32_t bx_stop1_Hz;
+
+extern const uint32_t bx_start2_Hz;
+extern const uint32_t bx_stop2_Hz;
 
 enum FREQUENCY_Band_t
 {
@@ -50,7 +53,10 @@ extern const uint16_t         StepFrequencyTable[7];
 FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency);
 uint8_t          FREQUENCY_CalculateOutputPower(uint8_t TxpLow, uint8_t TxpMid, uint8_t TxpHigh, int32_t LowerLimit, int32_t Middle, int32_t UpperLimit, int32_t Frequency);
 uint32_t         FREQUENCY_FloorToStep(uint32_t Upper, uint32_t Step, uint32_t Lower);
-int              FREQUENCY_Check(VFO_Info_t *pInfo);
+
+//int            TX_FREQUENCY_Check(VFO_Info_t *pInfo);
+int              TX_FREQUENCY_Check(const uint32_t Frequency);
+int              RX_FREQUENCY_Check(const uint32_t Frequency);
 
 #endif
 

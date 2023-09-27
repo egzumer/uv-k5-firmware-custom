@@ -293,7 +293,14 @@ void UI_DisplayMain(void)
 		{
 			const char *state_list[] = {"", "BUSY", "BAT LOW", "TX DISABLE", "TIMEOUT", "ALARM", "VOLT HIGH"};
 			if (State >= 0 && State < ARRAY_SIZE(state_list))
+			{
 				UI_PrintString(state_list[State], 31, 0, Line, 8);
+			}
+			//else
+			//{
+			//	sprintf(String, "State %u ?", State);
+			//	UI_PrintString(String, 31, 0, Line, 8);
+			//}
 		}
 		else
 		if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_CHANNEL == vfo_num)

@@ -497,6 +497,8 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		gUpdateStatus    = true;
 	}
 
+	// ******************************************
+	
 	// original setting
 	uint8_t lna_short = orig_lna_short;
 	uint8_t lna       = orig_lna;
@@ -505,7 +507,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 
 	if (gRxVfo->IsAM)
 	{	// AM
-
+/*
 		#ifndef ENABLE_AM_FIX
 			const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
 
@@ -526,7 +528,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 				pga       = 7;   // 6 original, 7 increased
 			}
 		#endif
-
+*/
 		// what do these 4 other gain settings do ???
 		//BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
 		//BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
@@ -538,6 +540,8 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 
 	// apply the front end gain settings
 	BK4819_WriteRegister(BK4819_REG_13, ((uint16_t)lna_short << 8) | ((uint16_t)lna << 5) | ((uint16_t)mixer << 3) | ((uint16_t)pga << 0));
+
+	// ******************************************
 
 	// AF gain - original
 	BK4819_WriteRegister(BK4819_REG_48,
@@ -566,7 +570,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	gUpdateDisplay = true;
 }
 
-void APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
+uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
 {
 	uint32_t Frequency = pInfo->freq_config_RX.Frequency + (Step * pInfo->StepFrequency);
 
@@ -589,12 +593,12 @@ void APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
 	if (Frequency < LowerLimitFrequencyBandTable[pInfo->Band])
 		Frequency = FREQUENCY_FloorToStep(UpperLimitFrequencyBandTable[pInfo->Band], pInfo->StepFrequency, LowerLimitFrequencyBandTable[pInfo->Band]);
 
-	pInfo->freq_config_RX.Frequency = Frequency;
+	return Frequency;
 }
 
 static void FREQ_NextChannel(void)
 {
-	APP_SetFrequencyByStep(gRxVfo, gScanState);
+	gRxVfo->freq_config_RX.Frequency = APP_SetFrequencyByStep(gRxVfo, gScanState);
 
 	RADIO_ApplyOffset(gRxVfo);
 	RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
@@ -1206,6 +1210,7 @@ void APP_CheckKeys(void)
 				while (i-- > 0)
 				{
 					SYSTEM_DelayMs(1);
+	
 					if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
 					{	// PTT pressed
 						if (count > 0)

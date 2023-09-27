@@ -18,17 +18,17 @@
 #define APP_APP_H
 
 #include <stdbool.h>
+
 #include "functions.h"
 #include "radio.h"
 
-void APP_EndTransmission(void);
-void CHANNEL_Next(bool bFlag, int8_t Direction);
-void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix);
-void APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step);
-
-void APP_Update(void);
-void APP_TimeSlice10ms(void);
-void APP_TimeSlice500ms(void);
+void     APP_EndTransmission(void);
+void     CHANNEL_Next(bool bFlag, int8_t Direction);
+void     APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix);
+uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step);
+void     APP_Update(void);
+void     APP_TimeSlice10ms(void);
+void     APP_TimeSlice500ms(void);
 
 #endif
 

@@ -29,23 +29,23 @@ enum GPIOA_PINS {
 	GPIOA_PIN_KEYBOARD_6 = 12, // Shared with voice chip!
 	GPIOA_PIN_KEYBOARD_7 = 13, // Shared with voice chip!
 
-	GPIOA_PIN_I2C_SCL = 10, // Shared with keyboard!
-	GPIOA_PIN_I2C_SDA = 11, // Shared with keyboard!
+	GPIOA_PIN_I2C_SCL    = 10, // Shared with keyboard!
+	GPIOA_PIN_I2C_SDA    = 11, // Shared with keyboard!
 
-	GPIOA_PIN_VOICE_0 = 12, // Shared with keyboard!
-	GPIOA_PIN_VOICE_1 = 13, // Shared with keyboard!
+	GPIOA_PIN_VOICE_0    = 12, // Shared with keyboard!
+	GPIOA_PIN_VOICE_1    = 13  // Shared with keyboard!
 };
 
 enum GPIOB_PINS {
-	GPIOB_PIN_BACKLIGHT = 6,
+	GPIOB_PIN_BACKLIGHT  = 6,
 
-	GPIOB_PIN_ST7565_A0 = 9,
+	GPIOB_PIN_ST7565_A0  = 9,
 	GPIOB_PIN_ST7565_RES = 11, // Shared with SWD!
 
-	GPIOB_PIN_SWD_IO = 11, // Shared with ST7565!
-	GPIOB_PIN_SWD_CLK = 14,
+	GPIOB_PIN_SWD_IO     = 11, // Shared with ST7565!
+	GPIOB_PIN_SWD_CLK    = 14,
 
-	GPIOB_PIN_BK1080 = 15,
+	GPIOB_PIN_BK1080     = 15
 };
 
 enum GPIOC_PINS {
@@ -54,10 +54,8 @@ enum GPIOC_PINS {
 	GPIOC_PIN_BK4819_SDA = 2,
 
 	GPIOC_PIN_FLASHLIGHT = 3,
-
 	GPIOC_PIN_AUDIO_PATH = 4,
-
-	GPIOC_PIN_PTT = 5,
+	GPIOC_PIN_PTT        = 5
 };
 
 void GPIO_ClearBit(volatile uint32_t *pReg, uint8_t Bit);

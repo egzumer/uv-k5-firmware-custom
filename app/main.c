@@ -294,7 +294,8 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		gRequestDisplayScreen = DISPLAY_MAIN;
 
 		if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
-		{
+		{	// user is entering channel number
+	
 			uint16_t Channel;
 
 			if (gInputBoxIndex != 3)
@@ -319,17 +320,20 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			#ifdef ENABLE_VOICE
 				gAnotherVoiceID        = (VOICE_ID_t)Key;
 			#endif
+
 			gEeprom.MrChannel[Vfo]     = (uint8_t)Channel;
 			gEeprom.ScreenChannel[Vfo] = (uint8_t)Channel;
 			gRequestSaveVFO            = true;
 			gVfoConfigureMode          = VFO_CONFIGURE_RELOAD;
+
 			return;
 		}
 
-		#ifdef ENABLE_NOAA
-			if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
-		#endif
-		{
+//		#ifdef ENABLE_NOAA
+//			if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
+//		#endif
+		if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
+		{	// user is entering frequency
 			uint32_t Frequency;
 
 			if (gInputBoxIndex < 6)
@@ -337,6 +341,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				#ifdef ENABLE_VOICE
 					gAnotherVoiceID = (VOICE_ID_t)Key;
 				#endif
+
 				return;
 			}
 
@@ -344,7 +349,16 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			NUMBER_Get(gInputBox, &Frequency);
 
-			if (gSetting_350EN || Frequency < 35000000 || Frequency >= 40000000)
+//			if (Frequency < bx_start1_Hz || Frequency >= bx_stop2_Hz)
+//			{	// the BK4819 chip does not do this frequency range
+//			}
+//			else
+//			if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
+//			{	// the BK4819 chip does not do this frequency range
+//			}
+//			else
+//			if (gSetting_350EN || Frequency < 35000000 || Frequency >= 40000000)
+			if (RX_FREQUENCY_Check(Frequency) == 0)
 			{
 				unsigned int i;
 				for (i = 0; i < 7; i++)
@@ -376,10 +390,13 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				}
 
 			}
+			
 		}
 		#ifdef ENABLE_NOAA
 			else
-			{
+			if (IS_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
+			{	// user is entering NOAA channel
+		
 				uint8_t Channel;
 
 				if (gInputBoxIndex != 2)
@@ -648,7 +665,7 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 
 	if (bKeyHeld || !bKeyPressed)
 	{
-		if (gInputBoxIndex)
+		if (gInputBoxIndex > 0)
 			return;
 
 		if (!bKeyPressed)
@@ -669,11 +686,12 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 	}
 	else
 	{
-		if (gInputBoxIndex)
+		if (gInputBoxIndex > 0)
 		{
 			gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 			return;
 		}
+
 		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 	}
 
@@ -686,8 +704,17 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 			uint8_t Next;
 
 			if (IS_FREQ_CHANNEL(Channel))
-			{
-				APP_SetFrequencyByStep(gTxVfo, Direction);
+			{	// step/down in frequency
+				const uint32_t frequency = APP_SetFrequencyByStep(gTxVfo, Direction);
+
+				if (RX_FREQUENCY_Check(frequency) < 0)
+				{	// frequency not allowed
+					gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+					return;
+				}
+
+				gTxVfo->freq_config_RX.Frequency = frequency;
+				
 				gRequestSaveChannel = 1;
 				return;
 			}

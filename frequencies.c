@@ -18,8 +18,13 @@
 #include "misc.h"
 #include "settings.h"
 
-const uint32_t bx_min_Hz = 1800000;		// 18MHz
-const uint32_t bx_max_Hz = 130000000;	// 1300MHz
+// the BK4819 has 2 bands it covers, 18MHz ~ 630MHz and 760MHz ~ 1300MHz
+
+const uint32_t bx_start1_Hz = 1800000;		// 18MHz
+const uint32_t bx_stop1_Hz  = 1800000;		// 630MHz
+
+const uint32_t bx_start2_Hz = 76000000;		// 760MHz
+const uint32_t bx_stop2_Hz  = 130000000;	// 1300MHz
 
 const uint32_t LowerLimitFrequencyBandTable[7] =
 {
@@ -166,8 +171,8 @@ uint32_t FREQUENCY_FloorToStep(uint32_t Upper, uint32_t Step, uint32_t Lower)
 
 	return Lower + (Step * Index);
 }
-
-int FREQUENCY_Check(VFO_Info_t *pInfo)
+/*
+int TX_FREQUENCY_Check(VFO_Info_t *pInfo)
 {	// return '0' if TX frequency is allowed
 	// otherwise return '-1'
 	
@@ -177,6 +182,15 @@ int FREQUENCY_Check(VFO_Info_t *pInfo)
 		if (pInfo->CHANNEL_SAVE > FREQ_CHANNEL_LAST)
 			return -1;
 	#endif
+*/
+int TX_FREQUENCY_Check(const uint32_t Frequency)
+{	// return '0' if TX frequency is allowed
+	// otherwise return '-1'
+
+	if (Frequency < LowerLimitFrequencyBandTable[0] || Frequency > UpperLimitFrequencyBandTable[6])
+		return -1;
+	if (Frequency >= 63000000 && Frequency < 75700000)
+		return -1;
 
 	switch (gSetting_F_LOCK)
 	{
@@ -232,4 +246,16 @@ int FREQUENCY_Check(VFO_Info_t *pInfo)
 
 	// dis-allowed TX frequency
 	return -1;
+}
+
+int RX_FREQUENCY_Check(const uint32_t Frequency)
+{	// return '0' if RX frequency is allowed
+	// otherwise return '-1'
+
+	if (Frequency < LowerLimitFrequencyBandTable[0] || Frequency > UpperLimitFrequencyBandTable[6])
+		return -1;
+	if (Frequency >= 63000000 && Frequency < 75700000)
+		return -1;
+
+	return 0;   // OK frequency
 }
