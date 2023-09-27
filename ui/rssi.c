@@ -15,6 +15,7 @@
  */
 
 #include <string.h>
+#include <stdlib.h>  // abs()
 
 #include "bitmaps.h"
 #include "driver/st7565.h"
@@ -29,9 +30,11 @@
 #ifdef ENABLE_DBM
 
 void UI_UpdateRSSI(const int16_t rssi, const int vfo)
-{	// dBm
+{
+	// dBm
 	//
 	// this doesn't yet quite fit into the available screen space
+	// I suppose the '-' sign could be dropped
 
 	char s[8];
 	const uint8_t line = (vfo == 0) ? 3 : 7;
@@ -42,9 +45,10 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 	gVFO_RSSI[vfo]           = rssi;
 	gVFO_RSSI_bar_level[vfo] = 0;
 
-	{	// drop the '.5'
+	{	// drop the '.5' bit
 		const int16_t dBm = (rssi / 2) - 160;
 		sprintf(s, "%-3d", dBm);
+//		sprintf(s, "%3d", abs(dBm));
 	}
 	else
 		strcpy(s, "    ");
@@ -113,19 +117,19 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 	#if 0
 		//const unsigned int band = gRxVfo->Band;
 		const unsigned int band = 0;
-		const uint16_t level0  = gEEPROM_RSSI_CALIB[band][0];
-		const uint16_t level1  = gEEPROM_RSSI_CALIB[band][1];
-		const uint16_t level2  = gEEPROM_RSSI_CALIB[band][2];
-		const uint16_t level3  = gEEPROM_RSSI_CALIB[band][3];
+		const int16_t level0  = gEEPROM_RSSI_CALIB[band][0];
+		const int16_t level1  = gEEPROM_RSSI_CALIB[band][1];
+		const int16_t level2  = gEEPROM_RSSI_CALIB[band][2];
+		const int16_t level3  = gEEPROM_RSSI_CALIB[band][3];
 	#else
-		const uint16_t level0  = (-115 + 160) * 2;   // dB
-		const uint16_t level1  = ( -89 + 160) * 2;   // dB
-		const uint16_t level2  = ( -64 + 160) * 2;   // dB
-		const uint16_t level3  = ( -39 + 160) * 2;   // dB
+		const int16_t level0  = (-115 + 160) * 2;   // dB
+		const int16_t level1  = ( -89 + 160) * 2;   // dB
+		const int16_t level2  = ( -64 + 160) * 2;   // dB
+		const int16_t level3  = ( -39 + 160) * 2;   // dB
 	#endif
-	const uint16_t level01 = (level0 + level1) / 2;
-	const uint16_t level12 = (level1 + level2) / 2;
-	const uint16_t level23 = (level2 + level3) / 2;
+	const int16_t level01 = (level0 + level1) / 2;
+	const int16_t level12 = (level1 + level2) / 2;
+	const int16_t level23 = (level2 + level3) / 2;
 	
 	uint8_t Level = 0;
 

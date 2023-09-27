@@ -68,11 +68,16 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 static void updateRSSI(const int vfo)
 {
 	int16_t rssi = BK4819_GetRSSI();
+
 	#ifdef ENABLE_AM_FIX
-		// with compensation
+		// add RF gain adjust compensation
 		if (gEeprom.VfoInfo[vfo].IsAM && gSetting_AM_fix)
-			rssi -= rssi_db_gain_diff[vfo] * 2;
+			rssi -= rssi_gain_diff[vfo];
 	#endif
+	
+	if (gCurrentRSSI[vfo] == rssi)
+		return;     // no change
+	
 	gCurrentRSSI[vfo] = rssi;
 
 	UI_UpdateRSSI(rssi, vfo);
@@ -1336,7 +1341,7 @@ void APP_TimeSlice10ms(void)
 
 	#ifdef ENABLE_AM_FIX
 		if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].IsAM && gSetting_AM_fix)
-			AM_fix_adjust_frontEnd_10ms(gEeprom.RX_CHANNEL);
+			AM_fix_10ms(gEeprom.RX_CHANNEL);
 	#endif
 
 	if (UART_IsCommandAvailable())

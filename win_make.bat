@@ -14,13 +14,13 @@
 ::
 :: 4. You may (or may not) need to reboot windows after installing the above
 :: 
-:: You can then run this bat from the directory you saved this source code too.
+:: You can then run this bat from the directory you saved the firmware source code too.
 
 
 
 
 
-:: Delete any left over files from any previous compile
+:: Delete any left over files from previous compile
 ::
 del /S /Q *.o >nul 2>nul
 del /S /Q *.d >nul 2>nul
@@ -29,13 +29,15 @@ del /Q *.bin >nul 2>nul
 
 :: You may need to edit/change these three paths to suit your setup
 ::
+:: Temporarily add the compiler and make program directories to the system PATH ..
+::
 @set PATH="C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2021.10\bin";%PATH%
 @set PATH="C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2021.10\arm-none-eabi\bin";%PATH%
 @set PATH="C:\Program Files (x86)\GnuWin32\bin\";%PATH%
 
 :: Do the compile
 ::
-::"C:\Program Files (x86)\GnuWin32\bin\make"
+make clean
 make
 
 :: Delete the spent files
@@ -58,7 +60,7 @@ del /Q firmware >nul 2>nul
 
 
 
-:: These two lines just install the required initial python module if you want to create the packed
+:: One of these two lines simply install the required python module if you want to create the packed
 :: firmware bin file, either only needs running once, ever.
 ::
 ::python  -m pip install --upgrade pip crcmod
