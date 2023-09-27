@@ -25,6 +25,7 @@
 #include "app/main.h"
 #include "app/scanner.h"
 #include "audio.h"
+#include "driver/bk4819.h"
 #include "dtmf.h"
 #include "frequencies.h"
 #include "misc.h"
@@ -32,13 +33,6 @@
 #include "settings.h"
 #include "ui/inputbox.h"
 #include "ui/ui.h"
-
-// TEST ONLY
-#include "driver/bk4819.h"
-
-//#ifndef ARRAY_SIZE
-//	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
-//#endif
 
 static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 {

@@ -7,9 +7,9 @@ ENABLE_SWD                    := 0
 ENABLE_OVERLAY                := 1
 ENABLE_UART                   := 1
 ENABLE_AIRCOPY                := 0
-ENABLE_FMRADIO                := 0
+ENABLE_FMRADIO                := 1
 ENABLE_NOAA                   := 0
-ENABLE_VOICE                  := 0
+ENABLE_VOICE                  := 1
 ENABLE_ALARM                  := 0
 ENABLE_BIG_FREQ               := 0
 ENABLE_SMALL_BOLD             := 1
@@ -20,14 +20,14 @@ ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1
 ENABLE_MAIN_KEY_HOLD          := 1
 ENABLE_BOOT_BEEPS             := 0
 ENABLE_COMPANDER              := 1
-ENABLE_SHOW_CHARGE_LEVEL      := 1
+ENABLE_SHOW_CHARGE_LEVEL      := 0
 ENABLE_REVERSE_BAT_SYMBOL     := 1
 ENABLE_NO_SCAN_TIMEOUT        := 1
 ENABLE_AM_FIX                 := 1
 ENABLE_AM_FIX_SHOW_DATA       := 1
 ENABLE_SQUELCH1_LOWER         := 0
 ENABLE_AUDIO_BAR              := 0
-ENABLE_COPY_CHAN_TO_VFO       := 1
+#ENABLE_COPY_CHAN_TO_VFO      := 1
 #ENABLE_SINGLE_VFO_CHAN       := 1
 #ENABLE_BAND_SCOPE            := 1
 
@@ -142,7 +142,7 @@ SIZE = arm-none-eabi-size
 GIT_HASH := $(shell git rev-parse --short HEAD)
 #GIT_HASH := 230925b
 
-$(info GIT_HASH = $(GIT_HASH)) 
+$(info GIT_HASH = $(GIT_HASH))
 
 ASFLAGS = -c -mcpu=cortex-m0
 ifeq ($(ENABLE_OVERLAY),1)

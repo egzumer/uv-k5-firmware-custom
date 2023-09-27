@@ -320,7 +320,7 @@ void MENU_AcceptSetting(void)
 			if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
 			{
 				gTxVfo->STEP_SETTING = gSubMenuSelection;
-				gRequestSaveChannel  = 2;
+				gRequestSaveChannel  = 1;
 				return;
 			}
 			gSubMenuSelection = gTxVfo->STEP_SETTING;
@@ -328,7 +328,7 @@ void MENU_AcceptSetting(void)
 
 		case MENU_TXP:
 			gTxVfo->OUTPUT_POWER = gSubMenuSelection;
-			gRequestSaveChannel = 2;
+			gRequestSaveChannel = 1;
 			return;
 
 		case MENU_T_DCS:
@@ -400,17 +400,17 @@ void MENU_AcceptSetting(void)
 
 		case MENU_W_N:
 			gTxVfo->CHANNEL_BANDWIDTH = gSubMenuSelection;
-			gRequestSaveChannel       = 2;
+			gRequestSaveChannel       = 1;
 			return;
 
 		case MENU_SCR:
 			gTxVfo->SCRAMBLING_TYPE = gSubMenuSelection;
-			gRequestSaveChannel     = 2;
+			gRequestSaveChannel     = 1;
 			return;
 
 		case MENU_BCL:
 			gTxVfo->BUSY_CHANNEL_LOCK = gSubMenuSelection;
-			gRequestSaveChannel       = 2;
+			gRequestSaveChannel       = 1;
 			return;
 
 		case MENU_MEM_CH:
@@ -541,7 +541,7 @@ void MENU_AcceptSetting(void)
 		#ifdef ENABLE_COMPANDER
 			case MENU_COMPAND:
 				gTxVfo->Compander = gSubMenuSelection;
-				gRequestSaveChannel = 2;
+				gRequestSaveChannel = 1;
 				return;
 		#endif
 
@@ -621,7 +621,7 @@ void MENU_AcceptSetting(void)
 
 		case MENU_AM:
 			gTxVfo->AM_CHANNEL_MODE = gSubMenuSelection;
-			gRequestSaveChannel     = 2;
+			gRequestSaveChannel     = 1;
 			return;
 
 		#ifdef ENABLE_AM_FIX
