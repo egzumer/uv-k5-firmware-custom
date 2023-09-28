@@ -71,7 +71,7 @@ static void updateRSSI(const int vfo)
 
 	#ifdef ENABLE_AM_FIX
 		// add RF gain adjust compensation
-		if (gEeprom.VfoInfo[vfo].IsAM && gSetting_AM_fix)
+		if (gEeprom.VfoInfo[vfo].AM_mode && gSetting_AM_fix)
 			rssi -= rssi_gain_diff[vfo];
 	#endif
 	
@@ -433,7 +433,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	#endif
 
 	#ifdef ENABLE_AM_FIX
-		if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].IsAM && reset_am_fix)
+		if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && reset_am_fix)
 			AM_fix_reset(gEeprom.RX_CHANNEL);      // TODO: only reset it when moving channel/frequency
 	#endif
 
@@ -505,7 +505,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	uint8_t mixer     = orig_mixer;
 	uint8_t pga       = orig_pga;
 
-	if (gRxVfo->IsAM)
+	if (gRxVfo->AM_mode)
 	{	// AM
 /*
 		#ifndef ENABLE_AM_FIX
@@ -553,7 +553,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	#ifdef ENABLE_VOICE
 		if (gVoiceWriteIndex == 0)
 	#endif
-			BK4819_SetAF(gRxVfo->IsAM ? BK4819_AF_AM : BK4819_AF_OPEN);
+			BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_OPEN);
 
 	FUNCTION_Select(Function);
 
@@ -1351,7 +1351,7 @@ void APP_TimeSlice10ms(void)
 	#endif
 
 	#ifdef ENABLE_AM_FIX
-		if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].IsAM && gSetting_AM_fix)
+		if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
 			AM_fix_10ms(gEeprom.RX_CHANNEL);
 	#endif
 

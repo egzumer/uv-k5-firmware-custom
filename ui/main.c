@@ -467,7 +467,7 @@ void UI_DisplayMain(void)
 		// ************
 
 		String[0] = '\0';
-		if (gEeprom.VfoInfo[vfo_num].IsAM)
+		if (gEeprom.VfoInfo[vfo_num].AM_mode)
 		{	// show the AM symbol
 			strcpy(String, "AM");
 		}
@@ -526,7 +526,7 @@ void UI_DisplayMain(void)
 	{	// we're free to use the middle empty line for something
 
 		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
-			if (gSetting_AM_fix && gEeprom.VfoInfo[gEeprom.RX_CHANNEL].IsAM)
+			if (gSetting_AM_fix && gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode)
 			{
 				switch (gCurrentFunction)
 				{

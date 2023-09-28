@@ -625,8 +625,8 @@ void MENU_AcceptSetting(void)
 			break;
 
 		case MENU_AM:
-			gTxVfo->AM_CHANNEL_MODE = gSubMenuSelection;
-			gRequestSaveChannel     = 1;
+			gTxVfo->AM_mode     = gSubMenuSelection;
+			gRequestSaveChannel = 1;
 			return;
 
 		#ifdef ENABLE_AM_FIX
@@ -1013,7 +1013,7 @@ void MENU_ShowCurrentSetting(void)
 			break;
 
 		case MENU_AM:
-			gSubMenuSelection = gTxVfo->AM_CHANNEL_MODE;
+			gSubMenuSelection = gTxVfo->AM_mode;
 			break;
 
 		#ifdef ENABLE_AM_FIX
@@ -1459,9 +1459,9 @@ static void MENU_Key_STAR(const bool bKeyPressed, const bool bKeyHeld)
 	RADIO_SelectVfos();
 
 	#ifdef ENABLE_NOAA
-		if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && !gRxVfo->IsAM)
+		if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gRxVfo->AM_mode == 0)
 	#else
-		if (!gRxVfo->IsAM)
+		if (gRxVfo->AM_mode == 0)
 	#endif
 	{
 		if (gMenuCursor == MENU_R_CTCS || gMenuCursor == MENU_R_DCS)

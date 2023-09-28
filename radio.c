@@ -33,6 +33,7 @@
 #include "misc.h"
 #include "radio.h"
 #include "settings.h"
+#include "ui/menu.h"
 
 VFO_Info_t    *gTxVfo;
 VFO_Info_t    *gRxVfo;
@@ -135,10 +136,7 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, uint8_t ChannelSave, uint8_t Band, uint32
 	#endif
 
 	if (ChannelSave == (FREQ_CHANNEL_FIRST + BAND2_108MHz))
-	{
-		pInfo->AM_CHANNEL_MODE = true;
-		pInfo->IsAM            = true;
-	}
+		pInfo->AM_mode = 1;
 
 	RADIO_ConfigureSquelchAndOutputPower(pInfo);
 }
@@ -220,8 +218,8 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 	Band = Attributes & MR_CH_BAND_MASK;
 	if (Band > BAND7_470MHz)
 	{
-//		Band = BAND6_400MHz;
-		Band = FREQUENCY_GetBand(gEeprom.ScreenChannel[VFO]);   // 111 bug fix, or have I broke it ?
+		Band = BAND6_400MHz;
+//		Band = FREQUENCY_GetBand(gEeprom.ScreenChannel[VFO]);   // 1of11 bug fix, or have I broke it ?
 	}
 
 	if (IS_MR_CHANNEL(Channel))
@@ -251,13 +249,15 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		uint8_t Tmp;
 		uint8_t Data[8];
 
+		// ***************
+
 		EEPROM_ReadBuffer(Base + 8, Data, sizeof(Data));
 
 		Tmp = Data[3] & 0x0F;
-		if (Tmp > 2)
+		if (Tmp > TX_OFFSET_FREQUENCY_DIRECTION_SUB)
 			Tmp = 0;
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY_DIRECTION = Tmp;
-		gEeprom.VfoInfo[VFO].AM_CHANNEL_MODE               = !!(Data[3] & 0x10);
+		gEeprom.VfoInfo[VFO].AM_mode = (Data[3] >> 4) & 1u;
 
 		Tmp = Data[6];
 		if (Tmp >= ARRAY_SIZE(StepFrequencyTable))
@@ -266,7 +266,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		gEeprom.VfoInfo[VFO].StepFrequency = StepFrequencyTable[Tmp];
 
 		Tmp = Data[7];
-		if (Tmp > 10)
+		if (Tmp > (ARRAY_SIZE(gSubMenu_SCRAMBLER) - 1))
 			Tmp = 0;
 		gEeprom.VfoInfo[VFO].SCRAMBLING_TYPE = Tmp;
 
@@ -283,13 +283,13 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 				break;
 
 			case CODE_TYPE_CONTINUOUS_TONE:
-				if (Tmp >= 50)
+				if (Tmp > (ARRAY_SIZE(CTCSS_Options) - 1))
 					Tmp = 0;
 				break;
 
 			case CODE_TYPE_DIGITAL:
 			case CODE_TYPE_REVERSE_DIGITAL:
-				if (Tmp >= 104)
+				if (Tmp > (ARRAY_SIZE(DCS_Options) - 1))
 					Tmp = 0;
 				break;
 		}
@@ -305,13 +305,13 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 				break;
 
 			case CODE_TYPE_CONTINUOUS_TONE:
-				if (Tmp >= 50)
+				if (Tmp > (ARRAY_SIZE(CTCSS_Options) - 1))
 					Tmp = 0;
 				break;
 
 			case CODE_TYPE_DIGITAL:
 			case CODE_TYPE_REVERSE_DIGITAL:
-				if (Tmp >= 104)
+				if (Tmp > (ARRAY_SIZE(DCS_Options) - 1))
 					Tmp = 0;
 				break;
 		}
@@ -344,6 +344,8 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 			gEeprom.VfoInfo[VFO].DTMF_PTT_ID_TX_MODE  =   ((Data[5] >> 1) & 3u);
 		}
 
+		// ***************
+		
 		struct
 		{
 			uint32_t Frequency;
@@ -357,6 +359,8 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		if (Info.Offset >= 100000000)
 			Info.Offset = 1000000;
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY = Info.Offset;
+
+		// ***************
 	}
 
 	Frequency = pRadio->freq_config_RX.Frequency;
@@ -410,16 +414,13 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 			pConfig->Frequency = 43300000;
 	}
 
-	if (gEeprom.VfoInfo[VFO].AM_CHANNEL_MODE)
-	{
-		gEeprom.VfoInfo[VFO].IsAM                 = true;
-		gEeprom.VfoInfo[VFO].SCRAMBLING_TYPE      = 0;
-		gEeprom.VfoInfo[VFO].DTMF_DECODING_ENABLE = false;
-		gEeprom.VfoInfo[VFO].freq_config_RX.CodeType    = CODE_TYPE_OFF;
-		gEeprom.VfoInfo[VFO].freq_config_TX.CodeType    = CODE_TYPE_OFF;
+	if (gEeprom.VfoInfo[VFO].AM_mode)
+	{	// freq/chan is in AM mode
+		gEeprom.VfoInfo[VFO].SCRAMBLING_TYPE         = 0;
+		gEeprom.VfoInfo[VFO].DTMF_DECODING_ENABLE    = false;  // no reason to disable DTMF decoding, aircraft use DTMF on SSB
+		gEeprom.VfoInfo[VFO].freq_config_RX.CodeType = CODE_TYPE_OFF;
+		gEeprom.VfoInfo[VFO].freq_config_TX.CodeType = CODE_TYPE_OFF;
 	}
-	else
-		gEeprom.VfoInfo[VFO].IsAM = false;
 
 	#ifdef ENABLE_COMPANDER
 		gEeprom.VfoInfo[VFO].Compander = (Attributes & MR_CH_COMPAND) >> 4;
@@ -591,7 +592,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
 			#ifdef ENABLE_AM_FIX
-//				BK4819_SetFilterBandwidth(Bandwidth, gRxVfo->IsAM && gSetting_AM_fix);
+//				BK4819_SetFilterBandwidth(Bandwidth, gRxVfo->AM_mode && gSetting_AM_fix);
 				BK4819_SetFilterBandwidth(Bandwidth, false);
 			#else
 				BK4819_SetFilterBandwidth(Bandwidth, false);
@@ -647,7 +648,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 		if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
 	#endif
 	{
-		if (!gRxVfo->IsAM)
+		if (gRxVfo->AM_mode == 0)
 		{
 			uint8_t CodeType = gSelectedCodeType;
 			uint8_t Code     = gSelectedCode;
@@ -722,15 +723,15 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 	#ifdef ENABLE_NOAA
 		#ifdef ENABLE_FMRADIO
-			if (gEeprom.VOX_SWITCH && !gFmRadioMode && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && !gCurrentVfo->IsAM)
+			if (gEeprom.VOX_SWITCH && !gFmRadioMode && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
 		#else
-			if (gEeprom.VOX_SWITCH && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && !gCurrentVfo->IsAM)
+			if (gEeprom.VOX_SWITCH && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
 		#endif
 	#else
 		#ifdef ENABLE_FMRADIO
-			if (gEeprom.VOX_SWITCH && !gFmRadioMode && !gCurrentVfo->IsAM)
+			if (gEeprom.VOX_SWITCH && !gFmRadioMode && gCurrentVfo->AM_mode == 0)
 		#else
-			if (gEeprom.VOX_SWITCH && !gCurrentVfo->IsAM)
+			if (gEeprom.VOX_SWITCH && gCurrentVfo->AM_mode == 0)
 		#endif
 	#endif
 	{
@@ -742,13 +743,13 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 	#ifdef ENABLE_COMPANDER
 		// RX expander
-		BK4819_SetCompander((!gRxVfo->IsAM && gRxVfo->Compander >= 2) ? gRxVfo->Compander : 0);
+		BK4819_SetCompander((gRxVfo->AM_mode == 0 && gRxVfo->Compander >= 2) ? gRxVfo->Compander : 0);
 	#endif
 
 	#if 0
 		// there's no reason the DTMF decoder can't be used in AM RX mode too
 		// aircraft comms use it on HF (AM and SSB)
-		if (gRxVfo->IsAM || (!gRxVfo->DTMF_DECODING_ENABLE && !gSetting_KILLED))
+		if (gRxVfo->AM_mode || (!gRxVfo->DTMF_DECODING_ENABLE && !gSetting_KILLED))
 		{
 			BK4819_DisableDTMF();
 		}
@@ -841,7 +842,7 @@ void RADIO_SetTxParameters(void)
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
 			#ifdef ENABLE_AM_FIX
-//				BK4819_SetFilterBandwidth(Bandwidth, gCurrentVfo->IsAM && gSetting_AM_fix);
+//				BK4819_SetFilterBandwidth(Bandwidth, gCurrentVfo->AM_mode && gSetting_AM_fix);
 				BK4819_SetFilterBandwidth(Bandwidth, false);
 			#else
 				BK4819_SetFilterBandwidth(Bandwidth, false);
@@ -853,7 +854,7 @@ void RADIO_SetTxParameters(void)
 
 	#ifdef ENABLE_COMPANDER
 		// TX compressor
-		BK4819_SetCompander((!gRxVfo->IsAM && (gRxVfo->Compander == 1 || gRxVfo->Compander >= 3)) ? gRxVfo->Compander : 0);
+		BK4819_SetCompander((gRxVfo->AM_mode == 0 && (gRxVfo->Compander == 1 || gRxVfo->Compander >= 3)) ? gRxVfo->Compander : 0);
 	#endif
 
 	BK4819_PrepareTransmit();
@@ -953,7 +954,7 @@ void RADIO_PrepareTX(void)
 	#endif
 	{
 		#ifndef ENABLE_TX_WHEN_AM
-			if (gCurrentVfo->IsAM)
+			if (gCurrentVfo->AM_mode)
 			{	// not allowed to TX if in AM mode
 				State = VFO_STATE_TX_DISABLE;
 			}

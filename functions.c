@@ -46,7 +46,7 @@ void FUNCTION_Init(void)
 	{
 		gCurrentCodeType = gSelectedCodeType;
 		if (gCssScanMode == CSS_SCAN_MODE_OFF)
-			gCurrentCodeType = gRxVfo->IsAM ? CODE_TYPE_OFF : gRxVfo->pRX->CodeType;
+			gCurrentCodeType = gRxVfo->AM_mode ? CODE_TYPE_OFF : gRxVfo->pRX->CodeType;
 	}
 	#ifdef ENABLE_NOAA
 		else
