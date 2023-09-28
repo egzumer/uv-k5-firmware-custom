@@ -351,9 +351,9 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			}
 			else
 			if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
-			{	// move the frequency to the closest limit
+			{
 				const uint32_t center = (bx_stop1_Hz + bx_start2_Hz) / 2;
-				Frequency = (Frequency < center) ? bx_stop1_Hz - 10 : bx_start2_Hz;
+				Frequency = (Frequency < center) ? bx_stop1_Hz : bx_start2_Hz;
 			}
 			else
 			if (Frequency > UpperLimitFrequencyBandTable[6])
@@ -362,46 +362,38 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			}
 			
 			{
-				unsigned int i;
-				for (i = 0; i < 7; i++)
+				const FREQUENCY_Band_t band = FREQUENCY_GetBand(Frequency);
+
+				#ifdef ENABLE_VOICE
+					gAnotherVoiceID = (VOICE_ID_t)Key;
+				#endif
+
+				if (gTxVfo->Band != band)
 				{
-					if (Frequency >= LowerLimitFrequencyBandTable[i] && Frequency <= UpperLimitFrequencyBandTable[i])
-					{
-						#ifdef ENABLE_VOICE
-							gAnotherVoiceID = (VOICE_ID_t)Key;
-						#endif
-
-						if (gTxVfo->Band != i)
-						{
-							gTxVfo->Band               = i;
-							gEeprom.ScreenChannel[Vfo] = i + FREQ_CHANNEL_FIRST;
-							gEeprom.FreqChannel[Vfo]   = i + FREQ_CHANNEL_FIRST;
-
-							SETTINGS_SaveVfoIndices();
-
-							RADIO_ConfigureChannel(Vfo, 2);
-						}
-
-//						Frequency += 75;                        // is this for rounding
-						Frequency += gTxVfo->StepFrequency / 2; // this is though
-						
-						Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, LowerLimitFrequencyBandTable[gTxVfo->Band]);
-
-						// clamp the frequency entered to some valid value
-
-						if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
-						{	// use the step size to properly limit the frequency
-							const uint32_t center = (bx_stop1_Hz + bx_start2_Hz) / 2;
-							Frequency = (Frequency < center) ? bx_stop1_Hz - gTxVfo->StepFrequency : bx_start2_Hz;
-						}
-
-						gTxVfo->freq_config_RX.Frequency = Frequency;
-						
-						gRequestSaveChannel = 1;
-						return;
-					}
+					gTxVfo->Band               = band;
+					gEeprom.ScreenChannel[Vfo] = band + FREQ_CHANNEL_FIRST;
+					gEeprom.FreqChannel[Vfo]   = band + FREQ_CHANNEL_FIRST;
+	
+					SETTINGS_SaveVfoIndices();
+	
+					RADIO_ConfigureChannel(Vfo, 2);
 				}
-
+	
+//				Frequency += 75;                        // is this meant to be rounding to step size?
+				Frequency += gTxVfo->StepFrequency / 2; // no idea, but this is
+				
+				Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, LowerLimitFrequencyBandTable[gTxVfo->Band]);
+	
+				if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
+				{	// clamp the frequency to the limit
+					const uint32_t center = (bx_stop1_Hz + bx_start2_Hz) / 2;
+					Frequency = (Frequency < center) ? bx_stop1_Hz - gTxVfo->StepFrequency : bx_start2_Hz;
+				}
+	
+				gTxVfo->freq_config_RX.Frequency = Frequency;
+				
+				gRequestSaveChannel = 1;
+				return;
 			}
 			
 		}

@@ -29,7 +29,8 @@ extern const uint32_t bx_stop2_Hz;
 
 enum FREQUENCY_Band_t
 {
-	BAND1_50MHz = 0,
+	BAND1_NONE  = -1,
+	BAND1_50MHz =  0,
 	BAND2_108MHz,
 	BAND3_136MHz,
 	BAND4_174MHz,
