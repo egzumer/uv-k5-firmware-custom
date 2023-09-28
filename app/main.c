@@ -182,7 +182,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				{
 					gTxVfo->SCANLIST1_PARTICIPATION = gTxVfo->SCANLIST1_PARTICIPATION ? 0 : 1;
 					SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
-					gVfoConfigureMode = VFO_CONFIGURE_1;
+					gVfoConfigureMode = VFO_CONFIGURE;
 					gFlagResetVfos    = true;
 				}
 			#endif

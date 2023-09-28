@@ -2305,8 +2305,8 @@ Skip:
 		{
 			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_CHANNEL, gTxVfo, gRequestSaveChannel);
 			if (gScreenToDisplay != DISPLAY_SCANNER)
-				if (gVfoConfigureMode == VFO_CONFIGURE_0)
-					gVfoConfigureMode = VFO_CONFIGURE_1;
+				if (gVfoConfigureMode == VFO_CONFIGURE_NONE)
+					gVfoConfigureMode = VFO_CONFIGURE;
 		}
 		else
 		{
@@ -2318,7 +2318,7 @@ Skip:
 		gRequestSaveChannel = 0;
 	}
 
-	if (gVfoConfigureMode != VFO_CONFIGURE_0)
+	if (gVfoConfigureMode != VFO_CONFIGURE_NONE)
 	{
 		if (gFlagResetVfos)
 		{
@@ -2332,7 +2332,7 @@ Skip:
 			gRequestDisplayScreen = DISPLAY_MAIN;
 
 		gFlagReconfigureVfos = true;
-		gVfoConfigureMode    = VFO_CONFIGURE_0;
+		gVfoConfigureMode    = VFO_CONFIGURE_NONE;
 		gFlagResetVfos       = false;
 	}
 
