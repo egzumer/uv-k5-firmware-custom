@@ -370,7 +370,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	
 					SETTINGS_SaveVfoIndices();
 	
-					RADIO_ConfigureChannel(Vfo, 2);
+					RADIO_ConfigureChannel(Vfo, VFO_CONFIGURE_RELOAD);
 				}
 	
 //				Frequency += 75;                        // is this meant to be rounding ?

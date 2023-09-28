@@ -236,8 +236,8 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 			}
 			else
 			{
-				RADIO_ConfigureChannel(0, 2);
-				RADIO_ConfigureChannel(1, 2);
+				RADIO_ConfigureChannel(0, VFO_CONFIGURE_RELOAD);
+				RADIO_ConfigureChannel(1, VFO_CONFIGURE_RELOAD);
 
 				gTxVfo->freq_config_RX.CodeType = gScanCssResultType;
 				gTxVfo->freq_config_RX.Code     = gScanCssResultCode;
@@ -427,7 +427,8 @@ void SCANNER_Stop(void)
 		{
 			gEeprom.MrChannel[gEeprom.RX_CHANNEL]     = gRestoreMrChannel;
 			gEeprom.ScreenChannel[gEeprom.RX_CHANNEL] = Previous;
-			RADIO_ConfigureChannel(gEeprom.RX_CHANNEL, 2);
+
+			RADIO_ConfigureChannel(gEeprom.RX_CHANNEL, VFO_CONFIGURE_RELOAD);
 		}
 		else
 		{

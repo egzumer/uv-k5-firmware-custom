@@ -660,7 +660,7 @@ static void MR_NextChannel(void)
 		gEeprom.MrChannel[gEeprom.RX_CHANNEL]     = gNextMrChannel;
 		gEeprom.ScreenChannel[gEeprom.RX_CHANNEL] = gNextMrChannel;
 
-		RADIO_ConfigureChannel(gEeprom.RX_CHANNEL, 2);
+		RADIO_ConfigureChannel(gEeprom.RX_CHANNEL, VFO_CONFIGURE_RELOAD);
 		RADIO_SetupRegisters(true);
 
 		gUpdateDisplay = true;
@@ -1731,8 +1731,8 @@ void APP_TimeSlice500ms(void)
 						{
 							BK4819_StopScan();
 
-							RADIO_ConfigureChannel(0, 2);
-							RADIO_ConfigureChannel(1, 2);
+							RADIO_ConfigureChannel(0, VFO_CONFIGURE_RELOAD);
+							RADIO_ConfigureChannel(1, VFO_CONFIGURE_RELOAD);
 
 							RADIO_SetupRegisters(true);
 						}
@@ -2009,7 +2009,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		{
 			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_CHANNEL, gTxVfo, gFlagSaveChannel);
 			gFlagSaveChannel = false;
-			RADIO_ConfigureChannel(gEeprom.TX_CHANNEL, 1);
+			RADIO_ConfigureChannel(gEeprom.TX_CHANNEL, VFO_CONFIGURE);
 			RADIO_SetupRegisters(true);
 			GUI_SelectNextDisplay(DISPLAY_MAIN);
 		}

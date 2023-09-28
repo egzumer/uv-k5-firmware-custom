@@ -143,7 +143,7 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, uint8_t ChannelSave, uint8_t Band, uint32
 	RADIO_ConfigureSquelchAndOutputPower(pInfo);
 }
 
-void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
+void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure)
 {
 	uint8_t     Channel;
 	uint8_t     Attributes;
@@ -246,7 +246,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 	else
 		Base = 0x0C80 + ((Channel - FREQ_CHANNEL_FIRST) * 32) + (VFO * 16);
 
-	if (Arg == VFO_CONFIGURE_RELOAD || Channel >= FREQ_CHANNEL_FIRST)
+	if (configure == VFO_CONFIGURE_RELOAD || Channel >= FREQ_CHANNEL_FIRST)
 	{
 		uint8_t Tmp;
 		uint8_t Data[8];

@@ -85,8 +85,8 @@ void Main(void)
 
 	BOARD_EEPROM_LoadMoreSettings();
 
-	RADIO_ConfigureChannel(0, 2);
-	RADIO_ConfigureChannel(1, 2);
+	RADIO_ConfigureChannel(0, VFO_CONFIGURE_RELOAD);
+	RADIO_ConfigureChannel(1, VFO_CONFIGURE_RELOAD);
 
 	RADIO_SelectVfos();
 
