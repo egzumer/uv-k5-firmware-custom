@@ -191,10 +191,10 @@ void Main(void)
 			gNextTimeslice = false;
 		}
 
-		if (gNextTimeslice500ms)
+		if (gNextTimeslice_500ms)
 		{
 			APP_TimeSlice500ms();
-			gNextTimeslice500ms = false;
+			gNextTimeslice_500ms = false;
 		}
 	}
 }

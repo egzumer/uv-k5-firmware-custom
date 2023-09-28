@@ -133,7 +133,7 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, uint8_t ChannelSave, uint8_t Band, uint32
 	#ifdef ENABLE_COMPANDER
 		pInfo->Compander           = 0;  // off
 	#endif
-	
+
 	if (ChannelSave == (FREQ_CHANNEL_FIRST + BAND2_108MHz))
 	{
 		pInfo->AM_CHANNEL_MODE = true;
@@ -223,7 +223,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 //		Band = BAND6_400MHz;
 		Band = FREQUENCY_GetBand(gEeprom.ScreenChannel[VFO]);   // 111 bug fix, or have I broke it ?
 	}
-	
+
 	if (IS_MR_CHANNEL(Channel))
 	{
 		gEeprom.VfoInfo[VFO].Band                    = Band;
@@ -466,10 +466,10 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 				{
 					pInfo->SquelchOpenRSSIThresh   = ((uint16_t)pInfo->SquelchOpenRSSIThresh     * 11) / 12;
 					pInfo->SquelchCloseRSSIThresh  = ((uint16_t)pInfo->SquelchOpenRSSIThresh     *  9) / 10;
-					
+
 					pInfo->SquelchOpenNoiseThresh   = ((uint16_t)pInfo->SquelchOpenNoiseThresh   *  9) /  8;
 					pInfo->SquelchCloseNoiseThresh  = ((uint16_t)pInfo->SquelchOpenNoiseThresh   * 10) /  9;
-					
+
 					pInfo->SquelchOpenGlitchThresh  = ((uint16_t)pInfo->SquelchOpenGlitchThresh  *  9) /  8;
 					pInfo->SquelchCloseGlitchThresh = ((uint16_t)pInfo->SquelchOpenGlitchThresh  * 10) /  9;
 				}
@@ -477,16 +477,16 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 				{
 					pInfo->SquelchOpenRSSIThresh   = ((uint16_t)pInfo->SquelchOpenRSSIThresh     *  3) /  4;
 					pInfo->SquelchCloseRSSIThresh  = ((uint16_t)pInfo->SquelchOpenRSSIThresh     *  9) / 10;
-					
+
 					pInfo->SquelchOpenNoiseThresh   = ((uint16_t)pInfo->SquelchOpenNoiseThresh   *  4) /  3;
 					pInfo->SquelchCloseNoiseThresh  = ((uint16_t)pInfo->SquelchOpenNoiseThresh   * 10) /  9;
-					
+
 					pInfo->SquelchOpenGlitchThresh  = ((uint16_t)pInfo->SquelchOpenGlitchThresh  *  4) /  3;
 					pInfo->SquelchCloseGlitchThresh = ((uint16_t)pInfo->SquelchOpenGlitchThresh  * 10) /  9;
 				}
 			}
 		#endif
-		
+
 		if (pInfo->SquelchOpenNoiseThresh > 127)
 			pInfo->SquelchOpenNoiseThresh = 127;
 		if (pInfo->SquelchCloseNoiseThresh > 127)
@@ -537,7 +537,7 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 		if (Frequency > UpperLimitFrequencyBandTable[ARRAY_SIZE(UpperLimitFrequencyBandTable) - 1])
 			Frequency = UpperLimitFrequencyBandTable[ARRAY_SIZE(UpperLimitFrequencyBandTable) - 1];
 	#endif
-	
+
 	pInfo->freq_config_TX.Frequency = Frequency;
 }
 
@@ -598,7 +598,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 			#endif
 			break;
 	}
-	
+
 	BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, false);
 
 	BK4819_SetupPowerAmplifier(0, 0);
@@ -662,7 +662,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 				default:
 				case CODE_TYPE_OFF:
 					BK4819_SetCTCSSFrequency(670);
-					
+
 					//#ifndef ENABLE_CTCSS_TAIL_PHASE_SHIFT
 						BK4819_SetTailDetection(550);		// QS's 55Hz tone method
 					//#else
@@ -687,7 +687,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 						| BK4819_REG_3F_CTCSS_LOST
 						| BK4819_REG_3F_SQUELCH_FOUND
 						| BK4819_REG_3F_SQUELCH_LOST;
-						
+
 					break;
 
 				case CODE_TYPE_DIGITAL:
@@ -924,10 +924,13 @@ void RADIO_SetVfoState(VfoState_t State)
 
 void RADIO_PrepareTX(void)
 {
+	VfoState_t State = VFO_STATE_NORMAL;  // default to OK to TX
+
 	if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
-	{
+	{	// dual-RX is enabled
+
 		gDualWatchCountdown_10ms = dual_watch_count_after_tx_10ms;
-		gScheduleDualWatch = false;
+		gScheduleDualWatch       = false;
 
 		if (!gRxVfoIsActive)
 		{
@@ -944,13 +947,11 @@ void RADIO_PrepareTX(void)
 	RADIO_SelectCurrentVfo();
 
 	#ifdef ENABLE_ALARM
-		if (gAlarmState == ALARM_STATE_OFF ||
+		if (gAlarmState == ALARM_STATE_OFF    ||
 		    gAlarmState == ALARM_STATE_TX1750 ||
 		   (gAlarmState == ALARM_STATE_ALARM && gEeprom.ALARM_MODE == ALARM_MODE_TONE))
 	#endif
 	{
-		VfoState_t State;
-
 		#ifndef ENABLE_TX_WHEN_AM
 			if (gCurrentVfo->IsAM)
 			{	// not allowed to TX if in AM mode
@@ -963,38 +964,36 @@ void RADIO_PrepareTX(void)
 			State = VFO_STATE_TX_DISABLE;
 		}
 		else
-		if (TX_FREQUENCY_Check(gCurrentVfo->pTX->Frequency) == 0 || gCurrentVfo->CHANNEL_SAVE <= FREQ_CHANNEL_LAST)
-		{
+		//if (TX_FREQUENCY_Check(gCurrentVfo->pTX->Frequency) == 0 || gCurrentVfo->CHANNEL_SAVE <= FREQ_CHANNEL_LAST)
+		if (TX_FREQUENCY_Check(gCurrentVfo->pTX->Frequency) == 0)
+		{	// TX frequency is allowed
 			if (gCurrentVfo->BUSY_CHANNEL_LOCK && gCurrentFunction == FUNCTION_RECEIVE)
-				State = VFO_STATE_BUSY;
+				State = VFO_STATE_BUSY;          // busy RX'ing a station
 			else
 			if (gBatteryDisplayLevel == 0)
-				State = VFO_STATE_BAT_LOW;
+				State = VFO_STATE_BAT_LOW;       // charge your battery !
 			else
-//			if (gBatteryDisplayLevel >= 6)
-			if (gBatteryDisplayLevel >= 11)
-				State = VFO_STATE_VOLTAGE_HIGH;
-			else
-				goto Skip;
+			//if (gBatteryDisplayLevel >= 6)
+			if (gBatteryDisplayLevel >= 11)      // I've increased the battery level bar resolution
+				State = VFO_STATE_VOLTAGE_HIGH;  // over voltage .. this is being a pain
 		}
 		else
-		{
-			State = VFO_STATE_TX_DISABLE;
-		}
-		
-		RADIO_SetVfoState(State);
+			State = VFO_STATE_TX_DISABLE;        // TX frequency not allowed
+	}
 
+	if (State != VFO_STATE_NORMAL)
+	{	// TX not allowed
+		RADIO_SetVfoState(State);
 		#ifdef ENABLE_ALARM
 			gAlarmState = ALARM_STATE_OFF;
 		#endif
-
 		gDTMF_ReplyState = DTMF_REPLY_NONE;
-
 		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 		return;
 	}
 
-Skip:
+	// TX is allowed
+	
 	if (gDTMF_ReplyState == DTMF_REPLY_ANI)
 	{
 		if (gDTMF_CallMode == DTMF_CALL_MODE_DTMF)
@@ -1012,13 +1011,19 @@ Skip:
 
 	FUNCTION_Select(FUNCTION_TRANSMIT);
 
+	gTxTimerCountdown_500ms = 0;            // no timeout
 	#ifdef ENABLE_ALARM
-		gTxTimerCountdown = (gAlarmState == ALARM_STATE_OFF) ? gEeprom.TX_TIMEOUT_TIMER * 120 : 0;
-	#else
-		gTxTimerCountdown = gEeprom.TX_TIMEOUT_TIMER * 120;
+		if (gAlarmState == ALARM_STATE_OFF)
 	#endif
-
+	{
+		if (gEeprom.TX_TIMEOUT_TIMER == 1)
+			gTxTimerCountdown_500ms = 60;   // 30 sec
+		else
+		if (gEeprom.TX_TIMEOUT_TIMER >= 2)
+			gTxTimerCountdown_500ms = (gEeprom.TX_TIMEOUT_TIMER - 1) * 120;  // minutes
+	}
 	gTxTimeoutReached    = false;
+
 	gFlagEndTransmission = false;
 	gRTTECountdown       = 0;
 	gDTMF_ReplyState     = DTMF_REPLY_NONE;

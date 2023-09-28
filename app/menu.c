@@ -214,8 +214,12 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 			*pMax = ARRAY_SIZE(gSubMenu_SCRAMBLER) - 1;
 			break;
 
-		case MENU_VOX:
 		case MENU_TOT:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_TOT) - 1;
+			break;
+
+		case MENU_VOX:
 		case MENU_RP_STE:
 			*pMin = 0;
 			*pMax = 10;
@@ -317,13 +321,12 @@ void MENU_AcceptSetting(void)
 			break;
 
 		case MENU_STEP:
+			gTxVfo->STEP_SETTING = gSubMenuSelection;
 			if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
 			{
-				gTxVfo->STEP_SETTING = gSubMenuSelection;
-				gRequestSaveChannel  = 1;
+				gRequestSaveChannel = 1;
 				return;
 			}
-			gTxVfo->STEP_SETTING = gSubMenuSelection;
 			return;
 
 		case MENU_TXP:

@@ -963,13 +963,14 @@ void APP_Update(void)
 	#endif
 
 	if (gCurrentFunction == FUNCTION_TRANSMIT && gTxTimeoutReached)
-	{	// transmitting, but just timed out
+	{	// transmitter timed out
+		gTxTimeoutReached = false;
 
-		gTxTimeoutReached    = false;
 		gFlagEndTransmission = true;
-
 		APP_EndTransmission();
-		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP);
+
+		AUDIO_PlayBeep(BEEP_880HZ_60MS_TRIPLE_BEEP);
+
 		RADIO_SetVfoState(VFO_STATE_TIMEOUT);
 		GUI_DisplayScreen();
 	}

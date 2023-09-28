@@ -185,9 +185,13 @@ extern volatile uint16_t     gDualWatchCountdown_10ms;
 extern volatile bool         gDualWatchCountdownExpired;
 extern bool                  gDualWatchActive;
 
-extern volatile bool         gNextTimeslice500ms;
-extern volatile uint16_t     gTxTimerCountdown;
+extern volatile bool         gNextTimeslice_500ms;
+
+extern volatile uint16_t     gTxTimerCountdown_500ms;
+extern volatile bool         gTxTimeoutReached;
+
 extern volatile uint16_t     gTailNoteEliminationCountdown_10ms;
+
 #ifdef ENABLE_FMRADIO
 	extern volatile uint16_t gFmPlayCountdown_10ms;
 #endif
@@ -282,7 +286,6 @@ extern uint8_t               gShowChPrefix;
 extern volatile uint8_t      gFoundCDCSSCountdown_10ms;
 extern volatile uint8_t      gFoundCTCSSCountdown_10ms;
 extern volatile uint16_t     gVoxStopCountdown_10ms;
-extern volatile bool         gTxTimeoutReached;
 extern volatile bool         gNextTimeslice40ms;
 #ifdef ENABLE_NOAA
 	extern volatile uint16_t gNOAACountdown_10ms;

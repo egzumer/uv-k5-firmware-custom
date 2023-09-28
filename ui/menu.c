@@ -166,6 +166,21 @@ const char gSubMenu_SAVE[5][4] =
 	"1:4"
 };
 
+const char gSubMenu_TOT[11][7] =
+{
+	"OFF",
+	"30 sec",
+	"1 min",
+	"2 min",
+	"3 min",
+	"4 min",
+	"5 min",
+	"6 min",
+	"7 min",
+	"8 min",
+	"9 min"
+};
+
 const char gSubMenu_CHAN[3][7] =
 {
 	"OFF",
@@ -565,10 +580,7 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_TOT:
-			if (gSubMenuSelection == 0)
-				strcpy(String, "OFF");
-			else
-				sprintf(String, "%dmin", gSubMenuSelection);
+			strcpy(String, gSubMenu_TOT[gSubMenuSelection]);
 			break;
 
 		#ifdef ENABLE_VOICE

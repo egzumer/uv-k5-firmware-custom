@@ -121,9 +121,13 @@ volatile uint16_t gDualWatchCountdown_10ms;
 volatile bool     gDualWatchCountdownExpired = true;
 bool              gDualWatchActive           = false;
 
-volatile bool     gNextTimeslice500ms;
-volatile uint16_t gTxTimerCountdown;
+volatile bool     gNextTimeslice_500ms;
+
+volatile uint16_t gTxTimerCountdown_500ms;
+volatile bool     gTxTimeoutReached;
+
 volatile uint16_t gTailNoteEliminationCountdown_10ms;
+
 #ifdef ENABLE_NOAA
 	volatile uint16_t gNOAA_Countdown_10ms;
 #endif
@@ -220,7 +224,6 @@ volatile bool     gNextTimeslice;
 volatile uint8_t  gFoundCDCSSCountdown_10ms;
 volatile uint8_t  gFoundCTCSSCountdown_10ms;
 volatile uint16_t gVoxStopCountdown_10ms;
-volatile bool     gTxTimeoutReached;
 volatile bool     gNextTimeslice40ms;
 #ifdef ENABLE_NOAA
 	volatile uint16_t gNOAACountdown_10ms = 0;

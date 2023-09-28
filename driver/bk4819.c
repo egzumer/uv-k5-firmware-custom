@@ -52,6 +52,7 @@ void BK4819_Init(void)
 	BK4819_WriteRegister(BK4819_REG_36, 0x0022);
 
 	BK4819_SetAGC(0);
+//	BK4819_SetAGC(1);
 
 	BK4819_WriteRegister(BK4819_REG_19, 0b0001000001000001);   // <15> MIC AGC  1 = disable  0 = enable
 
@@ -239,9 +240,9 @@ void BK4819_SetAGC(uint8_t Value)
 		//
 		//         <9:8> = LNA Gain Short
 		//                 3 =   0dB
-		//                 2 = -11dB
-		//                 1 = -16dB
-		//                 0 = -19dB
+		//                 2 = -24dB       // was -11
+		//                 1 = -30dB       // was -16
+		//                 0 = -33dB       // was -19
 		//
 		//         <7:5> = LNA Gain
 		//                 7 =   0dB
@@ -286,7 +287,8 @@ void BK4819_SetAGC(uint8_t Value)
 	}
 	else
 	if (Value == 1)
-	{
+	{	// what does this do ?????????
+
 		unsigned int i;
 
 		// REG_10
