@@ -418,12 +418,14 @@ void MENU_AcceptSetting(void)
 
 		case MENU_MEM_CH:
 			gTxVfo->CHANNEL_SAVE = gSubMenuSelection;
-			gRequestSaveChannel  = 2;
 			#if 0
 				gEeprom.MrChannel[0] = gSubMenuSelection;
 			#else
 				gEeprom.MrChannel[gEeprom.TX_CHANNEL] = gSubMenuSelection;
 			#endif
+			gRequestSaveChannel = 2;
+			gVfoConfigureMode   = VFO_CONFIGURE_RELOAD;
+			gFlagResetVfos      = true;
 			return;
 
 		case MENU_MEM_NAME:

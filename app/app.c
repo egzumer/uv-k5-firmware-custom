@@ -2305,7 +2305,8 @@ Skip:
 		{
 			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_CHANNEL, gTxVfo, gRequestSaveChannel);
 			if (gScreenToDisplay != DISPLAY_SCANNER)
-				gVfoConfigureMode = VFO_CONFIGURE_1;
+				if (gVfoConfigureMode == VFO_CONFIGURE_0)
+					gVfoConfigureMode = VFO_CONFIGURE_1;
 		}
 		else
 		{
@@ -2316,7 +2317,6 @@ Skip:
 
 		gRequestSaveChannel = 0;
 	}
-
 
 	if (gVfoConfigureMode != VFO_CONFIGURE_0)
 	{

@@ -301,7 +301,7 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 	
 	void AUDIO_SetVoiceID(uint8_t Index, VOICE_ID_t VoiceID)
 	{
-		if (Index >= 8)
+		if (Index >= ARRAY_SIZE(gVoiceID))
 			return;
 	
 		if (Index == 0)

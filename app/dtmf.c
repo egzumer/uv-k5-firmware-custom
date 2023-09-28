@@ -140,17 +140,16 @@ bool DTMF_CompareMessage(const char *pMsg, const char *pTemplate, uint8_t Size, 
 		}
 	}
 
-	return true;
+	return DTMF_CALL_MODE_NOT_GROUP;
 }
 
-bool DTMF_CheckGroupCall(const char *pMsg, uint32_t Size)
+DTMF_CallMode_t DTMF_CheckGroupCall(const char *pMsg, uint32_t Size)
 {
 	uint32_t i;
 	for (i = 0; i < Size; i++)
 		if (pMsg[i] == gEeprom.DTMF_GROUP_CALL_CODE)
 			break;
-
-	return (i != Size) ? true : false;
+	return (i != Size) ? DTMF_CALL_MODE_GROUP : DTMF_CALL_MODE_NOT_GROUP;
 }
 
 void DTMF_Append(char Code)

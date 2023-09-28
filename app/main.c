@@ -47,13 +47,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			#else
 
 
-
-
-
 				// TODO: do something useful with the key
-
-
-
 
 
 			#endif
@@ -379,7 +373,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					RADIO_ConfigureChannel(Vfo, 2);
 				}
 	
-//				Frequency += 75;                        // is this meant to be rounding to step size?
+//				Frequency += 75;                        // is this meant to be rounding ?
 				Frequency += gTxVfo->StepFrequency / 2; // no idea, but this is
 				
 				Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, LowerLimitFrequencyBandTable[gTxVfo->Band]);

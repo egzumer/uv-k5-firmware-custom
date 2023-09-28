@@ -246,7 +246,7 @@ void RADIO_ConfigureChannel(uint8_t VFO, uint32_t Arg)
 	else
 		Base = 0x0C80 + ((Channel - FREQ_CHANNEL_FIRST) * 32) + (VFO * 16);
 
-	if (Arg == 2 || Channel >= FREQ_CHANNEL_FIRST)
+	if (Arg == VFO_CONFIGURE_RELOAD || Channel >= FREQ_CHANNEL_FIRST)
 	{
 		uint8_t Tmp;
 		uint8_t Data[8];

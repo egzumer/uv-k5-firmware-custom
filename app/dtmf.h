@@ -88,7 +88,7 @@ bool DTMF_GetContact(const int Index, char *pContact);
 bool DTMF_FindContact(const char *pContact, char *pResult);
 char DTMF_GetCharacter(const uint8_t code);
 bool DTMF_CompareMessage(const char *pDTMF, const char *pTemplate, uint8_t Size, bool bFlag);
-bool DTMF_CheckGroupCall(const char *pDTMF, uint32_t Size);
+DTMF_CallMode_t DTMF_CheckGroupCall(const char *pDTMF, uint32_t Size);
 void DTMF_Append(char Code);
 void DTMF_HandleRequest(void);
 void DTMF_Reply(void);

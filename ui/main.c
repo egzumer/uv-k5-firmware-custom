@@ -107,8 +107,15 @@
 
 void UI_DisplayMain(void)
 {
-	char               String[16];
-	unsigned int       vfo_num;
+	char         String[16];
+	unsigned int vfo_num;
+	bool         center_line_is_free = true;
+
+//	#ifdef SINGLE_VFO_CHAN
+//		const bool single_vfo = (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? true : false;
+//	#else
+		const bool single_vfo = false;
+//	#endif
 
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 
@@ -119,14 +126,6 @@ void UI_DisplayMain(void)
 		ST7565_BlitFullScreen();
 		return;
 	}
-
-//	#ifdef SINGLE_VFO_CHAN
-//		const bool single_vfo = (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? true : false;
-//	#else
-		const bool single_vfo = false;
-//	#endif
-
-	bool center_line_is_free = true;
 
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{

@@ -40,7 +40,7 @@ volatile uint16_t ScanPauseDelayIn_10ms;
 uint8_t           gScanProgressIndicator;
 uint8_t           gScanHitCount;
 bool              gScanUseCssResult;
-uint8_t           gScanState;
+int8_t            gScanState;
 bool              bScanKeepFrequency;
 
 static void SCANNER_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)

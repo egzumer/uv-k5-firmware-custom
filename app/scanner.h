@@ -50,7 +50,7 @@ extern volatile uint16_t ScanPauseDelayIn_10ms;
 extern uint8_t           gScanProgressIndicator;
 extern uint8_t           gScanHitCount;
 extern bool              gScanUseCssResult;
-extern uint8_t           gScanState;
+extern int8_t            gScanState;
 extern bool              bScanKeepFrequency;
 
 void SCANNER_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
