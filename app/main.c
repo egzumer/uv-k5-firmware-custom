@@ -344,6 +344,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			NUMBER_Get(gInputBox, &Frequency);
 
+			// clamp the frequency entered to some valid value
 			if (Frequency < LowerLimitFrequencyBandTable[0])
 			{
 				Frequency = LowerLimitFrequencyBandTable[0];
@@ -384,8 +385,18 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 //						Frequency += 75;                        // is this for rounding
 						Frequency += gTxVfo->StepFrequency / 2; // this is though
 						
-						gTxVfo->freq_config_RX.Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, LowerLimitFrequencyBandTable[gTxVfo->Band]);
+						Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, LowerLimitFrequencyBandTable[gTxVfo->Band]);
 
+						// clamp the frequency entered to some valid value
+
+						if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
+						{	// use the step size to properly limit the frequency
+							const uint32_t center = (bx_stop1_Hz + bx_start2_Hz) / 2;
+							Frequency = (Frequency < center) ? bx_stop1_Hz - gTxVfo->StepFrequency : bx_start2_Hz;
+						}
+
+						gTxVfo->freq_config_RX.Frequency = Frequency;
+						
 						gRequestSaveChannel = 1;
 						return;
 					}

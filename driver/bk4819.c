@@ -574,7 +574,7 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			BK4819_WriteRegister(BK4819_REG_43, // 0x3028);         // 0 011 000 000 10 1 0 00
 				(0u << 15) |     //  0
 				(3u << 12) |     //  3 RF filter bandwidth
-				(1u <<  9) |     // *0 RF filter bandwidth when signal is weak
+				(0u <<  9) |     // *0 RF filter bandwidth when signal is weak
 				(6u <<  6) |     // *0 AFTxLPF2 filter Band Width
 				(2u <<  4) |     //  2 BW Mode Selection
 				(1u <<  3) |     //  1
@@ -602,7 +602,7 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			BK4819_WriteRegister(BK4819_REG_43, // 0x4048);        // 0 100 000 001 00 1 0 00
 				(0u << 15) |     //  0
 				(3u << 12) |     //  4 RF filter bandwidth
-				(1u <<  9) |     // *0 RF filter bandwidth when signal is weak
+				(0u <<  9) |     // *0 RF filter bandwidth when signal is weak
 				(0u <<  6) |     // *1 AFTxLPF2 filter Band Width
 				(0u <<  4) |     //  0 BW Mode Selection
 				(1u <<  3) |     //  1
@@ -1337,7 +1337,7 @@ void BK4819_DisableFrequencyScan(void)
 
 void BK4819_EnableFrequencyScan(void)
 {
-	BK4819_WriteRegister(BK4819_REG_32, 0x0245);
+	BK4819_WriteRegister(BK4819_REG_32, 0x0245);   // 00 0000100100010 1
 }
 
 void BK4819_SetScanFrequency(uint32_t Frequency)

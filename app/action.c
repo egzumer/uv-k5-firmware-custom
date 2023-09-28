@@ -56,8 +56,8 @@ void ACTION_Power(void)
 	if (++gTxVfo->OUTPUT_POWER > OUTPUT_POWER_HIGH)
 		gTxVfo->OUTPUT_POWER = OUTPUT_POWER_LOW;
 
-	//gRequestSaveChannel = 1;
-	gRequestSaveChannel = 2;
+	gRequestSaveChannel = 1;
+	//gRequestSaveChannel = 2;   // auto save the channel
 
 	#ifdef ENABLE_VOICE
 		gAnotherVoiceID   = VOICE_ID_POWER;

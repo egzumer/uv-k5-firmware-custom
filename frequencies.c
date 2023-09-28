@@ -23,7 +23,8 @@
 const uint32_t bx_start1_Hz = 1800000;		// 18MHz
 const uint32_t bx_stop1_Hz  = 63000000;		// 630MHz
 
-const uint32_t bx_start2_Hz = 76000000;		// 760MHz
+//const uint32_t bx_start2_Hz = 76000000;		// 760MHz  // my one radio the BK chip managed to lock down to this frequency
+const uint32_t bx_start2_Hz = 84000000;		// 840MHz      // but best to go with datasheet specification really
 const uint32_t bx_stop2_Hz  = 130000000;	// 1300MHz
 
 const uint32_t LowerLimitFrequencyBandTable[7] =
