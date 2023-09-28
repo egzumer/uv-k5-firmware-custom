@@ -611,10 +611,10 @@ static void FREQ_NextChannel(void)
 
 static void MR_NextChannel(void)
 {
-	const uint8_t PreviousCh = gNextMrChannel;
 	const uint8_t Ch1        = gEeprom.SCANLIST_PRIORITY_CH1[gEeprom.SCAN_LIST_DEFAULT];
 	const uint8_t Ch2        = gEeprom.SCANLIST_PRIORITY_CH2[gEeprom.SCAN_LIST_DEFAULT];
 	const bool    bEnabled   = gEeprom.SCAN_LIST_ENABLED[gEeprom.SCAN_LIST_DEFAULT];
+	uint8_t       PreviousCh = gNextMrChannel;
 	uint8_t       Ch;
 
 	if (bEnabled)
@@ -623,10 +623,7 @@ static void MR_NextChannel(void)
 		{
 			gPreviousMrChannel = gNextMrChannel;
 			if (RADIO_CheckValidChannel(Ch1, false, 0))
-			{
 				gNextMrChannel = Ch1;
-//				goto Skip;
-			}
 			else
 				gCurrentScanList = 1;
 		}
@@ -634,27 +631,30 @@ static void MR_NextChannel(void)
 		if (gCurrentScanList == 1)
 		{
 			if (RADIO_CheckValidChannel(Ch2, false, 0))
-			{
 				gNextMrChannel = Ch2;
-//				goto Skip;
-			}
 			else
 				gCurrentScanList = 2;
 		}
 
 		if (gCurrentScanList == 2)
+		{
 			gNextMrChannel = gPreviousMrChannel;
-		else
-			goto Skip;
+			Ch = RADIO_FindNextChannel(gNextMrChannel + gScanState, gScanState, true, gEeprom.SCAN_LIST_DEFAULT);
+			if (Ch == 0xFF)
+				return;
+
+			gNextMrChannel = Ch;
+		}
+	}
+	else
+	{
+		Ch = RADIO_FindNextChannel(gNextMrChannel + gScanState, gScanState, true, gEeprom.SCAN_LIST_DEFAULT);
+		if (Ch == 0xFF)
+			return;
+
+		gNextMrChannel = Ch;
 	}
 
-	Ch = RADIO_FindNextChannel(gNextMrChannel + gScanState, gScanState, true, gEeprom.SCAN_LIST_DEFAULT);
-	if (Ch == 0xFF)
-		return;
-
-	gNextMrChannel = Ch;
-
-Skip:
 	if (PreviousCh != gNextMrChannel)
 	{
 		gEeprom.MrChannel[gEeprom.RX_CHANNEL]     = gNextMrChannel;
@@ -666,12 +666,11 @@ Skip:
 		gUpdateDisplay = true;
 	}
 
-	ScanPauseDelayIn_10ms = 20;
-
+	ScanPauseDelayIn_10ms = scan_pause_delay_in_3_10ms;
 	bScanKeepFrequency    = false;
 
 	if (bEnabled)
-		if (++gCurrentScanList >= 2)
+		if (++gCurrentScanList > 2)
 			gCurrentScanList = 0;
 }
 
