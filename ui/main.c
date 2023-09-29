@@ -101,7 +101,7 @@
 			#if 1
 				// solid bar
 				for (i = 0; i < bar_width; i++)
-					pLine[bar_x + i] = (i <= len) ? 0x7f : ((i & 1) == 0) ? 0x41 : 0x00;
+					pLine[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
 			#else
 				// knuled bar
 				for (i = 0; i < bar_width; i += 2)
@@ -160,7 +160,7 @@
 		#if 1
 			// solid bar
 			for (i = 0; i < bar_width; i++)
-				pLine[bar_x + i] = (i <= len) ? 0x7f : ((i & 1) == 0) ? 0x41 : 0x00;
+				pLine[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
 		#else
 			// knuled bar
 			for (i = 0; i < bar_width; i += 2)

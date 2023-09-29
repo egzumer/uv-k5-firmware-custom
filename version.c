@@ -1,5 +1,5 @@
 
-//#define ONE_OF_ELEVEN_VER
+#define ONE_OF_ELEVEN_VER
 
 #ifdef GIT_HASH
 	#define VER     GIT_HASH
