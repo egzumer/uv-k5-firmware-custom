@@ -115,7 +115,9 @@ static void APP_CheckForIncoming(void)
 			{
 				FUNCTION_Select(FUNCTION_INCOMING);
 				//gUpdateDisplay = true;
-				gUpdateRSSI    = true;
+
+				updateRSSI(gEeprom.RX_CHANNEL);
+				gUpdateRSSI = true;
 			}
 			
 			return;
@@ -129,7 +131,9 @@ static void APP_CheckForIncoming(void)
 			{
 				FUNCTION_Select(FUNCTION_INCOMING);
 				//gUpdateDisplay = true;
-				gUpdateRSSI    = true;
+
+				updateRSSI(gEeprom.RX_CHANNEL);
+				gUpdateRSSI = true;
 			}
 			return;
 		}
@@ -149,7 +153,9 @@ static void APP_CheckForIncoming(void)
 			{
 				FUNCTION_Select(FUNCTION_INCOMING);
 				//gUpdateDisplay = true;
-				gUpdateRSSI    = true;
+
+				updateRSSI(gEeprom.RX_CHANNEL);
+				gUpdateRSSI = true;
 			}
 			return;
 		}
@@ -164,7 +170,9 @@ static void APP_CheckForIncoming(void)
 	{
 		FUNCTION_Select(FUNCTION_INCOMING);
 		//gUpdateDisplay = true;
-		gUpdateRSSI    = true;
+
+		updateRSSI(gEeprom.RX_CHANNEL);
+		gUpdateRSSI = true;
 	}
 }
 
