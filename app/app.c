@@ -114,7 +114,8 @@ static void APP_CheckForIncoming(void)
 			if (gCurrentFunction != FUNCTION_INCOMING)
 			{
 				FUNCTION_Select(FUNCTION_INCOMING);
-				gUpdateDisplay = true;
+				//gUpdateDisplay = true;
+				gUpdateRSSI    = true;
 			}
 			
 			return;
@@ -127,7 +128,8 @@ static void APP_CheckForIncoming(void)
 			if (gCurrentFunction != FUNCTION_INCOMING)
 			{
 				FUNCTION_Select(FUNCTION_INCOMING);
-				gUpdateDisplay = true;
+				//gUpdateDisplay = true;
+				gUpdateRSSI    = true;
 			}
 			return;
 		}
@@ -146,7 +148,8 @@ static void APP_CheckForIncoming(void)
 			if (gCurrentFunction != FUNCTION_INCOMING)
 			{
 				FUNCTION_Select(FUNCTION_INCOMING);
-				gUpdateDisplay = true;
+				//gUpdateDisplay = true;
+				gUpdateRSSI    = true;
 			}
 			return;
 		}
@@ -160,7 +163,8 @@ static void APP_CheckForIncoming(void)
 	if (gCurrentFunction != FUNCTION_INCOMING)
 	{
 		FUNCTION_Select(FUNCTION_INCOMING);
-		gUpdateDisplay = true;
+		//gUpdateDisplay = true;
+		gUpdateRSSI    = true;
 	}
 }
 
@@ -937,7 +941,8 @@ static void APP_HandleVox(void)
 		{
 			if (gFlagEndTransmission)
 			{
-				FUNCTION_Select(FUNCTION_FOREGROUND);
+				//if (gCurrentFunction != FUNCTION_FOREGROUND)
+					FUNCTION_Select(FUNCTION_FOREGROUND);
 			}
 			else
 			{
@@ -945,12 +950,14 @@ static void APP_HandleVox(void)
 
 				if (gEeprom.REPEATER_TAIL_TONE_ELIMINATION == 0)
 				{
-					FUNCTION_Select(FUNCTION_FOREGROUND);
+					//if (gCurrentFunction != FUNCTION_FOREGROUND)
+						FUNCTION_Select(FUNCTION_FOREGROUND);
 				}
 				else
 					gRTTECountdown = gEeprom.REPEATER_TAIL_TONE_ELIMINATION * 10;
 			}
 
+			gUpdateStatus        = true;
 			gUpdateDisplay       = true;
 			gFlagEndTransmission = false;
 		}
@@ -1128,7 +1135,8 @@ void APP_Update(void)
 			else
 			if ((IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
 			{
-				FUNCTION_Select(FUNCTION_POWER_SAVE);
+				//if (gCurrentFunction != FUNCTION_POWER_SAVE)
+					FUNCTION_Select(FUNCTION_POWER_SAVE);
 			}
 			else
 			{
@@ -1151,7 +1159,8 @@ void APP_Update(void)
 			}
 			else
 			{
-				FUNCTION_Select(FUNCTION_POWER_SAVE);
+				//if (gCurrentFunction != FUNCTION_POWER_SAVE)
+					FUNCTION_Select(FUNCTION_POWER_SAVE);
 			}
 
 			gSchedulePowerSave = false;
@@ -1490,8 +1499,10 @@ void APP_TimeSlice10ms(void)
 		{
 			if (--gRTTECountdown == 0)
 			{
-				FUNCTION_Select(FUNCTION_FOREGROUND);
+				//if (gCurrentFunction != FUNCTION_FOREGROUND)
+					FUNCTION_Select(FUNCTION_FOREGROUND);
 
+				gUpdateStatus  = true;
 				gUpdateDisplay = true;
 			}
 		}
@@ -1843,7 +1854,8 @@ void APP_TimeSlice500ms(void)
 
 						gReducedService = true;
 
-						FUNCTION_Select(FUNCTION_POWER_SAVE);
+						//if (gCurrentFunction != FUNCTION_POWER_SAVE)
+							FUNCTION_Select(FUNCTION_POWER_SAVE);
 
 						ST7565_Configure_GPIO_B11();
 
@@ -2203,7 +2215,10 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					ALARM_Off();
 
 					if (gEeprom.REPEATER_TAIL_TONE_ELIMINATION == 0)
-						FUNCTION_Select(FUNCTION_FOREGROUND);
+					{
+						//if (gCurrentFunction != FUNCTION_FOREGROUND)
+							FUNCTION_Select(FUNCTION_FOREGROUND);
+					}
 					else
 						gRTTECountdown = gEeprom.REPEATER_TAIL_TONE_ELIMINATION * 10;
 

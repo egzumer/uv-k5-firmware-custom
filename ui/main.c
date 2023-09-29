@@ -62,47 +62,52 @@
 	{
 		if (gSetting_mic_bar)
 		{
-			const unsigned int line = 3;
-			const unsigned int lcd_width = sizeof(gFrameBuffer[line]) - 2;
-
+			const unsigned int line      = 3;
+			const unsigned int bar_x     = 2;
+			const unsigned int bar_width = LCD_WIDTH - 2 - bar_x;
+			unsigned int       i;
+			
 			#if 1
 				// TX audio level
-
+			
 				if (gCurrentFunction != FUNCTION_TRANSMIT)
 					return;
-
+			
 				const unsigned int voice_amp  = BK4819_GetVoiceAmplitudeOut();  // 15:0
-
+			
 //				const unsigned int max        = 65535;
-//				const unsigned int level      = ((voice_amp * lcd_width) + (max / 2)) / max;            // with rounding
-//				const unsigned int len        = (level <= lcd_width) ? level : lcd_width;
-
+//				const unsigned int level      = ((voice_amp * bar_width) + (max / 2)) / max;            // with rounding
+//				const unsigned int len        = (level <= bar_width) ? level : bar_width;
+			
 				// make non-linear to make more sensitive at low values
 				const unsigned int level      = voice_amp * 8;
 				const unsigned int sqrt_level = sqrt16((level < 65535) ? level : 65535);
-				const unsigned int len        = (sqrt_level <= lcd_width) ? sqrt_level : lcd_width;
-
+				const unsigned int len        = (sqrt_level <= bar_width) ? sqrt_level : bar_width;
+			
 			#else
 				// TX/RX AF input level (dB)
-
+			
 				const uint8_t      af_tx_rx   = BK4819_GetAfTxRx();             //  6:0
 				const unsigned int max        = 63;
-				const unsigned int level      = (((uint16_t)af_tx_rx * lcd_width) + (max / 2)) / max;   // with rounding
-				const unsigned int len        = (level <= lcd_width) ? level : lcd_width;
-
+				const unsigned int level      = (((uint16_t)af_tx_rx * bar_width) + (max / 2)) / max;   // with rounding
+				const unsigned int len        = (level <= bar_width) ? level : bar_width;
+			
 			#endif
-
+			
 			uint8_t *pLine = gFrameBuffer[line];
-			memset(pLine, 0, lcd_width);
-			#if 0
+			
+			memset(pLine, 0, LCD_WIDTH);
+			
+			#if 1
 				// solid bar
-				memset(pLine, 0x3e, len);
+				for (i = 0; i < bar_width; i++)
+					pLine[bar_x + i] = (i <= len) ? 0x7f : ((i & 1) == 0) ? 0x41 : 0x00;
 			#else
-				for (unsigned int i = 0; i < len; i += 2)
-					pLine[i] = 0x3e;
+				// knuled bar
+				for (i = 0; i < bar_width; i += 2)
+					pLine[bar_x + i] = (i <= len) ? 0x7f : 0x41;
 			#endif
-
-
+			
 			if (gCurrentFunction == FUNCTION_TRANSMIT)
 				ST7565_BlitFullScreen();
 		}
@@ -152,8 +157,15 @@
 			sprintf(s, "%-4d +%2u", dBm, s_level);  // S9+
 		UI_PrintStringSmall(s, 2, 0, line);
 
-		for (i = 0; i < bar_width; i += 2)
-			pLine[bar_x + i] = ((i & 1) == 0 && i <= len) ? 0x7f : 0x41;
+		#if 1
+			// solid bar
+			for (i = 0; i < bar_width; i++)
+				pLine[bar_x + i] = (i <= len) ? 0x7f : ((i & 1) == 0) ? 0x41 : 0x00;
+		#else
+			// knuled bar
+			for (i = 0; i < bar_width; i += 2)
+				pLine[bar_x + i] = (i <= len) ? 0x7f : 0x41;
+		#endif
 
 		if (now)
 			ST7565_BlitFullScreen();
@@ -670,10 +682,13 @@ void UI_DisplayMain(void)
 		                 gCurrentFunction == FUNCTION_INCOMING);
 
 		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
-			if (rx && gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
+			if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
 			{
-				AM_fix_print_data(gEeprom.RX_CHANNEL, String);
-				UI_PrintStringSmall(String, 0, 0, 3);
+				if (rx)
+				{
+					AM_fix_print_data(gEeprom.RX_CHANNEL, String);
+					UI_PrintStringSmall(String, 0, 0, 3);
+				}
 			}
 			else
 		#endif
@@ -684,35 +699,35 @@ void UI_DisplayMain(void)
 			else
 		#endif
 
-		{
-			#ifdef ENABLE_AUDIO_BAR
+		#ifdef ENABLE_AUDIO_BAR
+			if (gSetting_mic_bar && gCurrentFunction == FUNCTION_TRANSMIT)
 				UI_DisplayAudioBar();
+			else
+		#endif
 
-//				if (!gSetting_mic_bar)
-			#endif
-			if (rx || gCurrentFunction == FUNCTION_FOREGROUND)
-			{
-				if (gSetting_live_DTMF_decoder && gDTMF_ReceivedSaved[0] >= 32)
-				{	// show live DTMF decode
-					const unsigned int len = strlen(gDTMF_ReceivedSaved);
-					unsigned int       idx = 0;
-					while ((len - idx) > (17 - 5))   // display the last 'n' on-screen fittable chars
-						idx++;
-					strcpy(String, "DTMF ");
-					strcat(String, gDTMF_ReceivedSaved + idx);
-					UI_PrintStringSmall(String, 2, 0, 3);
-				}
+		if (rx || gCurrentFunction == FUNCTION_FOREGROUND)
+		{
+			if (gSetting_live_DTMF_decoder && gDTMF_ReceivedSaved[0] >= 32)
+			{	// show live DTMF decode
+				const unsigned int len = strlen(gDTMF_ReceivedSaved);
+				unsigned int       idx = 0;
+				while ((len - idx) > (17 - 5))   // display the last 'n' on-screen fittable chars
+					idx++;
+				strcpy(String, "DTMF ");
+				strcat(String, gDTMF_ReceivedSaved + idx);
+				UI_PrintStringSmall(String, 2, 0, 3);
+			}
+
+			#ifdef ENABLE_SHOW_CHARGE_LEVEL
 				else
 				if (gChargingWithTypeC)
 				{	// charging .. show the battery state
-					#ifdef ENABLE_SHOW_CHARGE_LEVEL
-						const uint16_t volts   = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
-						const uint16_t percent = (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v);
-						sprintf(String, "Charge %u.%02uV %u%%", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100, percent);
-						UI_PrintStringSmall(String, 2, 0, 3);
-					#endif
+					const uint16_t volts   = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
+					const uint16_t percent = (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v);
+					sprintf(String, "Charge %u.%02uV %u%%", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100, percent);
+					UI_PrintStringSmall(String, 2, 0, 3);
 				}
-			}
+			#endif
 		}
 	}
 
