@@ -24,6 +24,9 @@
 #include "app/generic.h"
 #include "app/main.h"
 #include "app/scanner.h"
+#ifdef ENABLE_SPECTRUM
+#include "app/spectrum.h"
+#endif
 #include "audio.h"
 #include "driver/bk4819.h"
 #include "dtmf.h"
@@ -176,7 +179,10 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				}
 				gRequestSaveVFO   = true;
 				gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
-			#else
+			#elif defined(ENABLE_SPECTRUM)
+				APP_RunSpectrum();
+				gRequestDisplayScreen = DISPLAY_MAIN;
+			#else 
 				// toggle scanlist-1 and scanlist 2
 				if (gScreenToDisplay != DISPLAY_SCANNER)
 				{

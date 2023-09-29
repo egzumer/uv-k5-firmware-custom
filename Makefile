@@ -7,11 +7,11 @@ ENABLE_SWD                    := 0
 ENABLE_OVERLAY                := 1
 ENABLE_UART                   := 1
 ENABLE_AIRCOPY                := 0
-ENABLE_FMRADIO                := 1
+ENABLE_FMRADIO                := 0
 ENABLE_NOAA                   := 0
 ENABLE_VOICE                  := 0
-ENABLE_ALARM                  := 0
-ENABLE_BIG_FREQ               := 0
+ENABLE_ALARM                  := 1
+ENABLE_BIG_FREQ               := 1
 ENABLE_SMALL_BOLD             := 1
 ENABLE_KEEP_MEM_NAME          := 1
 ENABLE_WIDE_RX                := 1
@@ -28,6 +28,7 @@ ENABLE_AM_FIX_SHOW_DATA       := 1
 ENABLE_SQUELCH1_LOWER         := 0
 ENABLE_RSSI_BAR               := 1
 ENABLE_AUDIO_BAR              := 1
+ENABLE_SPECTRUM               := 1
 #ENABLE_COPY_CHAN_TO_VFO      := 1
 #ENABLE_SINGLE_VFO_CHAN       := 1
 #ENABLE_BAND_SCOPE            := 1
@@ -88,6 +89,9 @@ endif
 OBJS += app/generic.o
 OBJS += app/main.o
 OBJS += app/menu.o
+ifeq ($(ENABLE_SPECTRUM), 1)
+OBJS += app/spectrum.o
+endif
 OBJS += app/scanner.o
 ifeq ($(ENABLE_UART),1)
 	OBJS += app/uart.o
@@ -156,6 +160,10 @@ CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delet
 
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
+
+ifeq ($(ENABLE_SPECTRUM),1)
+CFLAGS += -DENABLE_SPECTRUM
+endif
 ifeq ($(ENABLE_SWD),1)
 	CFLAGS += -DENABLE_SWD
 endif
