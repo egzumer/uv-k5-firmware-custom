@@ -78,7 +78,6 @@ static void updateRSSI(const int vfo)
 		return;     // no change
 	
 	gCurrentRSSI[vfo] = rssi;
-//	gCurrentRSSI[vfo] = (gCurrentRSSI[vfo] + rssi) / 2;
 
 	UI_UpdateRSSI(rssi, vfo);
 }
@@ -86,7 +85,7 @@ static void updateRSSI(const int vfo)
 static void APP_CheckForIncoming(void)
 {
 	if (!g_SquelchLost)
-		return;
+		return;          // squelch is closed
 
 	// squelch is open
 
@@ -112,7 +111,12 @@ static void APP_CheckForIncoming(void)
 				}
 			#endif
 
-			FUNCTION_Select(FUNCTION_INCOMING);
+			if (gCurrentFunction != FUNCTION_INCOMING)
+			{
+				FUNCTION_Select(FUNCTION_INCOMING);
+				gUpdateDisplay = true;
+			}
+			
 			return;
 		}
 
@@ -120,7 +124,11 @@ static void APP_CheckForIncoming(void)
 
 		if (gRxReceptionMode != RX_MODE_NONE)
 		{
-			FUNCTION_Select(FUNCTION_INCOMING);
+			if (gCurrentFunction != FUNCTION_INCOMING)
+			{
+				FUNCTION_Select(FUNCTION_INCOMING);
+				gUpdateDisplay = true;
+			}
 			return;
 		}
 
@@ -135,7 +143,11 @@ static void APP_CheckForIncoming(void)
 	{
 		if (gRxReceptionMode != RX_MODE_NONE)
 		{
-			FUNCTION_Select(FUNCTION_INCOMING);
+			if (gCurrentFunction != FUNCTION_INCOMING)
+			{
+				FUNCTION_Select(FUNCTION_INCOMING);
+				gUpdateDisplay = true;
+			}
 			return;
 		}
 
@@ -145,7 +157,11 @@ static void APP_CheckForIncoming(void)
 
 	gRxReceptionMode = RX_MODE_DETECTED;
 
-	FUNCTION_Select(FUNCTION_INCOMING);
+	if (gCurrentFunction != FUNCTION_INCOMING)
+	{
+		FUNCTION_Select(FUNCTION_INCOMING);
+		gUpdateDisplay = true;
+	}
 }
 
 static void APP_HandleIncoming(void)
@@ -154,8 +170,11 @@ static void APP_HandleIncoming(void)
 
 	if (!g_SquelchLost)
 	{	// squelch is closed
-		FUNCTION_Select(FUNCTION_FOREGROUND);
-		gUpdateDisplay = true;
+		if (gCurrentFunction != FUNCTION_FOREGROUND)
+		{
+			FUNCTION_Select(FUNCTION_FOREGROUND);
+			gUpdateDisplay = true;
+		}
 		return;
 	}
 
@@ -201,6 +220,8 @@ static void APP_HandleIncoming(void)
 					// let the user see DW is not active
 					gDualWatchActive = false;
 					gUpdateStatus    = true;
+
+					gUpdateDisplay = true;
 
 					return;
 				}
@@ -972,6 +993,7 @@ void APP_Update(void)
 		AUDIO_PlayBeep(BEEP_880HZ_60MS_TRIPLE_BEEP);
 
 		RADIO_SetVfoState(VFO_STATE_TIMEOUT);
+
 		GUI_DisplayScreen();
 	}
 
@@ -1020,6 +1042,7 @@ void APP_Update(void)
 	#endif
 	{
 		MENU_SelectNextCode();
+
 		gScheduleScanListen = false;
 	}
 
