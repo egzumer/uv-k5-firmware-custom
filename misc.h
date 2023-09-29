@@ -167,7 +167,7 @@ extern uint8_t               gEEPROM_1EC0_1[8];
 extern uint8_t               gEEPROM_1EC0_2[8];
 extern uint8_t               gEEPROM_1EC0_3[8];
 
-extern uint16_t              gEEPROM_RSSI_CALIB[3][4];
+extern uint16_t              gEEPROM_RSSI_CALIB[2][4];
 
 extern uint16_t              gEEPROM_1F8A;
 extern uint16_t              gEEPROM_1F8C;

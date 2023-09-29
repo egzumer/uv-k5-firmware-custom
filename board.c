@@ -744,12 +744,9 @@ void BOARD_EEPROM_LoadMoreSettings(void)
 	memmove(gEEPROM_1EC0_2, gEEPROM_1EC0_0, 8);
 	memmove(gEEPROM_1EC0_3, gEEPROM_1EC0_0, 8);
 
-	// 3 bands, 4 * 16-bit values per band
-	// both my radios are -70dBm, -65dBm, -60dBm, -55dBm (0xB4, 0xBE, 0xC8, 0xD2)
-	// -93, -75, -57, -39 seems to be a better choice (0x86, 0xAA, 0xCE, 0xF2)
-	EEPROM_ReadBuffer(0x1EC8, gEEPROM_RSSI_CALIB[0], 8);
-	memmove(gEEPROM_RSSI_CALIB[1], gEEPROM_RSSI_CALIB[0], 8);
-	memmove(gEEPROM_RSSI_CALIB[2], gEEPROM_RSSI_CALIB[0], 8);
+	// 8 * 16-bit values
+	EEPROM_ReadBuffer(0x1EC0, gEEPROM_RSSI_CALIB[0], 8);
+	EEPROM_ReadBuffer(0x1EC8, gEEPROM_RSSI_CALIB[1], 8);
 
 	EEPROM_ReadBuffer(0x1F40, gBatteryCalibration, 12);
 	if (gBatteryCalibration[0] >= 5000)

@@ -177,10 +177,23 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				gRequestSaveVFO   = true;
 				gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
 			#else
-				// toggle scanlist-1
+				// toggle scanlist-1 and scanlist 2
 				if (gScreenToDisplay != DISPLAY_SCANNER)
 				{
-					gTxVfo->SCANLIST1_PARTICIPATION = gTxVfo->SCANLIST1_PARTICIPATION ? 0 : 1;
+					if (gTxVfo->SCANLIST1_PARTICIPATION)
+					{
+						if (gTxVfo->SCANLIST2_PARTICIPATION)
+							gTxVfo->SCANLIST1_PARTICIPATION = 0;
+						else
+							gTxVfo->SCANLIST2_PARTICIPATION = 1;
+					}
+					else
+					{
+						if (gTxVfo->SCANLIST2_PARTICIPATION)
+							gTxVfo->SCANLIST2_PARTICIPATION = 0;
+						else
+							gTxVfo->SCANLIST1_PARTICIPATION = 1;
+					}
 					SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
 					gVfoConfigureMode = VFO_CONFIGURE;
 					gFlagResetVfos    = true;
