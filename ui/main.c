@@ -118,7 +118,7 @@
 		const unsigned int max_dB      = -33;
 		const unsigned int min_dB      = -127;
 
-		const unsigned int txt_width   = 7 * 10;         // 10 chars
+		const unsigned int txt_width   = 7 * 8;         // 8 text chars
 		const unsigned int bar_x       = txt_width + 4;
 		const unsigned int bar_width   = LCD_WIDTH - 1 - bar_x;
 
@@ -147,9 +147,9 @@
 			memset(pLine, 0, LCD_WIDTH);
 
 		if (s_level < 10)
-			sprintf(s, "%-4d S%u  ", dBm, s_level);  // S0 ~ S9
+			sprintf(s, "%-4d S%u ", dBm, s_level);  // S0 ~ S9
 		else
-			sprintf(s, "%-4d S9+%u", dBm, s_level);  // S9+
+			sprintf(s, "%-4d +%2u", dBm, s_level);  // S9+
 		UI_PrintStringSmall(s, 2, 0, line);
 
 		for (i = 0; i < bar_width; i += 2)
