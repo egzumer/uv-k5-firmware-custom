@@ -340,7 +340,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			case FUNCTION_TRANSMIT:
 			case FUNCTION_BAND_SCOPE:
 			case FUNCTION_POWER_SAVE:
-				counter = display_update_rate - 1;
+				counter = display_update_rate;  // queue up a display update as soon as we switch to RX mode
 				return;
 
 			// only adjust stuff if we're in one of these modes
@@ -442,9 +442,9 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			hold_counter[vfo] = 30;           // 300ms hold
 
 		if (hold_counter[vfo] == 0)
-		{	// hold has been released/timed-out, we're free to increase gain
-			const unsigned int index = gain_table_index[vfo] + 1;                 // move up to next gain table index
-			gain_table_index[vfo] = (index <= max_index) ? index : max_index;     // limit the gain index and save it
+		{	// hold has been released, we're free to increase gain
+			const unsigned int index = gain_table_index[vfo] + 1;                 // move up to next gain index
+			gain_table_index[vfo] = (index <= max_index) ? index : max_index;     // limit the gain index
 		}
 
 		if (gain_table_index[vfo] == gain_table_index_prev[vfo])

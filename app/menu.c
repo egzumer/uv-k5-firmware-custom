@@ -595,8 +595,8 @@ void MENU_AcceptSetting(void)
 			return;
 
 		case MENU_D_LIVE_DEC:
-			gDTMF_RecvTimeoutSaved = 0;
-			gDTMF_ReceivedSaved[0] = '\0';
+			gDTMF_RX_live_timeout = 0;
+			gDTMF_RX_live[0]      = '\0';
 			gSetting_live_DTMF_decoder = gSubMenuSelection;
 			if (!gSetting_live_DTMF_decoder)
 				BK4819_DisableDTMF();

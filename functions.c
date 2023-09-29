@@ -59,8 +59,8 @@ void FUNCTION_Init(void)
 	gDTMF_WriteIndex     = 0;
 	memset(gDTMF_Received, 0, sizeof(gDTMF_Received));
 
-//	gDTMF_RecvTimeoutSaved = 0;
-//	gDTMF_ReceivedSaved[0] = '\0';
+//	gDTMF_RX_timeout_live = 0;
+//	gDTMF_RX_timeout_live[0] = '\0';
 		
 	g_CxCSS_TAIL_Found = false;
 	g_CDCSS_Lost       = false;
@@ -152,7 +152,8 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			// if DTMF is enabled when TX'ing, it changes the TX audio filtering !! .. 1of11
 			BK4819_DisableDTMF();
 
-			gDTMF_ReceivedSaved[0] = 0;
+			gDTMF_RX_live_timeout = 0;
+			gDTMF_RX_live[0]      = 0;
 			
 			#if defined(ENABLE_FMRADIO)
 				if (gFmRadioMode)

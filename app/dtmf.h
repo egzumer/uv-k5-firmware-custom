@@ -63,8 +63,8 @@ extern uint8_t           gDTMF_WriteIndex;
 extern uint8_t           gDTMF_PreviousIndex;
 extern uint8_t           gDTMF_RecvTimeout;
 
-extern char              gDTMF_ReceivedSaved[20];
-extern uint8_t           gDTMF_RecvTimeoutSaved;
+extern char              gDTMF_RX_live[20];
+extern uint8_t           gDTMF_RX_live_timeout;
 
 extern bool              gIsDtmfContactValid;
 extern char              gDTMF_ID[4];

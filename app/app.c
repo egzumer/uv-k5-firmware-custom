@@ -783,25 +783,26 @@ void APP_CheckRadioInterrupts(void)
 			const char c = DTMF_GetCharacter(BK4819_GetDTMF_5TONE_Code());
 			if (c != 0xff)
 			{
-				gDTMF_RequestPending = true;
-				gDTMF_RecvTimeout    = DTMF_RX_timeout_500ms;
-				// shift the RX buffer down one - if need be
-				if (gDTMF_WriteIndex >= sizeof(gDTMF_Received))
-					memmove(gDTMF_Received, &gDTMF_Received[1], gDTMF_WriteIndex-- - 1);
-				gDTMF_Received[gDTMF_WriteIndex++] = c;
-
-				if (gCurrentFunction == FUNCTION_RECEIVE)
+				if (gCurrentFunction == FUNCTION_RECEIVE  ||
+				    gCurrentFunction == FUNCTION_INCOMING ||
+					gCurrentFunction == FUNCTION_MONITOR)
 				{
-					{	// live DTMF decoder
-						gDTMF_RecvTimeoutSaved = DTMF_RX_timeout_saved_500ms;
-						size_t len = strlen(gDTMF_ReceivedSaved);
-						// shift the RX buffer down one - if need be
-						if (len >= (sizeof(gDTMF_ReceivedSaved) - 1))
-							memmove(gDTMF_ReceivedSaved, &gDTMF_ReceivedSaved[1], len--);
-						gDTMF_ReceivedSaved[len++] = c;
-						gDTMF_ReceivedSaved[len]   = '\0';
-						gUpdateDisplay = true;
-					}
+					gDTMF_RequestPending = true;
+					gDTMF_RecvTimeout    = DTMF_RX_timeout_500ms;
+					// shift the RX buffer down one - if need be
+					if (gDTMF_WriteIndex >= sizeof(gDTMF_Received))
+						memmove(gDTMF_Received, &gDTMF_Received[1], --gDTMF_WriteIndex);
+					gDTMF_Received[gDTMF_WriteIndex++] = c;
+
+					// live DTMF decoder
+					size_t len = strlen(gDTMF_RX_live);
+					// shift the RX buffer down one - if need be
+					if (len >= (sizeof(gDTMF_RX_live) - 1))
+						memmove(&gDTMF_RX_live[0], &gDTMF_RX_live[1], --len);
+					gDTMF_RX_live[len++]  = c;
+					gDTMF_RX_live[len]    = 0;
+					gDTMF_RX_live_timeout = DTMF_RX_live_timeout_500ms;  // time till we delete it
+					gUpdateDisplay        = true;
 
 					DTMF_HandleRequest();
 				}
@@ -1687,6 +1688,15 @@ void APP_TimeSlice500ms(void)
 		if (--gKeyInputCountdown == 0)
 			cancelUserInputModes();
 
+	if (gDTMF_RX_live_timeout > 0)
+	{
+		if (--gDTMF_RX_live_timeout == 0)
+		{
+			gDTMF_RX_live[0] = 0;
+			gUpdateDisplay   = true;
+		}
+	}
+
 	// Skipped authentic device check
 
 	#ifdef ENABLE_FMRADIO
@@ -1936,15 +1946,6 @@ void APP_TimeSlice500ms(void)
 			memset(gDTMF_Received, 0, sizeof(gDTMF_Received));
 		}
 	}
-
-	if (gDTMF_RecvTimeoutSaved > 0)
-	{
-		if (--gDTMF_RecvTimeoutSaved == 0)
-		{
-			gDTMF_ReceivedSaved[0] = '\0';
-			gUpdateDisplay = true;
-		}
-	}
 }
 
 #ifdef ENABLE_ALARM
@@ -2019,11 +2020,11 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	if (gEeprom.AUTO_KEYPAD_LOCK)
 		gKeyLockCountdown = 30;     // 15 seconds
 
-	if (Key == KEY_EXIT && bKeyPressed && bKeyHeld && gDTMF_ReceivedSaved[0] > 0)
+	if (Key == KEY_EXIT && bKeyPressed && bKeyHeld && gDTMF_RX_live[0] != 0)
 	{	// clear the live DTMF decoder if the EXIT key is held
-		gDTMF_RecvTimeoutSaved = 0;
-		gDTMF_ReceivedSaved[0] = '\0';
-		gUpdateDisplay         = true;
+		gDTMF_RX_live_timeout = 0;
+		gDTMF_RX_live[0]      = 0;
+		gUpdateDisplay        = true;
 	}
 
 	if (!bKeyPressed)

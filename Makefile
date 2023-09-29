@@ -138,9 +138,9 @@ OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
 
 # the user might not have/want git installed
-# can set own version string here (max 7 chars here)
+# can set own version string here (max 7 chars)
 GIT_HASH := $(shell git rev-parse --short HEAD)
-#GIT_HASH := 230925b
+#GIT_HASH := 230930b
 
 $(info GIT_HASH = $(GIT_HASH))
 
@@ -150,6 +150,10 @@ ifeq ($(ENABLE_OVERLAY),1)
 endif
 
 CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
+#CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c99 -MMD
+#CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu99 -MMD
+#CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu11 -MMD
+
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
 ifeq ($(ENABLE_SWD),1)
