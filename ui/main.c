@@ -66,38 +66,38 @@
 			const unsigned int bar_x     = 2;
 			const unsigned int bar_width = LCD_WIDTH - 2 - bar_x;
 			unsigned int       i;
-			
+
 			#if 1
 				// TX audio level
-			
+
 				if (gCurrentFunction != FUNCTION_TRANSMIT)
 					return;
-			
+
 				const unsigned int voice_amp  = BK4819_GetVoiceAmplitudeOut();  // 15:0
-			
+
 //				const unsigned int max        = 65535;
 //				const unsigned int level      = ((voice_amp * bar_width) + (max / 2)) / max;            // with rounding
 //				const unsigned int len        = (level <= bar_width) ? level : bar_width;
-			
+
 				// make non-linear to make more sensitive at low values
 				const unsigned int level      = voice_amp * 8;
 				const unsigned int sqrt_level = sqrt16((level < 65535) ? level : 65535);
 				const unsigned int len        = (sqrt_level <= bar_width) ? sqrt_level : bar_width;
-			
+
 			#else
 				// TX/RX AF input level (dB)
-			
+
 				const uint8_t      af_tx_rx   = BK4819_GetAfTxRx();             //  6:0
 				const unsigned int max        = 63;
 				const unsigned int level      = (((uint16_t)af_tx_rx * bar_width) + (max / 2)) / max;   // with rounding
 				const unsigned int len        = (level <= bar_width) ? level : bar_width;
-			
+
 			#endif
-			
+
 			uint8_t *pLine = gFrameBuffer[line];
-			
+
 			memset(pLine, 0, LCD_WIDTH);
-			
+
 			#if 1
 				// solid bar
 				for (i = 0; i < bar_width; i++)
@@ -107,7 +107,7 @@
 				for (i = 0; i < bar_width; i += 2)
 					pLine[bar_x + i] = (i <= len) ? 0x7f : 0x41;
 			#endif
-			
+
 			if (gCurrentFunction == FUNCTION_TRANSMIT)
 				ST7565_BlitFullScreen();
 		}
@@ -136,12 +136,12 @@
 		uint8_t           *pLine       = gFrameBuffer[line];
 
 		unsigned int       s_level     = 0;
-		
+
 		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
 			return;     // display is in use
 		if (gCurrentFunction == FUNCTION_TRANSMIT || gScreenToDisplay != DISPLAY_MAIN)
 			return;     // display is in use
-		
+
 		if (dBm >= -63)                    // S9+10dB
 			s_level = 10 + (((dBm - -63) / 10) * 10);
 		else
@@ -180,8 +180,14 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 		                 gCurrentFunction == FUNCTION_MONITOR ||
 		                 gCurrentFunction == FUNCTION_INCOMING);
 
-		if (rx)
-			UI_DisplayRSSIBar(rssi, true);
+		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
+			if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
+			{
+			}
+			else
+		#endif
+			if (rx)
+				UI_DisplayRSSIBar(rssi, true);
 
 	#else
 
@@ -205,11 +211,11 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 		const int16_t level01 = (level0 + level1) / 2;
 		const int16_t level12 = (level1 + level2) / 2;
 		const int16_t level23 = (level2 + level3) / 2;
-		
+
 		gVFO_RSSI[vfo] = rssi;
-		
+
 		uint8_t rssi_level = 0;
-	
+
 		if (rssi >= level3)  rssi_level = 7;
 		else
 		if (rssi >= level23) rssi_level = 6;
@@ -223,24 +229,24 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 		if (rssi >= level01) rssi_level = 2;
 		else
 		if (rssi >= level0)  rssi_level = 1;
-	
+
 		if (gVFO_RSSI_bar_level[vfo] == rssi_level)
 			return;
-	
+
 		gVFO_RSSI_bar_level[vfo] = rssi_level;
-	
+
 		// **********************************************************
-		
+
 		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
 			return;    // display is in use
-	
+
 		if (gCurrentFunction == FUNCTION_TRANSMIT || gScreenToDisplay != DISPLAY_MAIN)
 			return;    // display is in use
-	
+
 		pLine = gFrameBuffer[Line - 1];
-	
+
 		memset(pLine, 0, 23);
-		
+
 		if (rssi_level > 0)
 		{
 			//if (rssi_level >= 1)
@@ -260,7 +266,7 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 		}
 		else
 			pLine = NULL;
-	
+
 		ST7565_DrawLine(0, Line, 23, pLine);
 	#endif
 }
