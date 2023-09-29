@@ -36,21 +36,25 @@
 #include "ui/main.h"
 #include "ui/ui.h"
 
+// ***************************************************************************
+
 #ifdef ENABLE_AUDIO_BAR
 
 	unsigned int sqrt16(unsigned int value)
 	{	// return square root of 'value'
-		unsigned int shift = 15;
-		unsigned int bit   = 1u << shift;
+		unsigned int shift = 16;         // number of bits supplied in 'value' .. 2 ~ 32
+		unsigned int bit   = 1u << --shift;
 		unsigned int sqrti = 0;
-		do {
+		while (bit)
+		{
 			const unsigned int temp = ((sqrti << 1) | bit) << shift--;
 			if (value >= temp)
 			{
 				value -= temp;
 				sqrti |= bit;
 			}
-		} while (bit >>= 1);
+			bit >>= 1;
+		}
 		return sqrti;
 	}
 
@@ -104,6 +108,152 @@
 		}
 	}
 #endif
+
+#if defined(ENABLE_RSSI_BAR)
+	void UI_DisplayRSSIBar(const int16_t rssi, const bool now)
+	{
+		char               s[16];
+		unsigned int       i;
+
+		const unsigned int max_dB      = -33;
+		const unsigned int min_dB      = -127;
+
+		const unsigned int txt_width   = 7 * 10;         // 10 chars
+		const unsigned int bar_x       = txt_width + 4;
+		const unsigned int bar_width   = LCD_WIDTH - 1 - bar_x;
+
+		const int16_t      dBm         = (rssi / 2) - 160;
+		const unsigned int clamped_dBm = (dBm < min_dB) ? min_dB : (dBm > max_dB) ? max_dB : dBm;
+		const unsigned int width       = max_dB - min_dB;
+		const unsigned int len         = (((clamped_dBm - min_dB) * bar_width) + (width / 2)) / width;
+
+		const unsigned int line        = 3;
+		uint8_t           *pLine       = gFrameBuffer[line];
+
+		unsigned int       s_level     = 0;
+		
+		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
+			return;     // display is in use
+		if (gCurrentFunction == FUNCTION_TRANSMIT || gScreenToDisplay != DISPLAY_MAIN)
+			return;     // display is in use
+		
+		if (dBm >= -63)                    // S9+10dB
+			s_level = 10 + (((dBm - -63) / 10) * 10);
+		else
+		if (clamped_dBm >= -127)           // S0
+			s_level = (clamped_dBm - -127) / 6;
+
+		if (now)
+			memset(pLine, 0, LCD_WIDTH);
+
+		if (s_level < 10)
+			sprintf(s, "%-4d S%u  ", dBm, s_level);  // S0 ~ S9
+		else
+			sprintf(s, "%-4d S9+%u", dBm, s_level);  // S9+
+		UI_PrintStringSmall(s, 2, 0, line);
+
+		for (i = 0; i < bar_width; i += 2)
+			pLine[bar_x + i] = ((i & 1) == 0 && i <= len) ? 0x7f : 0x41;
+
+		if (now)
+			ST7565_BlitFullScreen();
+	}
+#endif
+
+void UI_UpdateRSSI(const int16_t rssi, const int vfo)
+{
+	#ifdef ENABLE_RSSI_BAR
+
+		const bool rx = (gCurrentFunction == FUNCTION_RECEIVE ||
+		                 gCurrentFunction == FUNCTION_MONITOR ||
+		                 gCurrentFunction == FUNCTION_INCOMING);
+
+		if (rx)
+			UI_DisplayRSSIBar(rssi, true);
+
+	#else
+
+		const uint8_t Line  = (vfo == 0) ? 3 : 7;
+		uint8_t      *pLine = gFrameBuffer[Line - 1];
+//		const int16_t dBm = (rssi / 2) - 160;
+
+		#if 0
+			//const unsigned int band = gRxVfo->Band;
+			const unsigned int band = 0;
+			const int16_t level0  = gEEPROM_RSSI_CALIB[band][0];
+			const int16_t level1  = gEEPROM_RSSI_CALIB[band][1];
+			const int16_t level2  = gEEPROM_RSSI_CALIB[band][2];
+			const int16_t level3  = gEEPROM_RSSI_CALIB[band][3];
+		#else
+			const int16_t level0  = (-115 + 160) * 2;   // dB
+			const int16_t level1  = ( -89 + 160) * 2;   // dB
+			const int16_t level2  = ( -64 + 160) * 2;   // dB
+			const int16_t level3  = ( -39 + 160) * 2;   // dB
+		#endif
+		const int16_t level01 = (level0 + level1) / 2;
+		const int16_t level12 = (level1 + level2) / 2;
+		const int16_t level23 = (level2 + level3) / 2;
+		
+		gVFO_RSSI[vfo] = rssi;
+		
+		uint8_t rssi_level = 0;
+	
+		if (rssi >= level3)  rssi_level = 7;
+		else
+		if (rssi >= level23) rssi_level = 6;
+		else
+		if (rssi >= level2)  rssi_level = 5;
+		else
+		if (rssi >= level12) rssi_level = 4;
+		else
+		if (rssi >= level1)  rssi_level = 3;
+		else
+		if (rssi >= level01) rssi_level = 2;
+		else
+		if (rssi >= level0)  rssi_level = 1;
+	
+		if (gVFO_RSSI_bar_level[vfo] == rssi_level)
+			return;
+	
+		gVFO_RSSI_bar_level[vfo] = rssi_level;
+	
+		// **********************************************************
+		
+		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
+			return;    // display is in use
+	
+		if (gCurrentFunction == FUNCTION_TRANSMIT || gScreenToDisplay != DISPLAY_MAIN)
+			return;    // display is in use
+	
+		pLine = gFrameBuffer[Line - 1];
+	
+		memset(pLine, 0, 23);
+		
+		if (rssi_level > 0)
+		{
+			//if (rssi_level >= 1)
+				memmove(pLine, BITMAP_Antenna, 5);
+			if (rssi_level >= 2)
+				memmove(pLine +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
+			if (rssi_level >= 3)
+				memmove(pLine +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
+			if (rssi_level >= 4)
+				memmove(pLine + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
+			if (rssi_level >= 5)
+				memmove(pLine + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
+			if (rssi_level >= 6)
+				memmove(pLine + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
+			if (rssi_level >= 7)
+				memmove(pLine + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
+		}
+		else
+			pLine = NULL;
+	
+		ST7565_DrawLine(0, Line, 23, pLine);
+	#endif
+}
+
+// ***************************************************************************
 
 void UI_DisplayMain(void)
 {
@@ -428,17 +578,7 @@ void UI_DisplayMain(void)
 			else
 			if (duff_beer == 2)
 			{	// RX signal level
-				#ifdef ENABLE_DBM
-					// dBm
-					//
-					// this doesn't yet quite fit into the available screen space
-					// I suppose the '-' sign could be dropped
-					//
-					const int16_t dBm = (gVFO_RSSI[vfo_num] / 2) - 160;
-					sprintf(String, "%-3d", dBm);
-					//sprintf(String, "%3d", abs(dBm));
-					UI_PrintStringSmall(String, 2, 0, Line + 2);
-				#else
+				#ifndef ENABLE_RSSI_BAR
 					// bar graph
 					if (gVFO_RSSI_bar_level[vfo_num] > 0)
 						Level = gVFO_RSSI_bar_level[vfo_num];
@@ -523,42 +663,44 @@ void UI_DisplayMain(void)
 	}
 
 	if (center_line_is_free)
-	{	// we're free to use the middle empty line for something
+	{	// we're free to use the middle line
+
+		const bool rx = (gCurrentFunction == FUNCTION_RECEIVE ||
+		                 gCurrentFunction == FUNCTION_MONITOR ||
+		                 gCurrentFunction == FUNCTION_INCOMING);
 
 		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
-			if (gSetting_AM_fix && gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode)
+			if (rx && gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
 			{
-				switch (gCurrentFunction)
-				{
-					case FUNCTION_TRANSMIT:
-					case FUNCTION_BAND_SCOPE:
-					case FUNCTION_POWER_SAVE:
-						break;
-
-					case FUNCTION_FOREGROUND:
-						break;
-
-					case FUNCTION_RECEIVE:
-					case FUNCTION_MONITOR:
-					case FUNCTION_INCOMING:
-						AM_fix_print_data(gEeprom.RX_CHANNEL, String);
-						UI_PrintStringSmall(String, 0, 0, 3);
-						break;
-				}
+				AM_fix_print_data(gEeprom.RX_CHANNEL, String);
+				UI_PrintStringSmall(String, 0, 0, 3);
 			}
 			else
 		#endif
+
+		#ifdef ENABLE_RSSI_BAR
+			if (rx)
+				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_CHANNEL], false);
+			else
+		#endif
+
 		{
 			#ifdef ENABLE_AUDIO_BAR
 				UI_DisplayAudioBar();
 
 //				if (!gSetting_mic_bar)
 			#endif
-			if (gCurrentFunction != FUNCTION_TRANSMIT)
+			if (rx || gCurrentFunction == FUNCTION_FOREGROUND)
 			{
 				if (gSetting_live_DTMF_decoder && gDTMF_ReceivedSaved[0] >= 32)
 				{	// show live DTMF decode
-					UI_PrintStringSmall(gDTMF_ReceivedSaved, 8, 0, 3);
+					const unsigned int len = strlen(gDTMF_ReceivedSaved);
+					unsigned int       idx = 0;
+					while ((len - idx) > (17 - 5))   // display the last 'n' on-screen fittable chars
+						idx++;
+					strcpy(String, "DTMF ");
+					strcat(String, gDTMF_ReceivedSaved + idx);
+					UI_PrintStringSmall(String, 2, 0, 3);
 				}
 				else
 				if (gChargingWithTypeC)
@@ -576,3 +718,5 @@ void UI_DisplayMain(void)
 
 	ST7565_BlitFullScreen();
 }
+
+// ***************************************************************************

@@ -432,7 +432,7 @@ void MENU_AcceptSetting(void)
 			{	// trailing trim
 				for (int i = 9; i >= 0; i--)
 				{
-					if (edit[i] != ' ' && edit[i] != '_' && edit[i] != 0 && edit[i] != 0xff)
+					if (edit[i] != ' ' && edit[i] != '_' && edit[i] != 0x00 && edit[i] != 0xff)
 						break;
 					edit[i] = ' ';
 				}
@@ -455,7 +455,7 @@ void MENU_AcceptSetting(void)
 				gEeprom.VOX_LEVEL = gSubMenuSelection - 1;
 			BOARD_EEPROM_LoadMoreSettings();
 			gFlagReconfigureVfos = true;
-			gUpdateStatus = true;
+			gUpdateStatus        = true;
 			break;
 
 		case MENU_ABR:

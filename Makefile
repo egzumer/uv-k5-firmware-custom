@@ -26,6 +26,7 @@ ENABLE_NO_SCAN_TIMEOUT        := 1
 ENABLE_AM_FIX                 := 1
 ENABLE_AM_FIX_SHOW_DATA       := 1
 ENABLE_SQUELCH1_LOWER         := 0
+ENABLE_RSSI_BAR               := 1
 ENABLE_AUDIO_BAR              := 0
 #ENABLE_COPY_CHAN_TO_VFO      := 1
 #ENABLE_SINGLE_VFO_CHAN       := 1
@@ -117,7 +118,6 @@ OBJS += ui/inputbox.o
 OBJS += ui/lock.o
 OBJS += ui/main.o
 OBJS += ui/menu.o
-OBJS += ui/rssi.o
 OBJS += ui/scanner.o
 OBJS += ui/status.o
 OBJS += ui/ui.o
@@ -223,6 +223,9 @@ ifeq ($(ENABLE_AM_FIX_TEST1),1)
 endif
 ifeq ($(ENABLE_SQUELCH1_LOWER),1)
 	CFLAGS  += -DENABLE_SQUELCH1_LOWER
+endif
+ifeq ($(ENABLE_RSSI_BAR),1)
+	CFLAGS  += -DENABLE_RSSI_BAR
 endif
 ifeq ($(ENABLE_AUDIO_BAR),1)
 	CFLAGS  += -DENABLE_AUDIO_BAR

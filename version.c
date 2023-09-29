@@ -2,7 +2,7 @@
 #ifdef GIT_HASH
 	#define VER     GIT_HASH
 #else
-	#define VER     "230925"
+	#define VER     "230930"
 #endif
 
 const char Version[]      = "OEFW-"VER;

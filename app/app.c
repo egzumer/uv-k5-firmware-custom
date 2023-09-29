@@ -59,7 +59,6 @@
 #include "ui/inputbox.h"
 #include "ui/main.h"
 #include "ui/menu.h"
-#include "ui/rssi.h"
 #include "ui/status.h"
 #include "ui/ui.h"
 
@@ -79,6 +78,7 @@ static void updateRSSI(const int vfo)
 		return;     // no change
 	
 	gCurrentRSSI[vfo] = rssi;
+//	gCurrentRSSI[vfo] = (gCurrentRSSI[vfo] + rssi) / 2;
 
 	UI_UpdateRSSI(rssi, vfo);
 }
@@ -2305,7 +2305,7 @@ Skip:
 		{
 			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_CHANNEL, gTxVfo, gRequestSaveChannel);
 			if (gScreenToDisplay != DISPLAY_SCANNER)
-				if (gVfoConfigureMode == VFO_CONFIGURE_NONE)
+				if (gVfoConfigureMode == VFO_CONFIGURE_NONE)  // 'if' is so as we don't wipe out previously setting this variable elsewhere
 					gVfoConfigureMode = VFO_CONFIGURE;
 		}
 		else

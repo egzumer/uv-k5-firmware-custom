@@ -29,7 +29,6 @@
 #include "frequencies.h"
 #include "functions.h"
 #include "misc.h"
-#include "ui/rssi.h"
 
 // original QS front end register settings
 const uint8_t orig_lna_short = 3;   //   0dB

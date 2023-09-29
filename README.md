@@ -46,6 +46,7 @@ ENABLE_NO_SCAN_TIMEOUT        := 1       remove the 32 sec timeout from the CTCS
 ENABLE_AM_FIX                 := 1       dynamically adjust the front end gains when in AM mode to helo prevent AM demodulator saturation - ignore the on-screen RSSI (for now)
 ENABLE_AM_FIX_SHOW_DATA       := 1       show debug data for the AM fix
 ENABLE_SQUELCH1_LOWER         := 0       adjusts squelch setting '1' to be more sensitive - I plan to let user adjust it in the menu
+ENABLE_RSSI_BAR               := 1       enable a dBm/Sx RSSI bar graph level
 ENABLE_AUDIO_BAR              := 0       experimental, display an audo bar level when TX'ing
 #ENABLE_COPY_CHAN_TO_VFO      := 1       not yet implemented - copy the channel into the VFO
 #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible

@@ -40,7 +40,7 @@ uint8_t           gDTMF_WriteIndex    = 0;
 uint8_t           gDTMF_PreviousIndex = 0;
 uint8_t           gDTMF_RecvTimeout   = 0;
 
-char              gDTMF_ReceivedSaved[17];
+char              gDTMF_ReceivedSaved[20];
 uint8_t           gDTMF_RecvTimeoutSaved = 0;
 
 bool              gIsDtmfContactValid;
