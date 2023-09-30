@@ -1,11 +1,12 @@
 # Main features:
  - OneOfEleven mods, including AM fix
- - fagci spectrum analyzer
+ - fagci spectrum analyzer (**F+5** to turn on)
  - better battery percentage calculation (based on real measurement)
 
 <img src="images/main.jpg" width=300 /><img src="images/spectrum.jpg" width=300 /><img src="images/audiobar.jpg" width=300 /><img src="images/rssibar.jpg" width=300 />
 
-
+❗❗❗Battery calibration is highly recommended, the calibration is firmware independent and persistent:
+ - https://github.com/amnemonic/Quansheng_UV-K5_Firmware/tree/main/python-utils#batt_calibratorpy
 
 # Open reimplementation of the Quan Sheng UV-K5 v2.1.27 firmware
 
