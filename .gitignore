@@ -1,3 +1,5 @@
 *.d
 *.o
 firmware
+/firmware.packed.bin
+/firmware.bin
