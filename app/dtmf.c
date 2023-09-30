@@ -402,12 +402,14 @@ void DTMF_Reply(void)
 		return;
 	
 	Delay = gEeprom.DTMF_PRELOAD_TIME;
+	
 	if (gEeprom.DTMF_SIDE_TONE)
-	{
+	{	// the will also hear the transmitted tones
 		GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 		gEnableSpeaker = true;
 		Delay = (gEeprom.DTMF_PRELOAD_TIME < 60) ? 60 : gEeprom.DTMF_PRELOAD_TIME;
 	}
+	
 	SYSTEM_DelayMs(Delay);
 
 	BK4819_EnterDTMF_TX(gEeprom.DTMF_SIDE_TONE);
