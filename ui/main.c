@@ -119,8 +119,8 @@ bool center_line_is_free = true;
 #if defined(ENABLE_RSSI_BAR)
 	void UI_DisplayRSSIBar(const int16_t rssi, const bool now)
 	{
-		const int16_t      s0_dBm       = -127;                  // S0 .. base level
-//		const int16_t      s0_dBm       = -147;                  // S0 .. base level
+//		const int16_t      s0_dBm       = -127;                  // S0 .. base level
+		const int16_t      s0_dBm       = -147;                  // S0 .. base level
 
 		const int16_t      s9_dBm       = s0_dBm + (6 * 9);      // S9 .. 6dB/S-Point
 		const int16_t      bar_max_dBm  = s9_dBm + 30;           // S9+30dB
