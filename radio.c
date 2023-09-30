@@ -460,6 +460,7 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 
 		#if ENABLE_SQUELCH_LOWER
 			// make squelch more sensitive
+
 			pInfo->SquelchOpenRSSIThresh    = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 8) / 9;
 			pInfo->SquelchCloseRSSIThresh   = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 7) / 8;
 
