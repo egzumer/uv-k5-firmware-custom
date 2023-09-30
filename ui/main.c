@@ -124,7 +124,7 @@ bool center_line_is_free = true;
 
 		const int16_t      s9_dBm       = s0_dBm + (6 * 9);      // S9 .. 6dB/S-Point
 		const int16_t      bar_max_dBm  = s9_dBm + 30;           // S9+30dB
-		const int16_t      bar_min_dBm  = s0_dBm;                // S0
+		const int16_t      bar_min_dBm  = s0_dBm + (6 * 4);      // S4
 
 		// ************
 
