@@ -36,6 +36,8 @@
 #include "ui/main.h"
 #include "ui/ui.h"
 
+bool center_line_is_free = true;
+
 // ***************************************************************************
 
 #ifdef ENABLE_AUDIO_BAR
@@ -180,6 +182,9 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 {
 	#ifdef ENABLE_RSSI_BAR
 
+		if (!center_line_is_free)
+			return;
+		
 		const bool rx = (gCurrentFunction == FUNCTION_RECEIVE ||
 		                 gCurrentFunction == FUNCTION_MONITOR ||
 		                 gCurrentFunction == FUNCTION_INCOMING);
@@ -286,8 +291,9 @@ void UI_DisplayMain(void)
 {
 	char         String[16];
 	unsigned int vfo_num;
-	bool         center_line_is_free = true;
 
+	center_line_is_free = true;
+	
 //	#ifdef SINGLE_VFO_CHAN
 //		const bool single_vfo = (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? true : false;
 //	#else
@@ -338,7 +344,7 @@ void UI_DisplayMain(void)
 						strcpy(String, (gDTMF_State == DTMF_STATE_CALL_OUT_RSP) ? "CALL OUT(RSP)" : "CALL OUT");
 					else
 					if (gDTMF_CallState == DTMF_CALL_STATE_RECEIVED)
-						sprintf(String, "CALL:%s", (DTMF_FindContact(gDTMF_Caller, Contact)) ? Contact : gDTMF_Caller);
+						sprintf(String, "CALL FRM:%s", (DTMF_FindContact(gDTMF_Caller, Contact)) ? Contact : gDTMF_Caller);
 					else
 					if (gDTMF_IsTx)
 						strcpy(String, (gDTMF_State == DTMF_STATE_TX_SUCC) ? "DTMF TX(SUCC)" : "DTMF TX");
@@ -680,7 +686,7 @@ void UI_DisplayMain(void)
 			UI_PrintStringSmall(String, LCD_WIDTH + 70, 0, Line + 1);
 		}
 
-		// show the DTMF decoding symbol(
+		// show the DTMF decoding symbol
 		if (gEeprom.VfoInfo[vfo_num].DTMF_DECODING_ENABLE || gSetting_KILLED)
 			UI_PrintStringSmall("DTMF", LCD_WIDTH + 78, 0, Line + 1);
 
@@ -722,15 +728,26 @@ void UI_DisplayMain(void)
 
 		if (rx || gCurrentFunction == FUNCTION_FOREGROUND)
 		{
-			if (gSetting_live_DTMF_decoder && gDTMF_RX_live[0] >= 32)
-			{	// show live DTMF decode
-				const unsigned int len = strlen(gDTMF_RX_live);
-				const unsigned int idx = (len > (17 - 5)) ? len - (17 - 5) : 0;  // limit to last 'n' chars
-				strcpy(String, "DTMF ");
-				strcat(String, gDTMF_RX_live + idx);
-				UI_PrintStringSmall(String, 2, 0, 3);
-			}
-
+			#if 1
+				if (gSetting_live_DTMF_decoder && gDTMF_RX_live[0] != 0)
+				{	// show live DTMF decode
+					const unsigned int len = strlen(gDTMF_RX_live);
+					const unsigned int idx = (len > (17 - 5)) ? len - (17 - 5) : 0;  // limit to last 'n' chars
+					strcpy(String, "DTMF ");
+					strcat(String, gDTMF_RX_live + idx);
+					UI_PrintStringSmall(String, 2, 0, 3);
+				}
+			#else
+				if (gSetting_live_DTMF_decoder && gDTMF_RX_index > 0)
+				{	// show live DTMF decode
+					const unsigned int len = gDTMF_RX_index;
+					const unsigned int idx = (len > (17 - 5)) ? len - (17 - 5) : 0;  // limit to last 'n' chars
+					strcpy(String, "DTMF ");
+					strcat(String, gDTMF_RX + idx);
+					UI_PrintStringSmall(String, 2, 0, 3);
+				}
+			#endif
+			
 			#ifdef ENABLE_SHOW_CHARGE_LEVEL
 				else
 				if (gChargingWithTypeC)

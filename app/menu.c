@@ -109,9 +109,13 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 			break;
 
 		case MENU_TDR:
-		case MENU_XB:
 			*pMin = 0;
 			*pMax = ARRAY_SIZE(gSubMenu_CHAN) - 1;
+			break;
+
+		case MENU_XB:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_XB) - 1;
 			break;
 
 		#ifdef ENABLE_VOICE
@@ -591,13 +595,14 @@ void MENU_AcceptSetting(void)
 
 		case MENU_D_DCD:
 			gTxVfo->DTMF_DECODING_ENABLE = gSubMenuSelection;
-			gRequestSaveChannel          = 1;
+			DTMF_clear_RX();
+			gRequestSaveChannel = 1;
 			return;
 
 		case MENU_D_LIVE_DEC:
-			gDTMF_RX_live_timeout = 0;
-			gDTMF_RX_live[0]      = '\0';
 			gSetting_live_DTMF_decoder = gSubMenuSelection;
+			gDTMF_RX_live_timeout = 0;
+			memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
 			if (!gSetting_live_DTMF_decoder)
 				BK4819_DisableDTMF();
 			gFlagReconfigureVfos     = true;
@@ -1317,9 +1322,13 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 
 		gAskForConfirmation = 0;
 		gIsInSubMenu        = true;
-		gInputBoxIndex      = 0;
-		edit_index          = -1;
-
+		
+//		if (gMenuCursor != MENU_D_LIST)
+		{
+			gInputBoxIndex      = 0;
+			edit_index          = -1;
+		}
+		
 		return;
 	}
 

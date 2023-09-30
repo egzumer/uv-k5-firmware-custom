@@ -184,8 +184,15 @@ const char gSubMenu_TOT[11][7] =
 const char gSubMenu_CHAN[3][7] =
 {
 	"OFF",
-	"CHAN_A",
-	"CHAN_B"
+	"CHAN A",
+	"CHAN B"
+};
+
+const char gSubMenu_XB[3][7] =
+{
+	"SAME",
+	"CHAN A",
+	"CHAN B"
 };
 
 #ifdef ENABLE_VOICE
@@ -575,8 +582,11 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_TDR:
-		case MENU_XB:
 			strcpy(String, gSubMenu_CHAN[gSubMenuSelection]);
+			break;
+
+		case MENU_XB:
+			strcpy(String, gSubMenu_XB[gSubMenuSelection]);
 			break;
 
 		case MENU_TOT:
