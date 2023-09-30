@@ -1,6 +1,20 @@
+# Main features:
+ - OneOfEleven mods, including AM fix
+ - fagci spectrum analyzer
+ - better battery percentage calculation (based on real measurement)
+
+<img src="images/main.jpg" width=300 /><img src="images/spectrum.jpg" width=300 /><img src="images/audiobar.jpg" width=300 /><img src="images/rssibar.jpg" width=300 />
+
+
+
 # Open reimplementation of the Quan Sheng UV-K5 v2.1.27 firmware
 
-This repository is a cloned and customized version of DualTachyon's open firmware found here ..
+This repository is a merge of OneOfEleven custom firmware with fagci spectrum analizer plus my few changes.
+
+https://github.com/OneOfEleven/uv-k5-firmware-custom<br>
+https://github.com/fagci/uv-k5-firmware-fagci-mod/tree/refactor
+
+All is a cloned and customized version of DualTachyon's open firmware found here ..
 
 https://github.com/DualTachyon/uv-k5-firmware
 
