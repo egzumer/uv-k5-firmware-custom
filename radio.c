@@ -476,13 +476,13 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 				}
 				else
 				{
-					pInfo->SquelchOpenRSSIThresh   = ((uint16_t)pInfo->SquelchOpenRSSIThresh     *  3) /  4;
-					pInfo->SquelchCloseRSSIThresh  = ((uint16_t)pInfo->SquelchOpenRSSIThresh     *  9) / 10;
+					pInfo->SquelchOpenRSSIThresh   = ((uint16_t)pInfo->SquelchOpenRSSIThresh     *  9) / 10;
+					pInfo->SquelchCloseRSSIThresh  = ((uint16_t)pInfo->SquelchOpenRSSIThresh     *  7) /  8;
 
-					pInfo->SquelchOpenNoiseThresh   = ((uint16_t)pInfo->SquelchOpenNoiseThresh   *  4) /  3;
+					pInfo->SquelchOpenNoiseThresh   = ((uint16_t)pInfo->SquelchOpenNoiseThresh   *  8) /  7;
 					pInfo->SquelchCloseNoiseThresh  = ((uint16_t)pInfo->SquelchOpenNoiseThresh   * 10) /  9;
 
-					pInfo->SquelchOpenGlitchThresh  = ((uint16_t)pInfo->SquelchOpenGlitchThresh  *  4) /  3;
+					pInfo->SquelchOpenGlitchThresh  = ((uint16_t)pInfo->SquelchOpenGlitchThresh  *  8) /  7;
 					pInfo->SquelchCloseGlitchThresh = ((uint16_t)pInfo->SquelchOpenGlitchThresh  * 10) /  9;
 				}
 			}
