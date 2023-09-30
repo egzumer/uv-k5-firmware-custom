@@ -74,7 +74,7 @@ void UI_DisplayWelcome(void)
 		#if 0
 			UI_PrintStringSmall(WelcomeString2, 0, 127, 4);
 		#endif
-		UI_PrintString(Version,        0, 127, 5, 10);
+			UI_PrintStringSmall(Version, 0, 0, 6);
 
 		#if 1
 			ST7565_BlitStatusLine();  // blank status line
