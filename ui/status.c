@@ -169,9 +169,7 @@ void UI_DisplayStatus(const bool test_display)
 			
 			case 2:		// percentage
 			{
-				const uint16_t voltage = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
-				const uint16_t percent = (100 * (voltage - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v);
-//				const uint16_t percent = gBatteryDisplayLevel;
+				const uint16_t percent = BATTERY_VoltsToPercent(gBatteryVoltageAverage);
 				sprintf(s, "%u%%", percent);
 				space_needed = (7 * strlen(s));
 				if (x2 >= (x1 + space_needed))
