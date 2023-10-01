@@ -1832,7 +1832,7 @@ void APP_TimeSlice500ms(void)
 							}
 							else
 						#endif
-						#ifdef ENABLE_NO_SCAN_TIMEOUT
+						#ifndef ENABLE_CODE_SCAN_TIMEOUT
 							if (gScreenToDisplay != DISPLAY_SCANNER)
 						#endif
 								GUI_SelectNextDisplay(DISPLAY_MAIN);
@@ -1918,7 +1918,7 @@ void APP_TimeSlice500ms(void)
 	{
 		gScanProgressIndicator++;
 
-		#ifndef ENABLE_NO_SCAN_TIMEOUT
+		#ifdef ENABLE_CODE_SCAN_TIMEOUT
 			if (gScanProgressIndicator > 32)
 			{
 				if (gScanCssState == SCAN_CSS_STATE_SCANNING && !gScanSingleFrequency)
