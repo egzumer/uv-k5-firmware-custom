@@ -915,8 +915,8 @@ void RADIO_PrepareTX(void)
 		gDualWatchCountdown_10ms = dual_watch_count_after_tx_10ms;
 		gScheduleDualWatch       = false;
 
-		if (!gRxVfoIsActive)
-		{
+		if (gRxVfoIsActive)
+		{	// use the TX vfo
 			gEeprom.RX_CHANNEL = gEeprom.TX_CHANNEL;
 			gRxVfo             = &gEeprom.VfoInfo[gEeprom.TX_CHANNEL];
 			gRxVfoIsActive     = true;
