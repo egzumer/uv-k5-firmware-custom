@@ -193,7 +193,7 @@ uint8_t           gRestoreMrChannel;
 uint8_t           gCurrentScanList;
 uint8_t           gPreviousMrChannel;
 uint32_t          gRestoreFrequency;
-uint8_t           gRxVfoIsActive;
+bool              gRxVfoIsActive;
 #ifdef ENABLE_ALARM
 	uint8_t       gAlarmToneCounter;
 	uint16_t      gAlarmRunningCounter;

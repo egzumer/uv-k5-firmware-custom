@@ -5,10 +5,10 @@
 #
 ENABLE_SWD                    := 0
 ENABLE_OVERLAY                := 0
-ENABLE_LTO                    := 0
+ENABLE_LTO                    := 1
 ENABLE_UART                   := 1
 ENABLE_AIRCOPY                := 0
-ENABLE_FMRADIO                := 1
+ENABLE_FMRADIO                := 0
 ENABLE_NOAA                   := 0
 ENABLE_VOICE                  := 0
 ENABLE_ALARM                  := 0
@@ -21,7 +21,7 @@ ENABLE_TX_WHEN_AM             := 0
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1
 ENABLE_MAIN_KEY_HOLD          := 1
 ENABLE_BOOT_BEEPS             := 0
-ENABLE_COMPANDER              := 1
+ENABLE_COMPANDER              := 0
 ENABLE_SHOW_CHARGE_LEVEL      := 0
 ENABLE_REVERSE_BAT_SYMBOL     := 1
 ENABLE_CODE_SCAN_TIMEOUT      := 0

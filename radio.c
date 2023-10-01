@@ -915,7 +915,7 @@ void RADIO_PrepareTX(void)
 		gDualWatchCountdown_10ms = dual_watch_count_after_tx_10ms;
 		gScheduleDualWatch       = false;
 
-		if (gRxVfoIsActive)
+		if (!gRxVfoIsActive)
 		{	// use the TX vfo
 			gEeprom.RX_CHANNEL = gEeprom.TX_CHANNEL;
 			gRxVfo             = &gEeprom.VfoInfo[gEeprom.TX_CHANNEL];
@@ -954,8 +954,7 @@ void RADIO_PrepareTX(void)
 		}
 		else
 		//if (TX_freq_check(gCurrentVfo->pTX->Frequency) == 0 || gCurrentVfo->CHANNEL_SAVE <= FREQ_CHANNEL_LAST)
-		//if (TX_freq_check(gCurrentVfo->pTX->Frequency) == 0)
-		if (TX_freq_check(gEeprom.VfoInfo[gEeprom.TX_CHANNEL].pTX->Frequency) == 0)
+		if (TX_freq_check(gCurrentVfo->pTX->Frequency) == 0)
 		{	// TX frequency is allowed
 			if (gCurrentVfo->BUSY_CHANNEL_LOCK && gCurrentFunction == FUNCTION_RECEIVE)
 				State = VFO_STATE_BUSY;          // busy RX'ing a station

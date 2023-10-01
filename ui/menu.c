@@ -420,11 +420,7 @@ void UI_DisplayMenu(void)
 		{	// current menu item
 			strcpy(String, MenuList[menu_index].name);
 //			strcat(String, ":");
-			UI_PrintStringSmall(String, 0, 0, 6);
-			
-			// invert pixels
-//			for (i = 0; i < (7 * strlen(String)); i++)
-//				gFrameBuffer[6][i] ^= 0xFF;
+			UI_PrintStringSmall(String, 0, 0, 0);
 		}
 	}
 	#endif

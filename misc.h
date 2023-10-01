@@ -257,7 +257,7 @@ extern uint8_t               gRestoreMrChannel;
 extern uint8_t               gCurrentScanList;
 extern uint8_t               gPreviousMrChannel;
 extern uint32_t              gRestoreFrequency;
-extern uint8_t               gRxVfoIsActive;
+extern bool                  gRxVfoIsActive;
 extern uint8_t               gAlarmToneCounter;
 extern uint16_t              gAlarmRunningCounter;
 extern bool                  gKeyBeingHeld;
