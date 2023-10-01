@@ -128,8 +128,8 @@ extern const uint16_t        scan_pause_delay_in_2_10ms;
 extern const uint16_t        scan_pause_delay_in_3_10ms;
 extern const uint16_t        scan_pause_delay_in_4_10ms;
 
-extern const uint16_t        gMax_bat_v;
-extern const uint16_t        gMin_bat_v;
+//extern const uint16_t        gMax_bat_v;
+//extern const uint16_t        gMin_bat_v;
 
 extern const uint8_t         gMicGain_dB2[5];
 

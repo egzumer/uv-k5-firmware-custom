@@ -63,8 +63,8 @@ const uint16_t    NOAA_countdown_10ms              =  5000 / 10;   // 5 seconds
 const uint16_t    NOAA_countdown_2_10ms            =   500 / 10;   // 500ms
 const uint16_t    NOAA_countdown_3_10ms            =   200 / 10;   // 200ms
 
-const uint16_t    gMax_bat_v                       = 840;          // 8.4V
-const uint16_t    gMin_bat_v                       = 660;          // 6.6V
+//const uint16_t    gMax_bat_v                       = 840;          // 8.4V
+//const uint16_t    gMin_bat_v                       = 660;          // 6.6V
 
 const uint32_t    gDefaultAesKey[4]                = {0x4AA5CC60, 0x0312CC5F, 0xFFD2DABB, 0x6BBA7F92};
 

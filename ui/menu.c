@@ -734,9 +734,7 @@ void UI_DisplayMenu(void)
 
 			{	// 2nd text line .. percentage
 				UI_PrintString(String, menu_item_x1, menu_item_x2, 1, 8);
-				const uint16_t volts   = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
-				const uint16_t percent = (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v);
-				sprintf(String, "%u%%", percent);
+				sprintf(String, "%u%%", BATTERY_VoltsToPercent(gBatteryVoltageAverage));
 				UI_PrintString(String, menu_item_x1, menu_item_x2, 3, 8);
 				#if 0
 					sprintf(String, "Curr %u", gBatteryCurrent);  // needs scaling into mA

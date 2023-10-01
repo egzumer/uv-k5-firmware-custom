@@ -65,15 +65,11 @@ void UI_DisplayWelcome(void)
 
 		if (gEeprom.POWER_ON_DISPLAY_MODE == POWER_ON_DISPLAY_MODE_VOLTAGE)
 		{
-			const uint16_t volts = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v :
-			                       (gBatteryVoltageAverage > gMax_bat_v) ? gMax_bat_v :
-		                            gBatteryVoltageAverage;
-
 			strcpy(WelcomeString0, "VOLTAGE");
 			sprintf(WelcomeString1, "%u.%02uV %u%%",
 				gBatteryVoltageAverage / 100,
 				gBatteryVoltageAverage % 100,
-				(100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v));
+				BATTERY_VoltsToPercent(gBatteryVoltageAverage));
 
 			#if 0
 				sprintf(WelcomeString2, "Current %u", gBatteryCurrent);  // needs scaling into mA
