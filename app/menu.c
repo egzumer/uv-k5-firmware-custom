@@ -32,6 +32,7 @@
 #include "driver/gpio.h"
 #include "driver/keyboard.h"
 #include "frequencies.h"
+#include "helper/battery.h"
 #include "misc.h"
 #include "settings.h"
 #if defined(ENABLE_OVERLAY)
@@ -262,6 +263,11 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 		case MENU_PTT_ID:
 			*pMin = 0;
 			*pMax = ARRAY_SIZE(gSubMenu_PTT_ID) - 1;
+			break;
+
+		case MENU_VOL:
+			*pMin = 0;
+			*pMax = 2300;
 			break;
 
 		case MENU_BAT_TXT:
@@ -584,6 +590,12 @@ void MENU_AcceptSetting(void)
 			gTxVfo->DTMF_PTT_ID_TX_MODE = gSubMenuSelection;
 			gRequestSaveChannel         = 1;
 			return;
+
+		case MENU_VOL:
+			if(gF_LOCK) {
+				EEPROM_WriteBuffer(0x1F40, gBatteryCalibration);
+			}
+			break;
 
 		case MENU_BAT_TXT:
 			gSetting_battery_text = gSubMenuSelection;
@@ -987,6 +999,10 @@ void MENU_ShowCurrentSetting(void)
 		case MENU_PTT_ID:
 			gSubMenuSelection = gTxVfo->DTMF_PTT_ID_TX_MODE;
 			break;
+
+		case MENU_VOL:
+			gSubMenuSelection = gBatteryCalibration[3];
+			return;
 
 		case MENU_BAT_TXT:
 			gSubMenuSelection = gSetting_battery_text;

@@ -663,6 +663,7 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_VOL:
+			
 			// 1st text line
 			sprintf(String, "%u.%02uV", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100);
 			UI_PrintString(String, menu_item_x1, menu_item_x2, 1, 8);
@@ -676,6 +677,12 @@ void UI_DisplayMenu(void)
 					sprintf(String, "Curr %u", gBatteryCurrent);  // needs scaling into mA
 					UI_PrintString(String, menu_item_x1, menu_item_x2, 5, 8);
 				#endif
+			}
+			
+			if(gF_LOCK){
+				gBatteryCalibration[3] = gSubMenuSelection;
+				sprintf(String, "%u", gSubMenuSelection);
+				UI_PrintString(String, menu_item_x1, menu_item_x2, 5, 8);
 			}
 
 			already_printed = true;
