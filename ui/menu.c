@@ -91,11 +91,11 @@ const t_menu_item MenuList[] =
 	{"ANI-ID", VOICE_ID_ANI_CODE,                      MENU_ANI_ID     },
 	{"UPCODE", VOICE_ID_INVALID,                       MENU_UPCODE     },
 	{"DWCODE", VOICE_ID_INVALID,                       MENU_DWCODE     },
+	{"PTT-ID", VOICE_ID_INVALID,                       MENU_PTT_ID     },
 	{"D-ST",   VOICE_ID_INVALID,                       MENU_D_ST       },
     {"D-RSP",  VOICE_ID_INVALID,                       MENU_D_RSP      },
 	{"D-HOLD", VOICE_ID_INVALID,                       MENU_D_HOLD     },
 	{"D-PRE",  VOICE_ID_INVALID,                       MENU_D_PRE      },
-	{"PTT-ID", VOICE_ID_INVALID,                       MENU_PTT_ID     },
 	{"D-DCD",  VOICE_ID_INVALID,                       MENU_D_DCD      },
 	{"D-LIST", VOICE_ID_INVALID,                       MENU_D_LIST     },
 	{"D-LIVE", VOICE_ID_INVALID,                       MENU_D_LIVE_DEC }, // live DTMF decoder
@@ -168,7 +168,6 @@ const char gSubMenu_SAVE[5][4] =
 
 const char gSubMenu_TOT[11][7] =
 {
-	"OFF",
 	"30 sec",
 	"1 min",
 	"2 min",
@@ -178,21 +177,22 @@ const char gSubMenu_TOT[11][7] =
 	"6 min",
 	"7 min",
 	"8 min",
-	"9 min"
+	"9 min",
+	"15 min"
 };
 
-const char gSubMenu_CHAN[3][7] =
+const char gSubMenu_CHAN[3][10] =
 {
 	"OFF",
-	"CHAN A",
-	"CHAN B"
+	"UPPER\nVFO",
+	"LOWER\nVFO"
 };
 
-const char gSubMenu_XB[3][7] =
+const char gSubMenu_XB[3][10] =
 {
-	"SAME",
-	"CHAN A",
-	"CHAN B"
+	"MAIN\nVFO",
+	"UPPER\nVFO",
+	"LOWER\nVFO"
 };
 
 #ifdef ENABLE_VOICE
@@ -204,19 +204,19 @@ const char gSubMenu_XB[3][7] =
 	};
 #endif
 
-const char gSubMenu_SC_REV[3][3] =
+const char gSubMenu_SC_REV[3][13] =
 {
-	"TO",
-	"CO",
-	"SE"
+	"TIME\nOPER",
+	"CARRIER\nOPER",
+	"SEARCH\nOPER"
 };
 
-const char gSubMenu_MDF[4][8] =
+const char gSubMenu_MDF[4][15] =
 {
 	"FREQ",
-	"CHAN",
+	"CHANNEL\nNUMBER",
 	"NAME",
-	"NAM+FRE"
+	"NAME\n+\nFREQ"
 };
 
 #ifdef ENABLE_ALARM
@@ -235,19 +235,19 @@ const char gSubMenu_D_RSP[4][6] =
 	"BOTH"
 };
 
-const char gSubMenu_PTT_ID[4][5] =
+const char gSubMenu_PTT_ID[4][7] =
 {
 	"OFF",
-	"BOT",
-	"EOT",
+	"KEY UP",
+	"KEY DN",
 	"BOTH"
 };
 
-const char gSubMenu_PONMSG[4][5] =
+const char gSubMenu_PONMSG[4][8] =
 {
 	"FULL",
-	"MSG",
-	"VOL",
+	"MESSAGE",
+	"VOLTAGE",
 	"NONE"
 };
 
@@ -420,7 +420,8 @@ void UI_DisplayMenu(void)
 		{	// current menu item
 			strcpy(String, MenuList[menu_index].name);
 //			strcat(String, ":");
-			UI_PrintStringSmall(String, 0, 0, 0);
+			UI_PrintString(String, 0, 0, 0, 8);
+//			UI_PrintStringSmall(String, 0, 0, 0);
 		}
 	}
 	#endif
@@ -775,8 +776,52 @@ void UI_DisplayMenu(void)
 	}
 
 	if (!already_printed)
-		UI_PrintString(String, menu_item_x1, menu_item_x2, 2, 8);
+	{
+		unsigned int y;
+		unsigned int k     = 0;
+		unsigned int lines = 1;
+		unsigned int len   = strlen(String);
+		bool         small = false;
 
+		if (len > 0)
+		{
+			// count number of lines
+			for (i = 0; i < len; i++)
+			{
+				if (String[i] == '\n' && i < (len - 1))
+				{
+					lines++;
+					String[i] = 0;
+				}  
+			}
+			
+			if (lines > 3)
+			{	// use small text
+				small = true;
+				if (lines > 7)
+					lines = 7;
+			}
+			
+			// move the 1st line up
+			if (small)
+				y = 3 - ((lines + 0) / 2);
+			else
+				y = 2 - ((lines + 0) / 2);
+
+			for (i = 0; i < len && lines > 0; lines--)
+			{
+				if (small)
+					UI_PrintStringSmall(String + k, menu_item_x1, menu_item_x2, y);
+				else
+					UI_PrintString(String + k, menu_item_x1, menu_item_x2, y, 8);
+				while (i < len && String[i] >= 32)
+					i++;
+				k = ++i;
+				y += small ? 1 : 2;
+			}
+		}
+	}
+	
 	if (gMenuCursor == MENU_SLIST1 || gMenuCursor == MENU_SLIST2)
 	{
 		i = (gMenuCursor == MENU_SLIST1) ? 0 : 1;

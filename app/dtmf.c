@@ -362,9 +362,6 @@ void DTMF_Reply(void)
 
 	switch (gDTMF_ReplyState)
 	{
-		case DTMF_REPLY_NONE:
-			return;
-			
 		case DTMF_REPLY_ANI:
 			if (gDTMF_CallMode == DTMF_CALL_MODE_DTMF)
 			{
@@ -387,7 +384,10 @@ void DTMF_Reply(void)
 			break;
 	
 		default:
-			if (gDTMF_CallState != DTMF_CALL_STATE_NONE || (gCurrentVfo->DTMF_PTT_ID_TX_MODE != PTT_ID_BOT && gCurrentVfo->DTMF_PTT_ID_TX_MODE != PTT_ID_BOTH))
+		case DTMF_REPLY_NONE:
+			if (gDTMF_CallState != DTMF_CALL_STATE_NONE        ||
+			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_OFF ||
+			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOT)
 			{
 				gDTMF_ReplyState = DTMF_REPLY_NONE;
 				return;

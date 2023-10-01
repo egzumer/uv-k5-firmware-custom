@@ -154,8 +154,8 @@ bool center_line_is_free = true;
 
 		if (rssi_dBm >= (s9_dBm + 6))
 		{	// S9+XXdB, 1dB increment
-			const char *fmt[] = {"%-4d +%u  ", "%-4d +%u "};
-			const unsigned int dB = rssi_dBm - s9_dBm;
+			const char *fmt[] = {"%-4d +%u  ", "%-4d +%2u "};
+			const unsigned int dB = ((rssi_dBm - s9_dBm) <= 99) ? rssi_dBm - s9_dBm : 99;
 			sprintf(s, (dB < 10) ? fmt[0] : fmt[1], rssi_dBm, dB);
 		}
 		else

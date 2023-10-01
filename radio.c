@@ -1006,11 +1006,13 @@ void RADIO_PrepareTX(void)
 		if (gAlarmState == ALARM_STATE_OFF)
 	#endif
 	{
-		if (gEeprom.TX_TIMEOUT_TIMER == 1)
+		if (gEeprom.TX_TIMEOUT_TIMER == 0)
 			gTxTimerCountdown_500ms = 60;   // 30 sec
 		else
-		if (gEeprom.TX_TIMEOUT_TIMER >= 2)
-			gTxTimerCountdown_500ms = (gEeprom.TX_TIMEOUT_TIMER - 1) * 120;  // minutes
+		if (gEeprom.TX_TIMEOUT_TIMER < (ARRAY_SIZE(gSubMenu_TOT) - 1))
+			gTxTimerCountdown_500ms = 120 * gEeprom.TX_TIMEOUT_TIMER;  // minutes
+		else
+			gTxTimerCountdown_500ms = 120 * 15;  // 15 minutes
 	}
 	gTxTimeoutReached    = false;
 
@@ -1058,8 +1060,9 @@ void RADIO_SendEndOfTransmission(void)
 	if (gEeprom.ROGER == ROGER_MODE_MDC)
 		BK4819_PlayRogerMDC();
 
-	if (gDTMF_CallState == DTMF_CALL_STATE_NONE && (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_EOT || gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH))
-	{
+	if (gDTMF_CallState == DTMF_CALL_STATE_NONE &&
+	   (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_EOT || gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH))
+	{	// end-of-tx
 		if (gEeprom.DTMF_SIDE_TONE)
 		{
 			GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
