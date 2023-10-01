@@ -352,6 +352,7 @@ void UI_DisplayMenu(void)
 
 	// draw the left menu list
 	#if 0
+	
 		for (i = 0; i < 3; i++)
 			if (gMenuCursor > 0 || i > 0)
 				if ((gMenuListCount - 1) != gMenuCursor || i != 2)
@@ -363,6 +364,11 @@ void UI_DisplayMenu(void)
 			gFrameBuffer[2][i] ^= 0xFF;
 			gFrameBuffer[3][i] ^= 0xFF;
 		}
+
+		// draw vertical separating dotted line
+		for (i = 0; i < 7; i++)
+			gFrameBuffer[i][(8 * menu_list_width) + 1] = 0xAA;
+		
 	#else
 	{
 		const int menu_index = gMenuCursor;  // current selected menu item
@@ -394,10 +400,6 @@ void UI_DisplayMenu(void)
 		}
 	}
 	#endif
-
-	// draw vertical separating dotted line
-	for (i = 0; i < 7; i++)
-		gFrameBuffer[i][(8 * menu_list_width) + 1] = 0xAA;
 
 	// draw the menu index number/count
 	sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
