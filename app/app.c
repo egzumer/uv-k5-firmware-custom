@@ -1968,7 +1968,7 @@ void APP_TimeSlice500ms(void)
 	}
 }
 
-#ifdef ENABLE_ALARM
+#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 	static void ALARM_Off(void)
 	{
 		gAlarmState = ALARM_STATE_OFF;
@@ -2186,7 +2186,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
 		{	// transmitting
 
-			#ifdef ENABLE_ALARM
+			#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 				if (gAlarmState == ALARM_STATE_OFF)
 			#endif
 			{
@@ -2242,7 +2242,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					}
 				}
 			}
-			#ifdef ENABLE_ALARM
+			#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 				else
 				if (!bKeyHeld && bKeyPressed)
 				{

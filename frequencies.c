@@ -157,7 +157,7 @@ uint32_t FREQUENCY_FloorToStep(uint32_t Upper, uint32_t Step, uint32_t Lower)
 	return Lower + (Step * Index);
 }
 /*
-int TX_FREQUENCY_Check(VFO_Info_t *pInfo)
+int TX_freq_check(VFO_Info_t *pInfo)
 {	// return '0' if TX frequency is allowed
 	// otherwise return '-1'
 	
@@ -168,7 +168,7 @@ int TX_FREQUENCY_Check(VFO_Info_t *pInfo)
 			return -1;
 	#endif
 */
-int TX_FREQUENCY_Check(const uint32_t Frequency)
+int TX_freq_check(const uint32_t Frequency)
 {	// return '0' if TX frequency is allowed
 	// otherwise return '-1'
 
@@ -235,7 +235,7 @@ int TX_FREQUENCY_Check(const uint32_t Frequency)
 	return -1;
 }
 
-int RX_FREQUENCY_Check(const uint32_t Frequency)
+int RX_freq_check(const uint32_t Frequency)
 {	// return '0' if RX frequency is allowed
 	// otherwise return '-1'
 

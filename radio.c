@@ -892,8 +892,9 @@ void RADIO_SetVfoState(VfoState_t State)
 		}
 		else
 		{
-			const uint8_t Channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
-			VfoState[Channel] = State;
+			unsigned int chan = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive) ? (gEeprom.RX_CHANNEL + 1) & 1 : gEeprom.RX_CHANNEL;	// 1of11
+			             chan = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.TX_CHANNEL : chan;
+			VfoState[chan]    = State;
 		}
 
 		#ifdef ENABLE_FMRADIO
@@ -928,10 +929,16 @@ void RADIO_PrepareTX(void)
 
 	RADIO_SelectCurrentVfo();
 
-	#ifdef ENABLE_ALARM
+	#if defined(ENABLE_ALARM) && defined(ENABLE_TX1750)
 		if (gAlarmState == ALARM_STATE_OFF    ||
 		    gAlarmState == ALARM_STATE_TX1750 ||
 		   (gAlarmState == ALARM_STATE_ALARM && gEeprom.ALARM_MODE == ALARM_MODE_TONE))
+	#elif defined(ENABLE_ALARM)
+		if (gAlarmState == ALARM_STATE_OFF    ||
+		   (gAlarmState == ALARM_STATE_ALARM && gEeprom.ALARM_MODE == ALARM_MODE_TONE))
+	#elif defined(ENABLE_TX1750)
+		if (gAlarmState == ALARM_STATE_OFF    ||
+		    gAlarmState == ALARM_STATE_TX1750)
 	#endif
 	{
 		#ifndef ENABLE_TX_WHEN_AM
@@ -946,8 +953,9 @@ void RADIO_PrepareTX(void)
 			State = VFO_STATE_TX_DISABLE;
 		}
 		else
-		//if (TX_FREQUENCY_Check(gCurrentVfo->pTX->Frequency) == 0 || gCurrentVfo->CHANNEL_SAVE <= FREQ_CHANNEL_LAST)
-		if (TX_FREQUENCY_Check(gCurrentVfo->pTX->Frequency) == 0)
+		//if (TX_freq_check(gCurrentVfo->pTX->Frequency) == 0 || gCurrentVfo->CHANNEL_SAVE <= FREQ_CHANNEL_LAST)
+		//if (TX_freq_check(gCurrentVfo->pTX->Frequency) == 0)
+		if (TX_freq_check(gEeprom.VfoInfo[gEeprom.TX_CHANNEL].pTX->Frequency) == 0)
 		{	// TX frequency is allowed
 			if (gCurrentVfo->BUSY_CHANNEL_LOCK && gCurrentFunction == FUNCTION_RECEIVE)
 				State = VFO_STATE_BUSY;          // busy RX'ing a station
@@ -966,7 +974,7 @@ void RADIO_PrepareTX(void)
 	if (State != VFO_STATE_NORMAL)
 	{	// TX not allowed
 		RADIO_SetVfoState(State);
-		#ifdef ENABLE_ALARM
+		#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 			gAlarmState = ALARM_STATE_OFF;
 		#endif
 		gDTMF_ReplyState = DTMF_REPLY_NONE;
@@ -994,7 +1002,8 @@ void RADIO_PrepareTX(void)
 	FUNCTION_Select(FUNCTION_TRANSMIT);
 
 	gTxTimerCountdown_500ms = 0;            // no timeout
-	#ifdef ENABLE_ALARM
+
+	#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 		if (gAlarmState == ALARM_STATE_OFF)
 	#endif
 	{

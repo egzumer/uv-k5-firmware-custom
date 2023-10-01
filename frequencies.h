@@ -55,9 +55,9 @@ FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency);
 uint8_t          FREQUENCY_CalculateOutputPower(uint8_t TxpLow, uint8_t TxpMid, uint8_t TxpHigh, int32_t LowerLimit, int32_t Middle, int32_t UpperLimit, int32_t Frequency);
 uint32_t         FREQUENCY_FloorToStep(uint32_t Upper, uint32_t Step, uint32_t Lower);
 
-//int            TX_FREQUENCY_Check(VFO_Info_t *pInfo);
-int              TX_FREQUENCY_Check(const uint32_t Frequency);
-int              RX_FREQUENCY_Check(const uint32_t Frequency);
+//int            TX_freq_check(VFO_Info_t *pInfo);
+int              TX_freq_check(const uint32_t Frequency);
+int              RX_freq_check(const uint32_t Frequency);
 
 #endif
 

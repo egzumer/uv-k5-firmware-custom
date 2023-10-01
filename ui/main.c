@@ -318,13 +318,14 @@ void UI_DisplayMain(void)
 
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
-		const unsigned int rx_line  = (gEeprom.RX_CHANNEL == 0) ? line0 : line1;
-//		const unsigned int tx_line  = (gEeprom.TX_CHANNEL == 0) ? line0 : line1;
-		const unsigned int line     = (vfo_num            == 0) ? line0 : line1;
-		uint8_t            channel  = gEeprom.TX_CHANNEL;
-		const bool         same_vfo = (channel == vfo_num) ? true : false;
-		uint8_t           *p_line0  = gFrameBuffer[line + 0];
-		uint8_t           *p_line1  = gFrameBuffer[line + 1];
+		const unsigned int line       = (vfo_num == 0) ? line0 : line1;
+		uint8_t            channel    = gEeprom.TX_CHANNEL;
+//		uint8_t            tx_channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+		const bool         same_vfo   = (channel == vfo_num) ? true : false;
+		uint8_t           *p_line0    = gFrameBuffer[line + 0];
+		uint8_t           *p_line1    = gFrameBuffer[line + 1];
+		uint32_t           duff_beer  = 0;
+		uint8_t            state;
 
 		if (single_vfo)
 		{	// we're in single VFO mode - screen is dedicated to just one VFO
@@ -405,8 +406,6 @@ void UI_DisplayMain(void)
 				memmove(p_line0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 
-		uint32_t duff_beer = 0;
-
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
 		{	// transmitting
 
@@ -428,7 +427,7 @@ void UI_DisplayMain(void)
 		{	// receiving .. show the RX symbol
 			duff_beer = 2;
 			if ((gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR) && gEeprom.RX_CHANNEL == vfo_num)
-				UI_PrintStringSmall("RX", 14, 0, rx_line);
+				UI_PrintStringSmall("RX", 14, 0, line);
 		}
 
 		if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
@@ -468,7 +467,7 @@ void UI_DisplayMain(void)
 
 		// ************
 
-		uint8_t state = VfoState[vfo_num];
+		state = VfoState[vfo_num];
 
 		#ifdef ENABLE_ALARM
 			if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_ALARM)

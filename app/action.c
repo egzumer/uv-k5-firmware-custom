@@ -235,16 +235,26 @@ void ACTION_Vox(void)
 	gUpdateStatus        = true;
 }
 
-#ifdef ENABLE_ALARM
+#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 	static void ACTION_AlarmOr1750(bool b1750)
 	{
-		gInputBoxIndex        = 0;
-		gAlarmState           = b1750 ? ALARM_STATE_TX1750 : ALARM_STATE_TXALARM;
-		gAlarmRunningCounter  = 0;
-		gFlagPrepareTX        = true;
+		gInputBoxIndex = 0;
+
+		#if defined(ENABLE_ALARM) && defined(ENABLE_TX1750)
+			gAlarmState = b1750 ? ALARM_STATE_TX1750 : ALARM_STATE_TXALARM;
+			gAlarmRunningCounter = 0;
+		#elif defined(ENABLE_ALARM)
+			gAlarmState          = ALARM_STATE_TXALARM;
+			gAlarmRunningCounter = 0;
+		#else
+			gAlarmState = ALARM_STATE_TX1750;
+		#endif
+
+		gFlagPrepareTX = true;
 		gRequestDisplayScreen = DISPLAY_MAIN;
 	}
 #endif
+
 
 #ifdef ENABLE_FMRADIO
 	void ACTION_FM(void)
@@ -368,7 +378,7 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				break;
 		#endif
 		case ACTION_OPT_1750:
-			#ifdef ENABLE_ALARM
+			#ifdef ENABLE_TX1750
 				ACTION_AlarmOr1750(true);
 			#endif
 			break;

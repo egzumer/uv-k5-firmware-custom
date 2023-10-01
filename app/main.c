@@ -729,7 +729,7 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 			{	// step/down in frequency
 				const uint32_t frequency = APP_SetFrequencyByStep(gTxVfo, Direction);
 
-				if (RX_FREQUENCY_Check(frequency) < 0)
+				if (RX_freq_check(frequency) < 0)
 				{	// frequency not allowed
 					gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 					return;

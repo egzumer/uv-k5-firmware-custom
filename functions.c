@@ -192,18 +192,27 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 	
 			DTMF_Reply();
 	
-			#ifdef ENABLE_ALARM
+			#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 				if (gAlarmState != ALARM_STATE_OFF)
 				{
-					BK4819_TransmitTone(true, (gAlarmState == ALARM_STATE_TX1750) ? 1750 : 500);
+					#ifdef ENABLE_TX1750
+						if (gAlarmState == ALARM_STATE_TX1750)
+							BK4819_TransmitTone(true, 1750);
+					#endif
+					#ifdef ENABLE_ALARM
+						if (gAlarmState == ALARM_STATE_TXALARM)
+							BK4819_TransmitTone(true, 500);
+					#endif
 					SYSTEM_DelayMs(2);
 					GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
-					gAlarmToneCounter = 0;
-					gEnableSpeaker    = true;
+					#ifdef ENABLE_ALARM
+						gAlarmToneCounter = 0;
+					#endif
+					gEnableSpeaker = true;
 					break;
 				}
 			#endif
-		
+
 			if (gCurrentVfo->SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
 				BK4819_EnableScramble(gCurrentVfo->SCRAMBLING_TYPE - 1);
 			else

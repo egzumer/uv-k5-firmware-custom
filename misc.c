@@ -149,7 +149,7 @@ uint8_t           gReducedService;
 uint8_t           gBatteryVoltageIndex;
 CssScanMode_t     gCssScanMode;
 bool              gUpdateRSSI;
-#ifdef ENABLE_ALARM
+#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 	AlarmState_t  gAlarmState;
 #endif
 uint8_t           gVoltageMenuCountdown;

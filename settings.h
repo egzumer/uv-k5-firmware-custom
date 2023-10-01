@@ -176,7 +176,7 @@ typedef struct {
 	#endif
 
 	bool                  AUTO_KEYPAD_LOCK;
-	#ifdef ENABLE_ALARM
+	#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 		ALARM_Mode_t      ALARM_MODE;
 	#endif
 	POWER_OnDisplayMode_t POWER_ON_DISPLAY_MODE;
