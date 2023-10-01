@@ -33,7 +33,13 @@ ENABLE_AUDIO_BAR              := 1
 #ENABLE_SINGLE_VFO_CHAN       := 1
 #ENABLE_BAND_SCOPE            := 1
 
+#############################################################
+
 TARGET = firmware
+
+ifeq ($(ENABLE_LTO),1)
+	ENABLE_OVERLAY := 0
+endif
 
 BSP_DEFINITIONS := $(wildcard hardware/*/*.def)
 BSP_HEADERS     := $(patsubst hardware/%,bsp/%,$(BSP_DEFINITIONS))

@@ -39,8 +39,10 @@ BOOT_Mode_t BOOT_GetMode(void)
 	for (i = 0; i < 2; i++)
 	{
 		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
-			return BOOT_MODE_NORMAL;
+			return BOOT_MODE_NORMAL;   // PTT not pressed
+		
 		Keys[i] = KEYBOARD_Poll();
+		
 		SYSTEM_DelayMs(20);
 	}
 
@@ -48,6 +50,7 @@ BOOT_Mode_t BOOT_GetMode(void)
 	{
 		gKeyReading0     = Keys[0];
 		gKeyReading1     = Keys[0];
+
 		gDebounceCounter = 2;
 
 		if (Keys[0] == KEY_SIDE1)
@@ -66,7 +69,7 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 {
 	if (Mode == BOOT_MODE_F_LOCK)
 	{
-		// enable all the menu items
+/*		// enable all the menu items
 		gMenuListCount = 0;
 //		while (MenuList[gMenuListCount].name != NULL)
 		while (MenuList[gMenuListCount].name[0] != '\0')
@@ -74,8 +77,10 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 
 		gMenuCursor        = MENU_350TX;
 		gSubMenuSelection  = gSetting_350TX;
+*/
 		GUI_SelectNextDisplay(DISPLAY_MENU);
-		gF_LOCK            = true;
+		
+		gF_LOCK = true;
 	}
 	#ifdef ENABLE_AIRCOPY
 		else

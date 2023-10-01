@@ -50,6 +50,7 @@ void _putchar(char c)
 void Main(void)
 {
 	unsigned int i;
+	BOOT_Mode_t  BootMode;
 
 	// Enable clock gating of blocks we need
 	SYSCON_DEV_CLK_GATE = 0
@@ -67,7 +68,7 @@ void Main(void)
 	UART_Init();
 
 	boot_counter_10ms = 250;   // 2.5 sec
-	
+
 	UART_Send(UART_Version, strlen(UART_Version));
 
 	// Not implementing authentic device checks
@@ -101,12 +102,38 @@ void Main(void)
 		AM_fix_init();
 	#endif
 
-	// count the number of menu list items
-	gMenuListCount = 0;
-	while (MenuList[gMenuListCount].name[0] != '\0')
-		gMenuListCount++;
-	gMenuListCount -= 8;       // disable the last 'n' items
+	BootMode = BOOT_GetMode();
+	if (BootMode == BOOT_MODE_F_LOCK)
+	{	// enable all the menu items
+		gMenuListCount = 0;
+		while (MenuList[gMenuListCount].name[0] != '\0')
+			gMenuListCount++;
+
+		gMenuCursor        = MENU_350TX;
+		gSubMenuSelection  = gSetting_350TX;
+		gF_LOCK            = true;
+	}
+	else
+	{	// hide the hidden menu items
+		gMenuListCount = 0;
+		while (MenuList[gMenuListCount].name[0] != '\0')
+			gMenuListCount++;
+		gMenuListCount -= 8;       // disable the last 'n' items
+	}
 	
+	// wait for user to release all keys/butts before moving on
+	if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) || KEYBOARD_Poll() != KEY_INVALID)
+	{	// keys are pressed
+		UI_DisplayReleaseKeys();
+		BACKLIGHT_TurnOn();
+		i = 0;
+		while (i < 50)  // 500ms
+		{
+			i = (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) && KEYBOARD_Poll() == KEY_INVALID) ? i + 1 : 0;
+			SYSTEM_DelayMs(10);
+		}
+	}
+
 	if (!gChargingWithTypeC && !gBatteryDisplayLevel)
 	{
 		FUNCTION_Select(FUNCTION_POWER_SAVE);
@@ -120,9 +147,8 @@ void Main(void)
 	}
 	else
 	{
-		BOOT_Mode_t  BootMode;
-
 		UI_DisplayWelcome();
+
 		BACKLIGHT_TurnOn();
 
 		if (gEeprom.POWER_ON_DISPLAY_MODE != POWER_ON_DISPLAY_MODE_NONE)
@@ -131,7 +157,7 @@ void Main(void)
 			{
 				if (KEYBOARD_Poll() != KEY_INVALID)
 				{	// halt boot beeps
-					boot_counter_10ms = 0;   
+					boot_counter_10ms = 0;
 					break;
 				}
 				#ifdef ENABLE_BOOT_BEEPS
@@ -140,8 +166,6 @@ void Main(void)
 				#endif
 			}
 		}
-
-		BootMode = BOOT_GetMode();
 
 		if (gEeprom.POWER_ON_PASSWORD < 1000000)
 		{
@@ -179,6 +203,8 @@ void Main(void)
 		#ifdef ENABLE_NOAA
 			RADIO_ConfigureNOAA();
 		#endif
+
+		// ******************
 	}
 
 	while (1)

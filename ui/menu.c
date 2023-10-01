@@ -370,6 +370,9 @@ void UI_DisplayMenu(void)
 		while (i < 2)
 		{	// leading menu items
 			const int k = menu_index + i - 2;
+			if (k < 0)
+				UI_PrintStringSmall(MenuList[gMenuListCount + k].name, 0, 0, i);  // wrap-a-round
+			else
 			if (k >= 0 && k < (int)gMenuListCount)
 				UI_PrintStringSmall(MenuList[k].name, 0, 0, i);
 			i++;
@@ -384,6 +387,9 @@ void UI_DisplayMenu(void)
 			const int k = menu_index + i - 2;
 			if (k >= 0 && k < (int)gMenuListCount)
 				UI_PrintStringSmall(MenuList[k].name, 0, 0, 1 + i);
+			else
+			if (k >= (int)gMenuListCount)
+				UI_PrintStringSmall(MenuList[gMenuListCount - k].name, 0, 0, 1 + i);  // wrap-a-round
 			i++;
 		}
 	}
