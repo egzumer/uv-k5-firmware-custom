@@ -5,6 +5,7 @@
 #
 ENABLE_SWD                    := 0
 ENABLE_OVERLAY                := 1
+ENABLE_LTO                    := 0
 ENABLE_UART                   := 1
 ENABLE_AIRCOPY                := 0
 ENABLE_FMRADIO                := 1
@@ -154,19 +155,23 @@ CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delet
 #CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu99 -MMD
 #CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu11 -MMD
 
+ifeq ($(ENABLE_LTO),1)
+	CFLAGS += -flto
+endif
+
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
 ifeq ($(ENABLE_SWD),1)
 	CFLAGS += -DENABLE_SWD
+endif
+ifeq ($(ENABLE_OVERLAY),1)
+	CFLAGS += -DENABLE_OVERLAY
 endif
 ifeq ($(ENABLE_AIRCOPY),1)
 	CFLAGS += -DENABLE_AIRCOPY
 endif
 ifeq ($(ENABLE_FMRADIO),1)
 	CFLAGS += -DENABLE_FMRADIO
-endif
-ifeq ($(ENABLE_OVERLAY),1)
-	CFLAGS += -DENABLE_OVERLAY
 endif
 ifeq ($(ENABLE_UART),1)
 	CFLAGS += -DENABLE_UART

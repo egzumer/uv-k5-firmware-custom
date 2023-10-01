@@ -320,10 +320,11 @@ void UI_DisplayMain(void)
 	{
 		const unsigned int rx_line  = (gEeprom.RX_CHANNEL == 0) ? line0 : line1;
 		const unsigned int tx_line  = (gEeprom.TX_CHANNEL == 0) ? line0 : line1;
+		const unsigned int line     = (vfo_num            == 0) ? line0 : line1;
 		uint8_t            channel  = gEeprom.TX_CHANNEL;
 		const bool         same_vfo = (channel == vfo_num) ? true : false;
-		uint8_t           *p_line0  = gFrameBuffer[tx_line + 0];
-		uint8_t           *p_line1  = gFrameBuffer[tx_line + 1];
+		uint8_t           *p_line0  = gFrameBuffer[line + 0];
+		uint8_t           *p_line1  = gFrameBuffer[line + 1];
 
 		if (single_vfo)
 		{	// we're in single VFO mode - screen is dedicated to just one VFO
@@ -419,7 +420,7 @@ void UI_DisplayMain(void)
 				if (channel == vfo_num)
 				{	// show the TX symbol
 					duff_beer = 1;
-					UI_PrintStringSmall("TX", 14, 0, Line);
+					UI_PrintStringSmall("TX", 14, 0, line);
 				}
 			}
 		}
@@ -427,7 +428,7 @@ void UI_DisplayMain(void)
 		{	// receiving .. show the RX symbol
 			duff_beer = 2;
 			if ((gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR) && gEeprom.RX_CHANNEL == vfo_num)
-				UI_PrintStringSmall("RX", 14, 0, Line);
+				UI_PrintStringSmall("RX", 14, 0, rx_line);
 		}
 
 		if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
@@ -437,9 +438,9 @@ void UI_DisplayMain(void)
 			if (!inputting)
 				NUMBER_ToDigits(gEeprom.ScreenChannel[vfo_num] + 1, String);  // show the memory channel number
 			else
-				memmove(String + 5, gInputBox, 3);                             // show the input text
-			UI_PrintStringSmall("M", x, 0, Line + 1);
-			UI_DisplaySmallDigits(3, String + 5, x + 7, Line + 1, inputting);
+				memmove(String + 5, gInputBox, 3);                            // show the input text
+			UI_PrintStringSmall("M", x, 0, line + 1);
+			UI_DisplaySmallDigits(3, String + 5, x + 7, line + 1, inputting);
 		}
 		else
 		if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
@@ -448,7 +449,7 @@ void UI_DisplayMain(void)
 			const unsigned int x = 2;	// was 14
 //			sprintf(String, "FB%u", 1 + gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST);
 			sprintf(String, "VFO%u", 1 + gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST);
-			UI_PrintStringSmall(String, x, 0, Line + 1);
+			UI_PrintStringSmall(String, x, 0, line + 1);
 		}
 		#ifdef ENABLE_NOAA
 			else
@@ -461,7 +462,7 @@ void UI_DisplayMain(void)
 				{	// user entering channel number
 					sprintf(String, "N%u%u", '0' + gInputBox[0], '0' + gInputBox[1]);
 				}
-				UI_PrintStringSmall(String, 7, 0, Line + 1);
+				UI_PrintStringSmall(String, 7, 0, line + 1);
 			}
 		#endif
 
@@ -487,7 +488,7 @@ void UI_DisplayMain(void)
 		else
 		if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_CHANNEL == vfo_num)
 		{	// user entering a frequency
-			UI_DisplayFrequency(gInputBox, 32, Line, true, false);
+			UI_DisplayFrequency(gInputBox, 32, line, true, false);
 
 			center_line_is_free = false;
 		}
@@ -497,7 +498,7 @@ void UI_DisplayMain(void)
 			if (gCurrentFunction == FUNCTION_TRANSMIT)
 			{	// transmitting
 				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
-				if (Channel == vfo_num)
+				if (channel == vfo_num)
 					frequency = gEeprom.VfoInfo[vfo_num].pTX->Frequency;
 			}
 
@@ -523,19 +524,19 @@ void UI_DisplayMain(void)
 						#ifdef ENABLE_BIG_FREQ
 							NUMBER_ToDigits(frequency, String);
 							// show the main large frequency digits
-							UI_DisplayFrequency(String, 32, Line, false, false);
+							UI_DisplayFrequency(String, 32, line, false, false);
 							// show the remaining 2 small frequency digits
-							UI_DisplaySmallDigits(2, String + 6, 113, Line + 1, true);
+							UI_DisplaySmallDigits(2, String + 6, 113, line + 1, true);
 						#else
 							// show the frequency in the main font
 							sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
-							UI_PrintString(String, 32, 0, Line, 8);
+							UI_PrintString(String, 32, 0, line, 8);
 						#endif
 						break;
 
 					case MDF_CHANNEL:	// show the channel number
 						sprintf(String, "CH-%03u", gEeprom.ScreenChannel[vfo_num] + 1);
-						UI_PrintString(String, 32, 0, Line, 8);
+						UI_PrintString(String, 32, 0, line, 8);
 						break;
 
 					case MDF_NAME:		// show the channel name
@@ -549,19 +550,19 @@ void UI_DisplayMain(void)
 
 						if (gEeprom.CHANNEL_DISPLAY_MODE == MDF_NAME)
 						{
-							UI_PrintString(String, 32, 0, Line, 8);
+							UI_PrintString(String, 32, 0, line, 8);
 						}
 						else
 						{
 							#ifdef ENABLE_SMALL_BOLD
-								UI_PrintStringSmallBold(String, 32 + 4, 0, Line);
+								UI_PrintStringSmallBold(String, 32 + 4, 0, line);
 							#else
-								UI_PrintStringSmall(String, 32 + 4, 0, Line);
+								UI_PrintStringSmall(String, 32 + 4, 0, line);
 							#endif
 
 							// show the channel frequency below the channel number/name
 							sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
-							UI_PrintStringSmall(String, 32 + 4, 0, Line + 1);
+							UI_PrintStringSmall(String, 32 + 4, 0, line + 1);
 						}
 
 						break;
@@ -572,13 +573,13 @@ void UI_DisplayMain(void)
 				#ifdef ENABLE_BIG_FREQ
 					NUMBER_ToDigits(frequency, String);  // 8 digits
 					// show the main large frequency digits
-					UI_DisplayFrequency(String, 32, Line, false, false);
+					UI_DisplayFrequency(String, 32, line, false, false);
 					// show the remaining 2 small frequency digits
-					UI_DisplaySmallDigits(2, String + 6, 113, Line + 1, true);
+					UI_DisplaySmallDigits(2, String + 6, 113, line + 1, true);
 				#else
 					// show the frequency in the main font
 					sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
-					UI_PrintString(String, 32, 0, Line, 8);
+					UI_PrintString(String, 32, 0, line, 8);
 				#endif
 
 				#ifdef ENABLE_COMPANDER
@@ -652,7 +653,7 @@ void UI_DisplayMain(void)
 			if (code_type >= 0 && code_type < ARRAY_SIZE(code_list))
 				strcpy(String, code_list[code_type]);
 		}
-		UI_PrintStringSmall(String, LCD_WIDTH + 24, 0, Line + 1);
+		UI_PrintStringSmall(String, LCD_WIDTH + 24, 0, line + 1);
 
 		if (state == VFO_STATE_NORMAL || state == VFO_STATE_ALARM)
 		{	// show the TX power
@@ -660,7 +661,7 @@ void UI_DisplayMain(void)
 			const unsigned int i = gEeprom.VfoInfo[vfo_num].OUTPUT_POWER;
 			String[0] = (i >= 0 && i < ARRAY_SIZE(pwr_list)) ? pwr_list[i] : '\0';
 			String[1] = '\0';
-			UI_PrintStringSmall(String, LCD_WIDTH + 46, 0, Line + 1);
+			UI_PrintStringSmall(String, LCD_WIDTH + 46, 0, line + 1);
 		}
 
 		if (gEeprom.VfoInfo[vfo_num].freq_config_RX.Frequency != gEeprom.VfoInfo[vfo_num].freq_config_TX.Frequency)
@@ -669,12 +670,12 @@ void UI_DisplayMain(void)
 			const unsigned int i = gEeprom.VfoInfo[vfo_num].TX_OFFSET_FREQUENCY_DIRECTION;
 			String[0] = (i < sizeof(dir_list)) ? dir_list[i] : '?';
 			String[1] = '\0';
-			UI_PrintStringSmall(String, LCD_WIDTH + 54, 0, Line + 1);
+			UI_PrintStringSmall(String, LCD_WIDTH + 54, 0, line + 1);
 		}
 
 		// show the TX/RX reverse symbol
 		if (gEeprom.VfoInfo[vfo_num].FrequencyReverse)
-			UI_PrintStringSmall("R", LCD_WIDTH + 62, 0, Line + 1);
+			UI_PrintStringSmall("R", LCD_WIDTH + 62, 0, line + 1);
 
 		{	// show the narrow band symbol
 			String[0] = '\0';
@@ -683,16 +684,16 @@ void UI_DisplayMain(void)
 				String[0] = 'N';
 				String[1] = '\0';
 			}
-			UI_PrintStringSmall(String, LCD_WIDTH + 70, 0, Line + 1);
+			UI_PrintStringSmall(String, LCD_WIDTH + 70, 0, line + 1);
 		}
 
 		// show the DTMF decoding symbol
 		if (gEeprom.VfoInfo[vfo_num].DTMF_DECODING_ENABLE || gSetting_KILLED)
-			UI_PrintStringSmall("DTMF", LCD_WIDTH + 78, 0, Line + 1);
+			UI_PrintStringSmall("DTMF", LCD_WIDTH + 78, 0, line + 1);
 
 		// show the audio scramble symbol
 		if (gEeprom.VfoInfo[vfo_num].SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
-			UI_PrintStringSmall("SCR", LCD_WIDTH + 106, 0, Line + 1);
+			UI_PrintStringSmall("SCR", LCD_WIDTH + 106, 0, line + 1);
 	}
 
 	if (center_line_is_free)

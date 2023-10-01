@@ -347,19 +347,47 @@ void UI_DisplayMenu(void)
 	char               String[16];
 	char               Contact[16];
 
+	// clear the screen
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 
-	for (i = 0; i < 3; i++)
-		if (gMenuCursor > 0 || i > 0)
-			if ((gMenuListCount - 1) != gMenuCursor || i != 2)
-				UI_PrintString(MenuList[gMenuCursor + i - 1].name, 0, 0, i * 2, 8);
+	// draw the left menu list
+	#if 0
+		for (i = 0; i < 3; i++)
+			if (gMenuCursor > 0 || i > 0)
+				if ((gMenuListCount - 1) != gMenuCursor || i != 2)
+					UI_PrintString(MenuList[gMenuCursor + i - 1].name, 0, 0, i * 2, 8);
 
-	// invert the menu list text pixels
-	for (i = 0; i < (8 * menu_list_width); i++)
+		// invert the current menu list item text pixels
+		for (i = 0; i < (8 * menu_list_width); i++)
+		{
+			gFrameBuffer[2][i] ^= 0xFF;
+			gFrameBuffer[3][i] ^= 0xFF;
+		}
+	#else
 	{
-		gFrameBuffer[2][i] ^= 0xFF;
-		gFrameBuffer[3][i] ^= 0xFF;
+		const int menu_index = gMenuCursor;  // current selected menu item
+		i = 1;
+		while (i < 2)
+		{	// leading menu items
+			const int k = menu_index + i - 2;
+			if (k >= 0 && k < (int)gMenuListCount)
+				UI_PrintStringSmall(MenuList[k].name, 0, 0, i);
+			i++;
+		}
+		{	// current menu item
+			if (menu_index >= 0 && menu_index < (int)gMenuListCount)
+				UI_PrintString(MenuList[menu_index].name, 0, 0, 2, 8);
+			i++;
+		}
+		while (i < 4)
+		{	// trailing menu item
+			const int k = menu_index + i - 2;
+			if (k >= 0 && k < (int)gMenuListCount)
+				UI_PrintStringSmall(MenuList[k].name, 0, 0, 1 + i);
+			i++;
+		}
 	}
+	#endif
 
 	// draw vertical separating dotted line
 	for (i = 0; i < 7; i++)
@@ -369,10 +397,12 @@ void UI_DisplayMenu(void)
 	sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
 	UI_PrintStringSmall(String, 8, 0, 6);
 
-	// draw the little marker
+	// draw the little triangle marker if we're in the sub-menu
 	if (gIsInSubMenu)
 		memmove(gFrameBuffer[0] + (8 * menu_list_width) + 1, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));
 
+	// **************
+	
 	memset(String, 0, sizeof(String));
 
 	bool already_printed = false;

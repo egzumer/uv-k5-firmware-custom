@@ -26,6 +26,7 @@ You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) .
 ```
 ENABLE_SWD                    := 0       only needed if using CPU's SWD port (debugging/programming)
 ENABLE_OVERLAY                := 1       cpu FLASH stuff
+ENABLE_LTO                    := 0     **experimental, reduces size of compiled firmware but might break EEPROM reads
 ENABLE_UART                   := 1       without this you can't configure radio via PC
 ENABLE_AIRCOPY                := 0       easier to just enter frequency
 ENABLE_FMRADIO                := 1       WBFM VHF band 2 RX
