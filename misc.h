@@ -280,7 +280,6 @@ extern bool                  gUpdateDisplay;
 #ifdef ENABLE_FMRADIO
 	extern uint8_t           gFM_ChannelPosition;
 #endif
-extern bool                  gF_LOCK;
 extern uint8_t               gShowChPrefix;
 extern volatile uint8_t      gFoundCDCSSCountdown_10ms;
 extern volatile uint8_t      gFoundCTCSSCountdown_10ms;

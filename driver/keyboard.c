@@ -29,12 +29,14 @@ KEY_Code_t KEYBOARD_Poll(void)
 {
 	KEY_Code_t Key = KEY_INVALID;
 
+//	if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
+//		return KEY_PTT;
+	
 	GPIO_SetBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_4);
 	GPIO_SetBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_5);
 	GPIO_SetBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_6);
 	GPIO_SetBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_7);
-
-	SYSTICK_DelayUs(1);
+	SYSTICK_DelayUs(2);
 
 	// *****************
 	// Keys connected to gnd
@@ -51,13 +53,11 @@ KEY_Code_t KEYBOARD_Poll(void)
 		goto Bye;
 	}
 
-	// Original doesn't do PTT
-
 	// *****************
 	// First row
 
 	GPIO_ClearBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_4);
-	SYSTICK_DelayUs(1);
+	SYSTICK_DelayUs(2);
 
 	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0))
 	{
@@ -87,10 +87,8 @@ KEY_Code_t KEYBOARD_Poll(void)
 	// Second row
 
 	GPIO_ClearBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_5);
-	SYSTICK_DelayUs(1);
-
 	GPIO_SetBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_4);
-	SYSTICK_DelayUs(1);
+	SYSTICK_DelayUs(2);
 
 	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0))
 	{
@@ -120,16 +118,10 @@ KEY_Code_t KEYBOARD_Poll(void)
 	// Third row
 
 	GPIO_ClearBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_4);
-	SYSTICK_DelayUs(1);
-
 	GPIO_SetBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_5);
-	SYSTICK_DelayUs(1);
-
 	GPIO_SetBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_4);
-	SYSTICK_DelayUs(1);
-
 	GPIO_ClearBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_6);
-	SYSTICK_DelayUs(1);
+	SYSTICK_DelayUs(2);
 
 	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0))
 	{
@@ -159,10 +151,8 @@ KEY_Code_t KEYBOARD_Poll(void)
 	// Fourth row
 
 	GPIO_ClearBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_7);
-	SYSTICK_DelayUs(1);
-
 	GPIO_SetBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_6);
-	SYSTICK_DelayUs(1);
+	SYSTICK_DelayUs(2);
 
 	if (!GPIO_CheckBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_0))
 	{

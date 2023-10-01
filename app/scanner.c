@@ -224,7 +224,7 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 		case 2:
 			if (!gScanSingleFrequency)
 			{
-				RADIO_InitInfo(gTxVfo, gTxVfo->CHANNEL_SAVE, FREQUENCY_GetBand(gScanFrequency), gScanFrequency);
+				RADIO_InitInfo(gTxVfo, gTxVfo->CHANNEL_SAVE, gScanFrequency);
 
 				if (gScanUseCssResult)
 				{
@@ -367,7 +367,7 @@ void SCANNER_Start(void)
 	BackupStep      = gRxVfo->STEP_SETTING;
 	BackupFrequency = gRxVfo->StepFrequency;
 
-	RADIO_InitInfo(gRxVfo, gRxVfo->CHANNEL_SAVE, gRxVfo->Band, gRxVfo->pRX->Frequency);
+	RADIO_InitInfo(gRxVfo, gRxVfo->CHANNEL_SAVE, gRxVfo->pRX->Frequency);
 
 	gRxVfo->STEP_SETTING  = BackupStep;
 	gRxVfo->StepFrequency = BackupFrequency;

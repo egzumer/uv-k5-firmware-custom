@@ -216,7 +216,7 @@ uint8_t           gNeverUsed;
 #endif
 
 bool              gUpdateDisplay;
-bool              gF_LOCK;
+
 uint8_t           gShowChPrefix;
 
 volatile bool     gNextTimeslice;

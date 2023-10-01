@@ -48,8 +48,8 @@ BOOT_Mode_t BOOT_GetMode(void)
 
 	if (Keys[0] == Keys[1])
 	{
-		gKeyReading0     = Keys[0];
-		gKeyReading1     = Keys[0];
+		gKeyReading0 = Keys[0];
+		gKeyReading1 = Keys[0];
 
 		gDebounceCounter = 2;
 
@@ -69,18 +69,7 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 {
 	if (Mode == BOOT_MODE_F_LOCK)
 	{
-/*		// enable all the menu items
-		gMenuListCount = 0;
-//		while (MenuList[gMenuListCount].name != NULL)
-		while (MenuList[gMenuListCount].name[0] != '\0')
-			gMenuListCount++;
-
-		gMenuCursor        = MENU_350TX;
-		gSubMenuSelection  = gSetting_350TX;
-*/
 		GUI_SelectNextDisplay(DISPLAY_MENU);
-		
-		gF_LOCK = true;
 	}
 	#ifdef ENABLE_AIRCOPY
 		else
@@ -91,15 +80,15 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 			gEeprom.VOX_SWITCH               = false;
 			gEeprom.CROSS_BAND_RX_TX         = CROSS_BAND_OFF;
 			gEeprom.AUTO_KEYPAD_LOCK         = false;
-			gEeprom.KEY_1_SHORT_PRESS_ACTION = 0;
-			gEeprom.KEY_1_LONG_PRESS_ACTION  = 0;
-			gEeprom.KEY_2_SHORT_PRESS_ACTION = 0;
-			gEeprom.KEY_2_LONG_PRESS_ACTION  = 0;
+			gEeprom.KEY_1_SHORT_PRESS_ACTION = ACTION_OPT_NONE;
+			gEeprom.KEY_1_LONG_PRESS_ACTION  = ACTION_OPT_NONE;
+			gEeprom.KEY_2_SHORT_PRESS_ACTION = ACTION_OPT_NONE;
+			gEeprom.KEY_2_LONG_PRESS_ACTION  = ACTION_OPT_NONE;
 
-			RADIO_InitInfo(gRxVfo, FREQ_CHANNEL_LAST - 1, 5, 41002500);
+			RADIO_InitInfo(gRxVfo, FREQ_CHANNEL_LAST - 1, 41002500);
 
-			gRxVfo->CHANNEL_BANDWIDTH        = BANDWIDTH_NARROW;
-			gRxVfo->OUTPUT_POWER             = 0;
+			gRxVfo->CHANNEL_BANDWIDTH        = BANDWIDTH_WIDE;
+			gRxVfo->OUTPUT_POWER             = OUTPUT_POWER_LOW;
 
 			RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
 
@@ -110,6 +99,7 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 			BK4819_ResetFSK();
 
 			gAircopyState = AIRCOPY_READY;
+
 			GUI_SelectNextDisplay(DISPLAY_AIRCOPY);
 		}
 	#endif

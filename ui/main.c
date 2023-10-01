@@ -319,7 +319,7 @@ void UI_DisplayMain(void)
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
 		const unsigned int rx_line  = (gEeprom.RX_CHANNEL == 0) ? line0 : line1;
-		const unsigned int tx_line  = (gEeprom.TX_CHANNEL == 0) ? line0 : line1;
+//		const unsigned int tx_line  = (gEeprom.TX_CHANNEL == 0) ? line0 : line1;
 		const unsigned int line     = (vfo_num            == 0) ? line0 : line1;
 		uint8_t            channel  = gEeprom.TX_CHANNEL;
 		const bool         same_vfo = (channel == vfo_num) ? true : false;
@@ -483,7 +483,7 @@ void UI_DisplayMain(void)
 		{
 			const char *state_list[] = {"", "BUSY", "BAT LOW", "TX DISABLE", "TIMEOUT", "ALARM", "VOLT HIGH"};
 			if (state >= 0 && state < ARRAY_SIZE(state_list))
-				UI_PrintString(state_list[state], 31, 0, tx_line, 8);
+				UI_PrintString(state_list[state], 31, 0, line, 8);
 		}
 		else
 		if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_CHANNEL == vfo_num)

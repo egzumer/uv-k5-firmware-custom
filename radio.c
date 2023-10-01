@@ -114,25 +114,24 @@ uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScan
 	return 0xFF;
 }
 
-void RADIO_InitInfo(VFO_Info_t *pInfo, uint8_t ChannelSave, uint8_t Band, uint32_t Frequency)
+void RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t Frequency)
 {
 	memset(pInfo, 0, sizeof(*pInfo));
 
-	pInfo->Band                    = Band;
-	pInfo->SCANLIST1_PARTICIPATION = true;
-	pInfo->SCANLIST2_PARTICIPATION = true;
-	pInfo->STEP_SETTING            = STEP_12_5kHz;
-	pInfo->StepFrequency           = 2500;
-	pInfo->CHANNEL_SAVE            = ChannelSave;
-	pInfo->FrequencyReverse        = false;
-	pInfo->OUTPUT_POWER            = OUTPUT_POWER_LOW;
-	pInfo->freq_config_RX.Frequency      = Frequency;
-	pInfo->freq_config_TX.Frequency      = Frequency;
-	pInfo->pRX                     = &pInfo->freq_config_RX;
-	pInfo->pTX                     = &pInfo->freq_config_TX;
-	pInfo->TX_OFFSET_FREQUENCY     = 1000000;
+	pInfo->Band                     = FREQUENCY_GetBand(Frequency);
+	pInfo->SCANLIST1_PARTICIPATION  = true;
+	pInfo->SCANLIST2_PARTICIPATION  = true;
+	pInfo->STEP_SETTING             = STEP_12_5kHz;
+	pInfo->StepFrequency            = 2500;
+	pInfo->CHANNEL_SAVE             = ChannelSave;
+	pInfo->FrequencyReverse         = false;
+	pInfo->OUTPUT_POWER             = OUTPUT_POWER_LOW;
+	pInfo->freq_config_RX.Frequency = Frequency;
+	pInfo->freq_config_TX.Frequency = Frequency;
+	pInfo->pRX                      = &pInfo->freq_config_RX;
+	pInfo->pTX                      = &pInfo->freq_config_TX;
 	#ifdef ENABLE_COMPANDER
-		pInfo->Compander           = 0;  // off
+		pInfo->Compander            = 0;  // off
 	#endif
 
 	if (ChannelSave == (FREQ_CHANNEL_FIRST + BAND2_108MHz))
@@ -167,7 +166,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		#ifdef ENABLE_NOAA
 			if (Channel >= NOAA_CHANNEL_FIRST)
 			{
-				RADIO_InitInfo(pRadio, gEeprom.ScreenChannel[VFO], 2, NoaaFrequencyTable[Channel - NOAA_CHANNEL_FIRST]);
+				RADIO_InitInfo(pRadio, gEeprom.ScreenChannel[VFO], NoaaFrequencyTable[Channel - NOAA_CHANNEL_FIRST]);
 
 				if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF)
 					return;
@@ -211,7 +210,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 		Index = Channel - FREQ_CHANNEL_FIRST;
 
-		RADIO_InitInfo(pRadio, Channel, Index, LowerLimitFrequencyBandTable[Index]);
+		RADIO_InitInfo(pRadio, Channel, LowerLimitFrequencyBandTable[Index]);
 		return;
 	}
 

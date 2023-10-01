@@ -861,7 +861,7 @@ void BOARD_FactoryReset(bool bIsAll)
 
 	if (bIsAll)
 	{
-		RADIO_InitInfo(gRxVfo, FREQ_CHANNEL_FIRST + BAND6_400MHz, BAND6_400MHz, 43350000);
+		RADIO_InitInfo(gRxVfo, FREQ_CHANNEL_FIRST + BAND6_400MHz, 43350000);
 
 		// set the first few memory channels
 		for (i = 0; i < ARRAY_SIZE(gDefaultFrequencyTable); i++)

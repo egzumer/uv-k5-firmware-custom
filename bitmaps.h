@@ -52,7 +52,7 @@ extern const uint8_t BITMAP_AntennaLevel4[3];
 extern const uint8_t BITMAP_AntennaLevel5[3];
 extern const uint8_t BITMAP_AntennaLevel6[3];
 
-extern const uint8_t BITMAP_CurrentIndicator[8];
+extern const uint8_t BITMAP_MARKER[8];
 
 extern const uint8_t BITMAP_VFO_Default[8];
 extern const uint8_t BITMAP_VFO_NotDefault[8];

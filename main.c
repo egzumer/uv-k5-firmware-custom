@@ -109,9 +109,8 @@ void Main(void)
 		while (MenuList[gMenuListCount].name[0] != '\0')
 			gMenuListCount++;
 
-		gMenuCursor        = MENU_350TX;
 		gSubMenuSelection  = gSetting_350TX;
-		gF_LOCK            = true;
+		gMenuCursor        = MENU_350TX;
 	}
 	else
 	{	// hide the hidden menu items

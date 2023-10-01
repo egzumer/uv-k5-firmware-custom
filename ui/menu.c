@@ -352,7 +352,7 @@ void UI_DisplayMenu(void)
 
 	// draw the left menu list
 	#if 0
-	
+
 		for (i = 0; i < 3; i++)
 			if (gMenuCursor > 0 || i > 0)
 				if ((gMenuListCount - 1) != gMenuCursor || i != 2)
@@ -368,49 +368,69 @@ void UI_DisplayMenu(void)
 		// draw vertical separating dotted line
 		for (i = 0; i < 7; i++)
 			gFrameBuffer[i][(8 * menu_list_width) + 1] = 0xAA;
+
+		// draw the little triangle marker if we're in the sub-menu
+		if (gIsInSubMenu)
+			memmove(gFrameBuffer[0] + (8 * menu_list_width) + 1, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));
+		
+		// draw the menu index number/count
+		sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
+		UI_PrintStringSmall(String, 2, 0, 6);
 		
 	#else
 	{
 		const int menu_index = gMenuCursor;  // current selected menu item
 		i = 1;
-		while (i < 2)
-		{	// leading menu items
-			const int k = menu_index + i - 2;
-			if (k < 0)
-				UI_PrintStringSmall(MenuList[gMenuListCount + k].name, 0, 0, i);  // wrap-a-round
-			else
-			if (k >= 0 && k < (int)gMenuListCount)
-				UI_PrintStringSmall(MenuList[k].name, 0, 0, i);
-			i++;
-		}
-		{	// current menu item
+
+		if (!gIsInSubMenu)
+		{
+			while (i < 2)
+			{	// leading menu items
+				const int k = menu_index + i - 2;
+				if (k < 0)
+					UI_PrintStringSmall(MenuList[gMenuListCount + k].name, 0, 0, i);  // wrap-a-round
+				else
+				if (k >= 0 && k < (int)gMenuListCount)
+					UI_PrintStringSmall(MenuList[k].name, 0, 0, i);
+				i++;
+			}
+
+			// current menu item
 			if (menu_index >= 0 && menu_index < (int)gMenuListCount)
 				UI_PrintString(MenuList[menu_index].name, 0, 0, 2, 8);
 			i++;
+
+			while (i < 4)
+			{	// trailing menu item
+				const int k = menu_index + i - 2;
+				if (k >= 0 && k < (int)gMenuListCount)
+					UI_PrintStringSmall(MenuList[k].name, 0, 0, 1 + i);
+				else
+				if (k >= (int)gMenuListCount)
+					UI_PrintStringSmall(MenuList[gMenuListCount - k].name, 0, 0, 1 + i);  // wrap-a-round
+				i++;
+			}
+
+			// draw the menu index number/count
+			sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
+			UI_PrintStringSmall(String, 2, 0, 6);
 		}
-		while (i < 4)
-		{	// trailing menu item
-			const int k = menu_index + i - 2;
-			if (k >= 0 && k < (int)gMenuListCount)
-				UI_PrintStringSmall(MenuList[k].name, 0, 0, 1 + i);
-			else
-			if (k >= (int)gMenuListCount)
-				UI_PrintStringSmall(MenuList[gMenuListCount - k].name, 0, 0, 1 + i);  // wrap-a-round
-			i++;
+		else
+		if (menu_index >= 0 && menu_index < (int)gMenuListCount)
+		{	// current menu item
+			strcpy(String, MenuList[menu_index].name);
+//			strcat(String, ":");
+			UI_PrintStringSmall(String, 0, 0, 6);
+			
+			// invert pixels
+//			for (i = 0; i < (7 * strlen(String)); i++)
+//				gFrameBuffer[6][i] ^= 0xFF;
 		}
 	}
 	#endif
 
-	// draw the menu index number/count
-	sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
-	UI_PrintStringSmall(String, 8, 0, 6);
-
-	// draw the little triangle marker if we're in the sub-menu
-	if (gIsInSubMenu)
-		memmove(gFrameBuffer[0] + (8 * menu_list_width) + 1, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));
-
 	// **************
-	
+
 	memset(String, 0, sizeof(String));
 
 	bool already_printed = false;

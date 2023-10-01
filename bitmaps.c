@@ -324,7 +324,7 @@ const uint8_t BITMAP_AntennaLevel6[3] =
 	0b00000000
 };
 
-const uint8_t BITMAP_CurrentIndicator[8] =
+const uint8_t BITMAP_MARKER[8] =
 {
 	0b11111111,
 	0b11111111,
