@@ -163,7 +163,8 @@ CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delet
 #CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu11 -MMD
 
 ifeq ($(ENABLE_LTO),1)
-	CFLAGS += -flto
+#	CFLAGS += -flto
+	CFLAGS += -flto=2
 endif
 
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H

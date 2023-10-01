@@ -596,8 +596,11 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		
 		if (bFlag)
 		{
-			gFlagRefreshSetting   = true;
+			gFlagRefreshSetting = true;
+			gFlagBackupSetting  = true;
+
 			gRequestDisplayScreen = DISPLAY_MENU;
+
 			#ifdef ENABLE_VOICE
 				gAnotherVoiceID   = VOICE_ID_MENU;
 			#endif

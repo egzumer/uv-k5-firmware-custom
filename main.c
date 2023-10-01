@@ -103,25 +103,21 @@ void Main(void)
 	#endif
 
 	BootMode = BOOT_GetMode();
-	if (BootMode == BOOT_MODE_F_LOCK)
-	{	// enable all the menu items
-		gMenuListCount = 0;
-		while (MenuList[gMenuListCount].name[0] != '\0')
-			gMenuListCount++;
 
-		gSubMenuSelection  = gSetting_350TX;
-		gMenuCursor        = MENU_350TX;
-	}
-	else
-	{	// hide the hidden menu items
-		gMenuListCount = 0;
-		while (MenuList[gMenuListCount].name[0] != '\0')
-			gMenuListCount++;
-		gMenuListCount -= 8;       // disable the last 'n' items
-	}
+	// count the number of menu items
+	gMenuListCount = 0;
+	while (MenuList[gMenuListCount].name[0] != '\0')
+		gMenuListCount++;
 	
-	// wait for user to release all keys/butts before moving on
-	if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) || KEYBOARD_Poll() != KEY_INVALID)
+	if (BootMode == BOOT_MODE_F_LOCK)
+		gF_LOCK = true;            // flag to say use the hidden menu items
+	else
+		gMenuListCount -= 8;       // hide the last few menu items
+
+	// wait for user to release all butts before moving on
+	if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) ||
+	     KEYBOARD_Poll() != KEY_INVALID ||
+		 BootMode != BOOT_MODE_NORMAL)
 	{	// keys are pressed
 		UI_DisplayReleaseKeys();
 		BACKLIGHT_TurnOn();
@@ -131,6 +127,9 @@ void Main(void)
 			i = (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) && KEYBOARD_Poll() == KEY_INVALID) ? i + 1 : 0;
 			SYSTEM_DelayMs(10);
 		}
+		gKeyReading0 = KEY_INVALID;
+		gKeyReading1 = KEY_INVALID;
+		gDebounceCounter = 0;
 	}
 
 	if (!gChargingWithTypeC && !gBatteryDisplayLevel)

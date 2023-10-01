@@ -166,8 +166,11 @@ bool              gRequestSaveSettings;
 	bool          gRequestSaveFM;
 #endif
 bool              gFlagPrepareTX;
+
 bool              gFlagAcceptSetting;
 bool              gFlagRefreshSetting;
+bool              gFlagBackupSetting;
+
 bool              gFlagSaveVfo;
 bool              gFlagSaveSettings;
 bool              gFlagSaveChannel;
@@ -216,6 +219,8 @@ uint8_t           gNeverUsed;
 #endif
 
 bool              gUpdateDisplay;
+
+bool              gF_LOCK = false;
 
 uint8_t           gShowChPrefix;
 

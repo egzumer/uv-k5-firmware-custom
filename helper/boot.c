@@ -40,9 +40,7 @@ BOOT_Mode_t BOOT_GetMode(void)
 	{
 		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
 			return BOOT_MODE_NORMAL;   // PTT not pressed
-		
 		Keys[i] = KEYBOARD_Poll();
-		
 		SYSTEM_DelayMs(20);
 	}
 

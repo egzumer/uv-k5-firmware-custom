@@ -206,9 +206,12 @@ const char gSubMenu_XB[3][10] =
 
 const char gSubMenu_SC_REV[3][13] =
 {
-	"TIME\nOPER",
-	"CARRIER\nOPER",
-	"SEARCH\nOPER"
+//	"TIME\nOPER",
+//	"CARRIER\nOPER",
+//	"SEARCH\nOPER"
+	"TIME",
+	"CARRIER",
+	"SEARCH"
 };
 
 const char gSubMenu_MDF[4][15] =
@@ -332,9 +335,10 @@ bool    gIsInSubMenu;
 uint8_t gMenuCursor;
 int8_t  gMenuScrollDirection;
 int32_t gSubMenuSelection;
+int32_t gSubMenuSelection_original = 0;  // copy of the original value
 
 // edit box
-char    edit_original[17]; // a copy of the text before editing so that we can easily test for changes/difference
+char    edit_original[17] = {0}; // a copy of the text before editing so that we can easily test for changes/difference
 char    edit[17];
 int     edit_index;
 
@@ -344,7 +348,7 @@ void UI_DisplayMenu(void)
 	const unsigned int menu_item_x1    = (8 * menu_list_width) + 2;
 	const unsigned int menu_item_x2    = LCD_WIDTH - 1;
 	unsigned int       i;
-	char               String[16];
+	char               String[64];
 	char               Contact[16];
 
 	// clear the screen
@@ -728,21 +732,21 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_VOL:
-			// 1st text line
-			sprintf(String, "%u.%02uV", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100);
-			UI_PrintString(String, menu_item_x1, menu_item_x2, 1, 8);
-
-			{	// 2nd text line .. percentage
-				UI_PrintString(String, menu_item_x1, menu_item_x2, 1, 8);
-				sprintf(String, "%u%%", BATTERY_VoltsToPercent(gBatteryVoltageAverage));
-				UI_PrintString(String, menu_item_x1, menu_item_x2, 3, 8);
-				#if 0
-					sprintf(String, "Curr %u", gBatteryCurrent);  // needs scaling into mA
-					UI_PrintString(String, menu_item_x1, menu_item_x2, 5, 8);
-				#endif
+			if (gF_LOCK)
+			{
+				gBatteryCalibration[3] = gSubMenuSelection;
+				BATTERY_GetReadings(true);
+				sprintf(String, "%u.%02uV\n%u%%\n%u",
+					gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
+					BATTERY_VoltsToPercent(gBatteryVoltageAverage),
+					gSubMenuSelection);
 			}
-
-			already_printed = true;
+			else
+			{
+				sprintf(String, "%u.%02uV\n%u%%",
+					gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
+					BATTERY_VoltsToPercent(gBatteryVoltageAverage));
+			}
 			break;
 
 		case MENU_RESET:
@@ -755,20 +759,15 @@ void UI_DisplayMenu(void)
 
 		case MENU_F_CALI:
 			{
-				const uint32_t value = 22656 + gSubMenuSelection;
+				const uint32_t value   = 22656 + gSubMenuSelection;
+				const uint32_t xtal_Hz = (0x4f0000u + value) * 5;
+
 				//gEeprom.BK4819_XTAL_FREQ_LOW = gSubMenuSelection;  // already set when the user was adjusting the value
 				BK4819_WriteRegister(BK4819_REG_3B, value);
 
-				sprintf(String, "%d", gSubMenuSelection);
-				UI_PrintString(String, menu_item_x1, menu_item_x2, 0, 8);
-
-				const uint32_t xtal_Hz = (0x4f0000u + value) * 5;
-				sprintf(String, "%u.%06u", xtal_Hz / 1000000, xtal_Hz % 1000000);
-				UI_PrintString(String, menu_item_x1, menu_item_x2, 2, 8);
-
-				UI_PrintString("MHz",  menu_item_x1, menu_item_x2, 4, 8);
-
-				already_printed = true;
+				sprintf(String, "%d\n%u.%06u\nMHz",
+					gSubMenuSelection,
+					xtal_Hz / 1000000, xtal_Hz % 1000000);
 			}
 			break;
 	}

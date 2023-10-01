@@ -2434,8 +2434,8 @@ Skip:
 
 	if (gFlagRefreshSetting)
 	{
-		MENU_ShowCurrentSetting();
 		gFlagRefreshSetting = false;
+		MENU_ShowCurrentSetting();
 	}
 
 	if (gFlagStartScan)

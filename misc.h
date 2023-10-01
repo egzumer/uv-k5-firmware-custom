@@ -230,8 +230,11 @@ extern bool                  gRequestSaveSettings;
 #endif
 extern uint8_t               gKeypadLocked;
 extern bool                  gFlagPrepareTX;
-extern bool                  gFlagAcceptSetting;
-extern bool                  gFlagRefreshSetting;
+
+extern bool                  gFlagAcceptSetting;   // accept menu setting
+extern bool                  gFlagRefreshSetting;  // refresh menu display
+extern bool                  gFlagBackupSetting;   // save a copy of the current menu setting
+
 extern bool                  gFlagSaveVfo;
 extern bool                  gFlagSaveSettings;
 extern bool                  gFlagSaveChannel;
@@ -277,6 +280,7 @@ extern uint8_t               gNeverUsed;
 #endif
 extern volatile bool         gNextTimeslice;
 extern bool                  gUpdateDisplay;
+extern bool                  gF_LOCK;
 #ifdef ENABLE_FMRADIO
 	extern uint8_t           gFM_ChannelPosition;
 #endif
