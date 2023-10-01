@@ -14,6 +14,7 @@
  *     limitations under the License.
  */
 
+#include "app/dtmf.h"
 #include "app/generic.h"
 #include "app/scanner.h"
 #include "audio.h"
@@ -399,12 +400,13 @@ void SCANNER_Start(void)
 		gUpdateStatus = true;
 	}
 
+	DTMF_clear_RX();
+
 	gScanDelay_10ms        = scan_delay_10ms;
 	gScanCssResultCode     = 0xFF;
 	gScanCssResultType     = 0xFF;
 	gScanHitCount          = 0;
 	gScanUseCssResult      = false;
-	gDTMF_RequestPending   = false;
 	g_CxCSS_TAIL_Found     = false;
 	g_CDCSS_Lost           = false;
 	gCDCSSCodeType         = 0;

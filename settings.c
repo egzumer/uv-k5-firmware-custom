@@ -214,7 +214,7 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 				| (pVFO->OUTPUT_POWER      << 2)
 				| (pVFO->CHANNEL_BANDWIDTH << 1)
 				| (pVFO->FrequencyReverse  << 0);
-			State[5] = (pVFO->DTMF_PTT_ID_TX_MODE << 1) | (pVFO->DTMF_DECODING_ENABLE < 0);
+			State[5] = (pVFO->DTMF_PTT_ID_TX_MODE << 1) | (pVFO->DTMF_DECODING_ENABLE << 0);
 			State[6] =  pVFO->STEP_SETTING;
 			State[7] =  pVFO->SCRAMBLING_TYPE;
 			EEPROM_WriteBuffer(OffsetVFO + 8, State);

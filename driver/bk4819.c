@@ -891,7 +891,7 @@ void BK4819_EnableDTMF(void)
 	// REG_24 <3:0>  14 Max symbol number for SelCall detection
 
 //	const uint16_t threshold = 24;    // doesn't decode non-QS radios
-	const uint16_t threshold = 200;   // but 128 ~ 247 does
+	const uint16_t threshold = 140;   // but 128 ~ 247 does
 	BK4819_WriteRegister(BK4819_REG_24,                // 1 00011000 1 1 1 1110
 		  (1u        << BK4819_REG_24_SHIFT_UNKNOWN_15)
 		| (threshold << BK4819_REG_24_SHIFT_THRESHOLD)      // 0 ~ 255

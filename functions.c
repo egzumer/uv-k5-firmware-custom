@@ -53,15 +53,8 @@ void FUNCTION_Init(void)
 			gCurrentCodeType = CODE_TYPE_CONTINUOUS_TONE;
 	#endif
 
-	gDTMF_RequestPending = false;
-
-	gDTMF_RecvTimeout    = 0;
-	gDTMF_WriteIndex     = 0;
-	memset(gDTMF_Received, 0, sizeof(gDTMF_Received));
-
-//	gDTMF_RX_timeout_live = 0;
-//	gDTMF_RX_timeout_live[0] = '\0';
-		
+	DTMF_clear_RX();
+	
 	g_CxCSS_TAIL_Found = false;
 	g_CDCSS_Lost       = false;
 	g_CTCSS_Lost       = false;
@@ -152,8 +145,13 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			// if DTMF is enabled when TX'ing, it changes the TX audio filtering !! .. 1of11
 			BK4819_DisableDTMF();
 
+			// clear the DTMF RX buffer
+			DTMF_clear_RX();
+
+			// clear the DTMF RX live decoder buffer
 			gDTMF_RX_live_timeout = 0;
-			gDTMF_RX_live[0]      = 0;
+			gDTMF_RX_live_timeout = 0;
+			memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
 			
 			#if defined(ENABLE_FMRADIO)
 				if (gFmRadioMode)
@@ -189,7 +187,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 
 			RADIO_SetTxParameters();
 
-			// turn the LED on RED
+			// turn the RED LED on
 			BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, true);
 	
 			DTMF_Reply();

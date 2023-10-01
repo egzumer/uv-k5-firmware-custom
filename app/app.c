@@ -73,10 +73,10 @@ static void updateRSSI(const int vfo)
 		if (gEeprom.VfoInfo[vfo].AM_mode && gSetting_AM_fix)
 			rssi -= rssi_gain_diff[vfo];
 	#endif
-	
+
 	if (gCurrentRSSI[vfo] == rssi)
 		return;     // no change
-	
+
 	gCurrentRSSI[vfo] = rssi;
 
 	UI_UpdateRSSI(rssi, vfo);
@@ -119,7 +119,7 @@ static void APP_CheckForIncoming(void)
 				updateRSSI(gEeprom.RX_CHANNEL);
 				gUpdateRSSI = true;
 			}
-			
+
 			return;
 		}
 
@@ -182,6 +182,10 @@ static void APP_HandleIncoming(void)
 
 	if (!g_SquelchLost)
 	{	// squelch is closed
+
+		if (gDTMF_RX_index > 0)
+			DTMF_clear_RX();
+
 		if (gCurrentFunction != FUNCTION_FOREGROUND)
 		{
 			FUNCTION_Select(FUNCTION_FOREGROUND);
@@ -214,12 +218,13 @@ static void APP_HandleIncoming(void)
 	if (!bFlag)
 		return;
 
-	DTMF_HandleRequest();
-
 	if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF)
 	{	// not scanning
 		if (gRxVfo->DTMF_DECODING_ENABLE || gSetting_KILLED)
-		{	// DTMF is enabled
+		{	// DTMF DCD is enabled
+
+//			DTMF_HandleRequest();
+
 			if (gDTMF_CallState == DTMF_CALL_STATE_NONE)
 			{
 				if (gRxReceptionMode == RX_MODE_DETECTED)
@@ -234,7 +239,6 @@ static void APP_HandleIncoming(void)
 					gUpdateStatus    = true;
 
 					gUpdateDisplay = true;
-
 					return;
 				}
 			}
@@ -531,7 +535,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	}
 
 	// ******************************************
-	
+
 	// original setting
 	uint8_t lna_short = orig_lna_short;
 	uint8_t lna       = orig_lna;
@@ -777,34 +781,40 @@ void APP_CheckRadioInterrupts(void)
 //			g_CTCSS_Lost = true;
 
 		if (interrupt_status_bits & BK4819_REG_02_DTMF_5TONE_FOUND)
-		{	// save the new DTMF RX'ed character
-
-			// fetch the RX'ed char
+		{	// save the RX'ed DTMF character
 			const char c = DTMF_GetCharacter(BK4819_GetDTMF_5TONE_Code());
 			if (c != 0xff)
 			{
-				if (gCurrentFunction == FUNCTION_RECEIVE  ||
-				    gCurrentFunction == FUNCTION_INCOMING ||
-					gCurrentFunction == FUNCTION_MONITOR)
+				if (gCurrentFunction != FUNCTION_TRANSMIT)
 				{
-					gDTMF_RequestPending = true;
-					gDTMF_RecvTimeout    = DTMF_RX_timeout_500ms;
-					// shift the RX buffer down one - if need be
-					if (gDTMF_WriteIndex >= sizeof(gDTMF_Received))
-						memmove(gDTMF_Received, &gDTMF_Received[1], --gDTMF_WriteIndex);
-					gDTMF_Received[gDTMF_WriteIndex++] = c;
+					if (gSetting_live_DTMF_decoder)
+					{
+						size_t len = strlen(gDTMF_RX_live);
+						if (len >= (sizeof(gDTMF_RX_live) - 1))
+						{	// make room
+							memmove(&gDTMF_RX_live[0], &gDTMF_RX_live[1], sizeof(gDTMF_RX_live) - 1);
+							len--;
+						}
+						gDTMF_RX_live[len++]  = c;
+						gDTMF_RX_live[len]    = 0;
+						gDTMF_RX_live_timeout = DTMF_RX_live_timeout_500ms;  // time till we delete it
+						gUpdateDisplay        = true;
+					}
 
-					// live DTMF decoder
-					size_t len = strlen(gDTMF_RX_live);
-					// shift the RX buffer down one - if need be
-					if (len >= (sizeof(gDTMF_RX_live) - 1))
-						memmove(&gDTMF_RX_live[0], &gDTMF_RX_live[1], --len);
-					gDTMF_RX_live[len++]  = c;
-					gDTMF_RX_live[len]    = 0;
-					gDTMF_RX_live_timeout = DTMF_RX_live_timeout_500ms;  // time till we delete it
-					gUpdateDisplay        = true;
+					if (gRxVfo->DTMF_DECODING_ENABLE || gSetting_KILLED)
+					{
+						if (gDTMF_RX_index >= (sizeof(gDTMF_RX) - 1))
+						{	// make room
+							memmove(&gDTMF_RX[0], &gDTMF_RX[1], sizeof(gDTMF_RX) - 1);
+							gDTMF_RX_index--;
+						}
+						gDTMF_RX[gDTMF_RX_index++] = c;
+						gDTMF_RX[gDTMF_RX_index]   = 0;
+						gDTMF_RX_timeout           = DTMF_RX_timeout_500ms;  // time till we delete it
+						gDTMF_RX_pending           = true;
 
-					DTMF_HandleRequest();
+						DTMF_HandleRequest();
+					}
 				}
 			}
 		}
@@ -1257,7 +1267,7 @@ void APP_CheckKeys(void)
 				while (i-- > 0)
 				{
 					SYSTEM_DelayMs(1);
-	
+
 					if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
 					{	// PTT pressed
 						if (count > 0)
@@ -1666,9 +1676,9 @@ void cancelUserInputModes(void)
 	gKeyInputCountdown = 0;
 	if (gDTMF_InputMode || gInputBoxIndex > 0)
 	{
+		memset(gDTMF_String, 0, sizeof(gDTMF_String));
 		gDTMF_InputMode       = false;
 		gDTMF_InputIndex      = 0;
-		memset(gDTMF_String, 0, sizeof(gDTMF_String));
 		gInputBoxIndex        = 0;
 		gRequestDisplayScreen = DISPLAY_MAIN;
 		gBeepToPlay           = BEEP_1KHZ_60MS_OPTIONAL;
@@ -1692,10 +1702,17 @@ void APP_TimeSlice500ms(void)
 	{
 		if (--gDTMF_RX_live_timeout == 0)
 		{
-			gDTMF_RX_live[0] = 0;
-			gUpdateDisplay   = true;
+			if (gDTMF_RX_live[0] != 0)
+			{
+				memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
+				gUpdateDisplay   = true;
+			}
 		}
 	}
+
+	if (gDTMF_RX_timeout > 0)
+		if (--gDTMF_RX_timeout == 0)
+			DTMF_clear_RX();
 
 	// Skipped authentic device check
 
@@ -1711,8 +1728,16 @@ void APP_TimeSlice500ms(void)
 	if (gReducedService)
 	{
 		BOARD_ADC_GetBatteryInfo(&gBatteryCurrentVoltage, &gBatteryCurrent);
+
 		if (gBatteryCurrent > 500 || gBatteryCalibration[3] < gBatteryCurrentVoltage)
-			overlay_FLASH_RebootToBootloader();
+		{
+			#ifdef ENABLE_OVERLAY
+				overlay_FLASH_RebootToBootloader();
+			#else
+				NVIC_SystemReset();
+			#endif
+		}
+
 		return;
 	}
 
@@ -1892,7 +1917,7 @@ void APP_TimeSlice500ms(void)
 	if (gScreenToDisplay == DISPLAY_SCANNER && gScannerEditState == 0 && gScanCssState < SCAN_CSS_STATE_FOUND)
 	{
 		gScanProgressIndicator++;
-		
+
 		#ifndef ENABLE_NO_SCAN_TIMEOUT
 			if (gScanProgressIndicator > 32)
 			{
@@ -1900,15 +1925,28 @@ void APP_TimeSlice500ms(void)
 					gScanCssState = SCAN_CSS_STATE_FOUND;
 				else
 					gScanCssState = SCAN_CSS_STATE_FAILED;
-	
+
 				gUpdateStatus = true;
 			}
 		#endif
-		
+
 		gUpdateDisplay = true;
 	}
 
-	if (gDTMF_CallState != DTMF_CALL_STATE_NONE && gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE)
+	if (gCurrentFunction != FUNCTION_TRANSMIT)
+	{
+		if (gDTMF_DecodeRingCountdown_500ms > 0)
+		{	// make "ring-ring" sound
+			gDTMF_DecodeRingCountdown_500ms--;
+			AUDIO_PlayBeep(BEEP_880HZ_200MS);
+		}
+	}
+	else
+		gDTMF_DecodeRingCountdown_500ms = 0;
+	
+	if (gDTMF_CallState  != DTMF_CALL_STATE_NONE &&
+	    gCurrentFunction != FUNCTION_TRANSMIT &&
+	    gCurrentFunction != FUNCTION_RECEIVE)
 	{
 		if (gDTMF_AUTO_RESET_TIME > 0)
 		{
@@ -1918,15 +1956,6 @@ void APP_TimeSlice500ms(void)
 				gUpdateDisplay  = true;
 			}
 		}
-
-		if (gDTMF_DecodeRing && gDTMF_DecodeRingCountdown_500ms > 0)
-		{
-			if ((--gDTMF_DecodeRingCountdown_500ms % 3) == 0)
-				AUDIO_PlayBeep(BEEP_440HZ_500MS);
-
-			if (gDTMF_DecodeRingCountdown_500ms == 0)
-				gDTMF_DecodeRing = false;
-		}
 	}
 
 	if (gDTMF_IsTx && gDTMF_TxStopCountdown_500ms > 0)
@@ -1935,15 +1964,6 @@ void APP_TimeSlice500ms(void)
 		{
 			gDTMF_IsTx     = false;
 			gUpdateDisplay = true;
-		}
-	}
-
-	if (gDTMF_RecvTimeout > 0)
-	{
-		if (--gDTMF_RecvTimeout == 0)
-		{
-			gDTMF_WriteIndex = 0;
-			memset(gDTMF_Received, 0, sizeof(gDTMF_Received));
 		}
 	}
 }
@@ -2022,9 +2042,13 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 	if (Key == KEY_EXIT && bKeyPressed && bKeyHeld && gDTMF_RX_live[0] != 0)
 	{	// clear the live DTMF decoder if the EXIT key is held
-		gDTMF_RX_live_timeout = 0;
-		gDTMF_RX_live[0]      = 0;
-		gUpdateDisplay        = true;
+		if (gDTMF_RX_live[0] != 0)
+		{
+			gDTMF_RX_live_timeout = 0;
+			memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
+
+			gUpdateDisplay = true;
+		}
 	}
 
 	if (!bKeyPressed)
@@ -2065,10 +2089,12 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 		BACKLIGHT_TurnOn();
 
-		if (gDTMF_DecodeRing)
-		{
-			gDTMF_DecodeRing = false;
+		if (gDTMF_DecodeRingCountdown_500ms > 0)
+		{	// cancel the ringing
+			gDTMF_DecodeRingCountdown_500ms = 0;
+
 			AUDIO_PlayBeep(BEEP_1KHZ_60MS_OPTIONAL);
+
 			if (Key != KEY_PTT)
 			{
 				gPttWasReleased = true;
@@ -2115,7 +2141,8 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	    Key != KEY_EXIT  &&
 	    Key != KEY_SIDE1 &&
 	    Key != KEY_SIDE2 &&
-	    Key != KEY_STAR)
+	    Key != KEY_STAR  &&
+		Key != KEY_MENU)
 	{
 		if (gScanState != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF)
 		{	// frequency or CTCSS/DCS scanning
@@ -2147,7 +2174,8 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		}
 	}
 
-	if (gWasFKeyPressed && Key > KEY_9 && Key != KEY_F && Key != KEY_STAR && Key != KEY_MENU)
+	if (gWasFKeyPressed && Key > KEY_9 && Key != KEY_F && Key != KEY_STAR)
+//	if (gWasFKeyPressed && Key > KEY_9 && Key != KEY_F && Key != KEY_STAR && Key != KEY_MENU)
 	{
 		gWasFKeyPressed = false;
 		gUpdateStatus   = true;
@@ -2203,7 +2231,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					else
 					{
 						if (gEeprom.DTMF_SIDE_TONE)
-						{
+						{	// user will here the DTMF tones in speaker
 							GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 							gEnableSpeaker = true;
 						}
@@ -2416,7 +2444,7 @@ Skip:
 	if (gFlagStartScan)
 	{
 		gMonitor = false;
-		
+
 		#ifdef ENABLE_VOICE
 			AUDIO_SetVoiceID(0, VOICE_ID_SCANNING_BEGIN);
 			AUDIO_PlaySingleVoice(true);

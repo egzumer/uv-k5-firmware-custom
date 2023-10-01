@@ -17,9 +17,10 @@ https://github.com/fagci/uv-k5-firmware-fagci-mod/tree/refactor
 
 All is a cloned and customized version of DualTachyon's open firmware found here ..
 
-https://github.com/DualTachyon/uv-k5-firmware
+https://github.com/DualTachyon/uv-k5-firmware .. a cool achievement !
 
-A cool achievement
+Use this firmware at your own risk (entirely). There is absolutely no guarantee that it will work in any way shape or form on your radio(s), it may even brick your radio(s), in which case, you'd need to buy another radio.
+Anyway, have fun.
 
 # Radio performance
 
@@ -60,7 +61,7 @@ ENABLE_REVERSE_BAT_SYMBOL     := 1       mirror the battery symbol on the status
 ENABLE_NO_SCAN_TIMEOUT        := 1       remove the 32 sec timeout from the CTCSS/DCS scan (press exit butt to end scan)
 ENABLE_AM_FIX                 := 1       dynamically adjust the front end gains when in AM mode to helo prevent AM demodulator saturation - ignore the on-screen RSSI (for now)
 ENABLE_AM_FIX_SHOW_DATA       := 1       show debug data for the AM fix
-ENABLE_SQUELCH1_LOWER         := 0       adjusts squelch setting '1' to be more sensitive - I plan to let user adjust it in the menu
+ENABLE_SQUELCH_LOWER          := 1       squelch settings more sensitive - plan to let user adjust it in the menu
 ENABLE_RSSI_BAR               := 1       enable a dBm/Sx RSSI bar graph level
 ENABLE_AUDIO_BAR              := 0       experimental, display an audo bar level when TX'ing
 #ENABLE_COPY_CHAN_TO_VFO      := 1       not yet implemented - copy the channel into the VFO

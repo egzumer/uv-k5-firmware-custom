@@ -14,6 +14,8 @@
  *     limitations under the License.
  */
 
+#include <string.h>
+
 #include "app/action.h"
 #include "app/app.h"
 #include "app/dtmf.h"
@@ -166,6 +168,11 @@ void ACTION_Scan(bool bRestart)
 	{	// not scanning
 
 		gMonitor = false;
+
+		DTMF_clear_RX();
+
+		gDTMF_RX_live_timeout = 0;
+		memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
 
 		RADIO_SelectVfos();
 
