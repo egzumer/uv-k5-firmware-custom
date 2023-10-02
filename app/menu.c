@@ -737,7 +737,7 @@ void MENU_AcceptSetting(void)
 			break;
 
 		case MENU_F_CALI:
-			if (gF_LOCK)
+			//if (gF_LOCK)
 				writeXtalFreqCal(gSubMenuSelection);
 			return;
 
