@@ -86,37 +86,22 @@ void BATTERY_GetReadings(const bool bDisplayBatteryLevel)
 
 	gBatteryDisplayLevel = 0;
 
-	if (Voltage >= gBatteryCalibration[5])
-		gBatteryDisplayLevel = 11;
-	else
-	if (Voltage >= ((gBatteryCalibration[4] + gBatteryCalibration[5]) / 2))
-		gBatteryDisplayLevel = 10;
-	else
-	if (Voltage >= gBatteryCalibration[4])
-		gBatteryDisplayLevel = 9;
-	else
-	if (Voltage >= ((gBatteryCalibration[3] + gBatteryCalibration[4]) / 2))
-		gBatteryDisplayLevel = 8;
-	else
-	if (Voltage >= gBatteryCalibration[3])
-		gBatteryDisplayLevel = 7;
-	else
-	if (Voltage >= ((gBatteryCalibration[2] + gBatteryCalibration[3]) / 2))
+	if (gBatteryCalibration[5] < Voltage)
 		gBatteryDisplayLevel = 6;
 	else
-	if (Voltage >= gBatteryCalibration[2])
+	if (gBatteryCalibration[4] < Voltage)
 		gBatteryDisplayLevel = 5;
 	else
-	if (Voltage >= ((gBatteryCalibration[1] + gBatteryCalibration[2]) / 2))
+	if (gBatteryCalibration[3] < Voltage)
 		gBatteryDisplayLevel = 4;
 	else
-	if (Voltage >= gBatteryCalibration[1])
+	if (gBatteryCalibration[2] < Voltage)
 		gBatteryDisplayLevel = 3;
 	else
-	if (Voltage >= ((gBatteryCalibration[0] + gBatteryCalibration[1]) / 2))
+	if (gBatteryCalibration[1] < Voltage)
 		gBatteryDisplayLevel = 2;
 	else
-	if (Voltage >= gBatteryCalibration[0])
+	if (gBatteryCalibration[0] < Voltage)
 		gBatteryDisplayLevel = 1;
 
 	gBatteryVoltageAverage = (Voltage * 760) / gBatteryCalibration[3];

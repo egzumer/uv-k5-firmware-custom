@@ -28,6 +28,7 @@
 #include "driver/bk4819.h"
 #include "driver/gpio.h"
 #include "driver/system.h"
+#include "frequencies.h"
 #include "functions.h"
 #include "helper/battery.h"
 #include "misc.h"

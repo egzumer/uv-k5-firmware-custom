@@ -358,20 +358,20 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			NUMBER_Get(gInputBox, &Frequency);
 
 			// clamp the frequency entered to some valid value
-			if (Frequency < LowerLimitFrequencyBandTable[0])
+			if (Frequency < frequencyBandTable[0].lower)
 			{
-				Frequency = LowerLimitFrequencyBandTable[0];
+				Frequency = frequencyBandTable[0].lower;
 			}
 			else
-			if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
+			if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
 			{
-				const uint32_t center = (bx_stop1_Hz + bx_start2_Hz) / 2;
-				Frequency = (Frequency < center) ? bx_stop1_Hz : bx_start2_Hz;
+				const uint32_t center = (BX4819_band1.upper + BX4819_band2.lower) / 2;
+				Frequency = (Frequency < center) ? BX4819_band1.upper : BX4819_band2.lower;
 			}
 			else
-			if (Frequency > UpperLimitFrequencyBandTable[6])
+			if (Frequency > frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper)
 			{
-				Frequency = UpperLimitFrequencyBandTable[6];
+				Frequency = frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper;
 			}
 			
 			{
@@ -395,12 +395,12 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 //				Frequency += 75;                        // is this meant to be rounding ?
 				Frequency += gTxVfo->StepFrequency / 2; // no idea, but this is
 				
-				Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, LowerLimitFrequencyBandTable[gTxVfo->Band]);
+				Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, frequencyBandTable[gTxVfo->Band].lower);
 	
-				if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
+				if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
 				{	// clamp the frequency to the limit
-					const uint32_t center = (bx_stop1_Hz + bx_start2_Hz) / 2;
-					Frequency = (Frequency < center) ? bx_stop1_Hz - gTxVfo->StepFrequency : bx_start2_Hz;
+					const uint32_t center = (BX4819_band1.upper + BX4819_band2.lower) / 2;
+					Frequency = (Frequency < center) ? BX4819_band1.upper - gTxVfo->StepFrequency : BX4819_band2.lower;
 				}
 	
 				gTxVfo->freq_config_RX.Frequency = Frequency;
@@ -603,7 +603,6 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		if (bFlag)
 		{
 			gFlagRefreshSetting = true;
-			gFlagBackupSetting  = true;
 
 			gRequestDisplayScreen = DISPLAY_MENU;
 

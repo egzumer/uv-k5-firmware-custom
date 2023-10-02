@@ -717,14 +717,14 @@ void BK4819_SetupSquelch(
 	//
 	BK4819_WriteRegister(BK4819_REG_4E,  // 01 101 11 1 00000000
 	#if 0
+		// original
 		  (1u << 14)                // 1 ???
 		| (5u << 11)                // 5  squelch = 1 delay .. 0 ~ 7
 		| (3u <<  9)                // 3  squelch = 0 delay .. 0 ~ 3
 		| SquelchOpenGlitchThresh); // 0 ~ 255
 	#else
+		// supposedly fast
 		  (1u << 14)                // 1 ???
-		| (2u << 11)                // squelch = 1 delay .. 0 ~ 7
-		| (1u <<  9)                // squelch = 0 delay .. 0 ~ 3
 		| SquelchOpenGlitchThresh); // 0 ~ 255
 	#endif
 	
@@ -1487,10 +1487,15 @@ void BK4819_PlayRogerMDC(void)
 	unsigned int i;
 
 	BK4819_SetAF(BK4819_AF_MUTE);
-	BK4819_WriteRegister(BK4819_REG_58, 0x37C3);   // FSK Enable, RX Bandwidth FFSK1200/1800, 0xAA or 0x55 Preamble, 11 RX Gain,
-	                                               // 101 RX Mode, FFSK1200/1800 TX
-	BK4819_WriteRegister(BK4819_REG_72, 0x3065);   // Set Tone2 to 1200Hz
-	BK4819_WriteRegister(BK4819_REG_70, 0x00E0);   // Enable Tone2 and Set Tone2 Gain
+	
+	BK4819_WriteRegister(BK4819_REG_58, 0x37C3);   // FSK Enable,
+	                                               // RX Bandwidth FFSK 1200/1800
+	                                               // 0xAA or 0x55 Preamble
+	                                               // 11 RX Gain,
+	                                               // 101 RX Mode
+	                                               // TX FFSK 1200/1800
+	BK4819_WriteRegister(BK4819_REG_72, 0x3065);   // Set Tone-2 to 1200Hz
+	BK4819_WriteRegister(BK4819_REG_70, 0x00E0);   // Enable Tone-2 and Set Tone2 Gain
 	BK4819_WriteRegister(BK4819_REG_5D, 0x0D00);   // Set FSK data length to 13 bytes
 	BK4819_WriteRegister(BK4819_REG_59, 0x8068);   // 4 byte sync length, 6 byte preamble, clear TX FIFO
 	BK4819_WriteRegister(BK4819_REG_59, 0x0068);   // Same, but clear TX FIFO is now unset (clearing done)
@@ -1509,7 +1514,7 @@ void BK4819_PlayRogerMDC(void)
 
 	SYSTEM_DelayMs(180);
 
-	// Stop FSK TX, reset Tone2, disable FSK
+	// Stop FSK TX, reset Tone-2, disable FSK
 	BK4819_WriteRegister(BK4819_REG_59, 0x0068);
 	BK4819_WriteRegister(BK4819_REG_70, 0x0000);
 	BK4819_WriteRegister(BK4819_REG_58, 0x0000);

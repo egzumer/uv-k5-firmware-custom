@@ -36,7 +36,18 @@
 #include "ui/main.h"
 #include "ui/ui.h"
 
-bool center_line_is_free = true;
+enum center_line_t {
+	CENTER_LINE_NONE = 0,
+	CENTER_LINE_IN_USE,
+	CENTER_LINE_AUDIO_BAR,
+	CENTER_LINE_RSSI,
+	CENTER_LINE_AM_FIX_DATA,
+	CENTER_LINE_DTMF_DEC,
+	CENTER_LINE_CHARGE_DATA
+};
+typedef enum center_line_t center_line_t;
+
+center_line_t center_line = CENTER_LINE_NONE;
 
 // ***************************************************************************
 
@@ -154,14 +165,14 @@ bool center_line_is_free = true;
 
 		if (rssi_dBm >= (s9_dBm + 6))
 		{	// S9+XXdB, 1dB increment
-			const char *fmt[] = {"%-4d +%u  ", "%-4d +%2u "};
-			const unsigned int dB = ((rssi_dBm - s9_dBm) <= 99) ? rssi_dBm - s9_dBm : 99;
-			sprintf(s, (dB < 10) ? fmt[0] : fmt[1], rssi_dBm, dB);
+			const char *fmt[] = {"%3d 9+%u  ", "%3d 9+%2u "};
+			const unsigned int s9_dB = ((rssi_dBm - s9_dBm) <= 99) ? rssi_dBm - s9_dBm : 99;
+			sprintf(s, (s9_dB < 10) ? fmt[0] : fmt[1], rssi_dBm, s9_dB);
 		}
 		else
 		{	// S0 ~ S9, 6dB per S-point
 			const unsigned int s_level = (rssi_dBm >= s0_dBm) ? (rssi_dBm - s0_dBm) / 6 : 0;
-			sprintf(s, "%-4d S%u ", rssi_dBm, s_level);
+			sprintf(s, "%4d S%u ", rssi_dBm, s_level);
 		}
 		UI_PrintStringSmall(s, 2, 0, line);
 
@@ -184,7 +195,9 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 {
 	#ifdef ENABLE_RSSI_BAR
 
-		if (!center_line_is_free)
+		// optional larger RSSI dBm, S-point and bar level
+
+		if (center_line != CENTER_LINE_RSSI)
 			return;
 
 		if (gCurrentFunction == FUNCTION_RECEIVE ||
@@ -193,8 +206,10 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 		{
 			UI_DisplayRSSIBar(rssi, true);
 		}
-		
+
 	#else
+
+		// original little RS bars
 
 //		const int16_t dBm   = (rssi / 2) - 160;
 		const uint8_t Line  = (vfo == 0) ? 3 : 7;
@@ -290,8 +305,7 @@ void UI_DisplayMain(void)
 	char               String[16];
 	unsigned int       vfo_num;
 
-	// true if the center screen line is available to use
-	center_line_is_free = true;
+	center_line = CENTER_LINE_NONE;
 
 //	#ifdef SINGLE_VFO_CHAN
 //		const bool single_vfo = (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? true : false;
@@ -356,7 +370,7 @@ void UI_DisplayMain(void)
 				{
 					sprintf(String, ">%s", gDTMF_InputBox);
 
-					center_line_is_free = false;
+					center_line = CENTER_LINE_IN_USE;
 				}
 				UI_PrintString(String, 2, 0, vfo_num * 3, 8);
 
@@ -375,11 +389,11 @@ void UI_DisplayMain(void)
 				}
 				else
 				{
-					center_line_is_free = false;
+					center_line = CENTER_LINE_IN_USE;
 				}
 				UI_PrintString(String, 2, 0, 2 + (vfo_num * 3), 8);
 
-				center_line_is_free = false;
+				center_line = CENTER_LINE_IN_USE;
 				continue;
 			}
 
@@ -483,7 +497,7 @@ void UI_DisplayMain(void)
 		{	// user entering a frequency
 			UI_DisplayFrequency(gInputBox, 32, line, true, false);
 
-			center_line_is_free = false;
+//			center_line = CENTER_LINE_IN_USE;
 		}
 		else
 		{
@@ -689,7 +703,7 @@ void UI_DisplayMain(void)
 			UI_PrintStringSmall("SCR", LCD_WIDTH + 106, 0, line + 1);
 	}
 
-	if (center_line_is_free)
+	if (center_line == CENTER_LINE_NONE)
 	{	// we're free to use the middle line
 
 		const bool rx = (gCurrentFunction == FUNCTION_RECEIVE ||
@@ -700,7 +714,7 @@ void UI_DisplayMain(void)
 			if (gSetting_mic_bar && gCurrentFunction == FUNCTION_TRANSMIT)
 			{
 				UI_DisplayAudioBar();
-				center_line_is_free = false;
+				center_line = CENTER_LINE_AUDIO_BAR;
 			}
 			else
 		#endif
@@ -710,7 +724,7 @@ void UI_DisplayMain(void)
 			{
 				AM_fix_print_data(gEeprom.RX_CHANNEL, String);
 				UI_PrintStringSmall(String, 2, 0, 3);
-				center_line_is_free = false;
+				center_line = CENTER_LINE_AM_FIX_DATA;
 			}
 			else
 		#endif
@@ -719,11 +733,11 @@ void UI_DisplayMain(void)
 			if (rx)
 			{
 				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_CHANNEL], false);
-				center_line_is_free = false;
+				center_line = CENTER_LINE_RSSI;
 			}
 			else
 		#endif
-	
+
 		if (rx || gCurrentFunction == FUNCTION_FOREGROUND || gCurrentFunction == FUNCTION_POWER_SAVE)
 		{
 			#if 1
@@ -734,7 +748,7 @@ void UI_DisplayMain(void)
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX_live + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
-					center_line_is_free = false;
+					center_line = CENTER_LINE_DTMF_DEC;
 				}
 			#else
 				if (gSetting_live_DTMF_decoder && gDTMF_RX_index > 0)
@@ -744,7 +758,7 @@ void UI_DisplayMain(void)
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
-					center_line_is_free = false;
+					center_line = CENTER_LINE_DTMF_DEC;
 				}
 			#endif
 
@@ -756,7 +770,7 @@ void UI_DisplayMain(void)
 						gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
 						BATTERY_VoltsToPercent(gBatteryVoltageAverage));
 					UI_PrintStringSmall(String, 2, 0, 3);
-					center_line_is_free = false;
+					center_line = CENTER_LINE_CHARGE_DATA;
 				}
 			#endif
 		}

@@ -36,9 +36,11 @@ Anyway, have fun.
 Please note that the Quansheng uv-k radios are not professional quality transceivers, their
 performance is strictly limited, somewhat below that of a decent transceiver. The RX front
 end has no track-tuned band pass filtering at all, and so are wide band/wide open to any
-and all signals over a wide frequency range. Using the radio in high intensity RF environments
-will nearly always destroy your reception, the receiver simply doesn't have a great dynamic
-range, though are quite sensitive (weak signal wise).
+and all signals over a wide frequency range.
+Using the radio in high intensity RF environments will nearly always destroy your reception,
+the receiver simply doesn't have a great dynamic range, which means distorted AM audio with
+strong received signals, there is nothing more anyone can do in firmware/software to stop that
+happening once the RX gain adjustment I do (AM fix) reaches the hardwares limit.
 
 Saying that, they are nice toys for the price, fun to play with.
 
@@ -63,6 +65,7 @@ ENABLE_SMALL_BOLD             := 1       bold channel name/no. (when name + freq
 ENABLE_KEEP_MEM_NAME          := 1       maintain channel name when (re)saving memory channel
 ENABLE_WIDE_RX                := 1       full 18MHz to 1300MHz RX (though frontend not tuned over full range)
 ENABLE_TX_WHEN_AM             := 0       allow TX (always FM) when RX is set to AM
+ENABLE_F_CAL_MENU             := 0       enable/disable the radios hidden frequency calibration menu
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       standard CTCSS tail phase shift rather than QS's own 55Hz tone method
 ENABLE_MAIN_KEY_HOLD          := 1       initial F-key press not needed, instead hold down keys 0-9 to access the functions
 ENABLE_BOOT_BEEPS             := 0       give user audio feedback on volume knob position at boot-up

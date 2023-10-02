@@ -19,52 +19,29 @@
 #include "settings.h"
 
 // the BK4819 has 2 bands it covers, 18MHz ~ 630MHz and 760MHz ~ 1300MHz
+const freq_band_table_t BX4819_band1 = { 1800000,  63000000};
+const freq_band_table_t BX4819_band2 = {84000000, 130000000};
 
-const uint32_t bx_start1_Hz = 1800000;		// 18MHz
-const uint32_t bx_stop1_Hz  = 63000000;		// 630MHz
-
-//const uint32_t bx_start2_Hz = 76000000;		// 760MHz  // my one radio the BK chip managed to lock down to this frequency
-const uint32_t bx_start2_Hz = 84000000;		// 840MHz      // but best to go with datasheet specification really
-const uint32_t bx_stop2_Hz  = 130000000;	// 1300MHz
-
-const uint32_t LowerLimitFrequencyBandTable[7] =
+const freq_band_table_t frequencyBandTable[7] =
 {
 	#ifndef ENABLE_WIDE_RX
-		5000000,
+		// QS original
+		{ 5000000,   7600000},
+		{10800000,  13600000},
+		{13600000,  17400000},
+		{17400000,  35000000},
+		{35000000,  40000000},
+		{40000000,  47000000},
+		{47000000,  60000000}
 	#else
-		1800000,
-	#endif
-	10800000,
-	13600000,
-	17400000,
-	35000000,
-	40000000,
-	47000000
-};
-
-const uint32_t MiddleFrequencyBandTable[7] =
-{
-	 6500000,
-	12200000,
-	15000000,
-	26000000,
-	37000000,
-	43500000,
-	55000000
-};
-
-const uint32_t UpperLimitFrequencyBandTable[7] =
-{
-	 7600000,
-	13599990,
-	17399990,
-	34999990,
-	39999990,
-	46999990,
-	#ifndef ENABLE_WIDE_RX
-		60000000
-	#else
-		130000000
+		// extended range
+		{ 1800000,  10800000},
+		{10800000,  13600000},
+		{13600000,  17400000},
+		{17400000,  35000000},
+		{35000000,  40000000},
+		{40000000,  47000000},
+		{47000000, 130000000}
 	#endif
 };
 
@@ -84,37 +61,24 @@ const uint32_t UpperLimitFrequencyBandTable[7] =
 	};
 #endif
 
-#if 0
-	const uint16_t StepFrequencyTable[7] =
-	{
-		250,
-		500,
-		625,
-		1000,
-		1250,
-		2500,
-		833
-	};
+#ifndef ENABLE_12_5KHZ_STEP
+	// QS steps (*10 Hz)
+	const uint16_t StepFrequencyTable[7] = {250, 500, 625, 1000, 1250, 2500, 833};
 #else
-	const uint16_t StepFrequencyTable[7] =
-	{
-		125,
-		250,
-		625,
-		1000,
-		1250,
-		2500,
-		833
-	};
+	// includes 1.25kHz step
+	const uint16_t StepFrequencyTable[7] = {125, 250, 625, 1000, 1250, 2500, 833};
 #endif
 
 FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency)
 {
 	int band;
-	for (band = BAND7_470MHz; band >= BAND1_50MHz; band--)
-		if (Frequency >= LowerLimitFrequencyBandTable[band])
-			return band;
+	for (band = ARRAY_SIZE(frequencyBandTable) - 1; band >= 0; band--)
+		if (Frequency >= frequencyBandTable[band].lower)
+//		if (Frequency <  frequencyBandTable[band].upper)
+			return (FREQUENCY_Band_t)band;
+
 	return BAND1_50MHz;
+//	return BAND_NONE;
 }
 
 uint8_t FREQUENCY_CalculateOutputPower(uint8_t TxpLow, uint8_t TxpMid, uint8_t TxpHigh, int32_t LowerLimit, int32_t Middle, int32_t UpperLimit, int32_t Frequency)
@@ -156,26 +120,16 @@ uint32_t FREQUENCY_FloorToStep(uint32_t Upper, uint32_t Step, uint32_t Lower)
 
 	return Lower + (Step * Index);
 }
-/*
-int TX_freq_check(VFO_Info_t *pInfo)
-{	// return '0' if TX frequency is allowed
-	// otherwise return '-1'
-	
-	const uint32_t Frequency = pInfo->pTX->Frequency;
 
-	#ifdef ENABLE_NOAA
-		if (pInfo->CHANNEL_SAVE > FREQ_CHANNEL_LAST)
-			return -1;
-	#endif
-*/
 int TX_freq_check(const uint32_t Frequency)
 {	// return '0' if TX frequency is allowed
 	// otherwise return '-1'
 
-	if (Frequency < LowerLimitFrequencyBandTable[0] || Frequency > UpperLimitFrequencyBandTable[6])
-		return -1;
-	if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
-		return -1;
+	if (Frequency < frequencyBandTable[0].lower || Frequency > frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper)
+		return -1;  // not allowed outside this range
+
+	if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
+		return -1;  // BX chip does not work in this range
 
 	switch (gSetting_F_LOCK)
 	{
@@ -239,9 +193,10 @@ int RX_freq_check(const uint32_t Frequency)
 {	// return '0' if RX frequency is allowed
 	// otherwise return '-1'
 
-	if (Frequency < LowerLimitFrequencyBandTable[0] || Frequency > UpperLimitFrequencyBandTable[6])
+	if (Frequency < frequencyBandTable[0].lower || Frequency > frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper)
 		return -1;
-	if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
+
+	if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
 		return -1;
 
 	return 0;   // OK frequency

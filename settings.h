@@ -20,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "frequencies.h"
 #include "radio.h"
 
 enum POWER_OnDisplayMode_t {
@@ -28,7 +29,6 @@ enum POWER_OnDisplayMode_t {
 	POWER_ON_DISPLAY_MODE_VOLTAGE,
 	POWER_ON_DISPLAY_MODE_NONE
 };
-
 typedef enum POWER_OnDisplayMode_t POWER_OnDisplayMode_t;
 
 enum {
@@ -90,7 +90,6 @@ enum {
 		VOICE_PROMPT_CHINESE,
 		VOICE_PROMPT_ENGLISH
 	};
-	
 	typedef enum VOICE_Prompt_t VOICE_Prompt_t;
 #endif
 
@@ -98,7 +97,6 @@ enum ALARM_Mode_t {
 	ALARM_MODE_SITE = 0,
 	ALARM_MODE_TONE
 };
-
 typedef enum ALARM_Mode_t ALARM_Mode_t;
 
 enum ROGER_Mode_t {
@@ -106,7 +104,6 @@ enum ROGER_Mode_t {
 	ROGER_MODE_ROGER,
 	ROGER_MODE_MDC
 };
-
 typedef enum ROGER_Mode_t ROGER_Mode_t;
 
 enum CHANNEL_DisplayMode_t {
@@ -115,7 +112,6 @@ enum CHANNEL_DisplayMode_t {
 	MDF_NAME,
 	MDF_NAME_FREQ
 };
-
 typedef enum CHANNEL_DisplayMode_t CHANNEL_DisplayMode_t;
 
 typedef struct {
@@ -226,7 +222,6 @@ typedef struct {
 
 	VFO_Info_t            VfoInfo[2];
 } EEPROM_Config_t;
-
 extern EEPROM_Config_t gEeprom;
 
 #ifdef ENABLE_FMRADIO

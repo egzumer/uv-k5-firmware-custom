@@ -24,7 +24,8 @@ const uint16_t    fm_play_countdown_scan_10ms      =   100 / 10;   // 100ms
 const uint16_t    fm_play_countdown_noscan_10ms    =  1200 / 10;   // 1.2 seconds
 const uint16_t    fm_restore_countdown_10ms        =  5000 / 10;   // 5 seconds
 
-const uint8_t     menu_timeout_500ms               = 20000 / 500;  // 20 seconds
+const uint8_t     menu_timeout_500ms               =  20000 / 500;  // 20 seconds
+const uint16_t    menu_timeout_long_500ms          = 120000 / 500;  // 2 minutes
 
 const uint8_t     DTMF_RX_live_timeout_500ms       =  6000 / 500;  // 6 seconds live decoder on screen
 const uint8_t     DTMF_RX_timeout_500ms            = 10000 / 500;  // 10 seconds till we wipe the DTMF receiver
@@ -51,6 +52,9 @@ const uint16_t    scan_pause_delay_in_1_10ms       =  5000 / 10;   // 5 seconds
 const uint16_t    scan_pause_delay_in_2_10ms       =   500 / 10;   // 500ms
 const uint16_t    scan_pause_delay_in_3_10ms       =   200 / 10;   // 200ms
 const uint16_t    scan_pause_delay_in_4_10ms       =   300 / 10;   // 300ms
+const uint16_t    scan_pause_delay_in_5_10ms       =  1000 / 10;   // 1 sec
+const uint16_t    scan_pause_delay_in_6_10ms       =   100 / 10;   // 100ms
+const uint16_t    scan_pause_delay_in_7_10ms       =  3600 / 10;   // 3.6 seconds
 
 const uint16_t    battery_save_count_10ms          = 10000 / 10;   // 10 seconds
 
@@ -121,6 +125,9 @@ volatile uint16_t gDualWatchCountdown_10ms;
 volatile bool     gDualWatchCountdownExpired = true;
 bool              gDualWatchActive           = false;
 
+volatile uint8_t  gSerialConfigCountDown_500ms;
+volatile bool     gSerialConfigCountDown_done;
+
 volatile bool     gNextTimeslice_500ms;
 
 volatile uint16_t gTxTimerCountdown_500ms;
@@ -152,7 +159,7 @@ bool              gUpdateRSSI;
 #if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 	AlarmState_t  gAlarmState;
 #endif
-uint8_t           gVoltageMenuCountdown;
+uint16_t          gMenuCountdown;
 bool              gPttWasReleased;
 bool              gPttWasPressed;
 uint8_t           gKeypadLocked;
@@ -169,7 +176,6 @@ bool              gFlagPrepareTX;
 
 bool              gFlagAcceptSetting;
 bool              gFlagRefreshSetting;
-bool              gFlagBackupSetting;
 
 bool              gFlagSaveVfo;
 bool              gFlagSaveSettings;
@@ -192,10 +198,11 @@ bool              gFlagEndTransmission;
 uint16_t          gLowBatteryCountdown;
 uint8_t           gNextMrChannel;
 ReceptionMode_t   gRxReceptionMode;
-uint8_t           gRestoreMrChannel;
-uint8_t           gCurrentScanList;
-uint8_t           gPreviousMrChannel;
-uint32_t          gRestoreFrequency;
+
+uint8_t                gRestoreMrChannel;
+enum scan_next_chan_t  gCurrentScanList;
+uint32_t               gRestoreFrequency;
+
 bool              gRxVfoIsActive;
 #ifdef ENABLE_ALARM
 	uint8_t       gAlarmToneCounter;
