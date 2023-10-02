@@ -44,8 +44,8 @@ enum {
 
 enum PTT_ID_t {
 	PTT_ID_OFF = 0,    // OFF
-	PTT_ID_BOT,        // BEGIN OF TX
-	PTT_ID_EOT,        // END OF TX
+	PTT_ID_TX_UP,      // BEGIN OF TX
+	PTT_ID_TX_DOWN,    // END OF TX
 	PTT_ID_BOTH        // BOTH
 };
 typedef enum PTT_ID_t PTT_ID_t;

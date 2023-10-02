@@ -110,10 +110,19 @@ void Main(void)
 		gMenuListCount++;
 	
 	if (BootMode == BOOT_MODE_F_LOCK)
-		gF_LOCK = true;            // flag to say use the hidden menu items
+	{
+		gF_LOCK = true;            // flag to say include the hidden menu items
+	}
 	else
-		gMenuListCount -= 9;       // hide the last few menu items
+	{	// hide the hidden menu items
 
+		gMenuListCount -= 9;
+
+		#ifndef ENABLE_F_CAL_MENU
+			gMenuListCount++;
+		#endif
+	}
+	
 	// wait for user to release all butts before moving on
 	if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) ||
 	     KEYBOARD_Poll() != KEY_INVALID ||

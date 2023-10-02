@@ -1048,7 +1048,7 @@ void RADIO_SendEndOfTransmission(void)
 		BK4819_PlayRogerMDC();
 
 	if (gDTMF_CallState == DTMF_CALL_STATE_NONE &&
-	   (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_EOT || gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH))
+	   (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN || gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH))
 	{	// end-of-tx
 		if (gEeprom.DTMF_SIDE_TONE)
 		{

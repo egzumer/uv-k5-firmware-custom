@@ -310,14 +310,16 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 			*pMax = 16;
 			break;
 
-		case MENU_F_CALI:
-			*pMin = -50;
-			*pMax = +50;
-			break;
+		#ifdef ENABLE_F_CAL_MENU
+			case MENU_F_CALI:
+				*pMin = -50;
+				*pMax = +50;
+				break;
+		#endif
 
 		case MENU_BATCAL:
-			*pMin = 1760;  // 0
-			*pMax = 2000;  // 2300
+			*pMin = 1600;  // 0
+			*pMax = 2200;  // 2300
 			break;
 
 		default:
@@ -725,10 +727,11 @@ void MENU_AcceptSetting(void)
 			gSetting_TX_EN = gSubMenuSelection;
 			break;
 
-		case MENU_F_CALI:
-			//if (gF_LOCK)
+		#ifdef ENABLE_F_CAL_MENU
+			case MENU_F_CALI:
 				writeXtalFreqCal(gSubMenuSelection);
-			return;
+				return;
+		#endif
 
 		case MENU_BATCAL:
 			gBatteryCalibration[3] = gSubMenuSelection;
@@ -1091,9 +1094,11 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gSetting_TX_EN;
 			break;
 
-		case MENU_F_CALI:
-			gSubMenuSelection = gEeprom.BK4819_XTAL_FREQ_LOW;
-			break;
+		#ifdef ENABLE_F_CAL_MENU
+			case MENU_F_CALI:
+				gSubMenuSelection = gEeprom.BK4819_XTAL_FREQ_LOW;
+				break;
+		#endif
 
 		case MENU_BATCAL:
 			gSubMenuSelection = gBatteryCalibration[3];
@@ -1286,17 +1291,6 @@ static void MENU_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 	{
 		if (gIsInSubMenu)
 		{
-			// ***********************
-			// restore original value
-
-			if (gMenuCursor == MENU_F_CALI)
-			{
-//				if (gF_LOCK)
-//					writeXtalFreqCal(gSubMenuSelection_original);
-			}
-
-			// ***********************
-
 			if (gInputBoxIndex == 0 || gMenuCursor != MENU_OFFSET)
 			{
 				gAskForConfirmation = 0;

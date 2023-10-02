@@ -53,9 +53,9 @@ enum
 	MENU_ABR,
 	MENU_TDR,
 	MENU_BEEP,
-	#ifdef ENABLE_VOICE
-		MENU_VOICE,
-	#endif
+#ifdef ENABLE_VOICE
+	MENU_VOICE,
+#endif
 	MENU_SC_REV,
 	MENU_AUTOLK,
 	MENU_S_ADD1,
@@ -63,19 +63,19 @@ enum
 	MENU_STE,
 	MENU_RP_STE,
 	MENU_MIC,
-	#ifdef ENABLE_AUDIO_BAR
-		MENU_MIC_BAR,
-	#endif
-	#ifdef ENABLE_COMPANDER
-		MENU_COMPAND,
-	#endif
+#ifdef ENABLE_AUDIO_BAR
+	MENU_MIC_BAR,
+#endif
+#ifdef ENABLE_COMPANDER
+	MENU_COMPAND,
+#endif
 	MENU_1_CALL,
 	MENU_S_LIST,
 	MENU_SLIST1,
 	MENU_SLIST2,
-	#ifdef ENABLE_ALARM
-		MENU_AL_MOD,
-	#endif
+#ifdef ENABLE_ALARM
+	MENU_AL_MOD,
+#endif
 	MENU_ANI_ID,
 	MENU_UPCODE,
 	MENU_DWCODE,
@@ -92,15 +92,15 @@ enum
 	MENU_VOL,
 	MENU_BAT_TXT,
 	MENU_AM,
-	#ifdef ENABLE_AM_FIX
-		MENU_AM_FIX,
-	#endif
-	#ifdef ENABLE_AM_FIX_TEST1
-		MENU_AM_FIX_TEST1,
-	#endif
-	#ifdef ENABLE_NOAA
-		MENU_NOAA_S,
-	#endif
+#ifdef ENABLE_AM_FIX
+	MENU_AM_FIX,
+#endif
+#ifdef ENABLE_AM_FIX_TEST1
+	MENU_AM_FIX_TEST1,
+#endif
+#ifdef ENABLE_NOAA
+	MENU_NOAA_S,
+#endif
 	MENU_RESET,
 
 	// items after here are normally hidden
@@ -113,7 +113,9 @@ enum
 	MENU_SCREN,
 
 	MENU_TX_EN,   // enable TX
+#ifdef ENABLE_F_CAL_MENU
 	MENU_F_CALI,  // reference xtal calibration
+#endif
 	MENU_BATCAL   // battery voltage calibration
 };
 

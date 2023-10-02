@@ -387,7 +387,7 @@ void DTMF_Reply(void)
 		case DTMF_REPLY_NONE:
 			if (gDTMF_CallState != DTMF_CALL_STATE_NONE        ||
 			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_OFF ||
-			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_EOT)
+			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN)
 			{
 				gDTMF_ReplyState = DTMF_REPLY_NONE;
 				return;

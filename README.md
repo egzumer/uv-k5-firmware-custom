@@ -41,6 +41,7 @@ ENABLE_SMALL_BOLD             := 1       bold channel name/no. (when name + freq
 ENABLE_KEEP_MEM_NAME          := 1       maintain channel name when (re)saving memory channel
 ENABLE_WIDE_RX                := 1       full 18MHz to 1300MHz RX (though frontend not tuned over full range)
 ENABLE_TX_WHEN_AM             := 0       allow TX (always FM) when RX is set to AM
+ENABLE_F_CAL_MENU             := 0       enable/disable the radios hidden frequency calibration menu
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       standard CTCSS tail phase shift rather than QS's own 55Hz tone method
 ENABLE_MAIN_KEY_HOLD          := 1       initial F-key press not needed, instead hold down keys 0-9 to access the functions
 ENABLE_BOOT_BEEPS             := 0       give user audio feedback on volume knob position at boot-up
