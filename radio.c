@@ -122,7 +122,7 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t
 	pInfo->SCANLIST1_PARTICIPATION  = true;
 	pInfo->SCANLIST2_PARTICIPATION  = true;
 	pInfo->STEP_SETTING             = STEP_12_5kHz;
-	pInfo->StepFrequency            = 2500;
+	pInfo->StepFrequency            = StepFrequencyTable[pInfo->STEP_SETTING];
 	pInfo->CHANNEL_SAVE             = ChannelSave;
 	pInfo->FrequencyReverse         = false;
 	pInfo->OUTPUT_POWER             = OUTPUT_POWER_LOW;

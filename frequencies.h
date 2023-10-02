@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 
-#include "radio.h"
+//#include "radio.h"
 
 extern const uint32_t bx_start1_Hz;
 extern const uint32_t bx_stop1_Hz;
@@ -38,8 +38,30 @@ enum FREQUENCY_Band_t
 	BAND6_400MHz,
 	BAND7_470MHz
 };
-
 typedef enum FREQUENCY_Band_t FREQUENCY_Band_t;
+
+#if 0
+	enum STEP_Setting_t {
+		STEP_2_5kHz = 0,
+		STEP_5_0kHz,
+		STEP_6_25kHz,
+		STEP_10_0kHz,
+		STEP_12_5kHz,
+		STEP_25_0kHz,
+		STEP_8_33kHz
+	};
+#else
+	enum STEP_Setting_t {
+		STEP_1_25kHz = 0,
+		STEP_2_5kHz,
+		STEP_6_25kHz,
+		STEP_10_0kHz,
+		STEP_12_5kHz,
+		STEP_25_0kHz,
+		STEP_8_33kHz
+	};
+#endif
+typedef enum STEP_Setting_t STEP_Setting_t;
 
 extern const uint32_t         LowerLimitFrequencyBandTable[7];
 extern const uint32_t         MiddleFrequencyBandTable[7];

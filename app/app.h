@@ -20,6 +20,7 @@
 #include <stdbool.h>
 
 #include "functions.h"
+#include "frequencies.h"
 #include "radio.h"
 
 void     APP_EndTransmission(void);
