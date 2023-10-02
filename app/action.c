@@ -109,7 +109,7 @@ void ACTION_Monitor(void)
 		}
 		else
 	#endif
-		gRequestDisplayScreen = gScreenToDisplay;
+			gRequestDisplayScreen = gScreenToDisplay;
 }
 
 void ACTION_Scan(bool bRestart)
@@ -251,7 +251,9 @@ void ACTION_Vox(void)
 		#endif
 
 		gFlagPrepareTX = true;
-		gRequestDisplayScreen = DISPLAY_MAIN;
+
+//		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+			gRequestDisplayScreen = DISPLAY_MAIN;
 	}
 #endif
 
@@ -268,6 +270,7 @@ void ACTION_Vox(void)
 				gInputBoxIndex        = 0;
 				gVoxResumeCountdown   = 80;
 				gFlagReconfigureVfos  = true;
+
 				gRequestDisplayScreen = DISPLAY_MAIN;
 				return;
 			}
@@ -279,7 +282,8 @@ void ACTION_Vox(void)
 
 			FM_Start();
 
-			gInputBoxIndex        = 0;
+			gInputBoxIndex = 0;
+
 			gRequestDisplayScreen = DISPLAY_FM;
 		}
 	}

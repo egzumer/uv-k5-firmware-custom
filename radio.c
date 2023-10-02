@@ -218,7 +218,6 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 	if (Band > BAND7_470MHz)
 	{
 		Band = BAND6_400MHz;
-//		Band = FREQUENCY_GetBand(gEeprom.ScreenChannel[VFO]);   // 1of11 bug fix, or have I broke it ?
 	}
 
 	if (IS_MR_CHANNEL(Channel))
@@ -548,7 +547,7 @@ void RADIO_SelectVfos(void)
 
 void RADIO_SetupRegisters(bool bSwitchToFunction0)
 {
-	BK4819_FilterBandwidth_t Bandwidth;
+	BK4819_FilterBandwidth_t Bandwidth = gRxVfo->CHANNEL_BANDWIDTH;
 	uint16_t                 InterruptMask;
 	uint32_t                 Frequency;
 
@@ -558,7 +557,6 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 	BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_GREEN, false);
 
-	Bandwidth = gRxVfo->CHANNEL_BANDWIDTH;
 	switch (Bandwidth)
 	{
 		default:
@@ -611,6 +609,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 	BK4819_PickRXFilterPathBasedOnFrequency(Frequency);
 
+	// what does this in do ?
 	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, true);
 
 	// AF RX Gain and DAC

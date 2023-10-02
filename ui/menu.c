@@ -476,12 +476,42 @@ void UI_DisplayMenu(void)
 
 		case MENU_R_CTCS:
 		case MENU_T_CTCS:
-			if (gSubMenuSelection == 0)
-				strcpy(String, "OFF");
-			else
-				sprintf(String, "%u.%uHz", CTCSS_Options[gSubMenuSelection - 1] / 10, CTCSS_Options[gSubMenuSelection - 1] % 10);
-			break;
+		{
+			#if 1
+				unsigned int Code;
+				FREQ_Config_t *pConfig = (gMenuCursor == MENU_R_CTCS) ? &gTxVfo->freq_config_RX : &gTxVfo->freq_config_TX;
+				if (gSubMenuSelection == 0)
+				{
+					strcpy(String, "OFF");
 
+					if (pConfig->CodeType != CODE_TYPE_CONTINUOUS_TONE)
+						break;
+					Code = 0;
+					pConfig->CodeType = CODE_TYPE_OFF;
+					pConfig->Code = Code;
+
+					BK4819_ExitSubAu();
+				}
+				else
+				{
+					sprintf(String, "%u.%uHz", CTCSS_Options[gSubMenuSelection - 1] / 10, CTCSS_Options[gSubMenuSelection - 1] % 10);
+
+					pConfig->CodeType = CODE_TYPE_CONTINUOUS_TONE;
+					Code = gSubMenuSelection - 1;
+					pConfig->Code = Code;
+
+					BK4819_SetCTCSSFrequency(CTCSS_Options[Code]);
+				}
+			#else
+				if (gSubMenuSelection == 0)
+					strcpy(String, "OFF");
+				else
+					sprintf(String, "%u.%uHz", CTCSS_Options[gSubMenuSelection - 1] / 10, CTCSS_Options[gSubMenuSelection - 1] % 10);
+			#endif
+
+			break;
+		}
+		
 		case MENU_SFT_D:
 			strcpy(String, gSubMenu_SFT_D[gSubMenuSelection]);
 			break;
@@ -518,6 +548,12 @@ void UI_DisplayMenu(void)
 
 		case MENU_SCR:
 			strcpy(String, gSubMenu_SCRAMBLER[gSubMenuSelection]);
+			#if 1
+				if (gSubMenuSelection > 0 && gSetting_ScrambleEnable)
+					BK4819_EnableScramble(gSubMenuSelection - 1);
+				else
+					BK4819_DisableScramble();
+			#endif
 			break;
 
 		case MENU_VOX:

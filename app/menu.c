@@ -401,9 +401,6 @@ void MENU_AcceptSetting(void)
 
 		case MENU_T_CTCS:
 			pConfig = &gTxVfo->freq_config_TX;
-
-			// Fallthrough
-
 		case MENU_R_CTCS:
 			if (gSubMenuSelection == 0)
 			{
@@ -413,14 +410,20 @@ void MENU_AcceptSetting(void)
 					return;
 				}
 				Code              = 0;
+				pConfig->Code     = Code;
 				pConfig->CodeType = CODE_TYPE_OFF;
+
+				BK4819_ExitSubAu();
 			}
 			else
-				{
+			{
 				pConfig->CodeType = CODE_TYPE_CONTINUOUS_TONE;
 				Code              = gSubMenuSelection - 1;
+				pConfig->Code     = Code;
+
+				BK4819_SetCTCSSFrequency(CTCSS_Options[Code]);
 			}
-			pConfig->Code       = Code;
+			
 			gRequestSaveChannel = 1;
 			return;
 
@@ -441,6 +444,12 @@ void MENU_AcceptSetting(void)
 
 		case MENU_SCR:
 			gTxVfo->SCRAMBLING_TYPE = gSubMenuSelection;
+			#if 0
+				if (gSubMenuSelection > 0 && gSetting_ScrambleEnable)
+					BK4819_EnableScramble(gSubMenuSelection - 1);
+				else
+					BK4819_DisableScramble();
+			#endif
 			gRequestSaveChannel     = 1;
 			return;
 

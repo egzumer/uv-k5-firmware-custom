@@ -86,7 +86,7 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 			return;
 		}
-	
+
 		#ifdef ENABLE_FMRADIO
 			if (gFM_ScanState == FM_SCAN_OFF)
 			{
@@ -106,7 +106,7 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 
 	if (!bKeyPressed)
 	{
-		if (gScreenToDisplay == DISPLAY_MAIN)
+		//if (gScreenToDisplay == DISPLAY_MAIN)
 		{
 			if (gCurrentFunction == FUNCTION_TRANSMIT)
 			{
@@ -132,10 +132,9 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 
 			RADIO_SetVfoState(VFO_STATE_NORMAL);
 
-			// beep when you release the PTT
-			//gBeepToPlay = BEEP_880HZ_40MS_OPTIONAL;   // 1of11
+			if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+				gRequestDisplayScreen = DISPLAY_MAIN;
 
-			gRequestDisplayScreen = DISPLAY_MAIN;
 			return;
 		}
 
@@ -149,7 +148,10 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 
 		gPttDebounceCounter   = 0;
 		gPttIsPressed         = false;
-		gRequestDisplayScreen = DISPLAY_MAIN;
+
+		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+			gRequestDisplayScreen = DISPLAY_MAIN;
+
 		return;
 	}
 
@@ -160,17 +162,15 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 		if (gCssScanMode == CSS_SCAN_MODE_OFF)
 		{
 			#ifdef ENABLE_FMRADIO
-				if (gScreenToDisplay == DISPLAY_MENU || gScreenToDisplay == DISPLAY_FM)
-			#else
-				if (gScreenToDisplay == DISPLAY_MENU)
+				if (gScreenToDisplay == DISPLAY_FM)
+				{
+					gRequestDisplayScreen = DISPLAY_MAIN;
+					gInputBoxIndex        = 0;
+					gPttIsPressed         = false;
+					gPttDebounceCounter   = 0;
+					return;
+				}
 			#endif
-			{
-				gRequestDisplayScreen = DISPLAY_MAIN;
-				gInputBoxIndex        = 0;
-				gPttIsPressed         = false;
-				gPttDebounceCounter   = 0;
-				return;
-			}
 
 			if (gScreenToDisplay != DISPLAY_SCANNER)
 			{
@@ -213,21 +213,26 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 						gDTMF_State         = DTMF_STATE_0;
 					}
 
-					gRequestDisplayScreen = DISPLAY_MAIN;
+					if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+						gRequestDisplayScreen = DISPLAY_MAIN;
 
 					gDTMF_InputMode = false;
 					gDTMF_InputIndex = 0;
 					return;
 				}
 
-				gRequestDisplayScreen = DISPLAY_MAIN;
+				if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+					gRequestDisplayScreen = DISPLAY_MAIN;
+
 				gFlagPrepareTX        = true;
 				gInputBoxIndex        = 0;
 
 				return;
 			}
 
-			gRequestDisplayScreen    = DISPLAY_MAIN;
+			if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+				gRequestDisplayScreen    = DISPLAY_MAIN;
+
 			gEeprom.CROSS_BAND_RX_TX = gBackupCROSS_BAND_RX_TX;
 			gUpdateStatus            = true;
 			gFlagStopScan            = true;
@@ -237,7 +242,9 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 		else
 		{
 			MENU_StopCssScan();
-			gRequestDisplayScreen = DISPLAY_MENU;
+
+			if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+				gRequestDisplayScreen = DISPLAY_MENU;
 		}
 	}
 	#ifdef ENABLE_FMRADIO
@@ -247,11 +254,10 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 			gRequestDisplayScreen = DISPLAY_FM;
 		}
 	#endif
-	
+
 	#ifdef ENABLE_VOICE
 		gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
 	#endif
 
 	gPttWasPressed  = true;
 }
-

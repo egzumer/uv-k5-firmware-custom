@@ -157,6 +157,7 @@ static void APP_CheckForIncoming(void)
 				updateRSSI(gEeprom.RX_CHANNEL);
 				gUpdateRSSI = true;
 			}
+
 			return;
 		}
 
@@ -223,7 +224,7 @@ static void APP_HandleIncoming(void)
 		if (gRxVfo->DTMF_DECODING_ENABLE || gSetting_KILLED)
 		{	// DTMF DCD is enabled
 
-//			DTMF_HandleRequest();
+			DTMF_HandleRequest();
 
 			if (gDTMF_CallState == DTMF_CALL_STATE_NONE)
 			{
@@ -600,7 +601,10 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		if (Function == FUNCTION_MONITOR)
 	#endif
 	{	// squelch is disabled
-		GUI_SelectNextDisplay(DISPLAY_MAIN);
+
+		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+			GUI_SelectNextDisplay(DISPLAY_MAIN);
+
 		return;
 	}
 
@@ -1486,22 +1490,27 @@ void APP_TimeSlice10ms(void)
 					if (gAlarmState == ALARM_STATE_TXALARM)
 					{
 						gAlarmState = ALARM_STATE_ALARM;
+
 						RADIO_EnableCxCSS();
 						BK4819_SetupPowerAmplifier(0, 0);
 						BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1, false);
 						BK4819_Enable_AfDac_DiscMode_TxDsp();
 						BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, false);
+
 						GUI_DisplayScreen();
 					}
 					else
 					{
 						gAlarmState = ALARM_STATE_TXALARM;
+
 						GUI_DisplayScreen();
+
 						BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, true);
 						RADIO_SetTxParameters();
 						BK4819_TransmitTone(true, 500);
 						SYSTEM_DelayMs(2);
 						GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+
 						gEnableSpeaker    = true;
 						gAlarmToneCounter = 0;
 					}
@@ -1588,7 +1597,9 @@ void APP_TimeSlice10ms(void)
 					gScanUseCssResult      = false;
 					gScanProgressIndicator = 0;
 					gScanCssState          = SCAN_CSS_STATE_SCANNING;
+
 					GUI_SelectNextDisplay(DISPLAY_SCANNER);
+
 					gUpdateStatus          = true;
 				}
 
@@ -1679,7 +1690,9 @@ void cancelUserInputModes(void)
 		gDTMF_InputMode       = false;
 		gDTMF_InputIndex      = 0;
 		gInputBoxIndex        = 0;
+
 		gRequestDisplayScreen = DISPLAY_MAIN;
+
 		gBeepToPlay           = BEEP_1KHZ_60MS_OPTIONAL;
 	}
 }
@@ -2008,7 +2021,8 @@ void APP_TimeSlice500ms(void)
 
 		RADIO_SetupRegisters(true);
 
-		gRequestDisplayScreen = DISPLAY_MAIN;
+//		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+			gRequestDisplayScreen = DISPLAY_MAIN;
 	}
 #endif
 
@@ -2098,17 +2112,17 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		{
 			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_CHANNEL, gTxVfo, gFlagSaveChannel);
 			gFlagSaveChannel = false;
+
 			RADIO_ConfigureChannel(gEeprom.TX_CHANNEL, VFO_CONFIGURE);
 			RADIO_SetupRegisters(true);
+
 			GUI_SelectNextDisplay(DISPLAY_MAIN);
 		}
 	}
 	else
 	{
-		if (Key != KEY_PTT)
-		{
+		if (gScreenToDisplay == DISPLAY_MENU)       // 1of11
 			gMenuCountdown = menu_timeout_500ms;
-		}
 		
 		BACKLIGHT_TurnOn();
 
@@ -2293,9 +2307,11 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			{
 				case DISPLAY_MAIN:
 					MAIN_ProcessKeys(Key, bKeyPressed, bKeyHeld);
+
 					#ifdef ENABLE_MAIN_KEY_HOLD
 						bKeyHeld = false;	// allow the channel setting to be saved
 					#endif
+
 					break;
 
 				#ifdef ENABLE_FMRADIO
@@ -2401,6 +2417,7 @@ Skip:
 		if (!bKeyHeld)
 		{
 			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_CHANNEL, gTxVfo, gRequestSaveChannel);
+
 			if (gScreenToDisplay != DISPLAY_SCANNER)
 				if (gVfoConfigureMode == VFO_CONFIGURE_NONE)  // 'if' is so as we don't wipe out previously setting this variable elsewhere
 					gVfoConfigureMode = VFO_CONFIGURE;
@@ -2408,6 +2425,7 @@ Skip:
 		else
 		{
 			gFlagSaveChannel = gRequestSaveChannel;
+
 			if (gRequestDisplayScreen == DISPLAY_INVALID)
 				gRequestDisplayScreen = DISPLAY_MAIN;
 		}

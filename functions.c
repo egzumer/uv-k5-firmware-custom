@@ -138,7 +138,9 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 
 			gUpdateStatus = true;
 
-			GUI_SelectNextDisplay(DISPLAY_MAIN);
+			if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+				GUI_SelectNextDisplay(DISPLAY_MAIN);
+				
 			return;
 	
 		case FUNCTION_TRANSMIT:

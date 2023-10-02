@@ -80,6 +80,9 @@ center_line_t center_line = CENTER_LINE_NONE;
 			const unsigned int bar_width = LCD_WIDTH - 2 - bar_x;
 			unsigned int       i;
 
+			if (gScreenToDisplay != DISPLAY_MAIN)
+				return;
+			
 			#if 1
 				// TX audio level
 
@@ -713,8 +716,8 @@ void UI_DisplayMain(void)
 		#ifdef ENABLE_AUDIO_BAR
 			if (gSetting_mic_bar && gCurrentFunction == FUNCTION_TRANSMIT)
 			{
-				UI_DisplayAudioBar();
 				center_line = CENTER_LINE_AUDIO_BAR;
+				UI_DisplayAudioBar();
 			}
 			else
 		#endif
@@ -722,9 +725,9 @@ void UI_DisplayMain(void)
 		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
 			if (rx && gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
 			{
+				center_line = CENTER_LINE_AM_FIX_DATA;
 				AM_fix_print_data(gEeprom.RX_CHANNEL, String);
 				UI_PrintStringSmall(String, 2, 0, 3);
-				center_line = CENTER_LINE_AM_FIX_DATA;
 			}
 			else
 		#endif
@@ -732,8 +735,8 @@ void UI_DisplayMain(void)
 		#ifdef ENABLE_RSSI_BAR
 			if (rx)
 			{
-				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_CHANNEL], false);
 				center_line = CENTER_LINE_RSSI;
+				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_CHANNEL], false);
 			}
 			else
 		#endif
@@ -745,20 +748,20 @@ void UI_DisplayMain(void)
 				{	// show live DTMF decode
 					const unsigned int len = strlen(gDTMF_RX_live);
 					const unsigned int idx = (len > (17 - 5)) ? len - (17 - 5) : 0;  // limit to last 'n' chars
+					center_line = CENTER_LINE_DTMF_DEC;
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX_live + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
-					center_line = CENTER_LINE_DTMF_DEC;
 				}
 			#else
 				if (gSetting_live_DTMF_decoder && gDTMF_RX_index > 0)
 				{	// show live DTMF decode
 					const unsigned int len = gDTMF_RX_index;
 					const unsigned int idx = (len > (17 - 5)) ? len - (17 - 5) : 0;  // limit to last 'n' chars
+					center_line = CENTER_LINE_DTMF_DEC;
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
-					center_line = CENTER_LINE_DTMF_DEC;
 				}
 			#endif
 
@@ -766,11 +769,11 @@ void UI_DisplayMain(void)
 				else
 				if (gChargingWithTypeC)
 				{	// charging .. show the battery state
+					center_line = CENTER_LINE_CHARGE_DATA;
 					sprintf(String, "Charge %u.%02uV %u%%",
 						gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
 						BATTERY_VoltsToPercent(gBatteryVoltageAverage));
 					UI_PrintStringSmall(String, 2, 0, 3);
-					center_line = CENTER_LINE_CHARGE_DATA;
 				}
 			#endif
 		}
