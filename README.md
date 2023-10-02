@@ -3,7 +3,6 @@
  - fagci spectrum analyzer (**F+5** to turn on)
  - better battery percentage calculation (based on real measurement, battery calibration recommended)
  - battery calibration option available available in the menu (instructions below)
- - there is no FM radio nor Aircopy, not enough memory space
 
 <img src="images/main.jpg" width=300 /><img src="images/spectrum.jpg" width=300 /><img src="images/audiobar.jpg" width=300 /><img src="images/rssibar.jpg" width=300 />
 
@@ -13,11 +12,9 @@
 
 To enter the calibration:
 
-1. turn the radio on holding PTT and the first side button 
-2. imediately go to BATVOL option and adjust the voltage with UP/DOWN buttons
+1. turn the radio on while holding PTT and the first side button 
+2. go to BATCAL option and adjust the voltage with UP/DOWN buttons
 3. confirm the setting, calibration will be saved to EEPROM
-
-The calibration option becomes unavailable if you leave the menu screen and you have to repeat from step 1.
 
 
 # Open reimplementation of the Quan Sheng UV-K5 v2.1.27 firmware
