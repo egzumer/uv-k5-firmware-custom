@@ -128,7 +128,7 @@ const t_menu_item MenuList[] =
 	{"TX-EN",  VOICE_ID_INVALID,                       MENU_TX_EN      }, // enable TX
 	{"F-CALI", VOICE_ID_INVALID,                       MENU_F_CALI     }, // reference xtal calibration
 	{"BATCAL", VOICE_ID_INVALID,                       MENU_BATCAL     }, // battery voltage calibration
-	
+
 	{"",       VOICE_ID_INVALID,                       0xff            }  // end of list - DO NOT delete or move this this
 };
 
@@ -377,11 +377,11 @@ void UI_DisplayMenu(void)
 		// draw the little triangle marker if we're in the sub-menu
 		if (gIsInSubMenu)
 			memmove(gFrameBuffer[0] + (8 * menu_list_width) + 1, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));
-		
+
 		// draw the menu index number/count
 		sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
 		UI_PrintStringSmall(String, 2, 0, 6);
-		
+
 	#else
 	{
 		const int menu_index = gMenuCursor;  // current selected menu item
@@ -733,21 +733,9 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_VOL:
-			if (gF_LOCK)
-			{
-				gBatteryCalibration[3] = gSubMenuSelection;
-				BATTERY_GetReadings(true);
-				sprintf(String, "%u.%02uV\n%u%%\n%u",
-					gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
-					BATTERY_VoltsToPercent(gBatteryVoltageAverage),
-					gSubMenuSelection);
-			}
-			else
-			{
-				sprintf(String, "%u.%02uV\n%u%%",
-					gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
-					BATTERY_VoltsToPercent(gBatteryVoltageAverage));
-			}
+			sprintf(String, "%u.%02uV\n%u%%",
+				gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
+				BATTERY_VoltsToPercent(gBatteryVoltageAverage));
 			break;
 
 		case MENU_RESET:
@@ -797,16 +785,16 @@ void UI_DisplayMenu(void)
 				{
 					lines++;
 					String[i] = 0;
-				}  
+				}
 			}
-			
+
 			if (lines > 3)
 			{	// use small text
 				small = true;
 				if (lines > 7)
 					lines = 7;
 			}
-			
+
 			// move the 1st line up
 			if (small)
 				y = 3 - ((lines + 0) / 2);
@@ -826,7 +814,7 @@ void UI_DisplayMenu(void)
 			}
 		}
 	}
-	
+
 	if (gMenuCursor == MENU_SLIST1 || gMenuCursor == MENU_SLIST2)
 	{
 		i = (gMenuCursor == MENU_SLIST1) ? 0 : 1;

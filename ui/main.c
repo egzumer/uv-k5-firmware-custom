@@ -187,19 +187,13 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 		if (!center_line_is_free)
 			return;
 
-		const bool rx = (gCurrentFunction == FUNCTION_RECEIVE ||
-		                 gCurrentFunction == FUNCTION_MONITOR ||
-		                 gCurrentFunction == FUNCTION_INCOMING);
-
-		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
-			if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
-			{	// AM test data is currently being shown
-			}
-			else
-		#endif
-			if (rx)
-				UI_DisplayRSSIBar(rssi, true);
-
+		if (gCurrentFunction == FUNCTION_RECEIVE ||
+		    gCurrentFunction == FUNCTION_MONITOR ||
+		    gCurrentFunction == FUNCTION_INCOMING)
+		{
+			UI_DisplayRSSIBar(rssi, true);
+		}
+		
 	#else
 
 //		const int16_t dBm   = (rssi / 2) - 160;
@@ -296,7 +290,7 @@ void UI_DisplayMain(void)
 	char               String[16];
 	unsigned int       vfo_num;
 
-	// true is the center screen line is not in use
+	// true if the center screen line is available to use
 	center_line_is_free = true;
 
 //	#ifdef SINGLE_VFO_CHAN
@@ -704,7 +698,10 @@ void UI_DisplayMain(void)
 
 		#ifdef ENABLE_AUDIO_BAR
 			if (gSetting_mic_bar && gCurrentFunction == FUNCTION_TRANSMIT)
+			{
 				UI_DisplayAudioBar();
+				center_line_is_free = false;
+			}
 			else
 		#endif
 
@@ -713,13 +710,17 @@ void UI_DisplayMain(void)
 			{
 				AM_fix_print_data(gEeprom.RX_CHANNEL, String);
 				UI_PrintStringSmall(String, 2, 0, 3);
+				center_line_is_free = false;
 			}
 			else
 		#endif
 
 		#ifdef ENABLE_RSSI_BAR
 			if (rx)
+			{
 				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_CHANNEL], false);
+				center_line_is_free = false;
+			}
 			else
 		#endif
 	
@@ -733,6 +734,7 @@ void UI_DisplayMain(void)
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX_live + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
+					center_line_is_free = false;
 				}
 			#else
 				if (gSetting_live_DTMF_decoder && gDTMF_RX_index > 0)
@@ -742,6 +744,7 @@ void UI_DisplayMain(void)
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
+					center_line_is_free = false;
 				}
 			#endif
 
@@ -749,15 +752,11 @@ void UI_DisplayMain(void)
 				else
 				if (gChargingWithTypeC)
 				{	// charging .. show the battery state
-
-					//const uint16_t volts   = (gBatteryVoltageAverage < gMin_bat_v) ? gMin_bat_v : gBatteryVoltageAverage;
-					//const uint16_t percent = (100 * (volts - gMin_bat_v)) / (gMax_bat_v - gMin_bat_v);
-					//sprintf(String, "Charge %u.%02uV %u%%", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100, percent);
-					//UI_PrintStringSmall(String, 2, 0, 3);
-
-					const uint16_t percent = BATTERY_VoltsToPercent(gBatteryVoltageAverage);
-					sprintf(String, "Charge %u.%02uV %u%%", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100, percent);
+					sprintf(String, "Charge %u.%02uV %u%%",
+						gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
+						BATTERY_VoltsToPercent(gBatteryVoltageAverage));
 					UI_PrintStringSmall(String, 2, 0, 3);
+					center_line_is_free = false;
 				}
 			#endif
 		}

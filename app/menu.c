@@ -1098,7 +1098,7 @@ void MENU_ShowCurrentSetting(void)
 		case MENU_BATCAL:
 			gSubMenuSelection = gBatteryCalibration[3];
 			break;
-			
+
 		default:
 			return;
 	}
@@ -1289,15 +1289,6 @@ static void MENU_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 			// ***********************
 			// restore original value
 
-			if (gMenuCursor == MENU_BATCAL)
-			{
-				if (gF_LOCK)
-				{
-					EEPROM_ReadBuffer(0x1F40, gBatteryCalibration, 8);
-					BATTERY_GetReadings(true);
-				}
-			}
-			else
 			if (gMenuCursor == MENU_F_CALI)
 			{
 //				if (gF_LOCK)
