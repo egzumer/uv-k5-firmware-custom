@@ -465,7 +465,7 @@ void BK4819_SetCTCSSFrequency(uint32_t FreqControlWord)
 	//                          freq(Hz) * 20.64888 for XTAL 13M/26M or
 	//                          freq(Hz) * 20.97152 for XTAL 12.8M/19.2M/25.6M/38.4M
 	//
-	BK4819_WriteRegister(BK4819_REG_07, BK4819_REG_07_MODE_CTC1 | (((FreqControlWord * 2064888u) + 500000u) / 1000000u));   // with rounding
+	BK4819_WriteRegister(BK4819_REG_07, BK4819_REG_07_MODE_CTC1 | (((FreqControlWord * 206488u) + 50000u) / 100000u));   // with rounding
 }
 
 // freq_10Hz is CTCSS Hz * 10
