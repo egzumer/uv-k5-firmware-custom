@@ -613,7 +613,7 @@ uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
 
 	if (pInfo->StepFrequency == 833)
 	{
-		const uint32_t Lower = LowerLimitFrequencyBandTable[pInfo->Band];
+		const uint32_t Lower = frequencyBandTable[pInfo->Band].lower;
 		const uint32_t Delta = Frequency - Lower;
 		uint32_t       Base  = (Delta / 2500) * 2500;
 		const uint32_t Index = ((Delta - Base) % 2500) / 833;
@@ -624,11 +624,11 @@ uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
 		Frequency = Lower + Base + (Index * 833);
 	}
 
-	if (Frequency > UpperLimitFrequencyBandTable[pInfo->Band])
-		Frequency = LowerLimitFrequencyBandTable[pInfo->Band];
+	if (Frequency >= frequencyBandTable[pInfo->Band].upper)
+		Frequency =  frequencyBandTable[pInfo->Band].lower;
 	else
-	if (Frequency < LowerLimitFrequencyBandTable[pInfo->Band])
-		Frequency = FREQUENCY_FloorToStep(UpperLimitFrequencyBandTable[pInfo->Band], pInfo->StepFrequency, LowerLimitFrequencyBandTable[pInfo->Band]);
+	if (Frequency < frequencyBandTable[pInfo->Band].lower)
+		Frequency = FREQUENCY_FloorToStep(frequencyBandTable[pInfo->Band].upper, pInfo->StepFrequency, frequencyBandTable[pInfo->Band].lower);
 
 	return Frequency;
 }

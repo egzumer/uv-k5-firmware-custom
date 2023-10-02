@@ -210,7 +210,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 		Index = Channel - FREQ_CHANNEL_FIRST;
 
-		RADIO_InitInfo(pRadio, Channel, LowerLimitFrequencyBandTable[Index]);
+		RADIO_InitInfo(pRadio, Channel, frequencyBandTable[Index].lower);
 		return;
 	}
 
@@ -369,14 +369,14 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 	Band = FREQUENCY_GetBand(Frequency);
 #endif
 
-	if (Frequency < LowerLimitFrequencyBandTable[Band])
-		Frequency = LowerLimitFrequencyBandTable[Band];
+	if (Frequency < frequencyBandTable[Band].lower)
+		Frequency = frequencyBandTable[Band].lower;
 	else
-	if (Frequency > UpperLimitFrequencyBandTable[Band])
-		Frequency = UpperLimitFrequencyBandTable[Band];
+	if (Frequency > frequencyBandTable[Band + 1].upper)
+		Frequency = frequencyBandTable[Band + 1].upper;
 	else
 	if (Channel >= FREQ_CHANNEL_FIRST)
-		Frequency = FREQUENCY_FloorToStep(Frequency, gEeprom.VfoInfo[VFO].StepFrequency, LowerLimitFrequencyBandTable[Band]);
+		Frequency = FREQUENCY_FloorToStep(Frequency, gEeprom.VfoInfo[VFO].StepFrequency, frequencyBandTable[Band].lower);
 
 	pRadio->freq_config_RX.Frequency = Frequency;
 
@@ -485,9 +485,9 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 		Txp[0],
 		Txp[1],
 		Txp[2],
-		LowerLimitFrequencyBandTable[Band],
-		    MiddleFrequencyBandTable[Band],
-		UpperLimitFrequencyBandTable[Band],
+		 frequencyBandTable[Band].lower,
+		(frequencyBandTable[Band].lower + frequencyBandTable[Band].upper) / 2,
+		 frequencyBandTable[Band].upper,
 		pInfo->pTX->Frequency);
 }
 
@@ -507,20 +507,11 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 			break;
 	}
 
-	#if 0
-		// limit to 50MHz to 600MHz
-		if (Frequency < 5000000)
-			Frequency = 5000000;
-		else
-		if (Frequency > 60000000)
-			Frequency = 60000000;
-	#else
-		if (Frequency < LowerLimitFrequencyBandTable[0])
-			Frequency = LowerLimitFrequencyBandTable[0];
-		else
-		if (Frequency > UpperLimitFrequencyBandTable[ARRAY_SIZE(UpperLimitFrequencyBandTable) - 1])
-			Frequency = UpperLimitFrequencyBandTable[ARRAY_SIZE(UpperLimitFrequencyBandTable) - 1];
-	#endif
+	if (Frequency < frequencyBandTable[0].lower)
+		Frequency = frequencyBandTable[0].lower;
+	else
+	if (Frequency > frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper)
+		Frequency = frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper;
 
 	pInfo->freq_config_TX.Frequency = Frequency;
 }
@@ -807,7 +798,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 void RADIO_SetTxParameters(void)
 {
-	BK4819_FilterBandwidth_t Bandwidth;
+	BK4819_FilterBandwidth_t Bandwidth = gCurrentVfo->CHANNEL_BANDWIDTH;
 
 	GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 
@@ -815,7 +806,6 @@ void RADIO_SetTxParameters(void)
 
 	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, false);
 
-	Bandwidth = gCurrentVfo->CHANNEL_BANDWIDTH;
 	switch (Bandwidth)
 	{
 		default:
@@ -865,9 +855,7 @@ void RADIO_SetTxParameters(void)
 
 		case CODE_TYPE_DIGITAL:
 		case CODE_TYPE_REVERSE_DIGITAL:
-			BK4819_SetCDCSSCodeWord(
-					DCS_GetGolayCodeWord(gCurrentVfo->pTX->CodeType, gCurrentVfo->pTX->Code)
-				);
+			BK4819_SetCDCSSCodeWord(DCS_GetGolayCodeWord(gCurrentVfo->pTX->CodeType, gCurrentVfo->pTX->Code));
 			break;
 	}
 }
