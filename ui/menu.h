@@ -159,7 +159,6 @@ extern bool              gIsInSubMenu;
 extern uint8_t           gMenuCursor;
 extern int8_t            gMenuScrollDirection;
 extern int32_t           gSubMenuSelection;
-extern int32_t           gSubMenuSelection_original;
 				         
 extern char              edit_original[17];
 extern char              edit[17];

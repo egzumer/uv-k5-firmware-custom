@@ -1107,12 +1107,6 @@ void MENU_ShowCurrentSetting(void)
 		default:
 			return;
 	}
-
-//	if (gFlagBackupSetting)
-	{	// save a copy incase the user wants to back out
-//		gFlagBackupSetting = false;
-		gSubMenuSelection_original = gSubMenuSelection;
-	}
 }
 
 static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
@@ -1166,7 +1160,6 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				{
 					gMenuCursor         = Value - 1;
 					gFlagRefreshSetting = true;
-					gFlagBackupSetting  = true;
 					return;
 				}
 
@@ -1182,7 +1175,6 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				{
 					gMenuCursor         = Value - 1;
 					gFlagRefreshSetting = true;
-					gFlagBackupSetting  = true;
 					return;
 				}
 				break;
@@ -1595,7 +1587,6 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 		gMenuCursor = NUMBER_AddWithWraparound(gMenuCursor, -Direction, 0, gMenuListCount - 1);
 
 		gFlagRefreshSetting = true;
-		gFlagBackupSetting  = true;
 
 		gRequestDisplayScreen = DISPLAY_MENU;
 
@@ -1715,6 +1706,19 @@ void MENU_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			break;
 	}
 
-	if (gScreenToDisplay == DISPLAY_MENU && gMenuCursor == MENU_VOL)
-		gVoltageMenuCountdown = menu_timeout_500ms;
+	if (gScreenToDisplay == DISPLAY_MENU)
+	{
+		if (gMenuCursor == MENU_VOL ||
+			#ifdef ENABLE_F_CAL_MENU
+				gMenuCursor == MENU_F_CALI ||
+		    #endif
+			gMenuCursor == MENU_BATCAL)
+		{
+			gMenuCountdown = menu_timeout_long_500ms;
+		}
+		else
+		{
+			gMenuCountdown = menu_timeout_500ms;
+		}
+	}
 }

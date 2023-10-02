@@ -96,6 +96,7 @@ extern const uint16_t        fm_play_countdown_noscan_10ms;
 extern const uint16_t        fm_restore_countdown_10ms;
 
 extern const uint8_t         menu_timeout_500ms;
+extern const uint16_t        menu_timeout_long_500ms;
 
 extern const uint8_t         DTMF_RX_live_timeout_500ms;
 extern const uint8_t         DTMF_RX_timeout_500ms;
@@ -194,6 +195,9 @@ extern volatile uint16_t     gDualWatchCountdown_10ms;
 extern volatile bool         gDualWatchCountdownExpired;
 extern bool                  gDualWatchActive;
 
+extern volatile uint8_t      gSerialConfigCountDown_500ms;
+extern volatile bool         gSerialConfigCountDown_done;
+
 extern volatile bool         gNextTimeslice_500ms;
 
 extern volatile uint16_t     gTxTimerCountdown_500ms;
@@ -225,7 +229,7 @@ extern uint8_t               gBatteryVoltageIndex;
 extern CssScanMode_t         gCssScanMode;
 extern bool                  gUpdateRSSI;
 extern AlarmState_t          gAlarmState;
-extern uint8_t               gVoltageMenuCountdown;
+extern uint16_t              gMenuCountdown;
 extern bool                  gPttWasReleased;
 extern bool                  gPttWasPressed;
 extern bool                  gFlagReconfigureVfos;
@@ -242,7 +246,6 @@ extern bool                  gFlagPrepareTX;
 
 extern bool                  gFlagAcceptSetting;   // accept menu setting
 extern bool                  gFlagRefreshSetting;  // refresh menu display
-extern bool                  gFlagBackupSetting;   // save a copy of the current menu setting
 
 extern bool                  gFlagSaveVfo;
 extern bool                  gFlagSaveSettings;
@@ -267,7 +270,7 @@ extern uint8_t               gNextMrChannel;
 extern ReceptionMode_t       gRxReceptionMode;
 
 extern uint8_t               gRestoreMrChannel;
-extern uint8_t               gCurrentScanList;
+extern scan_next_chan_t      gCurrentScanList;
 extern uint32_t              gRestoreFrequency;
 
 extern bool                  gRxVfoIsActive;

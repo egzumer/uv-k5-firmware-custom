@@ -597,7 +597,6 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		if (bFlag)
 		{
 			gFlagRefreshSetting = true;
-			gFlagBackupSetting  = true;
 
 			gRequestDisplayScreen = DISPLAY_MENU;
 

@@ -1281,47 +1281,21 @@ void APP_CheckKeys(void)
 
 	if (gPttIsPressed)
 	{
-		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
-		{	// PTT released
-			#if 0
-				// denoise the PTT
-				unsigned int i     = 6;   // test the PTT button for 6ms
-				unsigned int count = 0;
-				while (i-- > 0)
-				{
-					SYSTEM_DelayMs(1);
-
-					if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
-					{	// PTT pressed
-						if (count > 0)
-							count--;
-						continue;
-					}
-					if (++count < 3)
-						continue;
-
-					// stop transmitting
-					APP_ProcessKey(KEY_PTT, false, false);
-					gPttIsPressed = false;
-					if (gKeyReading1 != KEY_INVALID)
-						gPttWasReleased = true;
-					break;
-				}
-			#else
-				if (++gPttDebounceCounter >= 3)	    // 30ms
-				{	// stop transmitting
-					APP_ProcessKey(KEY_PTT, false, false);
-					gPttIsPressed = false;
-					if (gKeyReading1 != KEY_INVALID)
-						gPttWasReleased = true;
-				}
-			#endif
+		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) || gSerialConfigCountDown_500ms > 0)
+		{	// PTT released or serial comms config in progress
+			if (++gPttDebounceCounter >= 3 || gSerialConfigCountDown_500ms > 0)	    // 30ms
+			{	// stop transmitting
+				APP_ProcessKey(KEY_PTT, false, false);
+				gPttIsPressed = false;
+				if (gKeyReading1 != KEY_INVALID)
+					gPttWasReleased = true;
+			}
 		}
 		else
 			gPttDebounceCounter = 0;
 	}
 	else
-	if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
+	if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) && gSerialConfigCountDown_500ms == 0)
 	{	// PTT pressed
 		if (++gPttDebounceCounter >= 3)	    // 30ms
 		{	// start transmitting
@@ -1739,6 +1713,16 @@ void APP_TimeSlice500ms(void)
 		if (--gDTMF_RX_timeout == 0)
 			DTMF_clear_RX();
 
+	if (gSerialConfigCountDown_500ms > 0)
+	{
+		gReducedService = true;            // a serial config upload/download is in progress
+
+//		if (gCurrentFunction == FUNCTION_TRANSMIT)
+//		{	// stop transmitting
+//
+//		}
+	}
+	
 	// Skipped authentic device check
 
 	#ifdef ENABLE_FMRADIO
@@ -1815,6 +1799,8 @@ void APP_TimeSlice500ms(void)
 				if (gScanState == SCAN_OFF && (gScreenToDisplay != DISPLAY_SCANNER || gScanCssState >= SCAN_CSS_STATE_FOUND))
 			#endif
 			{
+				bool exit_menu = false;
+				
 				if (gEeprom.AUTO_KEYPAD_LOCK && gKeyLockCountdown > 0 && !gDTMF_InputMode)
 				{
 					if (--gKeyLockCountdown == 0)
@@ -1823,52 +1809,55 @@ void APP_TimeSlice500ms(void)
 					gUpdateStatus = true;            // lock symbol needs showing
 				}
 
-				if (gVoltageMenuCountdown > 0)
+				if (gMenuCountdown > 0)
+					if (--gMenuCountdown == 0)
+						exit_menu = true;	// exit menu mode
+			
+				if (exit_menu)
 				{
-					if (--gVoltageMenuCountdown == 0)
+					gMenuCountdown = 0;
+					
+					if (gEeprom.BACKLIGHT == 0 && gScreenToDisplay == DISPLAY_MENU)
 					{
-						if (gEeprom.BACKLIGHT == 0 && gScreenToDisplay == DISPLAY_MENU)
-						{
-							gBacklightCountdown = 0;
-							GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
-						}
-
-						if (gInputBoxIndex > 0 || gDTMF_InputMode || gScreenToDisplay == DISPLAY_MENU)
-							AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
-
-						if (gScreenToDisplay == DISPLAY_SCANNER)
-						{
-							BK4819_StopScan();
-
-							RADIO_ConfigureChannel(0, VFO_CONFIGURE_RELOAD);
-							RADIO_ConfigureChannel(1, VFO_CONFIGURE_RELOAD);
-
-							RADIO_SetupRegisters(true);
-						}
-
-						gWasFKeyPressed  = false;
-						gUpdateStatus    = true;
-						gInputBoxIndex   = 0;
-						gDTMF_InputMode  = false;
-						gDTMF_InputIndex = 0;
-						gAskToSave       = false;
-						gAskToDelete     = false;
-
-						#ifdef ENABLE_FMRADIO
-							if (gFmRadioMode &&
-							    gCurrentFunction != FUNCTION_RECEIVE &&
-								gCurrentFunction != FUNCTION_MONITOR &&
-								gCurrentFunction != FUNCTION_TRANSMIT)
-							{
-								GUI_SelectNextDisplay(DISPLAY_FM);
-							}
-							else
-						#endif
-						#ifndef ENABLE_CODE_SCAN_TIMEOUT
-							if (gScreenToDisplay != DISPLAY_SCANNER)
-						#endif
-								GUI_SelectNextDisplay(DISPLAY_MAIN);
+						gBacklightCountdown = 0;
+						GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
 					}
+
+					if (gInputBoxIndex > 0 || gDTMF_InputMode || gScreenToDisplay == DISPLAY_MENU)
+						AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
+
+					if (gScreenToDisplay == DISPLAY_SCANNER)
+					{
+						BK4819_StopScan();
+
+						RADIO_ConfigureChannel(0, VFO_CONFIGURE_RELOAD);
+						RADIO_ConfigureChannel(1, VFO_CONFIGURE_RELOAD);
+
+						RADIO_SetupRegisters(true);
+					}
+
+					gWasFKeyPressed  = false;
+					gUpdateStatus    = true;
+					gInputBoxIndex   = 0;
+					gDTMF_InputMode  = false;
+					gDTMF_InputIndex = 0;
+					gAskToSave       = false;
+					gAskToDelete     = false;
+
+					#ifdef ENABLE_FMRADIO
+						if (gFmRadioMode &&
+						    gCurrentFunction != FUNCTION_RECEIVE &&
+							gCurrentFunction != FUNCTION_MONITOR &&
+							gCurrentFunction != FUNCTION_TRANSMIT)
+						{
+							GUI_SelectNextDisplay(DISPLAY_FM);
+						}
+						else
+					#endif
+					#ifndef ENABLE_CODE_SCAN_TIMEOUT
+						if (gScreenToDisplay != DISPLAY_SCANNER)
+					#endif
+							GUI_SelectNextDisplay(DISPLAY_MAIN);
 				}
 			}
 		}
@@ -2117,8 +2106,10 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	else
 	{
 		if (Key != KEY_PTT)
-			gVoltageMenuCountdown = menu_timeout_500ms;
-
+		{
+			gMenuCountdown = menu_timeout_500ms;
+		}
+		
 		BACKLIGHT_TurnOn();
 
 		if (gDTMF_DecodeRingCountdown_500ms > 0)
@@ -2360,6 +2351,8 @@ Skip:
 
 	if (gFlagAcceptSetting)
 	{
+		gMenuCountdown = menu_timeout_500ms;
+
 		MENU_AcceptSetting();
 
 		gFlagRefreshSetting = true;
@@ -2467,6 +2460,8 @@ Skip:
 	if (gFlagRefreshSetting)
 	{
 		gFlagRefreshSetting = false;
+		gMenuCountdown      = menu_timeout_500ms;
+
 		MENU_ShowCurrentSetting();
 	}
 

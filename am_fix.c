@@ -447,8 +447,10 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			gain_table_index[vfo] = (index <= max_index) ? index : max_index;     // limit the gain index
 		}
 
-		if (gain_table_index[vfo] == gain_table_index_prev[vfo])
-			return;     // no gain change
+		#if 0
+			if (gain_table_index[vfo] == gain_table_index_prev[vfo])
+				return;     // no gain change
+		#endif
 
 #endif
 

@@ -335,7 +335,6 @@ bool    gIsInSubMenu;
 uint8_t gMenuCursor;
 int8_t  gMenuScrollDirection;
 int32_t gSubMenuSelection;
-int32_t gSubMenuSelection_original = 0;  // copy of the original value
 
 // edit box
 char    edit_original[17]; // a copy of the text before editing so that we can easily test for changes/difference
