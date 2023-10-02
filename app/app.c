@@ -641,9 +641,11 @@ static void FREQ_NextChannel(void)
 	RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
 	RADIO_SetupRegisters(true);
 
-	gUpdateDisplay        = true;
-	ScanPauseDelayIn_10ms = scan_pause_delay_in_6_10ms;
-	bScanKeepFrequency    = false;
+//	ScanPauseDelayIn_10ms = scan_pause_delay_in_6_10ms;
+	ScanPauseDelayIn_10ms = 10;  // 100ms
+
+	bScanKeepFrequency = false;
+	gUpdateDisplay     = true;
 }
 
 static void MR_NextChannel(void)
@@ -723,7 +725,7 @@ static void MR_NextChannel(void)
 	}
 
 //	ScanPauseDelayIn_10ms = scan_pause_delay_in_3_10ms;
-	ScanPauseDelayIn_10ms = 8;  // 100ms .. <= ~60ms it misses signals (squelch response and/or PLL lock time) ?
+	ScanPauseDelayIn_10ms = 8;  // 80ms .. <= ~60ms it misses signals (squelch response and/or PLL lock time) ?
 
 	bScanKeepFrequency = false;
 
@@ -1780,11 +1782,18 @@ void APP_TimeSlice500ms(void)
 			BATTERY_GetReadings(true);
 		}
 
-		// regular statusbar updates (once every 2 sec) if need be
+		// regular display updates (once every 2 sec) - if need be
 		if ((gBatteryCheckCounter & 3) == 0)
+		{
 			if (gChargingWithTypeC || gSetting_battery_text > 0)
 				gUpdateStatus = true;
 
+			#ifdef ENABLE_SHOW_CHARGE_LEVEL
+				if (gChargingWithTypeC)
+					gUpdateDisplay = true;
+			#endif
+		}
+		
 		if (gCurrentFunction != FUNCTION_POWER_SAVE)
 			updateRSSI(gEeprom.RX_CHANNEL);
 

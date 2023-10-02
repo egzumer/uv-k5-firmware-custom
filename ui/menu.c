@@ -455,7 +455,7 @@ void UI_DisplayMenu(void)
 		#endif
 
 		case MENU_STEP:
-			sprintf(String, "%d.%02uKHz", StepFrequencyTable[gSubMenuSelection] / 100, abs(StepFrequencyTable[gSubMenuSelection]) % 100);
+			sprintf(String, "%d.%02ukHz", StepFrequencyTable[gSubMenuSelection] / 100, abs(StepFrequencyTable[gSubMenuSelection]) % 100);
 			break;
 
 		case MENU_TXP:

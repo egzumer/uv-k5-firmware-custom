@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 
-//#include "radio.h"
+#define ENABLE_12_5KHZ_STEP
 
 typedef struct {
 	const uint32_t lower;
@@ -43,7 +43,8 @@ enum FREQUENCY_Band_t {
 };
 typedef enum FREQUENCY_Band_t FREQUENCY_Band_t;
 
-#if 0
+#ifndef ENABLE_12_5KHZ_STEP
+	// QS steps
 	enum STEP_Setting_t {
 		STEP_2_5kHz = 0,
 		STEP_5_0kHz,
@@ -54,6 +55,7 @@ typedef enum FREQUENCY_Band_t FREQUENCY_Band_t;
 		STEP_8_33kHz
 	};
 #else
+	// includes 1.25kHz step
 	enum STEP_Setting_t {
 		STEP_1_25kHz = 0,
 		STEP_2_5kHz,
@@ -66,11 +68,11 @@ typedef enum FREQUENCY_Band_t FREQUENCY_Band_t;
 #endif
 typedef enum STEP_Setting_t STEP_Setting_t;
 
+extern const uint16_t     StepFrequencyTable[7];
+
 #ifdef ENABLE_NOAA
 	extern const uint32_t NoaaFrequencyTable[10];
 #endif
-
-extern const uint16_t     StepFrequencyTable[7];
 
 FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency);
 uint8_t          FREQUENCY_CalculateOutputPower(uint8_t TxpLow, uint8_t TxpMid, uint8_t TxpHigh, int32_t LowerLimit, int32_t Middle, int32_t UpperLimit, int32_t Frequency);
@@ -80,4 +82,3 @@ int              TX_freq_check(const uint32_t Frequency);
 int              RX_freq_check(const uint32_t Frequency);
 
 #endif
-

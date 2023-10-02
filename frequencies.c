@@ -25,6 +25,7 @@ const freq_band_table_t BX4819_band2 = {84000000, 130000000};
 const freq_band_table_t frequencyBandTable[7] =
 {
 	#ifndef ENABLE_WIDE_RX
+		// QS original
 		{ 5000000,   7600000},
 		{10800000,  13600000},
 		{13600000,  17400000},
@@ -33,6 +34,7 @@ const freq_band_table_t frequencyBandTable[7] =
 		{40000000,  47000000},
 		{47000000,  60000000}
 	#else
+		// extended range
 		{ 1800000,  10800000},
 		{10800000,  13600000},
 		{13600000,  17400000},
@@ -59,28 +61,12 @@ const freq_band_table_t frequencyBandTable[7] =
 	};
 #endif
 
-#if 0
-	const uint16_t StepFrequencyTable[7] =
-	{
-		250,
-		500,
-		625,
-		1000,
-		1250,
-		2500,
-		833
-	};
+#ifndef ENABLE_12_5KHZ_STEP
+	// QS steps (*10 Hz)
+	const uint16_t StepFrequencyTable[7] = {250, 500, 625, 1000, 1250, 2500, 833};
 #else
-	const uint16_t StepFrequencyTable[7] =
-	{
-		125,
-		250,
-		625,
-		1000,
-		1250,
-		2500,
-		833
-	};
+	// includes 1.25kHz step
+	const uint16_t StepFrequencyTable[7] = {125, 250, 625, 1000, 1250, 2500, 833};
 #endif
 
 FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency)
@@ -89,7 +75,8 @@ FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency)
 	for (band = ARRAY_SIZE(frequencyBandTable) - 1; band >= 0; band--)
 		if (Frequency >= frequencyBandTable[band].lower)
 //		if (Frequency <  frequencyBandTable[band].upper)
-			return band;
+			return (FREQUENCY_Band_t)band;
+
 	return BAND1_50MHz;
 //	return BAND_NONE;
 }

@@ -43,10 +43,10 @@ enum {
 };
 
 enum PTT_ID_t {
-	PTT_ID_OFF = 0,
-	PTT_ID_BOT,
-	PTT_ID_EOT,
-	PTT_ID_BOTH
+	PTT_ID_OFF = 0,    // OFF
+	PTT_ID_BOT,        // BEGIN OF TX
+	PTT_ID_EOT,        // END OF TX
+	PTT_ID_BOTH        // BOTH
 };
 typedef enum PTT_ID_t PTT_ID_t;
 
