@@ -1832,7 +1832,7 @@ void APP_TimeSlice500ms(void)
 							}
 							else
 						#endif
-						#ifdef ENABLE_NO_SCAN_TIMEOUT
+						#ifndef ENABLE_CODE_SCAN_TIMEOUT
 							if (gScreenToDisplay != DISPLAY_SCANNER)
 						#endif
 								GUI_SelectNextDisplay(DISPLAY_MAIN);
@@ -1918,7 +1918,7 @@ void APP_TimeSlice500ms(void)
 	{
 		gScanProgressIndicator++;
 
-		#ifndef ENABLE_NO_SCAN_TIMEOUT
+		#ifdef ENABLE_CODE_SCAN_TIMEOUT
 			if (gScanProgressIndicator > 32)
 			{
 				if (gScanCssState == SCAN_CSS_STATE_SCANNING && !gScanSingleFrequency)
@@ -1968,7 +1968,7 @@ void APP_TimeSlice500ms(void)
 	}
 }
 
-#ifdef ENABLE_ALARM
+#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 	static void ALARM_Off(void)
 	{
 		gAlarmState = ALARM_STATE_OFF;
@@ -2181,15 +2181,12 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		gUpdateStatus   = true;
 	}
 
-	if (gF_LOCK && (Key == KEY_PTT || Key == KEY_SIDE2 || Key == KEY_SIDE1))
-		return;
-
 	if (!bFlag)
 	{
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
 		{	// transmitting
 
-			#ifdef ENABLE_ALARM
+			#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 				if (gAlarmState == ALARM_STATE_OFF)
 			#endif
 			{
@@ -2245,7 +2242,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					}
 				}
 			}
-			#ifdef ENABLE_ALARM
+			#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 				else
 				if (!bKeyHeld && bKeyPressed)
 				{
@@ -2437,8 +2434,8 @@ Skip:
 
 	if (gFlagRefreshSetting)
 	{
-		MENU_ShowCurrentSetting();
 		gFlagRefreshSetting = false;
+		MENU_ShowCurrentSetting();
 	}
 
 	if (gFlagStartScan)

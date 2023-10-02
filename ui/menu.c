@@ -91,11 +91,11 @@ const t_menu_item MenuList[] =
 	{"ANI-ID", VOICE_ID_ANI_CODE,                      MENU_ANI_ID     },
 	{"UPCODE", VOICE_ID_INVALID,                       MENU_UPCODE     },
 	{"DWCODE", VOICE_ID_INVALID,                       MENU_DWCODE     },
+	{"PTT-ID", VOICE_ID_INVALID,                       MENU_PTT_ID     },
 	{"D-ST",   VOICE_ID_INVALID,                       MENU_D_ST       },
     {"D-RSP",  VOICE_ID_INVALID,                       MENU_D_RSP      },
 	{"D-HOLD", VOICE_ID_INVALID,                       MENU_D_HOLD     },
 	{"D-PRE",  VOICE_ID_INVALID,                       MENU_D_PRE      },
-	{"PTT-ID", VOICE_ID_INVALID,                       MENU_PTT_ID     },
 	{"D-DCD",  VOICE_ID_INVALID,                       MENU_D_DCD      },
 	{"D-LIST", VOICE_ID_INVALID,                       MENU_D_LIST     },
 	{"D-LIVE", VOICE_ID_INVALID,                       MENU_D_LIVE_DEC }, // live DTMF decoder
@@ -127,6 +127,7 @@ const t_menu_item MenuList[] =
 
 	{"TX-EN",  VOICE_ID_INVALID,                       MENU_TX_EN      }, // enable TX
 	{"F-CALI", VOICE_ID_INVALID,                       MENU_F_CALI     }, // reference xtal calibration
+	{"BATCAL", VOICE_ID_INVALID,                       MENU_BATCAL     }, // battery voltage calibration
 
 	{"",       VOICE_ID_INVALID,                       0xff            }  // end of list - DO NOT delete or move this this
 };
@@ -168,7 +169,6 @@ const char gSubMenu_SAVE[5][4] =
 
 const char gSubMenu_TOT[11][7] =
 {
-	"OFF",
 	"30 sec",
 	"1 min",
 	"2 min",
@@ -178,21 +178,22 @@ const char gSubMenu_TOT[11][7] =
 	"6 min",
 	"7 min",
 	"8 min",
-	"9 min"
+	"9 min",
+	"15 min"
 };
 
-const char gSubMenu_CHAN[3][7] =
+const char gSubMenu_CHAN[3][10] =
 {
 	"OFF",
-	"CHAN A",
-	"CHAN B"
+	"UPPER\nVFO",
+	"LOWER\nVFO"
 };
 
-const char gSubMenu_XB[3][7] =
+const char gSubMenu_XB[3][10] =
 {
-	"SAME",
-	"CHAN A",
-	"CHAN B"
+	"MAIN\nVFO",
+	"UPPER\nVFO",
+	"LOWER\nVFO"
 };
 
 #ifdef ENABLE_VOICE
@@ -204,19 +205,22 @@ const char gSubMenu_XB[3][7] =
 	};
 #endif
 
-const char gSubMenu_SC_REV[3][3] =
+const char gSubMenu_SC_REV[3][13] =
 {
-	"TO",
-	"CO",
-	"SE"
+//	"TIME\nOPER",
+//	"CARRIER\nOPER",
+//	"SEARCH\nOPER"
+	"TIME",
+	"CARRIER",
+	"SEARCH"
 };
 
-const char gSubMenu_MDF[4][8] =
+const char gSubMenu_MDF[4][15] =
 {
 	"FREQ",
-	"CHAN",
+	"CHANNEL\nNUMBER",
 	"NAME",
-	"NAM+FRE"
+	"NAME\n+\nFREQ"
 };
 
 #ifdef ENABLE_ALARM
@@ -235,19 +239,19 @@ const char gSubMenu_D_RSP[4][6] =
 	"BOTH"
 };
 
-const char gSubMenu_PTT_ID[4][5] =
+const char gSubMenu_PTT_ID[4][7] =
 {
 	"OFF",
-	"BOT",
-	"EOT",
+	"KEY UP",
+	"KEY DN",
 	"BOTH"
 };
 
-const char gSubMenu_PONMSG[4][5] =
+const char gSubMenu_PONMSG[4][8] =
 {
 	"FULL",
-	"MSG",
-	"VOL",
+	"MESSAGE",
+	"VOLTAGE",
 	"NONE"
 };
 
@@ -332,9 +336,10 @@ bool    gIsInSubMenu;
 uint8_t gMenuCursor;
 int8_t  gMenuScrollDirection;
 int32_t gSubMenuSelection;
+int32_t gSubMenuSelection_original = 0;  // copy of the original value
 
 // edit box
-char    edit_original[17]; // a copy of the text before editing so that we can easily test for changes/difference
+char    edit_original[17] = {0}; // a copy of the text before editing so that we can easily test for changes/difference
 char    edit[17];
 int     edit_index;
 
@@ -344,34 +349,89 @@ void UI_DisplayMenu(void)
 	const unsigned int menu_item_x1    = (8 * menu_list_width) + 2;
 	const unsigned int menu_item_x2    = LCD_WIDTH - 1;
 	unsigned int       i;
-	char               String[16];
+	char               String[64];
 	char               Contact[16];
 
+	// clear the screen
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 
-	for (i = 0; i < 3; i++)
-		if (gMenuCursor > 0 || i > 0)
-			if ((gMenuListCount - 1) != gMenuCursor || i != 2)
-				UI_PrintString(MenuList[gMenuCursor + i - 1].name, 0, 0, i * 2, 8);
+	// draw the left menu list
+	#if 0
 
-	// invert the menu list text pixels
-	for (i = 0; i < (8 * menu_list_width); i++)
+		for (i = 0; i < 3; i++)
+			if (gMenuCursor > 0 || i > 0)
+				if ((gMenuListCount - 1) != gMenuCursor || i != 2)
+					UI_PrintString(MenuList[gMenuCursor + i - 1].name, 0, 0, i * 2, 8);
+
+		// invert the current menu list item text pixels
+		for (i = 0; i < (8 * menu_list_width); i++)
+		{
+			gFrameBuffer[2][i] ^= 0xFF;
+			gFrameBuffer[3][i] ^= 0xFF;
+		}
+
+		// draw vertical separating dotted line
+		for (i = 0; i < 7; i++)
+			gFrameBuffer[i][(8 * menu_list_width) + 1] = 0xAA;
+
+		// draw the little triangle marker if we're in the sub-menu
+		if (gIsInSubMenu)
+			memmove(gFrameBuffer[0] + (8 * menu_list_width) + 1, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));
+
+		// draw the menu index number/count
+		sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
+		UI_PrintStringSmall(String, 2, 0, 6);
+
+	#else
 	{
-		gFrameBuffer[2][i] ^= 0xFF;
-		gFrameBuffer[3][i] ^= 0xFF;
+		const int menu_index = gMenuCursor;  // current selected menu item
+		i = 1;
+
+		if (!gIsInSubMenu)
+		{
+			while (i < 2)
+			{	// leading menu items
+				const int k = menu_index + i - 2;
+				if (k < 0)
+					UI_PrintStringSmall(MenuList[gMenuListCount + k].name, 0, 0, i);  // wrap-a-round
+				else
+				if (k >= 0 && k < (int)gMenuListCount)
+					UI_PrintStringSmall(MenuList[k].name, 0, 0, i);
+				i++;
+			}
+
+			// current menu item
+			if (menu_index >= 0 && menu_index < (int)gMenuListCount)
+				UI_PrintString(MenuList[menu_index].name, 0, 0, 2, 8);
+			i++;
+
+			while (i < 4)
+			{	// trailing menu item
+				const int k = menu_index + i - 2;
+				if (k >= 0 && k < (int)gMenuListCount)
+					UI_PrintStringSmall(MenuList[k].name, 0, 0, 1 + i);
+				else
+				if (k >= (int)gMenuListCount)
+					UI_PrintStringSmall(MenuList[gMenuListCount - k].name, 0, 0, 1 + i);  // wrap-a-round
+				i++;
+			}
+
+			// draw the menu index number/count
+			sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
+			UI_PrintStringSmall(String, 2, 0, 6);
+		}
+		else
+		if (menu_index >= 0 && menu_index < (int)gMenuListCount)
+		{	// current menu item
+			strcpy(String, MenuList[menu_index].name);
+//			strcat(String, ":");
+			UI_PrintString(String, 0, 0, 0, 8);
+//			UI_PrintStringSmall(String, 0, 0, 0);
+		}
 	}
+	#endif
 
-	// draw vertical separating dotted line
-	for (i = 0; i < 7; i++)
-		gFrameBuffer[i][(8 * menu_list_width) + 1] = 0xAA;
-
-	// draw the menu index number/count
-	sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
-	UI_PrintStringSmall(String, 8, 0, 6);
-
-	// draw the little marker
-	if (gIsInSubMenu)
-		memmove(gFrameBuffer[0] + (8 * menu_list_width) + 1, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));
+	// **************
 
 	memset(String, 0, sizeof(String));
 
@@ -673,29 +733,9 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_VOL:
-			
-			// 1st text line
-			sprintf(String, "%u.%02uV", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100);
-			UI_PrintString(String, menu_item_x1, menu_item_x2, 1, 8);
-
-			{	// 2nd text line .. percentage
-				UI_PrintString(String, menu_item_x1, menu_item_x2, 1, 8);
-				const uint16_t percent = BATTERY_VoltsToPercent(gBatteryVoltageAverage);
-				sprintf(String, "%u%%", percent);
-				UI_PrintString(String, menu_item_x1, menu_item_x2, 3, 8);
-				#if 0
-					sprintf(String, "Curr %u", gBatteryCurrent);  // needs scaling into mA
-					UI_PrintString(String, menu_item_x1, menu_item_x2, 5, 8);
-				#endif
-			}
-			
-			if(gF_LOCK){
-				gBatteryCalibration[3] = gSubMenuSelection;
-				sprintf(String, "%u", gSubMenuSelection);
-				UI_PrintString(String, menu_item_x1, menu_item_x2, 5, 8);
-			}
-
-			already_printed = true;
+			sprintf(String, "%u.%02uV\n%u%%",
+				gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
+				BATTERY_VoltsToPercent(gBatteryVoltageAverage));
 			break;
 
 		case MENU_RESET:
@@ -708,26 +748,72 @@ void UI_DisplayMenu(void)
 
 		case MENU_F_CALI:
 			{
-				const uint32_t value = 22656 + gSubMenuSelection;
+				const uint32_t value   = 22656 + gSubMenuSelection;
+				const uint32_t xtal_Hz = (0x4f0000u + value) * 5;
+
 				//gEeprom.BK4819_XTAL_FREQ_LOW = gSubMenuSelection;  // already set when the user was adjusting the value
 				BK4819_WriteRegister(BK4819_REG_3B, value);
 
-				sprintf(String, "%d", gSubMenuSelection);
-				UI_PrintString(String, menu_item_x1, menu_item_x2, 0, 8);
-
-				const uint32_t xtal_Hz = (0x4f0000u + value) * 5;
-				sprintf(String, "%u.%06u", xtal_Hz / 1000000, xtal_Hz % 1000000);
-				UI_PrintString(String, menu_item_x1, menu_item_x2, 2, 8);
-
-				UI_PrintString("MHz",  menu_item_x1, menu_item_x2, 4, 8);
-
-				already_printed = true;
+				sprintf(String, "%d\n%u.%06u\nMHz",
+					gSubMenuSelection,
+					xtal_Hz / 1000000, xtal_Hz % 1000000);
 			}
 			break;
+
+		case MENU_BATCAL:
+		{
+			const uint16_t vol = (uint32_t)gBatteryVoltageAverage * gBatteryCalibration[3] / gSubMenuSelection;
+			sprintf(String, "%u.%02uV\n%u", vol / 100, vol % 100, gSubMenuSelection);
+			break;
+		}
 	}
 
 	if (!already_printed)
-		UI_PrintString(String, menu_item_x1, menu_item_x2, 2, 8);
+	{
+		unsigned int y;
+		unsigned int k     = 0;
+		unsigned int lines = 1;
+		unsigned int len   = strlen(String);
+		bool         small = false;
+
+		if (len > 0)
+		{
+			// count number of lines
+			for (i = 0; i < len; i++)
+			{
+				if (String[i] == '\n' && i < (len - 1))
+				{
+					lines++;
+					String[i] = 0;
+				}
+			}
+
+			if (lines > 3)
+			{	// use small text
+				small = true;
+				if (lines > 7)
+					lines = 7;
+			}
+
+			// move the 1st line up
+			if (small)
+				y = 3 - ((lines + 0) / 2);
+			else
+				y = 2 - ((lines + 0) / 2);
+
+			for (i = 0; i < len && lines > 0; lines--)
+			{
+				if (small)
+					UI_PrintStringSmall(String + k, menu_item_x1, menu_item_x2, y);
+				else
+					UI_PrintString(String + k, menu_item_x1, menu_item_x2, y, 8);
+				while (i < len && String[i] >= 32)
+					i++;
+				k = ++i;
+				y += small ? 1 : 2;
+			}
+		}
+	}
 
 	if (gMenuCursor == MENU_SLIST1 || gMenuCursor == MENU_SLIST2)
 	{

@@ -4,13 +4,15 @@
 # 1 = enable
 #
 ENABLE_SWD                    := 0
-ENABLE_OVERLAY                := 1
+ENABLE_OVERLAY                := 0
+ENABLE_LTO                    := 1
 ENABLE_UART                   := 1
 ENABLE_AIRCOPY                := 0
 ENABLE_FMRADIO                := 0
 ENABLE_NOAA                   := 0
 ENABLE_VOICE                  := 0
 ENABLE_ALARM                  := 0
+ENABLE_TX1750                 := 0
 ENABLE_BIG_FREQ               := 1
 ENABLE_SMALL_BOLD             := 1
 ENABLE_KEEP_MEM_NAME          := 1
@@ -19,21 +21,27 @@ ENABLE_TX_WHEN_AM             := 0
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1
 ENABLE_MAIN_KEY_HOLD          := 1
 ENABLE_BOOT_BEEPS             := 0
-ENABLE_COMPANDER              := 1
+ENABLE_COMPANDER              := 0
 ENABLE_SHOW_CHARGE_LEVEL      := 1
 ENABLE_REVERSE_BAT_SYMBOL     := 1
-ENABLE_NO_SCAN_TIMEOUT        := 1
+ENABLE_CODE_SCAN_TIMEOUT      := 0
 ENABLE_AM_FIX                 := 1
 ENABLE_AM_FIX_SHOW_DATA       := 1
 ENABLE_SQUELCH_LOWER          := 1
 ENABLE_RSSI_BAR               := 1
-ENABLE_AUDIO_BAR              := 1
+ENABLE_AUDIO_BAR              := 0
 ENABLE_SPECTRUM               := 1
-#ENABLE_COPY_CHAN_TO_VFO      := 1
-#ENABLE_SINGLE_VFO_CHAN       := 1
-#ENABLE_BAND_SCOPE            := 1
+#ENABLE_COPY_CHAN_TO_VFO       := 1
+#ENABLE_SINGLE_VFO_CHAN        := 1
+#ENABLE_BAND_SCOPE             := 1
+
+#############################################################
 
 TARGET = firmware
+
+ifeq ($(ENABLE_LTO),1)
+	ENABLE_OVERLAY := 0
+endif
 
 BSP_DEFINITIONS := $(wildcard hardware/*/*.def)
 BSP_HEADERS     := $(patsubst hardware/%,bsp/%,$(BSP_DEFINITIONS))
@@ -158,6 +166,11 @@ CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delet
 #CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu99 -MMD
 #CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu11 -MMD
 
+ifeq ($(ENABLE_LTO),1)
+#	CFLAGS += -flto
+	CFLAGS += -flto=2
+endif
+
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
 
@@ -167,14 +180,14 @@ endif
 ifeq ($(ENABLE_SWD),1)
 	CFLAGS += -DENABLE_SWD
 endif
+ifeq ($(ENABLE_OVERLAY),1)
+	CFLAGS += -DENABLE_OVERLAY
+endif
 ifeq ($(ENABLE_AIRCOPY),1)
 	CFLAGS += -DENABLE_AIRCOPY
 endif
 ifeq ($(ENABLE_FMRADIO),1)
 	CFLAGS += -DENABLE_FMRADIO
-endif
-ifeq ($(ENABLE_OVERLAY),1)
-	CFLAGS += -DENABLE_OVERLAY
 endif
 ifeq ($(ENABLE_UART),1)
 	CFLAGS += -DENABLE_UART
@@ -193,6 +206,9 @@ ifeq ($(ENABLE_VOICE),1)
 endif
 ifeq ($(ENABLE_ALARM),1)
 	CFLAGS  += -DENABLE_ALARM
+endif
+ifeq ($(ENABLE_TX1750),1)
+	CFLAGS  += -DENABLE_TX1750
 endif
 ifeq ($(ENABLE_KEEP_MEM_NAME),1)
 	CFLAGS  += -DKEEP_MEM_NAME
@@ -221,8 +237,8 @@ endif
 ifeq ($(ENABLE_REVERSE_BAT_SYMBOL),1)
 	CFLAGS  += -DENABLE_REVERSE_BAT_SYMBOL
 endif
-ifeq ($(ENABLE_NO_SCAN_TIMEOUT),1)
-	CFLAGS  += -DENABLE_NO_SCAN_TIMEOUT
+ifeq ($(ENABLE_CODE_SCAN_TIMEOUT),1)
+	CFLAGS  += -DENABLE_CODE_SCAN_TIMEOUT
 endif
 ifeq ($(ENABLE_AM_FIX),1)
 	CFLAGS  += -DENABLE_AM_FIX

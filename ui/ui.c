@@ -91,7 +91,6 @@ void GUI_SelectNextDisplay(GUI_DisplayType_t Display)
 			gAskForConfirmation = 0;
 			gDTMF_InputMode     = false;
 			gDTMF_InputIndex    = 0;
-			gF_LOCK             = false;
 			gAskToSave          = false;
 			gAskToDelete        = false;
 

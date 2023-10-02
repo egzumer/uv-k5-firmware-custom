@@ -33,8 +33,8 @@ extern uint16_t          gBatteryCheckCounter;
 
 extern volatile uint16_t gPowerSave_10ms;
 
-uint8_t BATTERY_VoltsToPercent(uint16_t voltage_10mV);
-void BATTERY_GetReadings(bool bDisplayBatteryLevel);
+unsigned int BATTERY_VoltsToPercent(const unsigned int voltage_10mV);
+void BATTERY_GetReadings(const bool bDisplayBatteryLevel);
 
 #endif
 

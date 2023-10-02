@@ -121,7 +121,7 @@ void SETTINGS_SaveSettings(void)
 		EEPROM_WriteBuffer(0x0EA0, State);
 	#endif
 
-	#ifdef ENABLE_ALARM
+	#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 		State[0] = gEeprom.ALARM_MODE;
 	#else
 		State[0] = false;

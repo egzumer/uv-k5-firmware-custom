@@ -91,7 +91,7 @@ uint8_t DCS_GetCdcssCode(uint32_t Code)
 	return 0xFF;
 }
 
-uint8_t DCS_GetCtcssCode(uint16_t Code)
+uint8_t DCS_GetCtcssCode(int Code)
 {
 	unsigned int i;
 	uint8_t      Result = 0xFF;

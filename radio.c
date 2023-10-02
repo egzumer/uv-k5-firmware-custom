@@ -114,25 +114,24 @@ uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScan
 	return 0xFF;
 }
 
-void RADIO_InitInfo(VFO_Info_t *pInfo, uint8_t ChannelSave, uint8_t Band, uint32_t Frequency)
+void RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t Frequency)
 {
 	memset(pInfo, 0, sizeof(*pInfo));
 
-	pInfo->Band                    = Band;
-	pInfo->SCANLIST1_PARTICIPATION = true;
-	pInfo->SCANLIST2_PARTICIPATION = true;
-	pInfo->STEP_SETTING            = STEP_12_5kHz;
-	pInfo->StepFrequency           = 2500;
-	pInfo->CHANNEL_SAVE            = ChannelSave;
-	pInfo->FrequencyReverse        = false;
-	pInfo->OUTPUT_POWER            = OUTPUT_POWER_LOW;
-	pInfo->freq_config_RX.Frequency      = Frequency;
-	pInfo->freq_config_TX.Frequency      = Frequency;
-	pInfo->pRX                     = &pInfo->freq_config_RX;
-	pInfo->pTX                     = &pInfo->freq_config_TX;
-	pInfo->TX_OFFSET_FREQUENCY     = 1000000;
+	pInfo->Band                     = FREQUENCY_GetBand(Frequency);
+	pInfo->SCANLIST1_PARTICIPATION  = true;
+	pInfo->SCANLIST2_PARTICIPATION  = true;
+	pInfo->STEP_SETTING             = STEP_12_5kHz;
+	pInfo->StepFrequency            = 2500;
+	pInfo->CHANNEL_SAVE             = ChannelSave;
+	pInfo->FrequencyReverse         = false;
+	pInfo->OUTPUT_POWER             = OUTPUT_POWER_LOW;
+	pInfo->freq_config_RX.Frequency = Frequency;
+	pInfo->freq_config_TX.Frequency = Frequency;
+	pInfo->pRX                      = &pInfo->freq_config_RX;
+	pInfo->pTX                      = &pInfo->freq_config_TX;
 	#ifdef ENABLE_COMPANDER
-		pInfo->Compander           = 0;  // off
+		pInfo->Compander            = 0;  // off
 	#endif
 
 	if (ChannelSave == (FREQ_CHANNEL_FIRST + BAND2_108MHz))
@@ -167,7 +166,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		#ifdef ENABLE_NOAA
 			if (Channel >= NOAA_CHANNEL_FIRST)
 			{
-				RADIO_InitInfo(pRadio, gEeprom.ScreenChannel[VFO], 2, NoaaFrequencyTable[Channel - NOAA_CHANNEL_FIRST]);
+				RADIO_InitInfo(pRadio, gEeprom.ScreenChannel[VFO], NoaaFrequencyTable[Channel - NOAA_CHANNEL_FIRST]);
 
 				if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF)
 					return;
@@ -211,7 +210,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 		Index = Channel - FREQ_CHANNEL_FIRST;
 
-		RADIO_InitInfo(pRadio, Channel, Index, LowerLimitFrequencyBandTable[Index]);
+		RADIO_InitInfo(pRadio, Channel, LowerLimitFrequencyBandTable[Index]);
 		return;
 	}
 
@@ -893,8 +892,9 @@ void RADIO_SetVfoState(VfoState_t State)
 		}
 		else
 		{
-			const uint8_t Channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
-			VfoState[Channel] = State;
+			unsigned int chan = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive) ? (gEeprom.RX_CHANNEL + 1) & 1 : gEeprom.RX_CHANNEL;	// 1of11
+			             chan = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.TX_CHANNEL : chan;
+			VfoState[chan]    = State;
 		}
 
 		#ifdef ENABLE_FMRADIO
@@ -916,7 +916,7 @@ void RADIO_PrepareTX(void)
 		gScheduleDualWatch       = false;
 
 		if (!gRxVfoIsActive)
-		{
+		{	// use the TX vfo
 			gEeprom.RX_CHANNEL = gEeprom.TX_CHANNEL;
 			gRxVfo             = &gEeprom.VfoInfo[gEeprom.TX_CHANNEL];
 			gRxVfoIsActive     = true;
@@ -929,10 +929,16 @@ void RADIO_PrepareTX(void)
 
 	RADIO_SelectCurrentVfo();
 
-	#ifdef ENABLE_ALARM
+	#if defined(ENABLE_ALARM) && defined(ENABLE_TX1750)
 		if (gAlarmState == ALARM_STATE_OFF    ||
 		    gAlarmState == ALARM_STATE_TX1750 ||
 		   (gAlarmState == ALARM_STATE_ALARM && gEeprom.ALARM_MODE == ALARM_MODE_TONE))
+	#elif defined(ENABLE_ALARM)
+		if (gAlarmState == ALARM_STATE_OFF    ||
+		   (gAlarmState == ALARM_STATE_ALARM && gEeprom.ALARM_MODE == ALARM_MODE_TONE))
+	#elif defined(ENABLE_TX1750)
+		if (gAlarmState == ALARM_STATE_OFF    ||
+		    gAlarmState == ALARM_STATE_TX1750)
 	#endif
 	{
 		#ifndef ENABLE_TX_WHEN_AM
@@ -947,8 +953,8 @@ void RADIO_PrepareTX(void)
 			State = VFO_STATE_TX_DISABLE;
 		}
 		else
-		//if (TX_FREQUENCY_Check(gCurrentVfo->pTX->Frequency) == 0 || gCurrentVfo->CHANNEL_SAVE <= FREQ_CHANNEL_LAST)
-		if (TX_FREQUENCY_Check(gCurrentVfo->pTX->Frequency) == 0)
+		//if (TX_freq_check(gCurrentVfo->pTX->Frequency) == 0 || gCurrentVfo->CHANNEL_SAVE <= FREQ_CHANNEL_LAST)
+		if (TX_freq_check(gCurrentVfo->pTX->Frequency) == 0)
 		{	// TX frequency is allowed
 			if (gCurrentVfo->BUSY_CHANNEL_LOCK && gCurrentFunction == FUNCTION_RECEIVE)
 				State = VFO_STATE_BUSY;          // busy RX'ing a station
@@ -967,7 +973,7 @@ void RADIO_PrepareTX(void)
 	if (State != VFO_STATE_NORMAL)
 	{	// TX not allowed
 		RADIO_SetVfoState(State);
-		#ifdef ENABLE_ALARM
+		#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 			gAlarmState = ALARM_STATE_OFF;
 		#endif
 		gDTMF_ReplyState = DTMF_REPLY_NONE;
@@ -995,15 +1001,18 @@ void RADIO_PrepareTX(void)
 	FUNCTION_Select(FUNCTION_TRANSMIT);
 
 	gTxTimerCountdown_500ms = 0;            // no timeout
-	#ifdef ENABLE_ALARM
+
+	#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 		if (gAlarmState == ALARM_STATE_OFF)
 	#endif
 	{
-		if (gEeprom.TX_TIMEOUT_TIMER == 1)
+		if (gEeprom.TX_TIMEOUT_TIMER == 0)
 			gTxTimerCountdown_500ms = 60;   // 30 sec
 		else
-		if (gEeprom.TX_TIMEOUT_TIMER >= 2)
-			gTxTimerCountdown_500ms = (gEeprom.TX_TIMEOUT_TIMER - 1) * 120;  // minutes
+		if (gEeprom.TX_TIMEOUT_TIMER < (ARRAY_SIZE(gSubMenu_TOT) - 1))
+			gTxTimerCountdown_500ms = 120 * gEeprom.TX_TIMEOUT_TIMER;  // minutes
+		else
+			gTxTimerCountdown_500ms = 120 * 15;  // 15 minutes
 	}
 	gTxTimeoutReached    = false;
 
@@ -1051,8 +1060,9 @@ void RADIO_SendEndOfTransmission(void)
 	if (gEeprom.ROGER == ROGER_MODE_MDC)
 		BK4819_PlayRogerMDC();
 
-	if (gDTMF_CallState == DTMF_CALL_STATE_NONE && (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_EOT || gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH))
-	{
+	if (gDTMF_CallState == DTMF_CALL_STATE_NONE &&
+	   (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_EOT || gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH))
+	{	// end-of-tx
 		if (gEeprom.DTMF_SIDE_TONE)
 		{
 			GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);

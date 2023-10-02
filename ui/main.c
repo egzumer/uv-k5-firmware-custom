@@ -96,18 +96,18 @@ bool center_line_is_free = true;
 
 			#endif
 
-			uint8_t *pLine = gFrameBuffer[line];
+			uint8_t *p_line = gFrameBuffer[line];
 
-			memset(pLine, 0, LCD_WIDTH);
+			memset(p_line, 0, LCD_WIDTH);
 
 			#if 1
 				// solid bar
 				for (i = 0; i < bar_width; i++)
-					pLine[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
+					p_line[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
 			#else
 				// knuled bar
 				for (i = 0; i < bar_width; i += 2)
-					pLine[bar_x + i] = (i <= len) ? 0x7f : 0x41;
+					p_line[bar_x + i] = (i <= len) ? 0x7f : 0x41;
 			#endif
 
 			if (gCurrentFunction == FUNCTION_TRANSMIT)
@@ -124,6 +124,7 @@ bool center_line_is_free = true;
 
 		const int16_t      s9_dBm       = s0_dBm + (6 * 9);      // S9 .. 6dB/S-Point
 		const int16_t      bar_max_dBm  = s9_dBm + 30;           // S9+30dB
+//		const int16_t      bar_min_dBm  = s0_dBm + (6 * 0);      // S0
 		const int16_t      bar_min_dBm  = s0_dBm + (6 * 4);      // S4
 
 		// ************
@@ -138,7 +139,7 @@ bool center_line_is_free = true;
 		const unsigned int len          = ((clamped_dBm - bar_min_dBm) * bar_width) / bar_range_dB;
 
 		const unsigned int line         = 3;
-		uint8_t           *pLine        = gFrameBuffer[line];
+		uint8_t           *p_line        = gFrameBuffer[line];
 
 		char               s[16];
 		unsigned int       i;
@@ -149,12 +150,12 @@ bool center_line_is_free = true;
 			return;     // display is in use
 
 		if (now)
-			memset(pLine, 0, LCD_WIDTH);
+			memset(p_line, 0, LCD_WIDTH);
 
 		if (rssi_dBm >= (s9_dBm + 6))
 		{	// S9+XXdB, 1dB increment
-			const char *fmt[] = {"%-4d +%u  ", "%-4d +%u "};
-			const unsigned int dB = rssi_dBm - s9_dBm;
+			const char *fmt[] = {"%-4d +%u  ", "%-4d +%2u "};
+			const unsigned int dB = ((rssi_dBm - s9_dBm) <= 99) ? rssi_dBm - s9_dBm : 99;
 			sprintf(s, (dB < 10) ? fmt[0] : fmt[1], rssi_dBm, dB);
 		}
 		else
@@ -167,11 +168,11 @@ bool center_line_is_free = true;
 		#if 1
 			// solid bar
 			for (i = 0; i < bar_width; i++)
-				pLine[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
+				p_line[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
 		#else
 			// knuled bar
 			for (i = 0; i < bar_width; i += 2)
-				pLine[bar_x + i] = (i <= len) ? 0x7f : 0x41;
+				p_line[bar_x + i] = (i <= len) ? 0x7f : 0x41;
 		#endif
 
 		if (now)
@@ -186,24 +187,18 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 		if (!center_line_is_free)
 			return;
 
-		const bool rx = (gCurrentFunction == FUNCTION_RECEIVE ||
-		                 gCurrentFunction == FUNCTION_MONITOR ||
-		                 gCurrentFunction == FUNCTION_INCOMING);
-
-		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
-			if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
-			{	// AM test data is currently being shown
-			}
-			else
-		#endif
-			if (rx)
-				UI_DisplayRSSIBar(rssi, true);
-
+		if (gCurrentFunction == FUNCTION_RECEIVE ||
+		    gCurrentFunction == FUNCTION_MONITOR ||
+		    gCurrentFunction == FUNCTION_INCOMING)
+		{
+			UI_DisplayRSSIBar(rssi, true);
+		}
+		
 	#else
 
 //		const int16_t dBm   = (rssi / 2) - 160;
 		const uint8_t Line  = (vfo == 0) ? 3 : 7;
-		uint8_t      *pLine = gFrameBuffer[Line - 1];
+		uint8_t      *p_line = gFrameBuffer[Line - 1];
 
 		// TODO: sort out all 8 values from the eeprom
 
@@ -258,31 +253,31 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 		if (gCurrentFunction == FUNCTION_TRANSMIT || gScreenToDisplay != DISPLAY_MAIN)
 			return;    // display is in use
 
-		pLine = gFrameBuffer[Line - 1];
+		p_line = gFrameBuffer[Line - 1];
 
-		memset(pLine, 0, 23);
+		memset(p_line, 0, 23);
 
 		if (rssi_level > 0)
 		{
 			//if (rssi_level >= 1)
-				memmove(pLine, BITMAP_Antenna, 5);
+				memmove(p_line, BITMAP_Antenna, 5);
 			if (rssi_level >= 2)
-				memmove(pLine +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
+				memmove(p_line +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
 			if (rssi_level >= 3)
-				memmove(pLine +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
+				memmove(p_line +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
 			if (rssi_level >= 4)
-				memmove(pLine + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
+				memmove(p_line + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
 			if (rssi_level >= 5)
-				memmove(pLine + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
+				memmove(p_line + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
 			if (rssi_level >= 6)
-				memmove(pLine + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
+				memmove(p_line + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
 			if (rssi_level >= 7)
-				memmove(pLine + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
+				memmove(p_line + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
 		}
 		else
-			pLine = NULL;
+			p_line = NULL;
 
-		ST7565_DrawLine(0, Line, 23, pLine);
+		ST7565_DrawLine(0, Line, 23, p_line);
 	#endif
 }
 
@@ -290,9 +285,12 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 
 void UI_DisplayMain(void)
 {
-	char         String[16];
-	unsigned int vfo_num;
+	const unsigned int line0 = 0;  // text screen line
+	const unsigned int line1 = 4;
+	char               String[16];
+	unsigned int       vfo_num;
 
+	// true if the center screen line is available to use
 	center_line_is_free = true;
 
 //	#ifdef SINGLE_VFO_CHAN
@@ -301,6 +299,7 @@ void UI_DisplayMain(void)
 		const bool single_vfo = false;
 //	#endif
 
+	// clear the screen
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 
 	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
@@ -313,25 +312,28 @@ void UI_DisplayMain(void)
 
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
-		uint8_t  Channel    = gEeprom.TX_CHANNEL;
-		bool     bIsSameVfo = !!(Channel == vfo_num);
-		uint8_t  Line       = (vfo_num == 0) ? 0 : 4;
-		uint8_t *pLine0     = gFrameBuffer[Line + 0];
-		uint8_t *pLine1     = gFrameBuffer[Line + 1];
+		const unsigned int line       = (vfo_num == 0) ? line0 : line1;
+		uint8_t            channel    = gEeprom.TX_CHANNEL;
+//		uint8_t            tx_channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+		const bool         same_vfo   = (channel == vfo_num) ? true : false;
+		uint8_t           *p_line0    = gFrameBuffer[line + 0];
+		uint8_t           *p_line1    = gFrameBuffer[line + 1];
+		uint32_t           duff_beer  = 0;
+		uint8_t            state;
 
 		if (single_vfo)
 		{	// we're in single VFO mode - screen is dedicated to just one VFO
 
-			if (!bIsSameVfo)
+			if (!same_vfo)
 				continue;  // skip the unused vfo
 
 
 		}
 
 		if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive)
-			Channel = gEeprom.RX_CHANNEL;    // we're currently monitoring the other VFO
+			channel = gEeprom.RX_CHANNEL;    // we're currently monitoring the other VFO
 
-		if (Channel != vfo_num)
+		if (channel != vfo_num)
 		{
 			if (gDTMF_CallState != DTMF_CALL_STATE_NONE || gDTMF_IsTx || gDTMF_InputMode)
 			{	// show DTMF stuff
@@ -382,23 +384,21 @@ void UI_DisplayMain(void)
 			}
 
 			// highlight the selected/used VFO with a marker
-			if (!single_vfo && bIsSameVfo)
-				memmove(pLine0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
+			if (!single_vfo && same_vfo)
+				memmove(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			else
 			if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)
-				memmove(pLine0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
+				memmove(p_line0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 		else
 		if (!single_vfo)
 		{	// highlight the selected/used VFO with a marker
-			if (bIsSameVfo)
-				memmove(pLine0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
+			if (same_vfo)
+				memmove(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			else
 			//if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)
-				memmove(pLine0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
+				memmove(p_line0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
-
-		uint32_t duff_beer = 0;
 
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
 		{	// transmitting
@@ -409,11 +409,11 @@ void UI_DisplayMain(void)
 				else
 			#endif
 			{
-				Channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
-				if (Channel == vfo_num)
+				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+				if (channel == vfo_num)
 				{	// show the TX symbol
 					duff_beer = 1;
-					UI_PrintStringSmall("TX", 14, 0, Line);
+					UI_PrintStringSmall("TX", 14, 0, line);
 				}
 			}
 		}
@@ -421,7 +421,7 @@ void UI_DisplayMain(void)
 		{	// receiving .. show the RX symbol
 			duff_beer = 2;
 			if ((gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR) && gEeprom.RX_CHANNEL == vfo_num)
-				UI_PrintStringSmall("RX", 14, 0, Line);
+				UI_PrintStringSmall("RX", 14, 0, line);
 		}
 
 		if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
@@ -431,9 +431,9 @@ void UI_DisplayMain(void)
 			if (!inputting)
 				NUMBER_ToDigits(gEeprom.ScreenChannel[vfo_num] + 1, String);  // show the memory channel number
 			else
-				memmove(String + 5, gInputBox, 3);                             // show the input text
-			UI_PrintStringSmall("M", x, 0, Line + 1);
-			UI_DisplaySmallDigits(3, String + 5, x + 7, Line + 1, inputting);
+				memmove(String + 5, gInputBox, 3);                            // show the input text
+			UI_PrintStringSmall("M", x, 0, line + 1);
+			UI_DisplaySmallDigits(3, String + 5, x + 7, line + 1, inputting);
 		}
 		else
 		if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
@@ -442,7 +442,7 @@ void UI_DisplayMain(void)
 			const unsigned int x = 2;	// was 14
 //			sprintf(String, "FB%u", 1 + gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST);
 			sprintf(String, "VFO%u", 1 + gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST);
-			UI_PrintStringSmall(String, x, 0, Line + 1);
+			UI_PrintStringSmall(String, x, 0, line + 1);
 		}
 		#ifdef ENABLE_NOAA
 			else
@@ -455,40 +455,33 @@ void UI_DisplayMain(void)
 				{	// user entering channel number
 					sprintf(String, "N%u%u", '0' + gInputBox[0], '0' + gInputBox[1]);
 				}
-				UI_PrintStringSmall(String, 7, 0, Line + 1);
+				UI_PrintStringSmall(String, 7, 0, line + 1);
 			}
 		#endif
 
 		// ************
 
-		uint8_t State = VfoState[vfo_num];
+		state = VfoState[vfo_num];
 
 		#ifdef ENABLE_ALARM
 			if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_ALARM)
 			{
-				Channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
-				if (Channel == vfo_num)
-					State = VFO_STATE_ALARM;
+				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+				if (channel == vfo_num)
+					state = VFO_STATE_ALARM;
 			}
 		#endif
 
-		if (State != VFO_STATE_NORMAL)
+		if (state != VFO_STATE_NORMAL)
 		{
 			const char *state_list[] = {"", "BUSY", "BAT LOW", "TX DISABLE", "TIMEOUT", "ALARM", "VOLT HIGH"};
-			if (State >= 0 && State < ARRAY_SIZE(state_list))
-			{
-				UI_PrintString(state_list[State], 31, 0, Line, 8);
-			}
-			//else
-			//{
-			//	sprintf(String, "State %u ?", State);
-			//	UI_PrintString(String, 31, 0, Line, 8);
-			//}
+			if (state >= 0 && state < ARRAY_SIZE(state_list))
+				UI_PrintString(state_list[state], 31, 0, line, 8);
 		}
 		else
 		if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_CHANNEL == vfo_num)
 		{	// user entering a frequency
-			UI_DisplayFrequency(gInputBox, 32, Line, true, false);
+			UI_DisplayFrequency(gInputBox, 32, line, true, false);
 
 			center_line_is_free = false;
 		}
@@ -497,8 +490,8 @@ void UI_DisplayMain(void)
 			uint32_t frequency = gEeprom.VfoInfo[vfo_num].pRX->Frequency;
 			if (gCurrentFunction == FUNCTION_TRANSMIT)
 			{	// transmitting
-				Channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
-				if (Channel == vfo_num)
+				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+				if (channel == vfo_num)
 					frequency = gEeprom.VfoInfo[vfo_num].pTX->Frequency;
 			}
 
@@ -508,13 +501,13 @@ void UI_DisplayMain(void)
 				// show the channel symbols
 				const uint8_t attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
 				if (attributes & MR_CH_SCANLIST1)
-					memmove(pLine0 + 113, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
+					memmove(p_line0 + 113, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
 				if (attributes & MR_CH_SCANLIST2)
-					memmove(pLine0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
+					memmove(p_line0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
 				#ifndef ENABLE_BIG_FREQ
 					#ifdef ENABLE_COMPANDER
 						if ((attributes & MR_CH_COMPAND) > 0)
-							memmove(pLine0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+							memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
 					#endif
 				#endif
 
@@ -524,19 +517,19 @@ void UI_DisplayMain(void)
 						#ifdef ENABLE_BIG_FREQ
 							NUMBER_ToDigits(frequency, String);
 							// show the main large frequency digits
-							UI_DisplayFrequency(String, 32, Line, false, false);
+							UI_DisplayFrequency(String, 32, line, false, false);
 							// show the remaining 2 small frequency digits
-							UI_DisplaySmallDigits(2, String + 6, 113, Line + 1, true);
+							UI_DisplaySmallDigits(2, String + 6, 113, line + 1, true);
 						#else
 							// show the frequency in the main font
 							sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
-							UI_PrintString(String, 32, 0, Line, 8);
+							UI_PrintString(String, 32, 0, line, 8);
 						#endif
 						break;
 
 					case MDF_CHANNEL:	// show the channel number
 						sprintf(String, "CH-%03u", gEeprom.ScreenChannel[vfo_num] + 1);
-						UI_PrintString(String, 32, 0, Line, 8);
+						UI_PrintString(String, 32, 0, line, 8);
 						break;
 
 					case MDF_NAME:		// show the channel name
@@ -550,19 +543,19 @@ void UI_DisplayMain(void)
 
 						if (gEeprom.CHANNEL_DISPLAY_MODE == MDF_NAME)
 						{
-							UI_PrintString(String, 32, 0, Line, 8);
+							UI_PrintString(String, 32, 0, line, 8);
 						}
 						else
 						{
 							#ifdef ENABLE_SMALL_BOLD
-								UI_PrintStringSmallBold(String, 32 + 4, 0, Line);
+								UI_PrintStringSmallBold(String, 32 + 4, 0, line);
 							#else
-								UI_PrintStringSmall(String, 32 + 4, 0, Line);
+								UI_PrintStringSmall(String, 32 + 4, 0, line);
 							#endif
 
 							// show the channel frequency below the channel number/name
 							sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
-							UI_PrintStringSmall(String, 32 + 4, 0, Line + 1);
+							UI_PrintStringSmall(String, 32 + 4, 0, line + 1);
 						}
 
 						break;
@@ -573,13 +566,13 @@ void UI_DisplayMain(void)
 				#ifdef ENABLE_BIG_FREQ
 					NUMBER_ToDigits(frequency, String);  // 8 digits
 					// show the main large frequency digits
-					UI_DisplayFrequency(String, 32, Line, false, false);
+					UI_DisplayFrequency(String, 32, line, false, false);
 					// show the remaining 2 small frequency digits
-					UI_DisplaySmallDigits(2, String + 6, 113, Line + 1, true);
+					UI_DisplaySmallDigits(2, String + 6, 113, line + 1, true);
 				#else
 					// show the frequency in the main font
 					sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
-					UI_PrintString(String, 32, 0, Line, 8);
+					UI_PrintString(String, 32, 0, line, 8);
 				#endif
 
 				#ifdef ENABLE_COMPANDER
@@ -587,9 +580,9 @@ void UI_DisplayMain(void)
 					const uint8_t attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
 					if ((attributes & MR_CH_COMPAND) > 0)
 						#ifdef ENABLE_BIG_FREQ
-							memmove(pLine0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
+							memmove(p_line0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
 						#else
-							memmove(pLine0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+							memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
 						#endif
 				#endif
 			}
@@ -621,20 +614,20 @@ void UI_DisplayMain(void)
 
 			if (Level >= 1)
 			{
-				uint8_t *pLine = pLine1 + LCD_WIDTH;
-					memmove(pLine +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna));
+				uint8_t *p_line = p_line1 + LCD_WIDTH;
+					memmove(p_line +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna));
 				if (Level >= 2)
-					memmove(pLine +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
+					memmove(p_line +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
 				if (Level >= 3)
-					memmove(pLine +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
+					memmove(p_line +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
 				if (Level >= 4)
-					memmove(pLine + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
+					memmove(p_line + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
 				if (Level >= 5)
-					memmove(pLine + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
+					memmove(p_line + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
 				if (Level >= 6)
-					memmove(pLine + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
+					memmove(p_line + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
 				if (Level >= 7)
-					memmove(pLine + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
+					memmove(p_line + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
 			}
 		}
 
@@ -653,15 +646,15 @@ void UI_DisplayMain(void)
 			if (code_type >= 0 && code_type < ARRAY_SIZE(code_list))
 				strcpy(String, code_list[code_type]);
 		}
-		UI_PrintStringSmall(String, LCD_WIDTH + 24, 0, Line + 1);
+		UI_PrintStringSmall(String, LCD_WIDTH + 24, 0, line + 1);
 
-		if (State != VFO_STATE_TX_DISABLE)
+		if (state == VFO_STATE_NORMAL || state == VFO_STATE_ALARM)
 		{	// show the TX power
 			const char pwr_list[] = "LMH";
 			const unsigned int i = gEeprom.VfoInfo[vfo_num].OUTPUT_POWER;
 			String[0] = (i >= 0 && i < ARRAY_SIZE(pwr_list)) ? pwr_list[i] : '\0';
 			String[1] = '\0';
-			UI_PrintStringSmall(String, LCD_WIDTH + 46, 0, Line + 1);
+			UI_PrintStringSmall(String, LCD_WIDTH + 46, 0, line + 1);
 		}
 
 		if (gEeprom.VfoInfo[vfo_num].freq_config_RX.Frequency != gEeprom.VfoInfo[vfo_num].freq_config_TX.Frequency)
@@ -670,12 +663,12 @@ void UI_DisplayMain(void)
 			const unsigned int i = gEeprom.VfoInfo[vfo_num].TX_OFFSET_FREQUENCY_DIRECTION;
 			String[0] = (i < sizeof(dir_list)) ? dir_list[i] : '?';
 			String[1] = '\0';
-			UI_PrintStringSmall(String, LCD_WIDTH + 54, 0, Line + 1);
+			UI_PrintStringSmall(String, LCD_WIDTH + 54, 0, line + 1);
 		}
 
 		// show the TX/RX reverse symbol
 		if (gEeprom.VfoInfo[vfo_num].FrequencyReverse)
-			UI_PrintStringSmall("R", LCD_WIDTH + 62, 0, Line + 1);
+			UI_PrintStringSmall("R", LCD_WIDTH + 62, 0, line + 1);
 
 		{	// show the narrow band symbol
 			String[0] = '\0';
@@ -684,16 +677,16 @@ void UI_DisplayMain(void)
 				String[0] = 'N';
 				String[1] = '\0';
 			}
-			UI_PrintStringSmall(String, LCD_WIDTH + 70, 0, Line + 1);
+			UI_PrintStringSmall(String, LCD_WIDTH + 70, 0, line + 1);
 		}
 
 		// show the DTMF decoding symbol
 		if (gEeprom.VfoInfo[vfo_num].DTMF_DECODING_ENABLE || gSetting_KILLED)
-			UI_PrintStringSmall("DTMF", LCD_WIDTH + 78, 0, Line + 1);
+			UI_PrintStringSmall("DTMF", LCD_WIDTH + 78, 0, line + 1);
 
 		// show the audio scramble symbol
 		if (gEeprom.VfoInfo[vfo_num].SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
-			UI_PrintStringSmall("SCR", LCD_WIDTH + 106, 0, Line + 1);
+			UI_PrintStringSmall("SCR", LCD_WIDTH + 106, 0, line + 1);
 	}
 
 	if (center_line_is_free)
@@ -705,7 +698,10 @@ void UI_DisplayMain(void)
 
 		#ifdef ENABLE_AUDIO_BAR
 			if (gSetting_mic_bar && gCurrentFunction == FUNCTION_TRANSMIT)
+			{
 				UI_DisplayAudioBar();
+				center_line_is_free = false;
+			}
 			else
 		#endif
 
@@ -714,16 +710,20 @@ void UI_DisplayMain(void)
 			{
 				AM_fix_print_data(gEeprom.RX_CHANNEL, String);
 				UI_PrintStringSmall(String, 2, 0, 3);
+				center_line_is_free = false;
 			}
 			else
 		#endif
 
 		#ifdef ENABLE_RSSI_BAR
 			if (rx)
+			{
 				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_CHANNEL], false);
+				center_line_is_free = false;
+			}
 			else
 		#endif
-
+	
 		if (rx || gCurrentFunction == FUNCTION_FOREGROUND || gCurrentFunction == FUNCTION_POWER_SAVE)
 		{
 			#if 1
@@ -734,6 +734,7 @@ void UI_DisplayMain(void)
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX_live + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
+					center_line_is_free = false;
 				}
 			#else
 				if (gSetting_live_DTMF_decoder && gDTMF_RX_index > 0)
@@ -743,6 +744,7 @@ void UI_DisplayMain(void)
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
+					center_line_is_free = false;
 				}
 			#endif
 
@@ -750,9 +752,11 @@ void UI_DisplayMain(void)
 				else
 				if (gChargingWithTypeC)
 				{	// charging .. show the battery state
-						const uint16_t percent = BATTERY_VoltsToPercent(gBatteryVoltageAverage);
-						sprintf(String, "Charge %u.%02uV %u%%", gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100, percent);
-						UI_PrintStringSmall(String, 2, 0, 3);
+					sprintf(String, "Charge %u.%02uV %u%%",
+						gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
+						BATTERY_VoltsToPercent(gBatteryVoltageAverage));
+					UI_PrintStringSmall(String, 2, 0, 3);
+					center_line_is_free = false;
 				}
 			#endif
 		}

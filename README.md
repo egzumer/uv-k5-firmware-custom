@@ -52,13 +52,15 @@ You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) .
 
 ```
 ENABLE_SWD                    := 0       only needed if using CPU's SWD port (debugging/programming)
-ENABLE_OVERLAY                := 1       cpu FLASH stuff
+ENABLE_OVERLAY                := 0       cpu FLASH stuff
+ENABLE_LTO                    := 0     **experimental, reduces size of compiled firmware but might break EEPROM reads - DISABLE overlay if you enable this
 ENABLE_UART                   := 1       without this you can't configure radio via PC
 ENABLE_AIRCOPY                := 0       easier to just enter frequency
 ENABLE_FMRADIO                := 1       WBFM VHF band 2 RX
 ENABLE_NOAA                   := 0       everything NOAA
 ENABLE_VOICE                  := 0       want to hear voices ?
 ENABLE_ALARM                  := 0       TX alarms
+ENABLE_1750HZ                 := 0       side key 1750Hz TX tone
 ENABLE_BIG_FREQ               := 0       big font frequencies
 ENABLE_SMALL_BOLD             := 1       bold channel name/no. (when name + freq channel display mode)
 ENABLE_KEEP_MEM_NAME          := 1       maintain channel name when (re)saving memory channel
@@ -70,7 +72,7 @@ ENABLE_BOOT_BEEPS             := 0       give user audio feedback on volume knob
 ENABLE_COMPANDER              := 1       compander option (per channel)
 ENABLE_SHOW_CHARGE_LEVEL      := 0       show the charge level when the radio is on charge
 ENABLE_REVERSE_BAT_SYMBOL     := 1       mirror the battery symbol on the status bar (+ pole on the right)
-ENABLE_NO_SCAN_TIMEOUT        := 1       remove the 32 sec timeout from the CTCSS/DCS scan (press exit butt to end scan)
+ENABLE_CODE_SCAN_TIMEOUT      := 0       enable/disable 32-sec CTCSS/DCS scan timeout (press exit butt to end scan if disabled)
 ENABLE_AM_FIX                 := 1       dynamically adjust the front end gains when in AM mode to helo prevent AM demodulator saturation - ignore the on-screen RSSI (for now)
 ENABLE_AM_FIX_SHOW_DATA       := 1       show debug data for the AM fix
 ENABLE_SQUELCH_LOWER          := 1       squelch settings more sensitive - plan to let user adjust it in the menu

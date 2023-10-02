@@ -66,21 +66,20 @@ Volts	Percent		Volts	Percent		Volts	Percent		Volts	Percent
 7.96478	75          7.72911	48          7.51285	21
 7.95983	74          7.72097	47          7.49832	20
 */
-uint8_t BATTERY_VoltsToPercent(uint16_t voltage_10mV)
+unsigned int BATTERY_VoltsToPercent(const unsigned int voltage_10mV)
 {
-    if(voltage_10mV>814)
-        return 100;
-    else if(voltage_10mV>756)
-    	return 132*voltage_10mV/100-974;
-    else if(voltage_10mV>729)
-    	return 63*voltage_10mV/100-452;
-    else if(voltage_10mV>600)
-    	return 52*voltage_10mV/1000-31;    	
-    else 
-        return 0;
+	if (voltage_10mV > 814)
+		return 100;
+	if (voltage_10mV > 756)
+		return ((132ul * voltage_10mV) /  100) - 974u;
+	if (voltage_10mV > 729)
+		return  ((63ul * voltage_10mV) /  100) - 452u;
+	if (voltage_10mV > 600)
+		return  ((52ul * voltage_10mV) / 1000) - 31u;    	
+	return 0;
 }
 
-void BATTERY_GetReadings(bool bDisplayBatteryLevel)
+void BATTERY_GetReadings(const bool bDisplayBatteryLevel)
 {
 	const uint8_t  PreviousBatteryLevel = gBatteryDisplayLevel;
 	const uint16_t Voltage              = (gBatteryVoltages[0] + gBatteryVoltages[1] + gBatteryVoltages[2] + gBatteryVoltages[3]) / 4;

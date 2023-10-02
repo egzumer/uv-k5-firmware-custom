@@ -438,7 +438,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 			}
 		}
 
-		if (diff_dB >= -4)                    // 4dB hysterisis (help reduce gain hunting)
+		if (diff_dB >= -6)                    // 6dB hysterisis (help reduce gain hunting)
 			hold_counter[vfo] = 30;           // 300ms hold
 
 		if (hold_counter[vfo] == 0)

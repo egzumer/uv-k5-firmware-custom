@@ -128,6 +128,9 @@ extern const uint16_t        scan_pause_delay_in_2_10ms;
 extern const uint16_t        scan_pause_delay_in_3_10ms;
 extern const uint16_t        scan_pause_delay_in_4_10ms;
 
+//extern const uint16_t        gMax_bat_v;
+//extern const uint16_t        gMin_bat_v;
+
 extern const uint8_t         gMicGain_dB2[5];
 
 extern bool                  gSetting_350TX;
@@ -227,8 +230,11 @@ extern bool                  gRequestSaveSettings;
 #endif
 extern uint8_t               gKeypadLocked;
 extern bool                  gFlagPrepareTX;
-extern bool                  gFlagAcceptSetting;
-extern bool                  gFlagRefreshSetting;
+
+extern bool                  gFlagAcceptSetting;   // accept menu setting
+extern bool                  gFlagRefreshSetting;  // refresh menu display
+extern bool                  gFlagBackupSetting;   // save a copy of the current menu setting
+
 extern bool                  gFlagSaveVfo;
 extern bool                  gFlagSaveSettings;
 extern bool                  gFlagSaveChannel;
@@ -254,7 +260,7 @@ extern uint8_t               gRestoreMrChannel;
 extern uint8_t               gCurrentScanList;
 extern uint8_t               gPreviousMrChannel;
 extern uint32_t              gRestoreFrequency;
-extern uint8_t               gRxVfoIsActive;
+extern bool                  gRxVfoIsActive;
 extern uint8_t               gAlarmToneCounter;
 extern uint16_t              gAlarmRunningCounter;
 extern bool                  gKeyBeingHeld;
@@ -274,10 +280,10 @@ extern uint8_t               gNeverUsed;
 #endif
 extern volatile bool         gNextTimeslice;
 extern bool                  gUpdateDisplay;
+extern bool                  gF_LOCK;
 #ifdef ENABLE_FMRADIO
 	extern uint8_t           gFM_ChannelPosition;
 #endif
-extern bool                  gF_LOCK;
 extern uint8_t               gShowChPrefix;
 extern volatile uint8_t      gFoundCDCSSCountdown_10ms;
 extern volatile uint8_t      gFoundCTCSSCountdown_10ms;
