@@ -709,13 +709,10 @@ void UI_DisplayMain(void)
 		#endif
 
 		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
-			if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
+			if (rx && gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
 			{
-				if (rx)
-				{
-					AM_fix_print_data(gEeprom.RX_CHANNEL, String);
-					UI_PrintStringSmall(String, 2, 0, 3);
-				}
+				AM_fix_print_data(gEeprom.RX_CHANNEL, String);
+				UI_PrintStringSmall(String, 2, 0, 3);
 			}
 			else
 		#endif
@@ -725,8 +722,8 @@ void UI_DisplayMain(void)
 				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_CHANNEL], false);
 			else
 		#endif
-
-		if (rx || gCurrentFunction == FUNCTION_FOREGROUND)
+	
+		if (rx || gCurrentFunction == FUNCTION_FOREGROUND || gCurrentFunction == FUNCTION_POWER_SAVE)
 		{
 			#if 1
 				if (gSetting_live_DTMF_decoder && gDTMF_RX_live[0] != 0)
