@@ -63,7 +63,6 @@ enum AlarmState_t {
 	ALARM_STATE_ALARM,
 	ALARM_STATE_TX1750
 };
-
 typedef enum AlarmState_t AlarmState_t;
 
 enum ReceptionMode_t {
@@ -71,7 +70,6 @@ enum ReceptionMode_t {
 	RX_MODE_DETECTED,   // signal detected
 	RX_MODE_LISTENING   //
 };
-
 typedef enum ReceptionMode_t ReceptionMode_t;
 
 enum CssScanMode_t
@@ -80,8 +78,16 @@ enum CssScanMode_t
 	CSS_SCAN_MODE_SCANNING,
 	CSS_SCAN_MODE_FOUND,
 };
-
 typedef enum CssScanMode_t   CssScanMode_t;
+
+enum scan_next_chan_t {
+	SCAN_NEXT_CHAN_SCANLIST1 = 0,
+	SCAN_NEXT_CHAN_SCANLIST2,
+	SCAN_NEXT_CHAN_DUAL_WATCH,
+	SCAN_NEXT_CHAN_MR,
+	SCAN_NEXT_NUM
+};
+typedef enum scan_next_chan_t scan_next_chan_t;
 
 extern const uint8_t         fm_resume_countdown_500ms;
 extern const uint8_t         fm_radio_countdown_500ms;
@@ -127,6 +133,9 @@ extern const uint16_t        scan_pause_delay_in_1_10ms;
 extern const uint16_t        scan_pause_delay_in_2_10ms;
 extern const uint16_t        scan_pause_delay_in_3_10ms;
 extern const uint16_t        scan_pause_delay_in_4_10ms;
+extern const uint16_t        scan_pause_delay_in_5_10ms;
+extern const uint16_t        scan_pause_delay_in_6_10ms;
+extern const uint16_t        scan_pause_delay_in_7_10ms;
 
 //extern const uint16_t        gMax_bat_v;
 //extern const uint16_t        gMin_bat_v;
@@ -256,10 +265,11 @@ extern bool                  gFlagEndTransmission;
 extern uint16_t              gLowBatteryCountdown;
 extern uint8_t               gNextMrChannel;
 extern ReceptionMode_t       gRxReceptionMode;
+
 extern uint8_t               gRestoreMrChannel;
 extern uint8_t               gCurrentScanList;
-extern uint8_t               gPreviousMrChannel;
 extern uint32_t              gRestoreFrequency;
+
 extern bool                  gRxVfoIsActive;
 extern uint8_t               gAlarmToneCounter;
 extern uint16_t              gAlarmRunningCounter;

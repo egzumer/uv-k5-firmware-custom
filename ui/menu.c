@@ -207,9 +207,6 @@ const char gSubMenu_XB[3][10] =
 
 const char gSubMenu_SC_REV[3][13] =
 {
-//	"TIME\nOPER",
-//	"CARRIER\nOPER",
-//	"SEARCH\nOPER"
 	"TIME",
 	"CARRIER",
 	"SEARCH"
@@ -231,9 +228,9 @@ const char gSubMenu_MDF[4][15] =
 	};
 #endif
 
-const char gSubMenu_D_RSP[4][6] =
+const char gSubMenu_D_RSP[4][11] =
 {
-	"NULL",
+	"DO\nNOTHING",
 	"RING",
 	"REPLY",
 	"BOTH"
@@ -255,11 +252,11 @@ const char gSubMenu_PONMSG[4][8] =
 	"NONE"
 };
 
-const char gSubMenu_ROGER[3][6] =
+const char gSubMenu_ROGER[3][9] =
 {
 	"OFF",
 	"ROGER",
-	"MDC"
+	"MDC\n1200"
 };
 
 const char gSubMenu_RESET[2][4] =
@@ -339,7 +336,7 @@ int32_t gSubMenuSelection;
 int32_t gSubMenuSelection_original = 0;  // copy of the original value
 
 // edit box
-char    edit_original[17] = {0}; // a copy of the text before editing so that we can easily test for changes/difference
+char    edit_original[17]; // a copy of the text before editing so that we can easily test for changes/difference
 char    edit[17];
 int     edit_index;
 
@@ -349,21 +346,21 @@ void UI_DisplayMenu(void)
 	const unsigned int menu_item_x1    = (8 * menu_list_width) + 2;
 	const unsigned int menu_item_x2    = LCD_WIDTH - 1;
 	unsigned int       i;
-	char               String[64];
+	char               String[64];  // bigger cuz we can now do multi-line in one string (use '\n' char)
 	char               Contact[16];
 
-	// clear the screen
+	// clear the screen buffer
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 
-	// draw the left menu list
 	#if 0
-
+		// original menu layout
+		
 		for (i = 0; i < 3; i++)
 			if (gMenuCursor > 0 || i > 0)
 				if ((gMenuListCount - 1) != gMenuCursor || i != 2)
 					UI_PrintString(MenuList[gMenuCursor + i - 1].name, 0, 0, i * 2, 8);
 
-		// invert the current menu list item text pixels
+		// invert the current menu list item pixels
 		for (i = 0; i < (8 * menu_list_width); i++)
 		{
 			gFrameBuffer[2][i] ^= 0xFF;
@@ -374,7 +371,7 @@ void UI_DisplayMenu(void)
 		for (i = 0; i < 7; i++)
 			gFrameBuffer[i][(8 * menu_list_width) + 1] = 0xAA;
 
-		// draw the little triangle marker if we're in the sub-menu
+		// draw the little sub-menu triangle marker
 		if (gIsInSubMenu)
 			memmove(gFrameBuffer[0] + (8 * menu_list_width) + 1, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));
 
@@ -383,14 +380,15 @@ void UI_DisplayMenu(void)
 		UI_PrintStringSmall(String, 2, 0, 6);
 
 	#else
-	{
+	{	// new menu layout .. experimental & unfinished
+
 		const int menu_index = gMenuCursor;  // current selected menu item
 		i = 1;
 
 		if (!gIsInSubMenu)
 		{
 			while (i < 2)
-			{	// leading menu items
+			{	// leading menu items - small text
 				const int k = menu_index + i - 2;
 				if (k < 0)
 					UI_PrintStringSmall(MenuList[gMenuListCount + k].name, 0, 0, i);  // wrap-a-round
@@ -400,13 +398,13 @@ void UI_DisplayMenu(void)
 				i++;
 			}
 
-			// current menu item
+			// current menu item - keep big n fat
 			if (menu_index >= 0 && menu_index < (int)gMenuListCount)
 				UI_PrintString(MenuList[menu_index].name, 0, 0, 2, 8);
 			i++;
 
 			while (i < 4)
-			{	// trailing menu item
+			{	// trailing menu item - small text
 				const int k = menu_index + i - 2;
 				if (k >= 0 && k < (int)gMenuListCount)
 					UI_PrintStringSmall(MenuList[k].name, 0, 0, 1 + i);
@@ -589,7 +587,6 @@ void UI_DisplayMenu(void)
 				const uint32_t frequency = BOARD_fetchChannelFrequency(gSubMenuSelection);
 				sprintf(String, "%u.%05u", frequency / 100000, frequency % 100000);
 				UI_PrintString(String, menu_item_x1, menu_item_x2, 4, 8);
-//				UI_PrintStringSmall(String, menu_item_x1, menu_item_x2, 5);
 			}
 
 			already_printed = true;
@@ -619,7 +616,6 @@ void UI_DisplayMenu(void)
 					UI_PrintString(edit, menu_item_x1, 0, 2, 8);
 					if (edit_index < 10)
 						UI_PrintString(     "^", menu_item_x1 + (8 * edit_index), 0, 4, 8);  // show the cursor
-//						UI_PrintStringSmall("^", menu_item_x1 + (8 * edit_index), 0, 4);
 				}
 
 				if (!gAskForConfirmation)
@@ -629,7 +625,6 @@ void UI_DisplayMenu(void)
 						UI_PrintString(String, menu_item_x1, menu_item_x2, 4, 8);
 					else
 						UI_PrintString(String, menu_item_x1, menu_item_x2, 5, 8);
-//						UI_PrintStringSmall(String, menu_item_x1, menu_item_x2, 5);
 				}
 			}
 
@@ -769,9 +764,9 @@ void UI_DisplayMenu(void)
 	}
 
 	if (!already_printed)
-	{
+	{	// we now do multi-line text in a single string
+
 		unsigned int y;
-		unsigned int k     = 0;
 		unsigned int lines = 1;
 		unsigned int len   = strlen(String);
 		bool         small = false;
@@ -782,9 +777,9 @@ void UI_DisplayMenu(void)
 			for (i = 0; i < len; i++)
 			{
 				if (String[i] == '\n' && i < (len - 1))
-				{
+				{	// found new line char
 					lines++;
-					String[i] = 0;
+					String[i] = 0;  // null terminate the line
 				}
 			}
 
@@ -795,21 +790,28 @@ void UI_DisplayMenu(void)
 					lines = 7;
 			}
 
-			// move the 1st line up
+			// center vertically'ish
 			if (small)
-				y = 3 - ((lines + 0) / 2);
+				y = 3 - ((lines + 0) / 2);  // untested
 			else
 				y = 2 - ((lines + 0) / 2);
 
+			// draw the text lines
 			for (i = 0; i < len && lines > 0; lines--)
 			{
 				if (small)
-					UI_PrintStringSmall(String + k, menu_item_x1, menu_item_x2, y);
+					UI_PrintStringSmall(String + i, menu_item_x1, menu_item_x2, y);
 				else
-					UI_PrintString(String + k, menu_item_x1, menu_item_x2, y, 8);
+					UI_PrintString(String + i, menu_item_x1, menu_item_x2, y, 8);
+
+				// look for start of next line
 				while (i < len && String[i] >= 32)
 					i++;
-				k = ++i;
+
+				// hop over the null term char(s)
+				while (i < len && String[i] < 32)
+					i++;
+
 				y += small ? 1 : 2;
 			}
 		}

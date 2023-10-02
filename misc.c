@@ -51,6 +51,9 @@ const uint16_t    scan_pause_delay_in_1_10ms       =  5000 / 10;   // 5 seconds
 const uint16_t    scan_pause_delay_in_2_10ms       =   500 / 10;   // 500ms
 const uint16_t    scan_pause_delay_in_3_10ms       =   200 / 10;   // 200ms
 const uint16_t    scan_pause_delay_in_4_10ms       =   300 / 10;   // 300ms
+const uint16_t    scan_pause_delay_in_5_10ms       =  1000 / 10;   // 1 sec
+const uint16_t    scan_pause_delay_in_6_10ms       =   100 / 10;   // 100ms
+const uint16_t    scan_pause_delay_in_7_10ms       =  3600 / 10;   // 3.6 seconds
 
 const uint16_t    battery_save_count_10ms          = 10000 / 10;   // 10 seconds
 
@@ -192,10 +195,11 @@ bool              gFlagEndTransmission;
 uint16_t          gLowBatteryCountdown;
 uint8_t           gNextMrChannel;
 ReceptionMode_t   gRxReceptionMode;
-uint8_t           gRestoreMrChannel;
-uint8_t           gCurrentScanList;
-uint8_t           gPreviousMrChannel;
-uint32_t          gRestoreFrequency;
+
+uint8_t                gRestoreMrChannel;
+enum scan_next_chan_t  gCurrentScanList;
+uint32_t               gRestoreFrequency;
+
 bool              gRxVfoIsActive;
 #ifdef ENABLE_ALARM
 	uint8_t       gAlarmToneCounter;

@@ -156,26 +156,16 @@ uint32_t FREQUENCY_FloorToStep(uint32_t Upper, uint32_t Step, uint32_t Lower)
 
 	return Lower + (Step * Index);
 }
-/*
-int TX_freq_check(VFO_Info_t *pInfo)
-{	// return '0' if TX frequency is allowed
-	// otherwise return '-1'
-	
-	const uint32_t Frequency = pInfo->pTX->Frequency;
 
-	#ifdef ENABLE_NOAA
-		if (pInfo->CHANNEL_SAVE > FREQ_CHANNEL_LAST)
-			return -1;
-	#endif
-*/
 int TX_freq_check(const uint32_t Frequency)
 {	// return '0' if TX frequency is allowed
 	// otherwise return '-1'
 
 	if (Frequency < LowerLimitFrequencyBandTable[0] || Frequency > UpperLimitFrequencyBandTable[6])
-		return -1;
+		return -1;  // not allowed outside this range
+
 	if (Frequency >= bx_stop1_Hz && Frequency < bx_start2_Hz)
-		return -1;
+		return -1;  // BX chip does not work in this range
 
 	switch (gSetting_F_LOCK)
 	{
