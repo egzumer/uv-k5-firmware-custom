@@ -290,11 +290,6 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 			*pMax = ARRAY_SIZE(gSubMenu_PTT_ID) - 1;
 			break;
 
-		case MENU_VOL:
-			*pMin = 1760;  // 0
-			*pMax = 2000;  // 2300
-			break;
-
 		case MENU_BAT_TXT:
 			*pMin = 0;
 			*pMax = ARRAY_SIZE(gSubMenu_BAT_TXT) - 1;
@@ -318,6 +313,11 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 		case MENU_F_CALI:
 			*pMin = -50;
 			*pMax = +50;
+			break;
+
+		case MENU_BATCAL:
+			*pMin = 1760;  // 0
+			*pMax = 2000;  // 2300
 			break;
 
 		default:
@@ -616,11 +616,6 @@ void MENU_AcceptSetting(void)
 			gRequestSaveChannel         = 1;
 			return;
 
-		case MENU_VOL:
-			if (gF_LOCK)
-				EEPROM_WriteBuffer(0x1F40, gBatteryCalibration);
-			break;
-
 		case MENU_BAT_TXT:
 			gSetting_battery_text = gSubMenuSelection;
 			break;
@@ -734,6 +729,11 @@ void MENU_AcceptSetting(void)
 			if (gF_LOCK)
 				writeXtalFreqCal(gSubMenuSelection);
 			return;
+
+		case MENU_BATCAL:
+			gBatteryCalibration[3] = gSubMenuSelection;
+			EEPROM_WriteBuffer(0x1F40, gBatteryCalibration);
+			break;
 	}
 
 	gRequestSaveSettings = true;
@@ -1009,10 +1009,6 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gTxVfo->DTMF_PTT_ID_TX_MODE;
 			break;
 
-		case MENU_VOL:
-			gSubMenuSelection = gBatteryCalibration[3];
-			return;
-
 		case MENU_BAT_TXT:
 			gSubMenuSelection = gSetting_battery_text;
 			return;
@@ -1098,6 +1094,13 @@ void MENU_ShowCurrentSetting(void)
 		case MENU_F_CALI:
 			gSubMenuSelection = gEeprom.BK4819_XTAL_FREQ_LOW;
 			break;
+
+		case MENU_BATCAL:
+			gSubMenuSelection = gBatteryCalibration[3];
+			break;
+			
+		default:
+			return;
 	}
 
 //	if (gFlagBackupSetting)
@@ -1286,14 +1289,11 @@ static void MENU_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 			// ***********************
 			// restore original value
 
-			if (gMenuCursor == MENU_VOL)
+			if (gMenuCursor == MENU_BATCAL)
 			{
 				if (gF_LOCK)
 				{
 					EEPROM_ReadBuffer(0x1F40, gBatteryCalibration, 8);
-					
-//					gBatteryCalibration[3] = gSubMenuSelection_original;
-					
 					BATTERY_GetReadings(true);
 				}
 			}

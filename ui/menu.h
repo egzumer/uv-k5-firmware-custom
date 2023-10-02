@@ -113,7 +113,8 @@ enum
 	MENU_SCREN,
 
 	MENU_TX_EN,   // enable TX
-	MENU_F_CALI   // reference xtal calibration
+	MENU_F_CALI,  // reference xtal calibration
+	MENU_BATCAL   // battery voltage calibration
 };
 
 extern const t_menu_item MenuList[];
