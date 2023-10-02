@@ -223,7 +223,7 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 
 			if (IS_MR_CHANNEL(Channel))
 			{
-				#ifndef KEEP_MEM_NAME
+				#ifndef ENABLE_KEEP_MEM_NAME
 					// clear/reset the channel name
 					//memset(&State, 0xFF, sizeof(State));
 					memset(&State, 0x00, sizeof(State));     // follow the QS way
@@ -277,7 +277,7 @@ void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool keep)
 
 		gMR_ChannelAttributes[Channel] = Attributes;
 
-//		#ifndef KEEP_MEM_NAME
+//		#ifndef ENABLE_KEEP_MEM_NAME
 			if (IS_MR_CHANNEL(Channel))
 			{
 				const uint16_t OffsetMR = Channel * 16;
