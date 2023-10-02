@@ -132,7 +132,7 @@ void Main(void)
 		gDebounceCounter = 0;
 	}
 
-	if (!gChargingWithTypeC && !gBatteryDisplayLevel)
+	if (!gChargingWithTypeC && gBatteryDisplayLevel == 0)
 	{
 		FUNCTION_Select(FUNCTION_POWER_SAVE);
 

@@ -187,54 +187,35 @@ void UI_DisplayStatus(const bool test_display)
 	x += sizeof(BITMAP_USB_C);
 
 	// BATTERY LEVEL indicator
-#if 1
 	if (gBatteryDisplayLevel >= 2 && !gLowBattery)
 	{
 		line += x;
 		memmove(line, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
+
 		#ifndef ENABLE_REVERSE_BAT_SYMBOL
 			line += sizeof(BITMAP_BatteryLevel1);
 			if (gBatteryDisplayLevel >= 2)
 				memmove(line -  4, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-			if (gBatteryDisplayLevel >= 5)
+			if (gBatteryDisplayLevel >= 3)
 				memmove(line -  7, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-			if (gBatteryDisplayLevel >= 7)
+			if (gBatteryDisplayLevel >= 4)
 				memmove(line - 10, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-			if (gBatteryDisplayLevel >= 9)
+			if (gBatteryDisplayLevel >= 5)
 				memmove(line - 13, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
 		#else
 			if (gBatteryDisplayLevel >= 2)
 				memmove(line +  3, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-			if (gBatteryDisplayLevel >= 5)
+			if (gBatteryDisplayLevel >= 3)
 				memmove(line +  6, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-			if (gBatteryDisplayLevel >= 7)
+			if (gBatteryDisplayLevel >= 4)
 				memmove(line +  9, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-			if (gBatteryDisplayLevel >= 9)
+			if (gBatteryDisplayLevel >= 5)
 				memmove(line + 12, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
 		#endif
 	}
 	else
 	if (gLowBatteryBlink == 1)
 		memmove(line + x, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
-#else
-//	UI_DisplayBattery(gBatteryDisplayLevel);
-
-	line += x;
-	if (gBatteryDisplayLevel > 0)
-	{
-		const uint8_t level = (gBatteryDisplayLevel <= 11) ? gBatteryDisplayLevel : 11;
-		memmove(line, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
-		#ifdef ENABLE_REVERSE_BAT_SYMBOL
-			for (uint8_t i = 0; i < level; i++)
-				line[3 + i] = (i & 1u) ? 0b01011101 : 0b01011101;
-		#else
-			for (uint8_t i = 0; i < level; i++)
-				line[sizeof(BITMAP_BatteryLevel1) - 3 - i] = (i & 1u) ? 0b01011101 : 0b01011101;
-		#endif
-	}
-	else
-		memset(line, 0, sizeof(BITMAP_BatteryLevel1));
-#endif
 
 	// **************
 

@@ -12,9 +12,11 @@ Anyway, have fun.
 Please note that the Quansheng uv-k radios are not professional quality transceivers, their
 performance is strictly limited, somewhat below that of a decent transceiver. The RX front
 end has no track-tuned band pass filtering at all, and so are wide band/wide open to any
-and all signals over a wide frequency range. Using the radio in high intensity RF environments
-will nearly always destroy your reception, the receiver simply doesn't have a great dynamic
-range, though are quite sensitive (weak signal wise).
+and all signals over a wide frequency range.
+Using the radio in high intensity RF environments will nearly always destroy your reception,
+the receiver simply doesn't have a great dynamic range, which means distorted AM audio with
+strong received signals, there is nothing more anyone can do in firmware/software to stop that
+happening once the RX gain adjustment I do (AM fix) reaches the hardwares limit.
 
 Saying that, they are nice toys for the price, fun to play with.
 
