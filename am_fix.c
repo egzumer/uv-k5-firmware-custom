@@ -30,12 +30,6 @@
 #include "functions.h"
 #include "misc.h"
 
-// original QS front end register settings
-const uint8_t orig_lna_short = 3;   //   0dB
-const uint8_t orig_lna       = 2;   // -14dB
-const uint8_t orig_mixer     = 3;   //   0dB
-const uint8_t orig_pga       = 6;   //  -3dB
-
 #ifdef ENABLE_AM_FIX
 
 	typedef struct
@@ -449,7 +443,7 @@ const uint8_t orig_pga       = 6;   //  -3dB
 
 		#if 0
 			if (gain_table_index[vfo] == gain_table_index_prev[vfo])
-				return;     // no gain change
+				return;     // no gain change - this is to reduce writing to the BK chip on ever call
 		#endif
 
 #endif

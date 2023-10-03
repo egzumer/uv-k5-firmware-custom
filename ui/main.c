@@ -80,6 +80,9 @@ center_line_t center_line = CENTER_LINE_NONE;
 			const unsigned int bar_width = LCD_WIDTH - 2 - bar_x;
 			unsigned int       i;
 
+			if (gScreenToDisplay != DISPLAY_MAIN)
+				return;
+			
 			#if 1
 				// TX audio level
 
@@ -332,7 +335,7 @@ void UI_DisplayMain(void)
 		const bool         same_vfo   = (channel == vfo_num) ? true : false;
 		uint8_t           *p_line0    = gFrameBuffer[line + 0];
 		uint8_t           *p_line1    = gFrameBuffer[line + 1];
-		uint32_t           duff_beer  = 0;
+		uint8_t            mode       = 0;
 		uint8_t            state;
 
 		if (single_vfo)
@@ -419,23 +422,36 @@ void UI_DisplayMain(void)
 
 			#ifdef ENABLE_ALARM
 				if (gAlarmState == ALARM_STATE_ALARM)
-					duff_beer = 2;
+					mode = 2;
 				else
 			#endif
 			{
 				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
 				if (channel == vfo_num)
 				{	// show the TX symbol
-					duff_beer = 1;
-					UI_PrintStringSmall("TX", 14, 0, line);
+					mode = 1;
+					#ifdef ENABLE_SMALL_BOLD
+						UI_PrintStringSmallBold("TX", 14, 0, line);
+					#else
+						UI_PrintStringSmall("TX", 14, 0, line);
+					#endif
 				}
 			}
 		}
 		else
 		{	// receiving .. show the RX symbol
-			duff_beer = 2;
-			if ((gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR) && gEeprom.RX_CHANNEL == vfo_num)
-				UI_PrintStringSmall("RX", 14, 0, line);
+			mode = 2;
+			if ((gCurrentFunction == FUNCTION_RECEIVE ||
+			     gCurrentFunction == FUNCTION_MONITOR ||
+			     gCurrentFunction == FUNCTION_INCOMING) &&
+			     gEeprom.RX_CHANNEL == vfo_num)
+			{
+				#ifdef ENABLE_SMALL_BOLD
+					UI_PrintStringSmallBold("RX", 14, 0, line);
+				#else
+					UI_PrintStringSmall("RX", 14, 0, line);
+				#endif
+			}
 		}
 
 		if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
@@ -607,7 +623,7 @@ void UI_DisplayMain(void)
 		{	// show the TX/RX level
 			uint8_t Level = 0;
 
-			if (duff_beer == 1)
+			if (mode == 1)
 			{	// TX power level
 				switch (gRxVfo->OUTPUT_POWER)
 				{
@@ -617,7 +633,7 @@ void UI_DisplayMain(void)
 				}
 			}
 			else
-			if (duff_beer == 2)
+			if (mode == 2)
 			{	// RX signal level
 				#ifndef ENABLE_RSSI_BAR
 					// bar graph
@@ -654,7 +670,7 @@ void UI_DisplayMain(void)
 		}
 		else
 		{	// or show the CTCSS/DCS symbol
-			const FREQ_Config_t *pConfig = (duff_beer == 1) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
+			const FREQ_Config_t *pConfig = (mode == 1) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
 			const unsigned int code_type = pConfig->CodeType;
 			const char *code_list[] = {"", "CT", "DCS", "DCR"};
 			if (code_type >= 0 && code_type < ARRAY_SIZE(code_list))
@@ -713,8 +729,8 @@ void UI_DisplayMain(void)
 		#ifdef ENABLE_AUDIO_BAR
 			if (gSetting_mic_bar && gCurrentFunction == FUNCTION_TRANSMIT)
 			{
-				UI_DisplayAudioBar();
 				center_line = CENTER_LINE_AUDIO_BAR;
+				UI_DisplayAudioBar();
 			}
 			else
 		#endif
@@ -722,9 +738,9 @@ void UI_DisplayMain(void)
 		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
 			if (rx && gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
 			{
+				center_line = CENTER_LINE_AM_FIX_DATA;
 				AM_fix_print_data(gEeprom.RX_CHANNEL, String);
 				UI_PrintStringSmall(String, 2, 0, 3);
-				center_line = CENTER_LINE_AM_FIX_DATA;
 			}
 			else
 		#endif
@@ -732,8 +748,8 @@ void UI_DisplayMain(void)
 		#ifdef ENABLE_RSSI_BAR
 			if (rx)
 			{
-				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_CHANNEL], false);
 				center_line = CENTER_LINE_RSSI;
+				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_CHANNEL], false);
 			}
 			else
 		#endif
@@ -745,20 +761,20 @@ void UI_DisplayMain(void)
 				{	// show live DTMF decode
 					const unsigned int len = strlen(gDTMF_RX_live);
 					const unsigned int idx = (len > (17 - 5)) ? len - (17 - 5) : 0;  // limit to last 'n' chars
+					center_line = CENTER_LINE_DTMF_DEC;
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX_live + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
-					center_line = CENTER_LINE_DTMF_DEC;
 				}
 			#else
 				if (gSetting_live_DTMF_decoder && gDTMF_RX_index > 0)
 				{	// show live DTMF decode
 					const unsigned int len = gDTMF_RX_index;
 					const unsigned int idx = (len > (17 - 5)) ? len - (17 - 5) : 0;  // limit to last 'n' chars
+					center_line = CENTER_LINE_DTMF_DEC;
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
-					center_line = CENTER_LINE_DTMF_DEC;
 				}
 			#endif
 
@@ -766,11 +782,11 @@ void UI_DisplayMain(void)
 				else
 				if (gChargingWithTypeC)
 				{	// charging .. show the battery state
+					center_line = CENTER_LINE_CHARGE_DATA;
 					sprintf(String, "Charge %u.%02uV %u%%",
 						gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
 						BATTERY_VoltsToPercent(gBatteryVoltageAverage));
 					UI_PrintStringSmall(String, 2, 0, 3);
-					center_line = CENTER_LINE_CHARGE_DATA;
 				}
 			#endif
 		}

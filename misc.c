@@ -83,6 +83,8 @@ bool              gSetting_TX_EN;
 uint8_t           gSetting_F_LOCK;
 bool              gSetting_ScrambleEnable;
 
+bool              gSetting_backlight_on_rx;
+
 #ifdef ENABLE_AM_FIX
 	bool          gSetting_AM_fix;
 #endif
@@ -126,7 +128,6 @@ volatile bool     gDualWatchCountdownExpired = true;
 bool              gDualWatchActive           = false;
 
 volatile uint8_t  gSerialConfigCountDown_500ms;
-volatile bool     gSerialConfigCountDown_done;
 
 volatile bool     gNextTimeslice_500ms;
 
@@ -218,7 +219,6 @@ uint8_t           gScanDelay_10ms;
 	uint8_t       gAircopySendCountdown;
 #endif
 uint8_t           gFSKWriteIndex;
-uint8_t           gNeverUsed;
 
 #ifdef ENABLE_NOAA
 	bool          gIsNoaaMode;

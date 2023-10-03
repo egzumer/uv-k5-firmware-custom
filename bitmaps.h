@@ -4,7 +4,9 @@
 
 #include <stdint.h>
 
-extern const uint8_t BITMAP_PowerSave[8];
+extern const uint8_t BITMAP_POWERSAVE[8];
+extern const uint8_t BITMAP_TX[8];
+extern const uint8_t BITMAP_RX[8];
 
 extern const uint8_t BITMAP_BatteryLevel[2];
 extern const uint8_t BITMAP_BatteryLevel1[17];

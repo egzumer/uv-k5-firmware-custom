@@ -62,7 +62,8 @@ const t_menu_item MenuList[] =
 	{"CH DIS", VOICE_ID_INVALID,                       MENU_MDF        }, // was "MDF"
 	{"BATSAV", VOICE_ID_SAVE_MODE,                     MENU_SAVE       }, // was "SAVE"
 	{"VOX",    VOICE_ID_VOX,                           MENU_VOX        },
-	{"BACKLT", VOICE_ID_INVALID,                       MENU_ABR        }, // was "ABR"
+	{"BLT",    VOICE_ID_INVALID,                       MENU_ABR        }, // was "ABR"
+	{"BLT RX", VOICE_ID_INVALID,                       MENU_ABR_ON_RX  },
 	{"DUALRX", VOICE_ID_DUAL_STANDBY,                  MENU_TDR        }, // was "TDR"
 	{"BEEP",   VOICE_ID_BEEP_PROMPT,                   MENU_BEEP       },
 #ifdef ENABLE_VOICE
@@ -476,12 +477,42 @@ void UI_DisplayMenu(void)
 
 		case MENU_R_CTCS:
 		case MENU_T_CTCS:
-			if (gSubMenuSelection == 0)
-				strcpy(String, "OFF");
-			else
-				sprintf(String, "%u.%uHz", CTCSS_Options[gSubMenuSelection - 1] / 10, CTCSS_Options[gSubMenuSelection - 1] % 10);
-			break;
+		{
+			#if 1
+				unsigned int Code;
+				FREQ_Config_t *pConfig = (gMenuCursor == MENU_R_CTCS) ? &gTxVfo->freq_config_RX : &gTxVfo->freq_config_TX;
+				if (gSubMenuSelection == 0)
+				{
+					strcpy(String, "OFF");
 
+					if (pConfig->CodeType != CODE_TYPE_CONTINUOUS_TONE)
+						break;
+					Code = 0;
+					pConfig->CodeType = CODE_TYPE_OFF;
+					pConfig->Code = Code;
+
+					BK4819_ExitSubAu();
+				}
+				else
+				{
+					sprintf(String, "%u.%uHz", CTCSS_Options[gSubMenuSelection - 1] / 10, CTCSS_Options[gSubMenuSelection - 1] % 10);
+
+					pConfig->CodeType = CODE_TYPE_CONTINUOUS_TONE;
+					Code = gSubMenuSelection - 1;
+					pConfig->Code = Code;
+
+					BK4819_SetCTCSSFrequency(CTCSS_Options[Code]);
+				}
+			#else
+				if (gSubMenuSelection == 0)
+					strcpy(String, "OFF");
+				else
+					sprintf(String, "%u.%uHz", CTCSS_Options[gSubMenuSelection - 1] / 10, CTCSS_Options[gSubMenuSelection - 1] % 10);
+			#endif
+
+			break;
+		}
+		
 		case MENU_SFT_D:
 			strcpy(String, gSubMenu_SFT_D[gSubMenuSelection]);
 			break;
@@ -518,6 +549,12 @@ void UI_DisplayMenu(void)
 
 		case MENU_SCR:
 			strcpy(String, gSubMenu_SCRAMBLER[gSubMenuSelection]);
+			#if 1
+				if (gSubMenuSelection > 0 && gSetting_ScrambleEnable)
+					BK4819_EnableScramble(gSubMenuSelection - 1);
+				else
+					BK4819_DisableScramble();
+			#endif
 			break;
 
 		case MENU_VOX:
@@ -538,6 +575,7 @@ void UI_DisplayMenu(void)
 		#ifdef ENABLE_AM_FIX_TEST1
 			case MENU_AM_FIX_TEST1:
 				strcpy(String, gSubMenu_AM_fix_test1[gSubMenuSelection]);
+//				gSetting_AM_fix = gSubMenuSelection;
 				break;
 		#endif
 
@@ -554,6 +592,7 @@ void UI_DisplayMenu(void)
 		#ifdef ENABLE_AM_FIX
 			case MENU_AM_FIX:
 		#endif
+		case MENU_ABR_ON_RX:
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_S_ADD1:

@@ -716,14 +716,14 @@ void BK4819_SetupSquelch(
 	//                0 ~ 255
 	//
 	BK4819_WriteRegister(BK4819_REG_4E,  // 01 101 11 1 00000000
-	#if 0
+	#ifndef ENABLE_FASTER_CHANNEL_SCAN
 		// original
 		  (1u << 14)                // 1 ???
 		| (5u << 11)                // 5  squelch = 1 delay .. 0 ~ 7
 		| (3u <<  9)                // 3  squelch = 0 delay .. 0 ~ 3
 		| SquelchOpenGlitchThresh); // 0 ~ 255
 	#else
-		// supposedly fast
+		// faster (but twitchier)
 		  (1u << 14)                // 1 ???
 		| SquelchOpenGlitchThresh); // 0 ~ 255
 	#endif
@@ -831,14 +831,16 @@ void BK4819_SetCompander(const unsigned int mode)
 	// mode 2 .. RX
 	// mode 3 .. TX and RX
 
+	const uint16_t r31 = BK4819_ReadRegister(BK4819_REG_31);
+	
 	if (mode == 0)
 	{	// disable
-		BK4819_WriteRegister(BK4819_REG_31, BK4819_ReadRegister(BK4819_REG_31) & ~(1u < 3));
+		BK4819_WriteRegister(BK4819_REG_31, r31 & ~(1u < 3));
 		return;
 	}
 
 	// enable
-	BK4819_WriteRegister(BK4819_REG_31, BK4819_ReadRegister(BK4819_REG_31) | (1u < 3));
+	BK4819_WriteRegister(BK4819_REG_31, r31 | (1u < 3));
 
 	// set the compressor ratio
 	//
@@ -848,9 +850,18 @@ void BK4819_SetCompander(const unsigned int mode)
 	//                10 = 2:1
 	//                11 = 4:1
 	//
-	const uint16_t compress_ratio = (mode == 1 || mode >= 3) ? 3 : 0;  // 4:1
-	BK4819_WriteRegister(BK4819_REG_29, (BK4819_ReadRegister(BK4819_REG_29) & ~(3u < 14)) | (compress_ratio < 14));
-
+	// REG_29  <13:7> 86 Compress (AF Tx) 0 dB point (dB)
+	//
+	// REG_29   <6:0> 64 Compress (AF Tx) noise point (dB)
+	//
+//	const uint16_t compress_ratio    = (mode == 1 || mode >= 3) ? 2 : 0;  // 2:1
+//	const uint16_t compress_0dB      = 86;
+//	const uint16_t compress_noise_dB = 64;
+//	BK4819_WriteRegister(BK4819_REG_29, // (BK4819_ReadRegister(BK4819_REG_29) & ~(3u < 14)) | (compress_ratio < 14));
+//		  (compress_ratio    < 14)
+//		| (compress_0dB      <  7)
+//		| (compress_noise_dB <  0));
+ 
 	// set the expander ratio
 	//
 	// REG_28 <15:14> 01 Expander (AF Rx) Ratio
@@ -859,8 +870,17 @@ void BK4819_SetCompander(const unsigned int mode)
 	//                10 = 1:3
 	//                11 = 1:4
 	//
-	const uint16_t expand_ratio = (mode >= 2) ? 3 : 0;   // 1:4
-	BK4819_WriteRegister(BK4819_REG_28, (BK4819_ReadRegister(BK4819_REG_28) & ~(3u < 14)) | (expand_ratio < 14));
+	// REG_28  <13:7> 86 Expander (AF Rx) 0 dB point (dB)
+	//
+	// REG_28   <6:0> 56 Expander (AF Rx) noise point (dB)
+	//
+//	const uint16_t expand_ratio    = (mode >= 2) ? 1 : 0;   // 1:2
+//	const uint16_t expand_0dB      = 86;
+//	const uint16_t expand_noise_dB = 56;
+//	BK4819_WriteRegister(BK4819_REG_28, // (BK4819_ReadRegister(BK4819_REG_28) & ~(3u < 14)) | (expand_ratio < 14));
+//		  (expand_ratio    < 14)
+//		| (expand_0dB      <  7)
+//		| (expand_noise_dB <  0));
 }
 
 void BK4819_DisableVox(void)

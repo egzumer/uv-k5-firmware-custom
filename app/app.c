@@ -62,6 +62,12 @@
 #include "ui/status.h"
 #include "ui/ui.h"
 
+// original QS front end register settings
+const uint8_t orig_lna_short = 3;   //   0dB
+const uint8_t orig_lna       = 2;   // -14dB
+const uint8_t orig_mixer     = 3;   //   0dB
+const uint8_t orig_pga       = 6;   //  -3dB
+
 static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
 static void updateRSSI(const int vfo)
@@ -157,6 +163,7 @@ static void APP_CheckForIncoming(void)
 				updateRSSI(gEeprom.RX_CHANNEL);
 				gUpdateRSSI = true;
 			}
+
 			return;
 		}
 
@@ -223,7 +230,7 @@ static void APP_HandleIncoming(void)
 		if (gRxVfo->DTMF_DECODING_ENABLE || gSetting_KILLED)
 		{	// DTMF DCD is enabled
 
-//			DTMF_HandleRequest();
+			DTMF_HandleRequest();
 
 			if (gDTMF_CallState == DTMF_CALL_STATE_NONE)
 			{
@@ -461,6 +468,9 @@ static void APP_HandleFunction(void)
 
 void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 {
+	const unsigned int chan = gEeprom.RX_CHANNEL;
+//	const unsigned int chan = gRxVfo->CHANNEL_SAVE;
+
 	if (gSetting_KILLED)
 		return;
 
@@ -469,19 +479,15 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 			BK1080_Init(0, false);
 	#endif
 
-	#ifdef ENABLE_AM_FIX
-		if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && reset_am_fix)
-			AM_fix_reset(gEeprom.RX_CHANNEL);      // TODO: only reset it when moving channel/frequency
-	#endif
-
 	// clear the other vfo's rssi level (to hide the antenna symbol)
-	gVFO_RSSI_bar_level[gEeprom.RX_CHANNEL == 0] = 0;
+	gVFO_RSSI_bar_level[(chan + 1) & 1u] = 0;
 
 	GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 
 	gEnableSpeaker = true;
 
-	BACKLIGHT_TurnOn();
+	if (gSetting_backlight_on_rx)
+		BACKLIGHT_TurnOn();
 
 	if (gScanState != SCAN_OFF)
 	{
@@ -509,19 +515,21 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	#ifdef ENABLE_NOAA
 		if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gIsNoaaMode)
 		{
-			gRxVfo->CHANNEL_SAVE                      = gNoaaChannel + NOAA_CHANNEL_FIRST;
-			gRxVfo->pRX->Frequency                    = NoaaFrequencyTable[gNoaaChannel];
-			gRxVfo->pTX->Frequency                    = NoaaFrequencyTable[gNoaaChannel];
-			gEeprom.ScreenChannel[gEeprom.RX_CHANNEL] = gRxVfo->CHANNEL_SAVE;
-			gNOAA_Countdown_10ms                      = 500;   // 5 sec
-			gScheduleNOAA                             = false;
+			gRxVfo->CHANNEL_SAVE        = gNoaaChannel + NOAA_CHANNEL_FIRST;
+			gRxVfo->pRX->Frequency      = NoaaFrequencyTable[gNoaaChannel];
+			gRxVfo->pTX->Frequency      = NoaaFrequencyTable[gNoaaChannel];
+			gEeprom.ScreenChannel[chan] = gRxVfo->CHANNEL_SAVE;
+			gNOAA_Countdown_10ms        = 500;   // 5 sec
+			gScheduleNOAA               = false;
 		}
 	#endif
 
 	if (gCssScanMode != CSS_SCAN_MODE_OFF)
 		gCssScanMode = CSS_SCAN_MODE_FOUND;
 
-	if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
+	if (gScanState == SCAN_OFF &&
+	    gCssScanMode == CSS_SCAN_MODE_OFF &&
+	    gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 	{	// not scanning, dual watch is enabled
 
 		gDualWatchCountdown_10ms = dual_watch_count_after_2_10ms;
@@ -534,53 +542,31 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		gUpdateStatus    = true;
 	}
 
-	// ******************************************
+	{	// RF RX front end gain
+	
+		// original setting
+		uint16_t lna_short = orig_lna_short;
+		uint16_t lna       = orig_lna;
+		uint16_t mixer     = orig_mixer;
+		uint16_t pga       = orig_pga;
 
-	// original setting
-	uint8_t lna_short = orig_lna_short;
-	uint8_t lna       = orig_lna;
-	uint8_t mixer     = orig_mixer;
-	uint8_t pga       = orig_pga;
-
-	if (gRxVfo->AM_mode)
-	{	// AM
-/*
-		#ifndef ENABLE_AM_FIX
-			const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
-
-			// the RX gain abrutly reduces above this frequency
-			// I guess this is (one of) the freq the hardware switches the front ends over ?
-			if (rx_frequency <= 22640000)
-			{	// decrease front end gain - AM demodulator saturates at a slightly higher signal level
-				lna_short = 3;   // 3 original
-				lna       = 2;   // 2 original
-				mixer     = 3;   // 3 original
-				pga       = 3;   // 6 original, 3 reduced
+		#ifdef ENABLE_AM_FIX
+			if (gRxVfo->AM_mode && gSetting_AM_fix)
+			{	// AM RX mode
+				if (reset_am_fix)
+					AM_fix_reset(chan);      // TODO: only reset it when moving channel/frequency
+				AM_fix_10ms(chan);
 			}
 			else
-			{	// increase the front end to compensate the reduced gain, but more gain decreases dynamic range :(
-				lna_short = 3;   // 3 original
-				lna       = 4;   // 2 original, 4 increased
-				mixer     = 3;   // 3 original
-				pga       = 7;   // 6 original, 7 increased
+			{	// FM RX mode
+				BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
 			}
+		#else
+			BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
 		#endif
-*/
-		// what do these 4 other gain settings do ???
-		//BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
-		//BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
-		//BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
-		//BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
-
-		gNeverUsed = 0;
 	}
 
-	// apply the front end gain settings
-	BK4819_WriteRegister(BK4819_REG_13, ((uint16_t)lna_short << 8) | ((uint16_t)lna << 5) | ((uint16_t)mixer << 3) | ((uint16_t)pga << 0));
-
-	// ******************************************
-
-	// AF gain - original
+	// AF gain - original QS values
 	BK4819_WriteRegister(BK4819_REG_48,
 		(11u << 12)                |     // ??? .. 0 to 15, doesn't seem to make any difference
 		( 0u << 10)                |     // AF Rx Gain-1
@@ -588,7 +574,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		(gEeprom.DAC_GAIN    << 0));     // AF DAC Gain (after Gain-1 and Gain-2)
 
 	#ifdef ENABLE_VOICE
-		if (gVoiceWriteIndex == 0)
+//		if (gVoiceWriteIndex == 0)
 	#endif
 			BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_OPEN);
 
@@ -600,11 +586,13 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		if (Function == FUNCTION_MONITOR)
 	#endif
 	{	// squelch is disabled
-		GUI_SelectNextDisplay(DISPLAY_MAIN);
-		return;
+		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+			GUI_SelectNextDisplay(DISPLAY_MAIN);
 	}
+	else
+		gUpdateDisplay = true;
 
-	gUpdateDisplay = true;
+	gUpdateStatus = true;
 }
 
 uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
@@ -678,7 +666,7 @@ static void MR_NextChannel(void)
 					break;
 				}
 
-				// this bit doesn't work at all :(
+				// this bit doesn't work at all - yet :(
 			case SCAN_NEXT_CHAN_DUAL_WATCH:
 //				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 				{
@@ -724,8 +712,11 @@ static void MR_NextChannel(void)
 		gUpdateDisplay = true;
 	}
 
-//	ScanPauseDelayIn_10ms = scan_pause_delay_in_3_10ms;
-	ScanPauseDelayIn_10ms = 8;  // 80ms .. <= ~60ms it misses signals (squelch response and/or PLL lock time) ?
+	#ifdef ENABLE_FASTER_CHANNEL_SCAN
+		ScanPauseDelayIn_10ms = 8;  // 80ms .. <= ~60ms it misses signals (squelch response and/or PLL lock time) ?
+	#else
+		ScanPauseDelayIn_10ms = scan_pause_delay_in_3_10ms;
+	#endif
 
 	bScanKeepFrequency = false;
 
@@ -1013,7 +1004,7 @@ static void APP_HandleVox(void)
 		if (gCurrentFunction == FUNCTION_POWER_SAVE)
 			FUNCTION_Select(FUNCTION_FOREGROUND);
 
-		if (gCurrentFunction != FUNCTION_TRANSMIT)
+		if (gCurrentFunction != FUNCTION_TRANSMIT && gSerialConfigCountDown_500ms == 0)
 		{
 			gDTMF_ReplyState = DTMF_REPLY_NONE;
 			RADIO_PrepareTX();
@@ -1032,8 +1023,8 @@ void APP_Update(void)
 		}
 	#endif
 
-	if (gCurrentFunction == FUNCTION_TRANSMIT && gTxTimeoutReached)
-	{	// transmitter timed out
+	if ((gCurrentFunction == FUNCTION_TRANSMIT && gTxTimeoutReached) || gSerialConfigCountDown_500ms > 0)
+	{	// transmitter timed out or must de-key
 		gTxTimeoutReached = false;
 
 		gFlagEndTransmission = true;
@@ -1486,22 +1477,27 @@ void APP_TimeSlice10ms(void)
 					if (gAlarmState == ALARM_STATE_TXALARM)
 					{
 						gAlarmState = ALARM_STATE_ALARM;
+
 						RADIO_EnableCxCSS();
 						BK4819_SetupPowerAmplifier(0, 0);
 						BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1, false);
 						BK4819_Enable_AfDac_DiscMode_TxDsp();
 						BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, false);
+
 						GUI_DisplayScreen();
 					}
 					else
 					{
 						gAlarmState = ALARM_STATE_TXALARM;
+
 						GUI_DisplayScreen();
+
 						BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, true);
 						RADIO_SetTxParameters();
 						BK4819_TransmitTone(true, 500);
 						SYSTEM_DelayMs(2);
 						GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+
 						gEnableSpeaker    = true;
 						gAlarmToneCounter = 0;
 					}
@@ -1588,7 +1584,9 @@ void APP_TimeSlice10ms(void)
 					gScanUseCssResult      = false;
 					gScanProgressIndicator = 0;
 					gScanCssState          = SCAN_CSS_STATE_SCANNING;
+
 					GUI_SelectNextDisplay(DISPLAY_SCANNER);
+
 					gUpdateStatus          = true;
 				}
 
@@ -1679,7 +1677,9 @@ void cancelUserInputModes(void)
 		gDTMF_InputMode       = false;
 		gDTMF_InputIndex      = 0;
 		gInputBoxIndex        = 0;
+
 		gRequestDisplayScreen = DISPLAY_MAIN;
+
 		gBeepToPlay           = BEEP_1KHZ_60MS_OPTIONAL;
 	}
 }
@@ -1715,14 +1715,9 @@ void APP_TimeSlice500ms(void)
 
 	if (gSerialConfigCountDown_500ms > 0)
 	{
-		gReducedService = true;            // a serial config upload/download is in progress
-
-//		if (gCurrentFunction == FUNCTION_TRANSMIT)
-//		{	// stop transmitting
-//
-//		}
+//		gReducedService = true;            // a serial config upload/download is in progress
 	}
-	
+
 	// Skipped authentic device check
 
 	#ifdef ENABLE_FMRADIO
@@ -1754,30 +1749,27 @@ void APP_TimeSlice500ms(void)
 
 	// Skipped authentic device check
 
+	if ((gBatteryCheckCounter & 1) == 0)
+	{
+		BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[gBatteryVoltageIndex++], &gBatteryCurrent);
+		if (gBatteryVoltageIndex > 3)
+			gBatteryVoltageIndex = 0;
+		BATTERY_GetReadings(true);
+	}
+
+	// regular display updates (once every 2 sec) - if need be
+	if ((gBatteryCheckCounter & 3) == 0)
+	{
+		if (gChargingWithTypeC || gSetting_battery_text > 0)
+			gUpdateStatus = true;
+		#ifdef ENABLE_SHOW_CHARGE_LEVEL
+			if (gChargingWithTypeC)
+				gUpdateDisplay = true;
+		#endif
+	}
+
 	if (gCurrentFunction != FUNCTION_TRANSMIT)
 	{
-		if ((gBatteryCheckCounter & 1) == 0)
-		{
-			BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[gBatteryVoltageIndex++], &gBatteryCurrent);
-
-			if (gBatteryVoltageIndex > 3)
-				gBatteryVoltageIndex = 0;
-
-			BATTERY_GetReadings(true);
-		}
-
-		// regular display updates (once every 2 sec) - if need be
-		if ((gBatteryCheckCounter & 3) == 0)
-		{
-			if (gChargingWithTypeC || gSetting_battery_text > 0)
-				gUpdateStatus = true;
-
-			#ifdef ENABLE_SHOW_CHARGE_LEVEL
-				if (gChargingWithTypeC)
-					gUpdateDisplay = true;
-			#endif
-		}
-		
 		if (gCurrentFunction != FUNCTION_POWER_SAVE)
 			updateRSSI(gEeprom.RX_CHANNEL);
 
@@ -1800,7 +1792,7 @@ void APP_TimeSlice500ms(void)
 			#endif
 			{
 				bool exit_menu = false;
-				
+
 				if (gEeprom.AUTO_KEYPAD_LOCK && gKeyLockCountdown > 0 && !gDTMF_InputMode)
 				{
 					if (--gKeyLockCountdown == 0)
@@ -1812,11 +1804,11 @@ void APP_TimeSlice500ms(void)
 				if (gMenuCountdown > 0)
 					if (--gMenuCountdown == 0)
 						exit_menu = true;	// exit menu mode
-			
+
 				if (exit_menu)
 				{
 					gMenuCountdown = 0;
-					
+
 					if (gEeprom.BACKLIGHT == 0 && gScreenToDisplay == DISPLAY_MENU)
 					{
 						gBacklightCountdown = 0;
@@ -2008,7 +2000,8 @@ void APP_TimeSlice500ms(void)
 
 		RADIO_SetupRegisters(true);
 
-		gRequestDisplayScreen = DISPLAY_MAIN;
+//		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+			gRequestDisplayScreen = DISPLAY_MAIN;
 	}
 #endif
 
@@ -2098,18 +2091,18 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		{
 			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_CHANNEL, gTxVfo, gFlagSaveChannel);
 			gFlagSaveChannel = false;
+
 			RADIO_ConfigureChannel(gEeprom.TX_CHANNEL, VFO_CONFIGURE);
 			RADIO_SetupRegisters(true);
+
 			GUI_SelectNextDisplay(DISPLAY_MAIN);
 		}
 	}
 	else
 	{
-		if (Key != KEY_PTT)
-		{
+		if (gScreenToDisplay == DISPLAY_MENU)       // 1of11
 			gMenuCountdown = menu_timeout_500ms;
-		}
-		
+
 		BACKLIGHT_TurnOn();
 
 		if (gDTMF_DecodeRingCountdown_500ms > 0)
@@ -2293,9 +2286,11 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			{
 				case DISPLAY_MAIN:
 					MAIN_ProcessKeys(Key, bKeyPressed, bKeyHeld);
+
 					#ifdef ENABLE_MAIN_KEY_HOLD
 						bKeyHeld = false;	// allow the channel setting to be saved
 					#endif
+
 					break;
 
 				#ifdef ENABLE_FMRADIO
@@ -2401,6 +2396,7 @@ Skip:
 		if (!bKeyHeld)
 		{
 			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_CHANNEL, gTxVfo, gRequestSaveChannel);
+
 			if (gScreenToDisplay != DISPLAY_SCANNER)
 				if (gVfoConfigureMode == VFO_CONFIGURE_NONE)  // 'if' is so as we don't wipe out previously setting this variable elsewhere
 					gVfoConfigureMode = VFO_CONFIGURE;
@@ -2408,6 +2404,7 @@ Skip:
 		else
 		{
 			gFlagSaveChannel = gRequestSaveChannel;
+
 			if (gRequestDisplayScreen == DISPLAY_INVALID)
 				gRequestDisplayScreen = DISPLAY_MAIN;
 		}

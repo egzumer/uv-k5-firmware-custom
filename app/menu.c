@@ -212,6 +212,7 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 		#ifdef ENABLE_AUDIO_BAR
 			case MENU_MIC_BAR:
 		#endif
+		case MENU_ABR_ON_RX:
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_AUTOLK:
@@ -406,9 +407,6 @@ void MENU_AcceptSetting(void)
 
 		case MENU_T_CTCS:
 			pConfig = &gTxVfo->freq_config_TX;
-
-			// Fallthrough
-
 		case MENU_R_CTCS:
 			if (gSubMenuSelection == 0)
 			{
@@ -418,14 +416,20 @@ void MENU_AcceptSetting(void)
 					return;
 				}
 				Code              = 0;
+				pConfig->Code     = Code;
 				pConfig->CodeType = CODE_TYPE_OFF;
+
+				BK4819_ExitSubAu();
 			}
 			else
-				{
+			{
 				pConfig->CodeType = CODE_TYPE_CONTINUOUS_TONE;
 				Code              = gSubMenuSelection - 1;
+				pConfig->Code     = Code;
+
+				BK4819_SetCTCSSFrequency(CTCSS_Options[Code]);
 			}
-			pConfig->Code       = Code;
+			
 			gRequestSaveChannel = 1;
 			return;
 
@@ -446,6 +450,12 @@ void MENU_AcceptSetting(void)
 
 		case MENU_SCR:
 			gTxVfo->SCRAMBLING_TYPE = gSubMenuSelection;
+			#if 0
+				if (gSubMenuSelection > 0 && gSetting_ScrambleEnable)
+					BK4819_EnableScramble(gSubMenuSelection - 1);
+				else
+					BK4819_DisableScramble();
+			#endif
 			gRequestSaveChannel     = 1;
 			return;
 
@@ -498,6 +508,10 @@ void MENU_AcceptSetting(void)
 
 		case MENU_ABR:
 			gEeprom.BACKLIGHT = gSubMenuSelection;
+			break;
+
+		case MENU_ABR_ON_RX:
+			gSetting_backlight_on_rx = gSubMenuSelection;
 			break;
 
 		case MENU_TDR:
@@ -584,7 +598,10 @@ void MENU_AcceptSetting(void)
 		#ifdef ENABLE_COMPANDER
 			case MENU_COMPAND:
 				gTxVfo->Compander = gSubMenuSelection;
-				gRequestSaveChannel = 1;
+				SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
+				gVfoConfigureMode = VFO_CONFIGURE;
+				gFlagResetVfos    = true;
+//				gRequestSaveChannel = 1;
 				return;
 		#endif
 
@@ -913,6 +930,10 @@ void MENU_ShowCurrentSetting(void)
 
 			gBacklightCountdown = 0;
 			GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  	// turn the backlight ON while in backlight menu
+			break;
+
+		case MENU_ABR_ON_RX:
+			gSubMenuSelection = gSetting_backlight_on_rx;
 			break;
 
 		case MENU_TDR:

@@ -80,6 +80,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 			gRequestSaveVFO            = true;
 			gVfoConfigureMode          = VFO_CONFIGURE_RELOAD;
+
 			gRequestDisplayScreen      = DISPLAY_MAIN;
 
 			if (beep)
@@ -104,6 +105,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 			gRequestSaveSettings  = 1;
 			gFlagReconfigureVfos  = true;
+			
 			gRequestDisplayScreen = DISPLAY_MAIN;
 
 			if (beep)
@@ -650,6 +652,7 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 			gDTMF_InputMode       = true;
 			memmove(gDTMF_InputBox, gDTMF_String, sizeof(gDTMF_InputBox));
 			gDTMF_InputIndex      = 0;
+			
 			gRequestDisplayScreen = DISPLAY_MAIN;
 			return;
 		}
@@ -807,7 +810,9 @@ void MAIN_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				DTMF_Append(Character);
 
 				gKeyInputCountdown    = key_input_timeout_500ms;
+
 				gRequestDisplayScreen = DISPLAY_MAIN;
+
 				gPttWasReleased       = true;
 				gBeepToPlay           = BEEP_1KHZ_60MS_OPTIONAL;
 				return;
