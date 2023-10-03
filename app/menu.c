@@ -588,7 +588,10 @@ void MENU_AcceptSetting(void)
 		#ifdef ENABLE_COMPANDER
 			case MENU_COMPAND:
 				gTxVfo->Compander = gSubMenuSelection;
-				gRequestSaveChannel = 1;
+				SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
+				gVfoConfigureMode = VFO_CONFIGURE;
+				gFlagResetVfos    = true;
+//				gRequestSaveChannel = 1;
 				return;
 		#endif
 
