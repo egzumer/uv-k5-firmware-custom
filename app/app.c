@@ -468,6 +468,9 @@ static void APP_HandleFunction(void)
 
 void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 {
+	const unsigned int chan = gEeprom.RX_CHANNEL;
+//	const unsigned int chan = gRxVfo->CHANNEL_SAVE;
+
 	if (gSetting_KILLED)
 		return;
 
@@ -476,19 +479,16 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 			BK1080_Init(0, false);
 	#endif
 
-	#ifdef ENABLE_AM_FIX
-		if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && reset_am_fix)
-			AM_fix_reset(gEeprom.RX_CHANNEL);      // TODO: only reset it when moving channel/frequency
-	#endif
-
 	// clear the other vfo's rssi level (to hide the antenna symbol)
-	gVFO_RSSI_bar_level[gEeprom.RX_CHANNEL == 0] = 0;
+	gVFO_RSSI_bar_level[(chan + 1) & 1u] = 0;
 
 	GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 
 	gEnableSpeaker = true;
 
-	BACKLIGHT_TurnOn();
+	#ifdef ENABLE_BACKLIGHT_ON_RX
+		BACKLIGHT_TurnOn();
+	#endif
 
 	if (gScanState != SCAN_OFF)
 	{
@@ -516,19 +516,21 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	#ifdef ENABLE_NOAA
 		if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gIsNoaaMode)
 		{
-			gRxVfo->CHANNEL_SAVE                      = gNoaaChannel + NOAA_CHANNEL_FIRST;
-			gRxVfo->pRX->Frequency                    = NoaaFrequencyTable[gNoaaChannel];
-			gRxVfo->pTX->Frequency                    = NoaaFrequencyTable[gNoaaChannel];
-			gEeprom.ScreenChannel[gEeprom.RX_CHANNEL] = gRxVfo->CHANNEL_SAVE;
-			gNOAA_Countdown_10ms                      = 500;   // 5 sec
-			gScheduleNOAA                             = false;
+			gRxVfo->CHANNEL_SAVE        = gNoaaChannel + NOAA_CHANNEL_FIRST;
+			gRxVfo->pRX->Frequency      = NoaaFrequencyTable[gNoaaChannel];
+			gRxVfo->pTX->Frequency      = NoaaFrequencyTable[gNoaaChannel];
+			gEeprom.ScreenChannel[chan] = gRxVfo->CHANNEL_SAVE;
+			gNOAA_Countdown_10ms        = 500;   // 5 sec
+			gScheduleNOAA               = false;
 		}
 	#endif
 
 	if (gCssScanMode != CSS_SCAN_MODE_OFF)
 		gCssScanMode = CSS_SCAN_MODE_FOUND;
 
-	if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
+	if (gScanState == SCAN_OFF &&
+	    gCssScanMode == CSS_SCAN_MODE_OFF &&
+	    gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 	{	// not scanning, dual watch is enabled
 
 		gDualWatchCountdown_10ms = dual_watch_count_after_2_10ms;
@@ -541,9 +543,8 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		gUpdateStatus    = true;
 	}
 
-	// ******************************************
-
-	{
+	{	// RF RX front end gain
+	
 		// original setting
 		uint16_t lna_short = orig_lna_short;
 		uint16_t lna       = orig_lna;
@@ -551,29 +552,22 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		uint16_t pga       = orig_pga;
 
 		#ifdef ENABLE_AM_FIX
-
-
-			// TODO:
-
-
-//		if (gRxVfo->AM_mode)
-//		{	// AM RX
-//			if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
-//			{
-//				AM_fix_10ms(gEeprom.RX_CHANNEL);
-//			}
-//		}
-//		else
+			if (gRxVfo->AM_mode && gSetting_AM_fix)
+			{	// AM RX mode
+				if (reset_am_fix)
+					AM_fix_reset(chan);      // TODO: only reset it when moving channel/frequency
+				AM_fix_10ms(chan);
+			}
+			else
+			{	// FM RX mode
 				BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
+			}
 		#else
-			// apply the front end gain settings
 			BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
 		#endif
 	}
 
-	// ******************************************
-
-	// AF gain - original
+	// AF gain - original QS values
 	BK4819_WriteRegister(BK4819_REG_48,
 		(11u << 12)                |     // ??? .. 0 to 15, doesn't seem to make any difference
 		( 0u << 10)                |     // AF Rx Gain-1
@@ -593,14 +587,11 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		if (Function == FUNCTION_MONITOR)
 	#endif
 	{	// squelch is disabled
-
 		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
 			GUI_SelectNextDisplay(DISPLAY_MAIN);
-
-		return;
 	}
-
-	gUpdateDisplay = true;
+	else
+		gUpdateDisplay = true;
 }
 
 uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
