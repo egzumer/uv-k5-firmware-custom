@@ -89,6 +89,11 @@ center_line_t center_line = CENTER_LINE_NONE;
 				if (gCurrentFunction != FUNCTION_TRANSMIT)
 					return;
 
+				#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
+					if (gAlarmState != ALARM_STATE_OFF)
+						return;
+				#endif
+				
 				const unsigned int voice_amp  = BK4819_GetVoiceAmplitudeOut();  // 15:0
 
 //				const unsigned int max        = 65535;

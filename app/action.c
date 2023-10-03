@@ -236,7 +236,7 @@ void ACTION_Vox(void)
 }
 
 #if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
-	static void ACTION_AlarmOr1750(bool b1750)
+	static void ACTION_AlarmOr1750(const bool b1750)
 	{
 		gInputBoxIndex = 0;
 
@@ -252,7 +252,7 @@ void ACTION_Vox(void)
 
 		gFlagPrepareTX = true;
 
-//		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
 			gRequestDisplayScreen = DISPLAY_MAIN;
 	}
 #endif

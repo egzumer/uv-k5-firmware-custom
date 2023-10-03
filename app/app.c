@@ -2262,10 +2262,12 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			}
 			#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 				else
-				if (!bKeyHeld && bKeyPressed)
+				if ((!bKeyHeld && bKeyPressed) || (gAlarmState == ALARM_STATE_TX1750 && bKeyHeld && !bKeyPressed))
 				{
 					ALARM_Off();
 
+					// TODO:  fix side key 1750, you have to press it twice to restart the tone :(
+					
 					if (gEeprom.REPEATER_TAIL_TONE_ELIMINATION == 0)
 					{
 						//if (gCurrentFunction != FUNCTION_FOREGROUND)
@@ -2278,6 +2280,8 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 						gPttWasPressed  = true;
 					else
 						gPttWasReleased = true;
+
+					bKeyHeld = false;
 				}
 			#endif
 		}
