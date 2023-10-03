@@ -31,7 +31,7 @@
 #include "misc.h"
 
 #ifdef ENABLE_AM_FIX
-
+/*
 	typedef struct
 	{
 		#if 1
@@ -48,6 +48,12 @@
 		#endif
 	} t_gain_table;
 	//} __attribute__((packed)) t_gain_table;
+*/
+	typedef struct
+	{
+		uint16_t reg_val;
+		int8_t   gain_dB;
+	} __attribute__((packed)) t_gain_table;
 
 	// REG_10 AGC gain table
 	//
@@ -97,129 +103,129 @@
 	//           if I don't add the brackets, reading the table returns unexpected/different values !!!
 	//
 	//
-//	static const int16_t lna_short_dB[] = {  -19,   -16,   -11,     0};   // was (but wrong)
-	static const int16_t lna_short_dB[] = { (-33), (-30), (-24),    0};   // corrected'ish
-	static const int16_t lna_dB[]       = { (-24), (-19), (-14), ( -9), (-6), (-4), (-2), 0};
-	static const int16_t mixer_dB[]     = { ( -8), ( -6), ( -3),    0};
-	static const int16_t pga_dB[]       = { (-33), (-27), (-21), (-15), (-9), (-6), (-3), 0};
+////	static const int16_t lna_short_dB[] = {  -19,   -16,   -11,     0};   // was (but wrong)
+//	static const int16_t lna_short_dB[] = { (-33), (-30), (-24),    0};   // corrected'ish
+//	static const int16_t lna_dB[]       = { (-24), (-19), (-14), ( -9), (-6), (-4), (-2), 0};
+//	static const int16_t mixer_dB[]     = { ( -8), ( -6), ( -3),    0};
+//	static const int16_t pga_dB[]       = { (-33), (-27), (-21), (-15), (-9), (-6), (-3), 0};
 
 	// lookup table is hugely easier than writing code to do the same
 	//
 	static const t_gain_table gain_table[] =
 	{
-		{.lna_short = 3, .lna = 2, .mixer = 3, .pga = 6},  //  0 0dB -14dB  0dB  -3dB .. -17dB original
+		{0x035E, -17},         //   0 ..   0dB -14dB  0dB  -3dB .. -17dB original
 
 #ifdef ENABLE_AM_FIX_TEST1
 
 		// test table that lets me manually set the lna-short register
 		// to measure it's actual dB change using an RF signal generator
 
-		{0, 2, 3, 6},         // 1 .. -33dB  -14dB   0dB  -3dB .. -50dB
-		{1, 2, 3, 6},         // 2 .. -30dB  -14dB   0dB  -3dB .. -47dB
-		{2, 2, 3, 6},         // 3 .. -24dB  -14dB   0dB  -3dB .. -41dB
-		{3, 2, 3, 6}          // 4 ..   0dB  -14dB   0dB  -3dB .. -17dB
+		{0x005E, -50},         //   1 .. -33dB -14dB  0dB  -3dB .. -50dB
+		{0x015E, -47},         //   2 .. -30dB -14dB  0dB  -3dB .. -47dB
+		{0x025E, -41},         //   3 .. -24dB -14dB  0dB  -3dB .. -41dB
+		{0x035E, -17},         //   4 ..   0dB -14dB  0dB  -3dB .. -17dB original
 	};
 
 	const unsigned int original_index = 1;
 
 #else
 
-		{0, 0, 0, 0},         //   1 .. -33dB -24dB -8dB -33dB .. -98dB
-		{0, 0, 1, 0},         //   2 .. -33dB -24dB -6dB -33dB .. -96dB
-		{1, 0, 0, 0},         //   3 .. -30dB -24dB -8dB -33dB .. -95dB
-		{0, 1, 0, 0},         //   4 .. -33dB -19dB -8dB -33dB .. -93dB
-		{0, 0, 0, 1},         //   5 .. -33dB -24dB -8dB -27dB .. -92dB
-		{0, 1, 1, 0},         //   6 .. -33dB -19dB -6dB -33dB .. -91dB
-		{0, 0, 1, 1},         //   7 .. -33dB -24dB -6dB -27dB .. -90dB
-		{1, 0, 0, 1},         //   8 .. -30dB -24dB -8dB -27dB .. -89dB
-		{0, 1, 2, 0},         //   9 .. -33dB -19dB -3dB -33dB .. -88dB
-		{1, 0, 3, 0},         //  10 .. -30dB -24dB  0dB -33dB .. -87dB
-		{0, 0, 0, 2},         //  11 .. -33dB -24dB -8dB -21dB .. -86dB
-		{1, 1, 2, 0},         //  12 .. -30dB -19dB -3dB -33dB .. -85dB
-		{0, 0, 3, 1},         //  13 .. -33dB -24dB  0dB -27dB .. -84dB
-		{0, 3, 0, 0},         //  14 .. -33dB  -9dB -8dB -33dB .. -83dB
-		{1, 1, 3, 0},         //  15 .. -30dB -19dB  0dB -33dB .. -82dB
-		{1, 0, 3, 1},         //  16 .. -30dB -24dB  0dB -27dB .. -81dB
-		{0, 2, 3, 0},         //  17 .. -33dB -14dB  0dB -33dB .. -80dB
-		{1, 2, 0, 1},         //  18 .. -30dB -14dB -8dB -27dB .. -79dB
-		{0, 3, 2, 0},         //  19 .. -33dB  -9dB -3dB -33dB .. -78dB
-		{1, 4, 0, 0},         //  20 .. -30dB  -6dB -8dB -33dB .. -77dB
-		{1, 1, 3, 1},         //  21 .. -30dB -19dB  0dB -27dB .. -76dB
-		{0, 0, 2, 3},         //  22 .. -33dB -24dB -3dB -15dB .. -75dB
-		{1, 3, 0, 1},         //  23 .. -30dB  -9dB -8dB -27dB .. -74dB
-		{1, 6, 0, 0},         //  24 .. -30dB  -2dB -8dB -33dB .. -73dB
-		{0, 7, 1, 0},         //  25 .. -33dB   0dB -6dB -33dB .. -72dB
-		{0, 6, 2, 0},         //  26 .. -33dB  -2dB -3dB -33dB .. -71dB
-		{2, 1, 3, 1},         //  27 .. -24dB -19dB  0dB -27dB .. -70dB
-		{0, 3, 1, 2},         //  28 .. -33dB  -9dB -6dB -21dB .. -69dB
-		{0, 0, 0, 6},         //  29 .. -33dB -24dB -8dB  -3dB .. -68dB
-		{0, 5, 2, 1},         //  30 .. -33dB  -4dB -3dB -27dB .. -67dB
-		{0, 0, 1, 6},         //  31 .. -33dB -24dB -6dB  -3dB .. -66dB
-		{1, 2, 3, 2},         //  32 .. -30dB -14dB  0dB -21dB .. -65dB
-		{2, 1, 1, 3},         //  33 .. -24dB -19dB -6dB -15dB .. -64dB
-		{1, 7, 3, 0},         //  34 .. -30dB   0dB  0dB -33dB .. -63dB
-		{1, 3, 0, 3},         //  35 .. -30dB  -9dB -8dB -15dB .. -62dB
-		{0, 1, 2, 5},         //  36 .. -33dB -19dB -3dB  -6dB .. -61dB
-		{2, 0, 2, 4},         //  37 .. -24dB -24dB -3dB  -9dB .. -60dB
-		{1, 6, 3, 1},         //  38 .. -30dB  -2dB  0dB -27dB .. -59dB
-		{1, 2, 0, 5},         //  39 .. -30dB -14dB -8dB  -6dB .. -58dB
-		{2, 5, 0, 2},         //  40 .. -24dB  -4dB -8dB -21dB .. -57dB
-		{2, 6, 2, 1},         //  41 .. -24dB  -2dB -3dB -27dB .. -56dB
-		{0, 5, 2, 3},         //  42 .. -33dB  -4dB -3dB -15dB .. -55dB
-		{2, 0, 2, 6},         //  43 .. -24dB -24dB -3dB  -3dB .. -54dB
-		{0, 3, 0, 6},         //  44 .. -33dB  -9dB -8dB  -3dB .. -53dB
-		{0, 6, 0, 4},         //  45 .. -33dB  -2dB -8dB  -9dB .. -52dB
-		{0, 3, 1, 6},         //  46 .. -33dB  -9dB -6dB  -3dB .. -51dB
-		{1, 2, 3, 5},         //  47 .. -30dB -14dB  0dB  -6dB .. -50dB
-		{0, 5, 1, 5},         //  48 .. -33dB  -4dB -6dB  -6dB .. -49dB
-		{0, 3, 3, 5},         //  49 .. -33dB  -9dB  0dB  -6dB .. -48dB
-		{0, 6, 2, 4},         //  50 .. -33dB  -2dB -3dB  -9dB .. -47dB
-		{1, 5, 2, 4},         //  51 .. -30dB  -4dB -3dB  -9dB .. -46dB
-		{3, 0, 1, 3},         //  52 ..   0dB -24dB -6dB -15dB .. -45dB
-		{0, 6, 1, 6},         //  53 .. -33dB  -2dB -6dB  -3dB .. -44dB
-		{1, 5, 2, 5},         //  54 .. -30dB  -4dB -3dB  -6dB .. -43dB
-		{0, 4, 2, 7},         //  55 .. -33dB  -6dB -3dB   0dB .. -42dB
-		{2, 2, 2, 7},         //  56 .. -24dB -14dB -3dB   0dB .. -41dB
-		{2, 5, 2, 4},         //  57 .. -24dB  -4dB -3dB  -9dB .. -40dB
-		{2, 3, 3, 5},         //  58 .. -24dB  -9dB  0dB  -6dB .. -39dB
-		{1, 6, 3, 5},         //  59 .. -30dB  -2dB  0dB  -6dB .. -38dB
-		{2, 5, 1, 6},         //  60 .. -24dB  -4dB -6dB  -3dB .. -37dB
-		{3, 3, 3, 1},         //  61 ..   0dB  -9dB  0dB -27dB .. -36dB
-		{3, 2, 3, 2},         //  62 ..   0dB -14dB  0dB -21dB .. -35dB
-		{2, 5, 2, 6},         //  63 .. -24dB  -4dB -3dB  -3dB .. -34dB
-		{3, 0, 1, 6},         //  64 ..   0dB -24dB -6dB  -3dB .. -33dB
-		{3, 0, 0, 7},         //  65 ..   0dB -24dB -8dB   0dB .. -32dB
-		{2, 5, 3, 6},         //  66 .. -24dB  -4dB  0dB  -3dB .. -31dB
-		{3, 3, 3, 2},         //  67 ..   0dB  -9dB  0dB -21dB .. -30dB
-		{2, 6, 3, 6},         //  68 .. -24dB  -2dB  0dB  -3dB .. -29dB
-		{3, 2, 0, 5},         //  69 ..   0dB -14dB -8dB  -6dB .. -28dB
-		{3, 5, 0, 3},         //  70 ..   0dB  -4dB -8dB -15dB .. -27dB
-		{3, 3, 0, 4},         //  71 ..   0dB  -9dB -8dB  -9dB .. -26dB
-		{3, 1, 1, 7},         //  72 ..   0dB -19dB -6dB   0dB .. -25dB
-		{3, 4, 2, 3},         //  73 ..   0dB  -6dB -3dB -15dB .. -24dB
-		{3, 4, 0, 4},         //  74 ..   0dB  -6dB -8dB  -9dB .. -23dB
-		{3, 2, 0, 7},         //  75 ..   0dB -14dB -8dB   0dB .. -22dB
-		{3, 7, 1, 3},         //  76 ..   0dB   0dB -6dB -15dB .. -21dB
-		{3, 6, 2, 3},         //  77 ..   0dB  -2dB -3dB -15dB .. -20dB
-		{3, 5, 3, 3},         //  78 ..   0dB  -4dB  0dB -15dB .. -19dB
-		{3, 3, 3, 4},         //  79 ..   0dB  -9dB  0dB  -9dB .. -18dB
-		{3, 2, 3, 6},         //  80 ..   0dB -14dB  0dB  -3dB .. -17dB original
-		{3, 6, 0, 5},         //  81 ..   0dB  -2dB -8dB  -6dB .. -16dB
-		{3, 7, 1, 4},         //  82 ..   0dB   0dB -6dB  -9dB .. -15dB
-		{3, 2, 3, 7},         //  83 ..   0dB -14dB  0dB   0dB .. -14dB
-		{3, 6, 0, 6},         //  84 ..   0dB  -2dB -8dB  -3dB .. -13dB
-		{3, 3, 2, 7},         //  85 ..   0dB  -9dB -3dB   0dB .. -12dB
-		{3, 7, 0, 6},         //  86 ..   0dB   0dB -8dB  -3dB .. -11dB
-		{3, 5, 3, 5},         //  87 ..   0dB  -4dB  0dB  -6dB .. -10dB
-		{3, 7, 2, 5},         //  88 ..   0dB   0dB -3dB  -6dB ..  -9dB
-		{3, 6, 3, 5},         //  89 ..   0dB  -2dB  0dB  -6dB ..  -8dB
-		{3, 5, 2, 7},         //  90 ..   0dB  -4dB -3dB   0dB ..  -7dB
-		{3, 7, 2, 6},         //  91 ..   0dB   0dB -3dB  -3dB ..  -6dB
-		{3, 6, 2, 7},         //  92 ..   0dB  -2dB -3dB   0dB ..  -5dB
-		{3, 5, 3, 7},         //  93 ..   0dB  -4dB  0dB   0dB ..  -4dB
-		{3, 7, 2, 7},         //  94 ..   0dB   0dB -3dB   0dB ..  -3dB
-		{3, 6, 3, 7},         //  95 ..   0dB  -2dB  0dB   0dB ..  -2dB
-		{3, 7, 3, 7}          //  96 ..   0dB   0dB  0dB   0dB ..   0dB
+		{0x0000, -98},         //   1 .. -33dB -24dB -8dB -33dB .. -98dB
+		{0x0008, -96},         //   2 .. -33dB -24dB -6dB -33dB .. -96dB
+		{0x0100, -95},         //   3 .. -30dB -24dB -8dB -33dB .. -95dB
+		{0x0020, -93},         //   4 .. -33dB -19dB -8dB -33dB .. -93dB
+		{0x0001, -92},         //   5 .. -33dB -24dB -8dB -27dB .. -92dB
+		{0x0028, -91},         //   6 .. -33dB -19dB -6dB -33dB .. -91dB
+		{0x0009, -90},         //   7 .. -33dB -24dB -6dB -27dB .. -90dB
+		{0x0101, -89},         //   8 .. -30dB -24dB -8dB -27dB .. -89dB
+		{0x0030, -88},         //   9 .. -33dB -19dB -3dB -33dB .. -88dB
+		{0x0118, -87},         //  10 .. -30dB -24dB  0dB -33dB .. -87dB
+		{0x0002, -86},         //  11 .. -33dB -24dB -8dB -21dB .. -86dB
+		{0x0130, -85},         //  12 .. -30dB -19dB -3dB -33dB .. -85dB
+		{0x0019, -84},         //  13 .. -33dB -24dB  0dB -27dB .. -84dB
+		{0x0060, -83},         //  14 .. -33dB  -9dB -8dB -33dB .. -83dB
+		{0x0138, -82},         //  15 .. -30dB -19dB  0dB -33dB .. -82dB
+		{0x0119, -81},         //  16 .. -30dB -24dB  0dB -27dB .. -81dB
+		{0x0058, -80},         //  17 .. -33dB -14dB  0dB -33dB .. -80dB
+		{0x0141, -79},         //  18 .. -30dB -14dB -8dB -27dB .. -79dB
+		{0x0070, -78},         //  19 .. -33dB  -9dB -3dB -33dB .. -78dB
+		{0x0180, -77},         //  20 .. -30dB  -6dB -8dB -33dB .. -77dB
+		{0x0139, -76},         //  21 .. -30dB -19dB  0dB -27dB .. -76dB
+		{0x0013, -75},         //  22 .. -33dB -24dB -3dB -15dB .. -75dB
+		{0x0161, -74},         //  23 .. -30dB  -9dB -8dB -27dB .. -74dB
+		{0x01C0, -73},         //  24 .. -30dB  -2dB -8dB -33dB .. -73dB
+		{0x00E8, -72},         //  25 .. -33dB   0dB -6dB -33dB .. -72dB
+		{0x00D0, -71},         //  26 .. -33dB  -2dB -3dB -33dB .. -71dB
+		{0x0239, -70},         //  27 .. -24dB -19dB  0dB -27dB .. -70dB
+		{0x006A, -69},         //  28 .. -33dB  -9dB -6dB -21dB .. -69dB
+		{0x0006, -68},         //  29 .. -33dB -24dB -8dB  -3dB .. -68dB
+		{0x00B1, -67},         //  30 .. -33dB  -4dB -3dB -27dB .. -67dB
+		{0x000E, -66},         //  31 .. -33dB -24dB -6dB  -3dB .. -66dB
+		{0x015A, -65},         //  32 .. -30dB -14dB  0dB -21dB .. -65dB
+		{0x022B, -64},         //  33 .. -24dB -19dB -6dB -15dB .. -64dB
+		{0x01F8, -63},         //  34 .. -30dB   0dB  0dB -33dB .. -63dB
+		{0x0163, -62},         //  35 .. -30dB  -9dB -8dB -15dB .. -62dB
+		{0x0035, -61},         //  36 .. -33dB -19dB -3dB  -6dB .. -61dB
+		{0x0214, -60},         //  37 .. -24dB -24dB -3dB  -9dB .. -60dB
+		{0x01D9, -59},         //  38 .. -30dB  -2dB  0dB -27dB .. -59dB
+		{0x0145, -58},         //  39 .. -30dB -14dB -8dB  -6dB .. -58dB
+		{0x02A2, -57},         //  40 .. -24dB  -4dB -8dB -21dB .. -57dB
+		{0x02D1, -56},         //  41 .. -24dB  -2dB -3dB -27dB .. -56dB
+		{0x00B3, -55},         //  42 .. -33dB  -4dB -3dB -15dB .. -55dB
+		{0x0216, -54},         //  43 .. -24dB -24dB -3dB  -3dB .. -54dB
+		{0x0066, -53},         //  44 .. -33dB  -9dB -8dB  -3dB .. -53dB
+		{0x00C4, -52},         //  45 .. -33dB  -2dB -8dB  -9dB .. -52dB
+		{0x006E, -51},         //  46 .. -33dB  -9dB -6dB  -3dB .. -51dB
+		{0x015D, -50},         //  47 .. -30dB -14dB  0dB  -6dB .. -50dB
+		{0x00AD, -49},         //  48 .. -33dB  -4dB -6dB  -6dB .. -49dB
+		{0x007D, -48},         //  49 .. -33dB  -9dB  0dB  -6dB .. -48dB
+		{0x00D4, -47},         //  50 .. -33dB  -2dB -3dB  -9dB .. -47dB
+		{0x01B4, -46},         //  51 .. -30dB  -4dB -3dB  -9dB .. -46dB
+		{0x030B, -45},         //  52 ..   0dB -24dB -6dB -15dB .. -45dB
+		{0x00CE, -44},         //  53 .. -33dB  -2dB -6dB  -3dB .. -44dB
+		{0x01B5, -43},         //  54 .. -30dB  -4dB -3dB  -6dB .. -43dB
+		{0x0097, -42},         //  55 .. -33dB  -6dB -3dB   0dB .. -42dB
+		{0x0257, -41},         //  56 .. -24dB -14dB -3dB   0dB .. -41dB
+		{0x02B4, -40},         //  57 .. -24dB  -4dB -3dB  -9dB .. -40dB
+		{0x027D, -39},         //  58 .. -24dB  -9dB  0dB  -6dB .. -39dB
+		{0x01DD, -38},         //  59 .. -30dB  -2dB  0dB  -6dB .. -38dB
+		{0x02AE, -37},         //  60 .. -24dB  -4dB -6dB  -3dB .. -37dB
+		{0x0379, -36},         //  61 ..   0dB  -9dB  0dB -27dB .. -36dB
+		{0x035A, -35},         //  62 ..   0dB -14dB  0dB -21dB .. -35dB
+		{0x02B6, -34},         //  63 .. -24dB  -4dB -3dB  -3dB .. -34dB
+		{0x030E, -33},         //  64 ..   0dB -24dB -6dB  -3dB .. -33dB
+		{0x0307, -32},         //  65 ..   0dB -24dB -8dB   0dB .. -32dB
+		{0x02BE, -31},         //  66 .. -24dB  -4dB  0dB  -3dB .. -31dB
+		{0x037A, -30},         //  67 ..   0dB  -9dB  0dB -21dB .. -30dB
+		{0x02DE, -29},         //  68 .. -24dB  -2dB  0dB  -3dB .. -29dB
+		{0x0345, -28},         //  69 ..   0dB -14dB -8dB  -6dB .. -28dB
+		{0x03A3, -27},         //  70 ..   0dB  -4dB -8dB -15dB .. -27dB
+		{0x0364, -26},         //  71 ..   0dB  -9dB -8dB  -9dB .. -26dB
+		{0x032F, -25},         //  72 ..   0dB -19dB -6dB   0dB .. -25dB
+		{0x0393, -24},         //  73 ..   0dB  -6dB -3dB -15dB .. -24dB
+		{0x0384, -23},         //  74 ..   0dB  -6dB -8dB  -9dB .. -23dB
+		{0x0347, -22},         //  75 ..   0dB -14dB -8dB   0dB .. -22dB
+		{0x03EB, -21},         //  76 ..   0dB   0dB -6dB -15dB .. -21dB
+		{0x03D3, -20},         //  77 ..   0dB  -2dB -3dB -15dB .. -20dB
+		{0x03BB, -19},         //  78 ..   0dB  -4dB  0dB -15dB .. -19dB
+		{0x037C, -18},         //  79 ..   0dB  -9dB  0dB  -9dB .. -18dB
+		{0x035E, -17},         //  80 ..   0dB -14dB  0dB  -3dB .. -17dB original
+		{0x03C5, -16},         //  81 ..   0dB  -2dB -8dB  -6dB .. -16dB
+		{0x03EC, -15},         //  82 ..   0dB   0dB -6dB  -9dB .. -15dB
+		{0x035F, -14},         //  83 ..   0dB -14dB  0dB   0dB .. -14dB
+		{0x03C6, -13},         //  84 ..   0dB  -2dB -8dB  -3dB .. -13dB
+		{0x0377, -12},         //  85 ..   0dB  -9dB -3dB   0dB .. -12dB
+		{0x03E6, -11},         //  86 ..   0dB   0dB -8dB  -3dB .. -11dB
+		{0x03BD, -10},         //  87 ..   0dB  -4dB  0dB  -6dB .. -10dB
+		{0x03F5,  -9},         //  88 ..   0dB   0dB -3dB  -6dB ..  -9dB
+		{0x03DD,  -8},         //  89 ..   0dB  -2dB  0dB  -6dB ..  -8dB
+		{0x03B7,  -7},         //  90 ..   0dB  -4dB -3dB   0dB ..  -7dB
+		{0x03F6,  -6},         //  91 ..   0dB   0dB -3dB  -3dB ..  -6dB
+		{0x03D7,  -5},         //  92 ..   0dB  -2dB -3dB   0dB ..  -5dB
+		{0x03BF,  -4},         //  93 ..   0dB  -4dB  0dB   0dB ..  -4dB
+		{0x03F7,  -3},         //  94 ..   0dB   0dB -3dB   0dB ..  -3dB
+		{0x03DF,  -2},         //  95 ..   0dB  -2dB  0dB   0dB ..  -2dB
+		{0x03FF,   0}          //  96 ..   0dB   0dB  0dB   0dB ..   0dB
 	};
 
 	const unsigned int original_index = 80;
@@ -227,7 +233,7 @@
 #endif
 
 	// total RF gain for each table index
-	int8_t gain_dB[ARRAY_SIZE(gain_table)] = {0};
+//	int8_t gain_dB[ARRAY_SIZE(gain_table)] = {0};
 
 	// display update rate
 	const unsigned int display_update_rate = 250 / 10;   // max 250ms display update rate
@@ -273,14 +279,14 @@
 				gain_table_index[i] = original_index;  // re-start with original QS setting
 			#endif
 		}
-
+/*
 		// pre-compute the total gain for each table index .. saves doing it in real time
 		for (i = 0; i < ARRAY_SIZE(gain_table); i++)
 		{
 			const t_gain_table gains = gain_table[i];
 			gain_dB[i] = lna_short_dB[gains.lna_short] + lna_dB[gains.lna] + mixer_dB[gains.mixer] + pga_dB[gains.pga];
 		}
-
+*/
 		#if 0
 		{	// set a maximum gain to use
 //			const int16_t max_gain_dB = gain_dB[original_index];
@@ -288,7 +294,8 @@
 
 			max_index = ARRAY_SIZE(gain_table);
 			while (--max_index > 1)
-				if (gain_dB[max_index] <= max_gain_dB)
+//				if (gain_dB[max_index] <= max_gain_dB)
+				if (gain_table[max_index].gain_dB <= max_gain_dB)
 					break;
 		}
 		#else
@@ -405,10 +412,12 @@
 			if (diff_dB >= 10)
 			{	// jump immediately to a new gain setting
 				// this greatly speeds up initial gain reduction (but reduces noise/spike immunity)
-				const int16_t desired_gain_dB = (int16_t)gain_dB[index] - diff_dB + 8; // get no closer than 8dB (bit of noise/spike immunity)
+//				const int16_t desired_gain_dB = (int16_t)gain_dB[index] - diff_dB + 8; // get no closer than 8dB (bit of noise/spike immunity)
+				const int16_t desired_gain_dB = (int16_t)gain_table[index].gain_dB - diff_dB + 8; // get no closer than 8dB (bit of noise/spike immunity)
 				// scan the table to see what index to jump straight too
 				while (index > 1)
-					if (gain_dB[--index] <= desired_gain_dB)
+//					if (gain_dB[--index] <= desired_gain_dB)
+					if (gain_table[--index].gain_dB <= desired_gain_dB)
 						break;
 
 				//index = (gain_table_index[vfo] + index) / 2;  // easy does it
@@ -455,13 +464,15 @@
 			// remember the new table index
 			gain_table_index_prev[vfo] = index;
 
-			const t_gain_table gains = gain_table[index];
-			BK4819_WriteRegister(BK4819_REG_13, ((uint16_t)gains.lna_short << 8) | ((uint16_t)gains.lna << 5) | ((uint16_t)gains.mixer << 3) | ((uint16_t)gains.pga << 0));
+//			const t_gain_table gains = gain_table[index];
+//			BK4819_WriteRegister(BK4819_REG_13, ((uint16_t)gains.lna_short << 8) | ((uint16_t)gains.lna << 5) | ((uint16_t)gains.mixer << 3) | ((uint16_t)gains.pga << 0));
+			BK4819_WriteRegister(BK4819_REG_13, gain_table[index].reg_val);
 
 			// offset the RSSI reading to the rest of the firmware to cancel out the gain adjustments we make
 
 			// RF gain difference from original QS setting
-			rssi_gain_diff[vfo] = ((int16_t)gain_dB[index] - gain_dB[original_index]) * 2;
+//			rssi_gain_diff[vfo] = ((int16_t)gain_dB[index] - gain_dB[original_index]) * 2;
+			rssi_gain_diff[vfo] = ((int16_t)gain_table[index].gain_dB - gain_table[original_index].gain_dB) * 2;
 		}
 
 		// save the corrected RSSI level
@@ -481,7 +492,8 @@
 			if (s != NULL)
 			{
 				const unsigned int index = gain_table_index[vfo];
-				sprintf(s, "%2u.%u %4ddB %3u", index, ARRAY_SIZE(gain_table) - 1, gain_dB[index], prev_rssi[vfo]);
+//				sprintf(s, "%2u.%u %4ddB %3u", index, ARRAY_SIZE(gain_table) - 1, gain_dB[index], prev_rssi[vfo]);
+				sprintf(s, "%2u.%u %4ddB %3u", index, ARRAY_SIZE(gain_table) - 1, gain_table[index].gain_dB, prev_rssi[vfo]);
 				counter = 0;
 			}
 		}

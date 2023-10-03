@@ -93,15 +93,29 @@ void create_gain_table(const char *filename)
 		mixer_dB[orig_mixer] +
 		pga_dB[orig_pga];
 
-	const uint8_t lna_short_min = 0;  // 0
-	const uint8_t lna_min       = 0;  // 0
-	const uint8_t mixer_min     = 0;  // 0
-	const uint8_t pga_min       = 0;  // 0
+	#if 0
+		// full table
+		const uint8_t lna_short_min = 0;  // 0
+		const uint8_t lna_min       = 0;  // 0
+		const uint8_t mixer_min     = 0;  // 0
+		const uint8_t pga_min       = 0;  // 0
 
-	const uint8_t lna_short_max = 3;  // 3
-	const uint8_t lna_max       = 7;  // 5
-	const uint8_t mixer_max     = 3;  // 3
-	const uint8_t pga_max       = 7;  // 7
+		const uint8_t lna_short_max = 3;  // 3
+		const uint8_t lna_max       = 7;  // 5
+		const uint8_t mixer_max     = 3;  // 3
+		const uint8_t pga_max       = 7;  // 7
+	#else
+		// just one register changes
+		const uint8_t lna_short_min = 0;
+		const uint8_t lna_min       = 2;
+		const uint8_t mixer_min     = 3;
+		const uint8_t pga_min       = 6;
+
+		const uint8_t lna_short_max = 3;
+		const uint8_t lna_max       = 2;
+		const uint8_t mixer_max     = 3;
+		const uint8_t pga_max       = 6;
+	#endif
 
 	uint8_t lna_short = lna_short_min;
 	uint8_t lna       = lna_min;
@@ -246,31 +260,70 @@ void create_gain_table(const char *filename)
 	fprintf(file, "\n");
 	fprintf(file, "\tconst t_am_fix_gain_table am_fix_gain_table[] =\n");
 	fprintf(file, "\t{\n");
-	fprintf(file, "\t\t{.lna_short = 3, .lna = 2, .mixer = 3, .pga = 6},      //  0 0dB -14dB  0dB  -3dB .. -17dB original\n\n");
 
-	for (unsigned int i = 0; i < gain_table.size(); i++)
+	#if 0
+		fprintf(file, "\t\t{.lna_short = 3, .lna = 2, .mixer = 3, .pga = 6},      //  0 0dB -14dB  0dB  -3dB .. -17dB original\n\n");
+
+		for (unsigned int i = 0; i < gain_table.size(); i++)
+		{
+			char s[1024];
+
+			const t_gain_table entry = gain_table[i];
+
+			sprintf(s, "\t\t{%u, %u, %u, %u},         // %3u .. %3ddB %3ddB %2ddB %3ddB .. %3ddB",
+				entry.lna_short,
+				entry.lna,
+				entry.mixer,
+				entry.pga,
+				1 + i,
+				entry.lna_short_dB,
+				entry.lna_dB,
+				entry.mixer_dB,
+				entry.pga_dB,
+				entry.sum_dB);
+
+			if (i == original_index)
+				strcat(s, " original");
+
+			fprintf(file, "%s\n", s);
+		}
+	#else
 	{
-		char s[1024];
+		//BK4819_WriteRegister(BK4819_REG_13, ((uint16_t)gains.lna_short << 8) | ((uint16_t)gains.lna << 5) | ((uint16_t)gains.mixer << 3) | ((uint16_t)gains.pga << 0));
 
-		const t_gain_table entry = gain_table[i];
+		uint16_t reg_val;
+		int16_t  sum_dB;
 
-		sprintf(s, "\t\t{%u, %u, %u, %u},         // %3u .. %3ddB %3ddB %2ddB %3ddB .. %3ddB",
-			entry.lna_short,
-			entry.lna,
-			entry.mixer,
-			entry.pga,
-			1 + i,
-			entry.lna_short_dB,
-			entry.lna_dB,
-			entry.mixer_dB,
-			entry.pga_dB,
-			entry.sum_dB);
+		reg_val = ((uint16_t)orig_lna_short << 8) | ((uint16_t)orig_lna << 5) | ((uint16_t)orig_mixer << 3) | ((uint16_t)orig_pga << 0);
+		sum_dB  = lna_short_dB[orig_lna_short] + lna_dB[orig_lna] + mixer_dB[orig_mixer] + pga_dB[orig_pga];
+		fprintf(file, "\t\t{0x%04X, %-3d},       //   0 ..   0dB -14dB  0dB  -3dB .. -17dB original\n\n", reg_val, sum_dB);
 
-		if (i == original_index)
-			strcat(s, " original");
+		for (unsigned int i = 0; i < gain_table.size(); i++)
+		{
+			char s[1024];
 
-		fprintf(file, "%s\n", s);
+			const t_gain_table entry = gain_table[i];
+
+			reg_val = ((uint16_t)entry.lna_short << 8) | ((uint16_t)entry.lna << 5) | ((uint16_t)entry.mixer << 3) | ((uint16_t)entry.pga << 0);
+			sum_dB  = lna_short_dB[entry.lna_short] + lna_dB[entry.lna] + mixer_dB[entry.mixer] + pga_dB[entry.pga];
+
+			sprintf(s, "\t\t{0x%04X, %-3d},         // %3u .. %3ddB %3ddB %2ddB %3ddB .. %3ddB",
+				reg_val,
+				sum_dB,
+				1 + i,
+				entry.lna_short_dB,
+				entry.lna_dB,
+				entry.mixer_dB,
+				entry.pga_dB,
+				entry.sum_dB);
+
+			if (i == original_index)
+				strcat(s, " original");
+
+			fprintf(file, "%s\n", s);
+		}
 	}
+	#endif
 
 	fprintf(file, "\t};\n\n");
 
