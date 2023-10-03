@@ -167,6 +167,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			break;
 
 		case KEY_5:
+			if(beep) {
 			#ifdef ENABLE_NOAA
 				if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 				{
@@ -184,7 +185,9 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			#elif defined(ENABLE_SPECTRUM)
 				APP_RunSpectrum();
 				gRequestDisplayScreen = DISPLAY_MAIN;
-			#else 
+			#endif
+			}
+			else {
 				// toggle scanlist-1 and scanlist 2
 				if (gScreenToDisplay != DISPLAY_SCANNER)
 				{
@@ -206,7 +209,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 					gVfoConfigureMode = VFO_CONFIGURE;
 					gFlagResetVfos    = true;
 				}
-			#endif
+			}
 			break;
 
 		case KEY_6:

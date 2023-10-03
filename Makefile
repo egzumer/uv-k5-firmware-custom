@@ -29,7 +29,8 @@ ENABLE_CODE_SCAN_TIMEOUT      := 0
 ENABLE_AM_FIX                 := 1
 ENABLE_AM_FIX_SHOW_DATA       := 0
 ENABLE_SQUELCH_LOWER          := 0
-ENABLE_FASTER_CHANNEL_SCAN    := 1ENABLE_RSSI_BAR               := 1
+ENABLE_FASTER_CHANNEL_SCAN    := 1
+ENABLE_RSSI_BAR               := 1
 ENABLE_AUDIO_BAR              := 1
 ENABLE_SPECTRUM               := 1
 #ENABLE_COPY_CHAN_TO_VFO       := 1
