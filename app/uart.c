@@ -230,8 +230,7 @@ static void CMD_0514(const uint8_t *pBuffer)
 		gFmRadioCountdown_500ms = fm_radio_countdown_500ms;
 	#endif
 
-	gSerialConfigCountDown_500ms = 6; // 3 sec
-	gSerialConfigCountDown_done  = false;
+	gSerialConfigCountDown_500ms = 12; // 6 sec
 	
 	// turn the LCD backlight off
 	GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
@@ -248,8 +247,7 @@ static void CMD_051B(const uint8_t *pBuffer)
 	if (pCmd->Timestamp != Timestamp)
 		return;
 
-	gSerialConfigCountDown_500ms = 6; // 3 sec
-	gSerialConfigCountDown_done  = false;
+	gSerialConfigCountDown_500ms = 12; // 6 sec
 
 	#ifdef ENABLE_FMRADIO
 		gFmRadioCountdown_500ms = fm_radio_countdown_500ms;
@@ -280,9 +278,8 @@ static void CMD_051D(const uint8_t *pBuffer)
 	if (pCmd->Timestamp != Timestamp)
 		return;
 
-	gSerialConfigCountDown_500ms = 6; // 3 sec
-	gSerialConfigCountDown_done  = false;
-
+	gSerialConfigCountDown_500ms = 12; // 6 sec
+	
 	bReloadEeprom = false;
 
 	#ifdef ENABLE_FMRADIO
@@ -404,8 +401,7 @@ static void CMD_052F(const uint8_t *pBuffer)
 	if (gCurrentFunction == FUNCTION_POWER_SAVE)
 		FUNCTION_Select(FUNCTION_FOREGROUND);
 
-	gSerialConfigCountDown_500ms = 6; // 3 sec
-	gSerialConfigCountDown_done  = false;
+	gSerialConfigCountDown_500ms = 12; // 6 sec
 
 	Timestamp = pCmd->Timestamp;
 

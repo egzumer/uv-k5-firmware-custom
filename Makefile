@@ -28,7 +28,7 @@ ENABLE_REVERSE_BAT_SYMBOL     := 1
 ENABLE_CODE_SCAN_TIMEOUT      := 0
 ENABLE_AM_FIX                 := 1
 ENABLE_AM_FIX_SHOW_DATA       := 1
-ENABLE_SQUELCH_LOWER          := 0
+ENABLE_SQUELCH_LOWER          := 1
 ENABLE_RSSI_BAR               := 1
 ENABLE_AUDIO_BAR              := 1
 #ENABLE_COPY_CHAN_TO_VFO       := 1
@@ -39,7 +39,8 @@ ENABLE_AUDIO_BAR              := 1
 
 TARGET = firmware
 
-ifeq ($(ENABLE_LTO),1)
+ifeq ($(ENABLE_LTO), 1)
+	# can't have LTO and OVERLAY enabled at same time
 	ENABLE_OVERLAY := 0
 endif
 
@@ -101,7 +102,9 @@ OBJS += app/scanner.o
 ifeq ($(ENABLE_UART),1)
 	OBJS += app/uart.o
 endif
-OBJS += am_fix.o
+ifeq ($(ENABLE_AM_FIX), 1)
+	OBJS += am_fix.o
+endif
 OBJS += audio.o
 OBJS += bitmaps.o
 OBJS += board.o
@@ -134,7 +137,7 @@ OBJS += ui/welcome.o
 OBJS += version.o
 OBJS += main.o
 
-ifeq ($(OS),Windows_NT)
+ifeq ($(OS), Windows_NT)
 	TOP := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 else
 	TOP := $(shell pwd)
@@ -163,7 +166,7 @@ CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delet
 #CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu99 -MMD
 #CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu11 -MMD
 
-ifeq ($(ENABLE_LTO),1)
+ifeq ($(ENABLE_LTO), 1)
 #	CFLAGS += -flto
 	CFLAGS += -flto=2
 endif

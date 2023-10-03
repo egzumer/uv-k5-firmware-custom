@@ -23,6 +23,11 @@
 #include "frequencies.h"
 #include "radio.h"
 
+extern const uint8_t orig_lna_short;
+extern const uint8_t orig_lna;
+extern const uint8_t orig_mixer;
+extern const uint8_t orig_pga;
+
 void     APP_EndTransmission(void);
 void     CHANNEL_Next(bool bFlag, int8_t Direction);
 void     APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix);

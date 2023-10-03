@@ -574,6 +574,7 @@ void UI_DisplayMenu(void)
 		#ifdef ENABLE_AM_FIX_TEST1
 			case MENU_AM_FIX_TEST1:
 				strcpy(String, gSubMenu_AM_fix_test1[gSubMenuSelection]);
+//				gSetting_AM_fix = gSubMenuSelection;
 				break;
 		#endif
 

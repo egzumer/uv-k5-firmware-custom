@@ -126,7 +126,6 @@ volatile bool     gDualWatchCountdownExpired = true;
 bool              gDualWatchActive           = false;
 
 volatile uint8_t  gSerialConfigCountDown_500ms;
-volatile bool     gSerialConfigCountDown_done;
 
 volatile bool     gNextTimeslice_500ms;
 

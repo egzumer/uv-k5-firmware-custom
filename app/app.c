@@ -62,6 +62,12 @@
 #include "ui/status.h"
 #include "ui/ui.h"
 
+// original QS front end register settings
+const uint8_t orig_lna_short = 3;   //   0dB
+const uint8_t orig_lna       = 2;   // -14dB
+const uint8_t orig_mixer     = 3;   //   0dB
+const uint8_t orig_pga       = 6;   //  -3dB
+
 static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
 static void updateRSSI(const int vfo)
@@ -538,10 +544,10 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	// ******************************************
 
 	// original setting
-	uint8_t lna_short = orig_lna_short;
-	uint8_t lna       = orig_lna;
-	uint8_t mixer     = orig_mixer;
-	uint8_t pga       = orig_pga;
+	uint16_t lna_short = orig_lna_short;
+	uint16_t lna       = orig_lna;
+	uint16_t mixer     = orig_mixer;
+	uint16_t pga       = orig_pga;
 
 	if (gRxVfo->AM_mode)
 	{	// AM
@@ -577,7 +583,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	}
 
 	// apply the front end gain settings
-	BK4819_WriteRegister(BK4819_REG_13, ((uint16_t)lna_short << 8) | ((uint16_t)lna << 5) | ((uint16_t)mixer << 3) | ((uint16_t)pga << 0));
+	BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
 
 	// ******************************************
 
@@ -1728,12 +1734,7 @@ void APP_TimeSlice500ms(void)
 
 	if (gSerialConfigCountDown_500ms > 0)
 	{
-		gReducedService = true;            // a serial config upload/download is in progress
-
-//		if (gCurrentFunction == FUNCTION_TRANSMIT)
-//		{	// stop transmitting
-//
-//		}
+//		gReducedService = true;            // a serial config upload/download is in progress
 	}
 	
 	// Skipped authentic device check
