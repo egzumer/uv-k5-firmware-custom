@@ -716,14 +716,14 @@ void BK4819_SetupSquelch(
 	//                0 ~ 255
 	//
 	BK4819_WriteRegister(BK4819_REG_4E,  // 01 101 11 1 00000000
-	#if 0
+	#ifndef ENABLE_FASTER_CHANNEL_SCAN
 		// original
 		  (1u << 14)                // 1 ???
 		| (5u << 11)                // 5  squelch = 1 delay .. 0 ~ 7
 		| (3u <<  9)                // 3  squelch = 0 delay .. 0 ~ 3
 		| SquelchOpenGlitchThresh); // 0 ~ 255
 	#else
-		// supposedly fast
+		// faster (but twitchier)
 		  (1u << 14)                // 1 ???
 		| SquelchOpenGlitchThresh); // 0 ~ 255
 	#endif

@@ -343,7 +343,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		}
 
 		// ***************
-		
+
 		struct
 		{
 			uint32_t Frequency;
@@ -456,17 +456,21 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 		EEPROM_ReadBuffer(Base + 0x40, &pInfo->SquelchCloseGlitchThresh, 1);  //  90    90
 		EEPROM_ReadBuffer(Base + 0x50, &pInfo->SquelchOpenGlitchThresh,  1);  // 100   100
 
-		#if ENABLE_SQUELCH_LOWER
-			// make squelch more sensitive
+		#if ENABLE_SQUELCH_MORE_SENSITIVE
+			// make squelch a little more sensitive
+			//
+			// getting the best setting here is still experimental, bare with me
+			//
+			// note that 'noise' and 'glitch' value are inverted compared to 'rssi' values
 
-			pInfo->SquelchOpenRSSIThresh    = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 8) / 9;
-			pInfo->SquelchCloseRSSIThresh   = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 7) / 8;
+			pInfo->SquelchOpenRSSIThresh    = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 10) / 11;
+			pInfo->SquelchCloseRSSIThresh   = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 10) / 11;
 
-			pInfo->SquelchOpenNoiseThresh   = ((uint16_t)pInfo->SquelchOpenNoiseThresh  * 8) / 7;
-			pInfo->SquelchCloseNoiseThresh  = ((uint16_t)pInfo->SquelchOpenNoiseThresh  * 9) / 8;
+			pInfo->SquelchOpenNoiseThresh   = ((uint16_t)pInfo->SquelchOpenNoiseThresh  * 11) / 10;
+			pInfo->SquelchCloseNoiseThresh  = ((uint16_t)pInfo->SquelchOpenNoiseThresh  * 11) / 10;
 
-			pInfo->SquelchOpenGlitchThresh  = ((uint16_t)pInfo->SquelchOpenGlitchThresh * 8) / 7;
-			pInfo->SquelchCloseGlitchThresh = ((uint16_t)pInfo->SquelchOpenGlitchThresh * 9) / 8;
+			pInfo->SquelchOpenGlitchThresh  = ((uint16_t)pInfo->SquelchOpenGlitchThresh * 11) / 10;
+			pInfo->SquelchCloseGlitchThresh = ((uint16_t)pInfo->SquelchOpenGlitchThresh * 11) / 10;
 		#endif
 
 		if (pInfo->SquelchOpenNoiseThresh > 127)
@@ -968,7 +972,7 @@ void RADIO_PrepareTX(void)
 	}
 
 	// TX is allowed
-	
+
 	if (gDTMF_ReplyState == DTMF_REPLY_ANI)
 	{
 		if (gDTMF_CallMode == DTMF_CALL_MODE_DTMF)

@@ -688,7 +688,7 @@ static void MR_NextChannel(void)
 					break;
 				}
 
-				// this bit doesn't work at all :(
+				// this bit doesn't work at all - yet :(
 			case SCAN_NEXT_CHAN_DUAL_WATCH:
 //				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 				{
@@ -734,8 +734,11 @@ static void MR_NextChannel(void)
 		gUpdateDisplay = true;
 	}
 
-//	ScanPauseDelayIn_10ms = scan_pause_delay_in_3_10ms;
-	ScanPauseDelayIn_10ms = 8;  // 80ms .. <= ~60ms it misses signals (squelch response and/or PLL lock time) ?
+	#ifdef ENABLE_FASTER_CHANNEL_SCAN
+		ScanPauseDelayIn_10ms = 8;  // 80ms .. <= ~60ms it misses signals (squelch response and/or PLL lock time) ?
+	#else
+		ScanPauseDelayIn_10ms = scan_pause_delay_in_3_10ms;
+	#endif
 
 	bScanKeepFrequency = false;
 

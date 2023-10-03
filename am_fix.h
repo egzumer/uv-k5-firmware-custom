@@ -20,11 +20,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-extern const uint8_t orig_lna_short;
-extern const uint8_t orig_lna;
-extern const uint8_t orig_mixer;
-extern const uint8_t orig_pga;
-
 #ifdef ENABLE_AM_FIX
 	extern int16_t rssi_gain_diff[2];
 
