@@ -1023,7 +1023,7 @@ void APP_Update(void)
 		}
 	#endif
 
-	if ((gCurrentFunction == FUNCTION_TRANSMIT && gTxTimeoutReached) || gSerialConfigCountDown_500ms > 0)
+	if (gCurrentFunction == FUNCTION_TRANSMIT && (gTxTimeoutReached || gSerialConfigCountDown_500ms > 0))
 	{	// transmitter timed out or must de-key
 		gTxTimeoutReached = false;
 
