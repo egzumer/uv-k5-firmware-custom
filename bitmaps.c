@@ -4,7 +4,7 @@
 // all these images are on their right sides
 // turn your monitor 90-deg anti-clockwise to see the images
 
-const uint8_t BITMAP_PowerSave[8] =
+const uint8_t BITMAP_POWERSAVE[8] =
 {
 	#if 0
 		// "S"
@@ -27,6 +27,30 @@ const uint8_t BITMAP_PowerSave[8] =
 		0b01001001,
 		0b00110001
 	#endif
+};
+
+const uint8_t BITMAP_TX[8] =
+{	// "TX"
+	0b00000000,
+	0b00000001,
+	0b00000001,
+	0b01111111,
+	0b00000001,
+	0b00000001,
+	0b00000000,
+	0b00000000
+};
+
+const uint8_t BITMAP_RX[8] =
+{	// "RX"
+	0b00000000,
+	0b01111111,
+	0b00001001,
+	0b00011001,
+	0b01100110,
+	0b00000000,
+	0b00000000,
+	0b00000000
 };
 
 const uint8_t BITMAP_BatteryLevel[2] =

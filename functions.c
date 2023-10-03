@@ -74,6 +74,8 @@ void FUNCTION_Init(void)
 	#ifdef ENABLE_NOAA
 		gNOAACountdown_10ms = 0;
 	#endif
+
+	gUpdateStatus = true;
 }
 
 void FUNCTION_Select(FUNCTION_Type_t Function)
@@ -113,6 +115,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT || gDTMF_CallState == DTMF_CALL_STATE_RECEIVED)
 				gDTMF_AUTO_RESET_TIME = 1 + (gEeprom.DTMF_AUTO_RESET_TIME * 2);
 
+			gUpdateStatus = true;
 			return;
 	
 		case FUNCTION_MONITOR:
@@ -186,6 +189,8 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 				}
 			#endif
 			
+			gUpdateStatus = true;
+
 			GUI_DisplayScreen();
 
 			RADIO_SetTxParameters();

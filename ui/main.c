@@ -335,7 +335,7 @@ void UI_DisplayMain(void)
 		const bool         same_vfo   = (channel == vfo_num) ? true : false;
 		uint8_t           *p_line0    = gFrameBuffer[line + 0];
 		uint8_t           *p_line1    = gFrameBuffer[line + 1];
-		uint32_t           duff_beer  = 0;
+		uint8_t            mode       = 0;
 		uint8_t            state;
 
 		if (single_vfo)
@@ -422,23 +422,36 @@ void UI_DisplayMain(void)
 
 			#ifdef ENABLE_ALARM
 				if (gAlarmState == ALARM_STATE_ALARM)
-					duff_beer = 2;
+					mode = 2;
 				else
 			#endif
 			{
 				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
 				if (channel == vfo_num)
 				{	// show the TX symbol
-					duff_beer = 1;
-					UI_PrintStringSmall("TX", 14, 0, line);
+					mode = 1;
+					#ifdef ENABLE_SMALL_BOLD
+						UI_PrintStringSmallBold("TX", 14, 0, line);
+					#else
+						UI_PrintStringSmall("TX", 14, 0, line);
+					#endif
 				}
 			}
 		}
 		else
 		{	// receiving .. show the RX symbol
-			duff_beer = 2;
-			if ((gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR) && gEeprom.RX_CHANNEL == vfo_num)
-				UI_PrintStringSmall("RX", 14, 0, line);
+			mode = 2;
+			if ((gCurrentFunction == FUNCTION_RECEIVE ||
+			     gCurrentFunction == FUNCTION_MONITOR ||
+			     gCurrentFunction == FUNCTION_INCOMING) &&
+			     gEeprom.RX_CHANNEL == vfo_num)
+			{
+				#ifdef ENABLE_SMALL_BOLD
+					UI_PrintStringSmallBold("RX", 14, 0, line);
+				#else
+					UI_PrintStringSmall("RX", 14, 0, line);
+				#endif
+			}
 		}
 
 		if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
@@ -610,7 +623,7 @@ void UI_DisplayMain(void)
 		{	// show the TX/RX level
 			uint8_t Level = 0;
 
-			if (duff_beer == 1)
+			if (mode == 1)
 			{	// TX power level
 				switch (gRxVfo->OUTPUT_POWER)
 				{
@@ -620,7 +633,7 @@ void UI_DisplayMain(void)
 				}
 			}
 			else
-			if (duff_beer == 2)
+			if (mode == 2)
 			{	// RX signal level
 				#ifndef ENABLE_RSSI_BAR
 					// bar graph
@@ -657,7 +670,7 @@ void UI_DisplayMain(void)
 		}
 		else
 		{	// or show the CTCSS/DCS symbol
-			const FREQ_Config_t *pConfig = (duff_beer == 1) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
+			const FREQ_Config_t *pConfig = (mode == 1) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
 			const unsigned int code_type = pConfig->CodeType;
 			const char *code_list[] = {"", "CT", "DCS", "DCR"};
 			if (code_type >= 0 && code_type < ARRAY_SIZE(code_list))

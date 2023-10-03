@@ -574,7 +574,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		(gEeprom.DAC_GAIN    << 0));     // AF DAC Gain (after Gain-1 and Gain-2)
 
 	#ifdef ENABLE_VOICE
-		if (gVoiceWriteIndex == 0)
+//		if (gVoiceWriteIndex == 0)
 	#endif
 			BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_OPEN);
 
@@ -591,6 +591,8 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	}
 	else
 		gUpdateDisplay = true;
+
+	gUpdateStatus = true;
 }
 
 uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
@@ -1002,7 +1004,7 @@ static void APP_HandleVox(void)
 		if (gCurrentFunction == FUNCTION_POWER_SAVE)
 			FUNCTION_Select(FUNCTION_FOREGROUND);
 
-		if (gCurrentFunction != FUNCTION_TRANSMIT)
+		if (gCurrentFunction != FUNCTION_TRANSMIT && gSerialConfigCountDown_500ms == 0)
 		{
 			gDTMF_ReplyState = DTMF_REPLY_NONE;
 			RADIO_PrepareTX();
@@ -1021,8 +1023,8 @@ void APP_Update(void)
 		}
 	#endif
 
-	if (gCurrentFunction == FUNCTION_TRANSMIT && gTxTimeoutReached)
-	{	// transmitter timed out
+	if ((gCurrentFunction == FUNCTION_TRANSMIT && gTxTimeoutReached) || gSerialConfigCountDown_500ms > 0)
+	{	// transmitter timed out or must de-key
 		gTxTimeoutReached = false;
 
 		gFlagEndTransmission = true;
@@ -1747,30 +1749,27 @@ void APP_TimeSlice500ms(void)
 
 	// Skipped authentic device check
 
+	if ((gBatteryCheckCounter & 1) == 0)
+	{
+		BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[gBatteryVoltageIndex++], &gBatteryCurrent);
+		if (gBatteryVoltageIndex > 3)
+			gBatteryVoltageIndex = 0;
+		BATTERY_GetReadings(true);
+	}
+
+	// regular display updates (once every 2 sec) - if need be
+	if ((gBatteryCheckCounter & 3) == 0)
+	{
+		if (gChargingWithTypeC || gSetting_battery_text > 0)
+			gUpdateStatus = true;
+		#ifdef ENABLE_SHOW_CHARGE_LEVEL
+			if (gChargingWithTypeC)
+				gUpdateDisplay = true;
+		#endif
+	}
+
 	if (gCurrentFunction != FUNCTION_TRANSMIT)
 	{
-		if ((gBatteryCheckCounter & 1) == 0)
-		{
-			BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[gBatteryVoltageIndex++], &gBatteryCurrent);
-
-			if (gBatteryVoltageIndex > 3)
-				gBatteryVoltageIndex = 0;
-
-			BATTERY_GetReadings(true);
-		}
-
-		// regular display updates (once every 2 sec) - if need be
-		if ((gBatteryCheckCounter & 3) == 0)
-		{
-			if (gChargingWithTypeC || gSetting_battery_text > 0)
-				gUpdateStatus = true;
-
-			#ifdef ENABLE_SHOW_CHARGE_LEVEL
-				if (gChargingWithTypeC)
-					gUpdateDisplay = true;
-			#endif
-		}
-
 		if (gCurrentFunction != FUNCTION_POWER_SAVE)
 			updateRSSI(gEeprom.RX_CHANNEL);
 

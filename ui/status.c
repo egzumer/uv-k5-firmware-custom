@@ -45,12 +45,26 @@ void UI_DisplayStatus(const bool test_display)
 	// **************
 
 	// POWER-SAVE indicator
+	if (gCurrentFunction == FUNCTION_TRANSMIT)
+	{
+		memmove(line + x, BITMAP_TX, sizeof(BITMAP_TX));
+		x1 = x + sizeof(BITMAP_TX);
+	}
+	else
+	if (gCurrentFunction == FUNCTION_RECEIVE ||
+	    gCurrentFunction == FUNCTION_MONITOR ||
+	    gCurrentFunction == FUNCTION_INCOMING)
+	{
+		memmove(line + x, BITMAP_RX, sizeof(BITMAP_RX));
+		x1 = x + sizeof(BITMAP_RX);
+	}
+	else
 	if (gCurrentFunction == FUNCTION_POWER_SAVE || test_display)
 	{
-		memmove(line + x, BITMAP_PowerSave, sizeof(BITMAP_PowerSave));
-		x1 = x + sizeof(BITMAP_PowerSave);
+		memmove(line + x, BITMAP_POWERSAVE, sizeof(BITMAP_POWERSAVE));
+		x1 = x + sizeof(BITMAP_POWERSAVE);
 	}
-	x += sizeof(BITMAP_PowerSave);
+	x += sizeof(BITMAP_POWERSAVE);
 
 	#ifdef ENABLE_NOAA
 		// NOASS SCAN indicator

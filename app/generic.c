@@ -104,7 +104,7 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 {
 	gInputBoxIndex = 0;
 
-	if (!bKeyPressed)
+	if (!bKeyPressed || gSerialConfigCountDown_500ms > 0)
 	{
 		//if (gScreenToDisplay == DISPLAY_MAIN)
 		{
