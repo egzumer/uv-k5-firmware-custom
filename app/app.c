@@ -519,6 +519,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 			gRxVfo->pRX->Frequency      = NoaaFrequencyTable[gNoaaChannel];
 			gRxVfo->pTX->Frequency      = NoaaFrequencyTable[gNoaaChannel];
 			gEeprom.ScreenChannel[chan] = gRxVfo->CHANNEL_SAVE;
+
 			gNOAA_Countdown_10ms        = 500;   // 5 sec
 			gScheduleNOAA               = false;
 		}
@@ -630,7 +631,7 @@ static void FREQ_NextChannel(void)
 	RADIO_SetupRegisters(true);
 
 //	ScanPauseDelayIn_10ms = scan_pause_delay_in_6_10ms;
-	ScanPauseDelayIn_10ms = 10;  // 100ms
+	ScanPauseDelayIn_10ms = 10;  // 100ms .. it don't like any faster :(
 
 	bScanKeepFrequency = false;
 	gUpdateDisplay     = true;
@@ -671,9 +672,7 @@ static void MR_NextChannel(void)
 //				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 				{
 //					chan = (gEeprom.RX_CHANNEL + 1) & 1u;
-//					chan = gEeprom.MrChannel[chan];
 //					chan = gEeprom.ScreenChannel[chan];
-//					chan = gEeprom.VfoInfo[chan].CHANNEL_SAVE;
 //					chan = 14;
 //					if (RADIO_CheckValidChannel(chan, false, 0))
 //					{
@@ -1214,7 +1213,9 @@ void APP_Update(void)
 			if (gEeprom.VOX_SWITCH)
 				BK4819_EnableVox(gEeprom.VOX1_THRESHOLD, gEeprom.VOX0_THRESHOLD);
 
-			if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF)
+			if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF &&
+			    gScanState == SCAN_OFF &&
+			    gCssScanMode == CSS_SCAN_MODE_OFF)
 			{	// dual watch mode, toggle between the two VFO's
 				DUALWATCH_Alternate();
 

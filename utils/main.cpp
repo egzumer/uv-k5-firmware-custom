@@ -93,7 +93,7 @@ void create_gain_table(const char *filename)
 		mixer_dB[orig_mixer] +
 		pga_dB[orig_pga];
 
-	#if 0
+	#if 1
 		// full table
 		const uint8_t lna_short_min = 0;  // 0
 		const uint8_t lna_min       = 0;  // 0
@@ -258,7 +258,7 @@ void create_gain_table(const char *filename)
 		return;
 
 	fprintf(file, "\n");
-	fprintf(file, "\tconst t_am_fix_gain_table am_fix_gain_table[] =\n");
+	fprintf(file, "\tstatic const t_am_fix_gain_table am_fix_gain_table[] =\n");
 	fprintf(file, "\t{\n");
 
 	#if 0
@@ -296,7 +296,13 @@ void create_gain_table(const char *filename)
 
 		reg_val = ((uint16_t)orig_lna_short << 8) | ((uint16_t)orig_lna << 5) | ((uint16_t)orig_mixer << 3) | ((uint16_t)orig_pga << 0);
 		sum_dB  = lna_short_dB[orig_lna_short] + lna_dB[orig_lna] + mixer_dB[orig_mixer] + pga_dB[orig_pga];
-		fprintf(file, "\t\t{0x%04X, %-3d},       //   0 ..   0dB -14dB  0dB  -3dB .. -17dB original\n\n", reg_val, sum_dB);
+		fprintf(file, "\t\t{0x%04X, %-3d},       //   0 ..   %u %u %u %u .. 0dB -14dB  0dB  -3dB .. -17dB original\n\n",
+			reg_val,
+			sum_dB,
+			orig_lna_short,
+			orig_lna,
+			orig_mixer,
+			orig_pga);
 
 		for (unsigned int i = 0; i < gain_table.size(); i++)
 		{
@@ -307,14 +313,22 @@ void create_gain_table(const char *filename)
 			reg_val = ((uint16_t)entry.lna_short << 8) | ((uint16_t)entry.lna << 5) | ((uint16_t)entry.mixer << 3) | ((uint16_t)entry.pga << 0);
 			sum_dB  = lna_short_dB[entry.lna_short] + lna_dB[entry.lna] + mixer_dB[entry.mixer] + pga_dB[entry.pga];
 
-			sprintf(s, "\t\t{0x%04X, %-3d},         // %3u .. %3ddB %3ddB %2ddB %3ddB .. %3ddB",
+			sprintf(s, "\t\t{0x%04X, %-3d},         // %3u .. %u %u %u %u .. %3ddB %3ddB %2ddB %3ddB .. %3ddB",
 				reg_val,
 				sum_dB,
+
 				1 + i,
+
+				entry.lna_short,
+				entry.lna,
+				entry.mixer,
+				entry.pga,
+
 				entry.lna_short_dB,
 				entry.lna_dB,
 				entry.mixer_dB,
 				entry.pga_dB,
+
 				entry.sum_dB);
 
 			if (i == original_index)
@@ -327,7 +341,7 @@ void create_gain_table(const char *filename)
 
 	fprintf(file, "\t};\n\n");
 
-	fprintf(file, "\tconst unsigned int original_index = %u;\n", 1 + original_index);
+	fprintf(file, "\tstatic const unsigned int original_index = %u;\n", 1 + original_index);
 
 	fclose(file);
 }

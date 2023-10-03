@@ -8,7 +8,7 @@ ENABLE_OVERLAY                := 0
 ENABLE_LTO                    := 1
 ENABLE_UART                   := 1
 ENABLE_AIRCOPY                := 0
-ENABLE_FMRADIO                := 1
+ENABLE_FMRADIO                := 0
 ENABLE_NOAA                   := 0
 ENABLE_VOICE                  := 0
 ENABLE_ALARM                  := 0
@@ -32,7 +32,7 @@ ENABLE_SQUELCH_MORE_SENSITIVE := 1
 ENABLE_FASTER_CHANNEL_SCAN    := 0
 ENABLE_RSSI_BAR               := 1
 ENABLE_AUDIO_BAR              := 1
-#ENABLE_COPY_CHAN_TO_VFO       := 1
+ENABLE_COPY_CHAN_TO_VFO       := 1
 #ENABLE_SINGLE_VFO_CHAN        := 1
 #ENABLE_BAND_SCOPE             := 1
 

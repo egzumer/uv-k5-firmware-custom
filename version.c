@@ -4,7 +4,7 @@
 #ifdef GIT_HASH
 	#define VER     GIT_HASH
 #else
-	#define VER     "231002"
+	#define VER     "231004"
 #endif
 
 #ifndef ONE_OF_ELEVEN_VER
