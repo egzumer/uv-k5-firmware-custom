@@ -62,7 +62,8 @@ const t_menu_item MenuList[] =
 	{"CH DIS", VOICE_ID_INVALID,                       MENU_MDF        }, // was "MDF"
 	{"BATSAV", VOICE_ID_SAVE_MODE,                     MENU_SAVE       }, // was "SAVE"
 	{"VOX",    VOICE_ID_VOX,                           MENU_VOX        },
-	{"BACKLT", VOICE_ID_INVALID,                       MENU_ABR        }, // was "ABR"
+	{"BLT",    VOICE_ID_INVALID,                       MENU_ABR        }, // was "ABR"
+	{"BLT RX", VOICE_ID_INVALID,                       MENU_ABR_ON_RX  },
 	{"DUALRX", VOICE_ID_DUAL_STANDBY,                  MENU_TDR        }, // was "TDR"
 	{"BEEP",   VOICE_ID_BEEP_PROMPT,                   MENU_BEEP       },
 #ifdef ENABLE_VOICE
@@ -591,6 +592,7 @@ void UI_DisplayMenu(void)
 		#ifdef ENABLE_AM_FIX
 			case MENU_AM_FIX:
 		#endif
+		case MENU_ABR_ON_RX:
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_S_ADD1:

@@ -174,6 +174,8 @@ void SETTINGS_SaveSettings(void)
 	#ifdef ENABLE_AM_FIX
 		if (!gSetting_AM_fix)            State[7] &= ~(1u << 5);
 	#endif
+	if (!gSetting_backlight_on_rx)   State[7] &= ~(1u << 6);
+	 
 	EEPROM_WriteBuffer(0x0F40, State);
 }
 

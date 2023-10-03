@@ -83,6 +83,8 @@ bool              gSetting_TX_EN;
 uint8_t           gSetting_F_LOCK;
 bool              gSetting_ScrambleEnable;
 
+bool              gSetting_backlight_on_rx;
+
 #ifdef ENABLE_AM_FIX
 	bool          gSetting_AM_fix;
 #endif

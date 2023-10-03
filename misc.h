@@ -152,6 +152,8 @@ extern bool                  gSetting_TX_EN;
 extern uint8_t               gSetting_F_LOCK;
 extern bool                  gSetting_ScrambleEnable;
 
+extern bool                  gSetting_backlight_on_rx;
+
 #ifdef ENABLE_AM_FIX
 	extern bool              gSetting_AM_fix;
 #endif

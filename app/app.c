@@ -486,9 +486,8 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 
 	gEnableSpeaker = true;
 
-	#ifdef ENABLE_BACKLIGHT_ON_RX
+	if (gSetting_backlight_on_rx)
 		BACKLIGHT_TurnOn();
-	#endif
 
 	if (gScanState != SCAN_OFF)
 	{

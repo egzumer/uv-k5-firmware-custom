@@ -53,7 +53,6 @@ ENABLE_AM_FIX                 := 1       dynamically adjust the front end gains 
 ENABLE_AM_FIX_SHOW_DATA       := 1       show debug data for the AM fix (still tweaking it)
 ENABLE_SQUELCH_MORE_SENSITIVE := 1       make squelch levels a little bit more sensitive - I plan to let user adjust the values themselves
 ENABLE_FASTER_CHANNEL_SCAN    := 0       increases the channel scan speed, but the squelch is also made more twitchy
-ENABLE_BACKLIGHT_ON_RX        := 0       turn the backlight on when the squelch opens
 ENABLE_RSSI_BAR               := 1       enable a dBm/Sn RSSI bar graph level inplace of the little antenna symbols
 ENABLE_AUDIO_BAR              := 0       experimental, display an audo bar level when TX'ing
 #ENABLE_COPY_CHAN_TO_VFO      := 1       not yet implemented - copy the current channel into the VFO

@@ -212,6 +212,7 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 		#ifdef ENABLE_AUDIO_BAR
 			case MENU_MIC_BAR:
 		#endif
+		case MENU_ABR_ON_RX:
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_AUTOLK:
@@ -502,6 +503,10 @@ void MENU_AcceptSetting(void)
 
 		case MENU_ABR:
 			gEeprom.BACKLIGHT = gSubMenuSelection;
+			break;
+
+		case MENU_ABR_ON_RX:
+			gSetting_backlight_on_rx = gSubMenuSelection;
 			break;
 
 		case MENU_TDR:
@@ -914,6 +919,10 @@ void MENU_ShowCurrentSetting(void)
 
 			gBacklightCountdown = 0;
 			GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  	// turn the backlight ON while in backlight menu
+			break;
+
+		case MENU_ABR_ON_RX:
+			gSubMenuSelection = gSetting_backlight_on_rx;
 			break;
 
 		case MENU_TDR:

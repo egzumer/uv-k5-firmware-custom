@@ -712,6 +712,7 @@ void BOARD_EEPROM_Init(void)
 	#ifdef ENABLE_AM_FIX
 		gSetting_AM_fix        = (Data[7] & (1u << 5)) ? true : false;
 	#endif
+	gSetting_backlight_on_rx   = (Data[7] & (1u << 6)) ? true : false;
 
 	if (!gEeprom.VFO_OPEN)
 	{
