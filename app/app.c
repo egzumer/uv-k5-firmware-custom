@@ -543,47 +543,33 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 
 	// ******************************************
 
-	// original setting
-	uint16_t lna_short = orig_lna_short;
-	uint16_t lna       = orig_lna;
-	uint16_t mixer     = orig_mixer;
-	uint16_t pga       = orig_pga;
+	{
+		// original setting
+		uint16_t lna_short = orig_lna_short;
+		uint16_t lna       = orig_lna;
+		uint16_t mixer     = orig_mixer;
+		uint16_t pga       = orig_pga;
 
-	if (gRxVfo->AM_mode)
-	{	// AM
-/*
-		#ifndef ENABLE_AM_FIX
-			const uint32_t rx_frequency = gRxVfo->pRX->Frequency;
+		#ifdef ENABLE_AM_FIX
 
-			// the RX gain abrutly reduces above this frequency
-			// I guess this is (one of) the freq the hardware switches the front ends over ?
-			if (rx_frequency <= 22640000)
-			{	// decrease front end gain - AM demodulator saturates at a slightly higher signal level
-				lna_short = 3;   // 3 original
-				lna       = 2;   // 2 original
-				mixer     = 3;   // 3 original
-				pga       = 3;   // 6 original, 3 reduced
-			}
-			else
-			{	// increase the front end to compensate the reduced gain, but more gain decreases dynamic range :(
-				lna_short = 3;   // 3 original
-				lna       = 4;   // 2 original, 4 increased
-				mixer     = 3;   // 3 original
-				pga       = 7;   // 6 original, 7 increased
-			}
+
+			// TODO:
+
+
+//		if (gRxVfo->AM_mode)
+//		{	// AM RX
+//			if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
+//			{
+//				AM_fix_10ms(gEeprom.RX_CHANNEL);
+//			}
+//		}
+//		else
+				BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
+		#else
+			// apply the front end gain settings
+			BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
 		#endif
-*/
-		// what do these 4 other gain settings do ???
-		//BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
-		//BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
-		//BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
-		//BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
-
-		gNeverUsed = 0;
 	}
-
-	// apply the front end gain settings
-	BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
 
 	// ******************************************
 
@@ -1739,7 +1725,7 @@ void APP_TimeSlice500ms(void)
 	{
 //		gReducedService = true;            // a serial config upload/download is in progress
 	}
-	
+
 	// Skipped authentic device check
 
 	#ifdef ENABLE_FMRADIO
@@ -1794,7 +1780,7 @@ void APP_TimeSlice500ms(void)
 					gUpdateDisplay = true;
 			#endif
 		}
-		
+
 		if (gCurrentFunction != FUNCTION_POWER_SAVE)
 			updateRSSI(gEeprom.RX_CHANNEL);
 
@@ -1817,7 +1803,7 @@ void APP_TimeSlice500ms(void)
 			#endif
 			{
 				bool exit_menu = false;
-				
+
 				if (gEeprom.AUTO_KEYPAD_LOCK && gKeyLockCountdown > 0 && !gDTMF_InputMode)
 				{
 					if (--gKeyLockCountdown == 0)
@@ -1829,11 +1815,11 @@ void APP_TimeSlice500ms(void)
 				if (gMenuCountdown > 0)
 					if (--gMenuCountdown == 0)
 						exit_menu = true;	// exit menu mode
-			
+
 				if (exit_menu)
 				{
 					gMenuCountdown = 0;
-					
+
 					if (gEeprom.BACKLIGHT == 0 && gScreenToDisplay == DISPLAY_MENU)
 					{
 						gBacklightCountdown = 0;
@@ -2127,7 +2113,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	{
 		if (gScreenToDisplay == DISPLAY_MENU)       // 1of11
 			gMenuCountdown = menu_timeout_500ms;
-		
+
 		BACKLIGHT_TurnOn();
 
 		if (gDTMF_DecodeRingCountdown_500ms > 0)

@@ -371,8 +371,8 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 	if (Frequency < frequencyBandTable[Band].lower)
 		Frequency = frequencyBandTable[Band].lower;
 	else
-	if (Frequency > frequencyBandTable[Band + 1].upper)
-		Frequency = frequencyBandTable[Band + 1].upper;
+	if (Frequency > frequencyBandTable[Band].upper)
+		Frequency = frequencyBandTable[Band].upper;
 	else
 	if (Channel >= FREQ_CHANNEL_FIRST)
 		Frequency = FREQUENCY_FloorToStep(Frequency, gEeprom.VfoInfo[VFO].StepFrequency, frequencyBandTable[Band].lower);

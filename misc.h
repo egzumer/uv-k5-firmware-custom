@@ -285,7 +285,6 @@ extern uint8_t               gScanDelay_10ms;
 	extern uint8_t           gAircopySendCountdown;
 #endif
 extern uint8_t               gFSKWriteIndex;
-extern uint8_t               gNeverUsed;
 #ifdef ENABLE_NOAA
 	extern bool              gIsNoaaMode;
 	extern uint8_t           gNoaaChannel;

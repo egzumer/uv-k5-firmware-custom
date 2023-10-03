@@ -217,7 +217,6 @@ uint8_t           gScanDelay_10ms;
 	uint8_t       gAircopySendCountdown;
 #endif
 uint8_t           gFSKWriteIndex;
-uint8_t           gNeverUsed;
 
 #ifdef ENABLE_NOAA
 	bool          gIsNoaaMode;

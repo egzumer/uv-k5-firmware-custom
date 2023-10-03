@@ -443,7 +443,7 @@
 
 		#if 0
 			if (gain_table_index[vfo] == gain_table_index_prev[vfo])
-				return;     // no gain change
+				return;     // no gain change - this is to reduce writing to the BK chip on ever call
 		#endif
 
 #endif
