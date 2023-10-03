@@ -1987,6 +1987,7 @@ void APP_TimeSlice500ms(void)
 	static void ALARM_Off(void)
 	{
 		gAlarmState = ALARM_STATE_OFF;
+
 		GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 		gEnableSpeaker = false;
 
@@ -2002,7 +2003,7 @@ void APP_TimeSlice500ms(void)
 
 		RADIO_SetupRegisters(true);
 
-//		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
 			gRequestDisplayScreen = DISPLAY_MAIN;
 	}
 #endif
@@ -2279,9 +2280,8 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					if (Key == KEY_PTT)
 						gPttWasPressed  = true;
 					else
+					if (!bKeyHeld)
 						gPttWasReleased = true;
-
-					bKeyHeld = false;
 				}
 			#endif
 		}
