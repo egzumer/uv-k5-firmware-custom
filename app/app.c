@@ -574,9 +574,9 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		(gEeprom.DAC_GAIN    << 0));     // AF DAC Gain (after Gain-1 and Gain-2)
 
 	#ifdef ENABLE_VOICE
-//		if (gVoiceWriteIndex == 0)
+		if (gVoiceWriteIndex == 0)       // AM/FM RX mode will be set when the voice has finished
 	#endif
-			BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_OPEN);
+			BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_OPEN);  // no need, set it now
 
 	FUNCTION_Select(Function);
 
@@ -1023,7 +1023,7 @@ void APP_Update(void)
 		}
 	#endif
 
-	if ((gCurrentFunction == FUNCTION_TRANSMIT && gTxTimeoutReached) || gSerialConfigCountDown_500ms > 0)
+	if (gCurrentFunction == FUNCTION_TRANSMIT && (gTxTimeoutReached || gSerialConfigCountDown_500ms > 0))
 	{	// transmitter timed out or must de-key
 		gTxTimeoutReached = false;
 
@@ -1390,7 +1390,8 @@ void APP_TimeSlice10ms(void)
 	#endif
 
 	#ifdef ENABLE_AM_FIX
-		if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
+//		if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
+		if (gRxVfo->AM_mode && gSetting_AM_fix)
 			AM_fix_10ms(gEeprom.RX_CHANNEL);
 	#endif
 
