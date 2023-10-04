@@ -284,7 +284,8 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 			break;
 
 		case MENU_S_LIST:
-			*pMin = 1;
+			*pMin = 0;
+//			*pMax = 1;
 			*pMax = 2;
 			break;
 
@@ -612,7 +613,7 @@ void MENU_AcceptSetting(void)
 			break;
 
 		case MENU_S_LIST:
-			gEeprom.SCAN_LIST_DEFAULT = gSubMenuSelection - 1;
+			gEeprom.SCAN_LIST_DEFAULT = gSubMenuSelection;
 			break;
 
 		#ifdef ENABLE_ALARM
@@ -1018,7 +1019,7 @@ void MENU_ShowCurrentSetting(void)
 			break;
 
 		case MENU_S_LIST:
-			gSubMenuSelection = gEeprom.SCAN_LIST_DEFAULT + 1;
+			gSubMenuSelection = gEeprom.SCAN_LIST_DEFAULT;
 			break;
 
 		case MENU_SLIST1:

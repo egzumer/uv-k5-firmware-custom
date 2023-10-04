@@ -555,20 +555,30 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 					int channel  = -1;
 					int vfo      = -1;
 
-					if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[0]) &&
-						IS_MR_CHANNEL(gEeprom.ScreenChannel[1]))
-					{
-						channel = gEeprom.ScreenChannel[1];
-						vfo     = 0;
-					}
-					else
-					if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[1]) &&
-						IS_MR_CHANNEL(gEeprom.ScreenChannel[0]))
-					{
-						channel = gEeprom.ScreenChannel[0];
-						vfo     = 1;
-					}
-
+					#if 0
+						// copy channel to opposite VFO
+						if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[0]) &&
+							IS_MR_CHANNEL(gEeprom.ScreenChannel[1]))
+						{
+							channel = gEeprom.ScreenChannel[1];
+							vfo     = 0;
+						}
+						else
+						if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[1]) &&
+							IS_MR_CHANNEL(gEeprom.ScreenChannel[0]))
+						{
+							channel = gEeprom.ScreenChannel[0];
+							vfo     = 1;
+						}
+					#else
+						// copy channel to same VFO
+						if (IS_MR_CHANNEL(gEeprom.ScreenChannel[gEeprom.RX_CHANNEL]))
+						{
+							channel = gEeprom.ScreenChannel[gEeprom.RX_CHANNEL];
+							vfo     = gEeprom.RX_CHANNEL;
+						}
+					#endif
+					
 					if (channel >= 0 && vfo >= 0)
 					{	// copy the channel into the VFO
 

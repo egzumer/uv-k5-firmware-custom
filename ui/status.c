@@ -100,8 +100,13 @@ void UI_DisplayStatus(const bool test_display)
 //				memmove(line + x, BITMAP_SC1, sizeof(BITMAP_SC1));
 				UI_PrintStringSmallBuffer("1", line + x);
 			else
+			if (gEeprom.SCAN_LIST_DEFAULT == 1)
 //				memmove(line + x, BITMAP_SC2, sizeof(BITMAP_SC2));
 				UI_PrintStringSmallBuffer("2", line + x);
+			else
+			if (gEeprom.SCAN_LIST_DEFAULT == 2)
+//				memmove(line + x, BITMAP_SCA, sizeof(BITMAP_SCA));
+				UI_PrintStringSmallBuffer("*", line + x);
 //			x1 = x + sizeof(BITMAP_SC1);
 			x1 = x + 7;
 		}
