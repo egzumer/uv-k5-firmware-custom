@@ -85,59 +85,60 @@ void UI_drawBars(uint8_t *p, const unsigned int level)
 			const unsigned int bar_width = LCD_WIDTH - 2 - bar_x;
 			unsigned int       i;
 
-			if (gScreenToDisplay != DISPLAY_MAIN)
-				return;
-
-			#if 1
-				// TX audio level
-
 			if (gCurrentFunction != FUNCTION_TRANSMIT ||
-			    gScreenToDisplay != DISPLAY_MAIN ||
-			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
+				gScreenToDisplay != DISPLAY_MAIN      ||
+				gDTMF_CallState != DTMF_CALL_STATE_NONE)
+			{
 				return;  // screen is in use
+			}
 				
-				#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
-					if (gAlarmState != ALARM_STATE_OFF)
-						return;
+			#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
+				if (gAlarmState != ALARM_STATE_OFF)
+					return;
+			#endif
+
+			{
+				#if 1
+					// TX audio level
+	
+					const unsigned int voice_amp  = BK4819_GetVoiceAmplitudeOut();  // 15:0
+	
+//					const unsigned int max        = 65535;
+//					const unsigned int level      = ((voice_amp * bar_width) + (max / 2)) / max;            // with rounding
+//					const unsigned int len        = (level <= bar_width) ? level : bar_width;
+	
+					// make non-linear to make more sensitive at low values
+					const unsigned int level      = voice_amp * 8;
+					const unsigned int sqrt_level = sqrt16((level < 65535) ? level : 65535);
+					const unsigned int len        = (sqrt_level <= bar_width) ? sqrt_level : bar_width;
+	
+				#else
+					// TX/RX AF input level (dB)
+	
+					const uint8_t      af_tx_rx   = BK4819_GetAfTxRx();             //  6:0
+					const unsigned int max        = 63;
+					const unsigned int level      = (((uint16_t)af_tx_rx * bar_width) + (max / 2)) / max;   // with rounding
+					const unsigned int len        = (level <= bar_width) ? level : bar_width;
+	
 				#endif
-
-				const unsigned int voice_amp  = BK4819_GetVoiceAmplitudeOut();  // 15:0
-
-//				const unsigned int max        = 65535;
-//				const unsigned int level      = ((voice_amp * bar_width) + (max / 2)) / max;            // with rounding
-//				const unsigned int len        = (level <= bar_width) ? level : bar_width;
-
-				// make non-linear to make more sensitive at low values
-				const unsigned int level      = voice_amp * 8;
-				const unsigned int sqrt_level = sqrt16((level < 65535) ? level : 65535);
-				const unsigned int len        = (sqrt_level <= bar_width) ? sqrt_level : bar_width;
-
-			#else
-				// TX/RX AF input level (dB)
-
-				const uint8_t      af_tx_rx   = BK4819_GetAfTxRx();             //  6:0
-				const unsigned int max        = 63;
-				const unsigned int level      = (((uint16_t)af_tx_rx * bar_width) + (max / 2)) / max;   // with rounding
-				const unsigned int len        = (level <= bar_width) ? level : bar_width;
-
-			#endif
-
-			uint8_t *p_line = gFrameBuffer[line];
-
-			memset(p_line, 0, LCD_WIDTH);
-
-			#if 1
-				// solid bar
-				for (i = 0; i < bar_width; i++)
-					p_line[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
-			#else
-				// knuled bar
-				for (i = 0; i < bar_width; i += 2)
-					p_line[bar_x + i] = (i <= len) ? 0x7f : 0x41;
-			#endif
-
-			if (gCurrentFunction == FUNCTION_TRANSMIT)
-				ST7565_BlitFullScreen();
+	
+				uint8_t *p_line = gFrameBuffer[line];
+	
+				memset(p_line, 0, LCD_WIDTH);
+	
+				#if 1
+					// solid bar
+					for (i = 0; i < bar_width; i++)
+						p_line[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
+				#else
+					// knuled bar
+					for (i = 0; i < bar_width; i += 2)
+						p_line[bar_x + i] = (i <= len) ? 0x7f : 0x41;
+				#endif
+	
+				if (gCurrentFunction == FUNCTION_TRANSMIT)
+					ST7565_BlitFullScreen();
+			}
 		}
 	}
 #endif

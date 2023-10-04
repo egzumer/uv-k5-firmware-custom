@@ -554,71 +554,72 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 				gUpdateStatus   = true;
 
 				#ifdef ENABLE_COPY_CHAN_TO_VFO
-				if (gEeprom.VFO_OPEN &&
-				    gEeprom.DUAL_WATCH == DUAL_WATCH_OFF &&
-				    gScanState == SCAN_OFF &&
-				    gCssScanMode == CSS_SCAN_MODE_OFF)
-				{	// copy channel to VFO
-
-					int channel  = -1;
-					int vfo      = -1;
-
-					#if 0
-						// copy channel to opposite VFO
-						if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[0]) &&
-							IS_MR_CHANNEL(gEeprom.ScreenChannel[1]))
-						{
-							channel = gEeprom.ScreenChannel[1];
-							vfo     = 0;
+				
+					if (gEeprom.VFO_OPEN &&
+						gScanState == SCAN_OFF &&
+						gCssScanMode == CSS_SCAN_MODE_OFF)
+					{	// copy channel to VFO
+	
+						int channel  = -1;
+						int vfo      = -1;
+	
+						#if 0
+							// copy channel to opposite VFO
+							if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[0]) &&
+								IS_MR_CHANNEL(gEeprom.ScreenChannel[1]))
+							{
+								channel = gEeprom.ScreenChannel[1];
+								vfo     = 0;
+							}
+							else
+							if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[1]) &&
+								IS_MR_CHANNEL(gEeprom.ScreenChannel[0]))
+							{
+								channel = gEeprom.ScreenChannel[0];
+								vfo     = 1;
+							}
+						#else
+							// copy channel to same VFO
+							const unsigned int chan = (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+							if (IS_MR_CHANNEL(gEeprom.ScreenChannel[chan]))
+							{
+								channel = gEeprom.ScreenChannel[chan];
+								vfo     = chan;
+							}
+						#endif
+						
+						if (channel >= 0 && vfo >= 0)
+						{	// copy the channel into the VFO
+	
+							gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+	
+							gEeprom.MrChannel[vfo]     = channel;
+							gEeprom.ScreenChannel[vfo] = channel;
+							RADIO_ConfigureChannel(vfo, VFO_CONFIGURE_RELOAD);
+	
+							channel = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
+							gEeprom.MrChannel[vfo]     = channel;
+							gEeprom.ScreenChannel[vfo] = channel;
+							gEeprom.VfoInfo[vfo].CHANNEL_SAVE = channel;
+	
+							// swap to the VFO
+							gEeprom.TX_CHANNEL = vfo;
+							gEeprom.RX_CHANNEL = vfo;
+							RADIO_SelectVfos();
+	
+							RADIO_ApplyOffset(gRxVfo);
+							RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
+	
+							RADIO_SetupRegisters(true);
+	
+							//SETTINGS_SaveChannel(gRxVfo->CHANNEL_SAVE, gEeprom.RX_CHANNEL, gRxVfo, 1);
+	
+							gUpdateStatus  = true;
+							gUpdateDisplay = true;
 						}
-						else
-						if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[1]) &&
-							IS_MR_CHANNEL(gEeprom.ScreenChannel[0]))
-						{
-							channel = gEeprom.ScreenChannel[0];
-							vfo     = 1;
-						}
-					#else
-						// copy channel to same VFO
-						if (IS_MR_CHANNEL(gEeprom.ScreenChannel[gEeprom.RX_CHANNEL]))
-						{
-							channel = gEeprom.ScreenChannel[gEeprom.RX_CHANNEL];
-							vfo     = gEeprom.RX_CHANNEL;
-						}
-					#endif
-					
-					if (channel >= 0 && vfo >= 0)
-					{	// copy the channel into the VFO
-
-						gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-
-						gEeprom.MrChannel[vfo]     = channel;
-						gEeprom.ScreenChannel[vfo] = channel;
-						RADIO_ConfigureChannel(vfo, VFO_CONFIGURE_RELOAD);
-
-						channel = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
-						gEeprom.MrChannel[vfo]     = channel;
-						gEeprom.ScreenChannel[vfo] = channel;
-						gEeprom.VfoInfo[vfo].CHANNEL_SAVE = channel;
-
-						// swap to the VFO
-						gEeprom.TX_CHANNEL = vfo;
-						gEeprom.RX_CHANNEL = vfo;
-						RADIO_SelectVfos();
-
-						RADIO_ApplyOffset(gRxVfo);
-						RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
-
-						RADIO_SetupRegisters(true);
-
-//						SETTINGS_SaveChannel(gRxVfo->CHANNEL_SAVE, gEeprom.RX_CHANNEL, gRxVfo, 1);
-
-						gUpdateStatus  = true;
-						gUpdateDisplay = true;
 					}
-				}
+					
 				#endif
-
 			}
 		}
 
