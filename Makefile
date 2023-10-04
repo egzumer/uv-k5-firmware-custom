@@ -176,6 +176,7 @@ ifeq ($(ENABLE_LTO), 1)
 	CFLAGS += -flto=2
 endif
 
+CFLAGS += -Wpadded
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
 

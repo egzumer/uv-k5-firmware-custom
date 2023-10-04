@@ -46,7 +46,10 @@ extern const uint8_t BITMAP_TDR2[12];
 	extern const uint8_t BITMAP_NOAA[12];
 #endif
 
-extern const uint8_t BITMAP_SC[12];
+//extern const uint8_t BITMAP_SC1[8];
+//extern const uint8_t BITMAP_SC2[8];
+//extern const uint8_t BITMAP_SC1[7];
+//extern const uint8_t BITMAP_SC2[7];
 
 extern const uint8_t BITMAP_Antenna[5];
 extern const uint8_t BITMAP_AntennaLevel1[3];
@@ -61,7 +64,6 @@ extern const uint8_t BITMAP_MARKER[8];
 extern const uint8_t BITMAP_VFO_Default[8];
 extern const uint8_t BITMAP_VFO_NotDefault[8];
 
-//extern const uint8_t BITMAP_ScanList[6];
 extern const uint8_t BITMAP_ScanList1[6];
 extern const uint8_t BITMAP_ScanList2[6];
 

@@ -660,6 +660,7 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 				return;
 
 			ACTION_Scan(false);
+
 			return;
 		}
 

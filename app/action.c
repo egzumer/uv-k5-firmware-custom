@@ -184,10 +184,16 @@ void ACTION_Scan(bool bRestart)
 
 			if (gScanState != SCAN_OFF)
 			{
-				SCANNER_Stop();
+				#if 1
+					// keep scanning but toggle between scan lists
+					gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) & 1u;
+					gUpdateStatus = true;
+				#else
+					SCANNER_Stop();
 
-				#ifdef ENABLE_VOICE
-					gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
+					#ifdef ENABLE_VOICE
+						gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
+					#endif
 				#endif
 			}
 			else
@@ -200,7 +206,7 @@ void ACTION_Scan(bool bRestart)
 				#endif
 
 				// clear the other vfo's rssi level (to hide the antenna symbol)
-				gVFO_RSSI_bar_level[gEeprom.RX_CHANNEL == 0] = 0;
+				gVFO_RSSI_bar_level[(gEeprom.RX_CHANNEL + 1) & 1u] = 0;
 
 				// let the user see DW is not active
 				gDualWatchActive = false;
@@ -210,16 +216,20 @@ void ACTION_Scan(bool bRestart)
 	}
 	else
 	if (!bRestart)
-	{	// scanning
-
+	{	// keep scanning but toggle between scan lists
+		gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) & 1u;
+		gUpdateStatus = true;
+	}
+	else
+	{	// stop scanning
 		gMonitor = false;
-
+	
 		SCANNER_Stop();
-
+	
 		#ifdef ENABLE_VOICE
 			gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
 		#endif
-
+	
 		gRequestDisplayScreen = DISPLAY_MAIN;
 	}
 }
