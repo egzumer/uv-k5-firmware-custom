@@ -186,7 +186,7 @@ void ACTION_Scan(bool bRestart)
 			{
 				#if 1
 					// keep scanning but toggle between scan lists
-					gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) & 1u;
+					gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) % 3;
 					gUpdateStatus = true;
 				#else
 					SCANNER_Stop();
@@ -217,7 +217,7 @@ void ACTION_Scan(bool bRestart)
 	else
 	if (!bRestart)
 	{	// keep scanning but toggle between scan lists
-		gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) & 1u;
+		gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) % 3;
 		gUpdateStatus = true;
 	}
 	else

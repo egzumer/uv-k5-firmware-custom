@@ -91,9 +91,11 @@ void UI_drawBars(uint8_t *p, const unsigned int level)
 			#if 1
 				// TX audio level
 
-				if (gCurrentFunction != FUNCTION_TRANSMIT)
-					return;
-
+			if (gCurrentFunction != FUNCTION_TRANSMIT ||
+			    gScreenToDisplay != DISPLAY_MAIN ||
+			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
+				return;  // screen is in use
+				
 				#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 					if (gAlarmState != ALARM_STATE_OFF)
 						return;
@@ -170,7 +172,9 @@ void UI_drawBars(uint8_t *p, const unsigned int level)
 
 		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
 			return;     // display is in use
-		if (gCurrentFunction == FUNCTION_TRANSMIT || gScreenToDisplay != DISPLAY_MAIN)
+		if (gCurrentFunction == FUNCTION_TRANSMIT ||
+		    gScreenToDisplay != DISPLAY_MAIN ||
+			gDTMF_CallState != DTMF_CALL_STATE_NONE)
 			return;     // display is in use
 
 		if (now)
@@ -719,6 +723,10 @@ void UI_DisplayMain(void)
 		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
 			if (rx && gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
 			{
+				if (gScreenToDisplay != DISPLAY_MAIN ||
+					gDTMF_CallState != DTMF_CALL_STATE_NONE)
+					return;
+
 				center_line = CENTER_LINE_AM_FIX_DATA;
 				AM_fix_print_data(gEeprom.RX_CHANNEL, String);
 				UI_PrintStringSmall(String, 2, 0, 3);
@@ -742,7 +750,13 @@ void UI_DisplayMain(void)
 				{	// show live DTMF decode
 					const unsigned int len = strlen(gDTMF_RX_live);
 					const unsigned int idx = (len > (17 - 5)) ? len - (17 - 5) : 0;  // limit to last 'n' chars
+
+					if (gScreenToDisplay != DISPLAY_MAIN ||
+						gDTMF_CallState != DTMF_CALL_STATE_NONE)
+						return;
+						
 					center_line = CENTER_LINE_DTMF_DEC;
+					
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX_live + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
@@ -752,7 +766,13 @@ void UI_DisplayMain(void)
 				{	// show live DTMF decode
 					const unsigned int len = gDTMF_RX_index;
 					const unsigned int idx = (len > (17 - 5)) ? len - (17 - 5) : 0;  // limit to last 'n' chars
+
+					if (gScreenToDisplay != DISPLAY_MAIN ||
+						gDTMF_CallState != DTMF_CALL_STATE_NONE)
+						return;
+
 					center_line = CENTER_LINE_DTMF_DEC;
+					
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
@@ -763,7 +783,12 @@ void UI_DisplayMain(void)
 				else
 				if (gChargingWithTypeC)
 				{	// charging .. show the battery state
+					if (gScreenToDisplay != DISPLAY_MAIN ||
+						gDTMF_CallState != DTMF_CALL_STATE_NONE)
+						return;
+						
 					center_line = CENTER_LINE_CHARGE_DATA;
+					
 					sprintf(String, "Charge %u.%02uV %u%%",
 						gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
 						BATTERY_VoltsToPercent(gBatteryVoltageAverage));

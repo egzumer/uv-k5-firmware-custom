@@ -709,7 +709,10 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_S_LIST:
-			sprintf(String, "LIST%u", gSubMenuSelection);
+			if (gSubMenuSelection < 2)
+				sprintf(String, "LIST%u", 1 + gSubMenuSelection);
+			else
+				strcpy(String, "ALL");
 			break;
 
 		#ifdef ENABLE_ALARM

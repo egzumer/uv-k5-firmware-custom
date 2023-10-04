@@ -51,7 +51,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			#else
 
 
-				// TODO: do something useful with the key
+				// TODO: make use of this function key
 
 
 			#endif
@@ -170,6 +170,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 		case KEY_5:
 			if(beep) {
 			#ifdef ENABLE_NOAA
+			
 				if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 				{
 					gEeprom.ScreenChannel[Vfo] = gEeprom.NoaaChannel[gEeprom.TX_CHANNEL];
@@ -189,26 +190,30 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			#endif
 			}
 			else {
-				// toggle scanlist-1 and scanlist 2
+				// toggle the selected channels scanlist setting
+			
 				if (gScreenToDisplay != DISPLAY_SCANNER)
 				{
-					if (gTxVfo->SCANLIST1_PARTICIPATION)
+					if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
 					{
-						if (gTxVfo->SCANLIST2_PARTICIPATION)
-							gTxVfo->SCANLIST1_PARTICIPATION = 0;
+						if (gTxVfo->SCANLIST1_PARTICIPATION)
+						{
+							if (gTxVfo->SCANLIST2_PARTICIPATION)
+								gTxVfo->SCANLIST1_PARTICIPATION = 0;
+							else
+								gTxVfo->SCANLIST2_PARTICIPATION = 1;
+						}
 						else
-							gTxVfo->SCANLIST2_PARTICIPATION = 1;
+						{
+							if (gTxVfo->SCANLIST2_PARTICIPATION)
+								gTxVfo->SCANLIST2_PARTICIPATION = 0;
+							else
+								gTxVfo->SCANLIST1_PARTICIPATION = 1;
+						}
+						SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
+						gVfoConfigureMode = VFO_CONFIGURE;
+						gFlagResetVfos    = true;
 					}
-					else
-					{
-						if (gTxVfo->SCANLIST2_PARTICIPATION)
-							gTxVfo->SCANLIST2_PARTICIPATION = 0;
-						else
-							gTxVfo->SCANLIST1_PARTICIPATION = 1;
-					}
-					SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
-					gVfoConfigureMode = VFO_CONFIGURE;
-					gFlagResetVfos    = true;
 				}
 			}
 			break;
@@ -223,7 +228,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			#else
 	
 
-				// TODO: make use of the function key press
+				// TODO: make use of this function key
 
 
 			#endif
@@ -564,20 +569,30 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 					int channel  = -1;
 					int vfo      = -1;
 
-					if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[0]) &&
-						IS_MR_CHANNEL(gEeprom.ScreenChannel[1]))
-					{
-						channel = gEeprom.ScreenChannel[1];
-						vfo     = 0;
-					}
-					else
-					if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[1]) &&
-						IS_MR_CHANNEL(gEeprom.ScreenChannel[0]))
-					{
-						channel = gEeprom.ScreenChannel[0];
-						vfo     = 1;
-					}
-
+					#if 0
+						// copy channel to opposite VFO
+						if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[0]) &&
+							IS_MR_CHANNEL(gEeprom.ScreenChannel[1]))
+						{
+							channel = gEeprom.ScreenChannel[1];
+							vfo     = 0;
+						}
+						else
+						if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[1]) &&
+							IS_MR_CHANNEL(gEeprom.ScreenChannel[0]))
+						{
+							channel = gEeprom.ScreenChannel[0];
+							vfo     = 1;
+						}
+					#else
+						// copy channel to same VFO
+						if (IS_MR_CHANNEL(gEeprom.ScreenChannel[gEeprom.RX_CHANNEL]))
+						{
+							channel = gEeprom.ScreenChannel[gEeprom.RX_CHANNEL];
+							vfo     = gEeprom.RX_CHANNEL;
+						}
+					#endif
+					
 					if (channel >= 0 && vfo >= 0)
 					{	// copy the channel into the VFO
 
