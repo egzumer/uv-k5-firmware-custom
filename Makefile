@@ -170,9 +170,14 @@ CFLAGS = -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delet
 ifeq ($(ENABLE_LTO), 1)
 #	CFLAGS += -flto
 	CFLAGS += -flto=2
+else
+#	We get most of the space savings if LTO creates problems
+	CFLAGS += -ffunction-sections -fdata-sections
 endif
 
+# May cause unhelpful build failures
 #CFLAGS += -Wpadded
+
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
 ifeq ($(ENABLE_SWD),1)
@@ -279,6 +284,11 @@ LDFLAGS = -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld
 
 # Use newlib-nano instead of newlib
 LDFLAGS += --specs=nano.specs
+
+ifeq ($(ENABLE_LTO), 0)
+#	Throw away unneeded func/data sections like LTO does
+	LDFLAGS += -Wl,--gc-sections
+endif
 
 ifeq ($(DEBUG),1)
 	ASFLAGS += -g
