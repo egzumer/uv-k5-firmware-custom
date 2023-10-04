@@ -758,8 +758,18 @@ void MENU_AcceptSetting(void)
 		#endif
 
 		case MENU_BATCAL:
-			gBatteryCalibration[3] = gSubMenuSelection;
+			gBatteryCalibration[0] = 520*gSubMenuSelection/760; //5.2V empty, blinking above this value, reduced functionality below
+			gBatteryCalibration[1] = 700*gSubMenuSelection/760; // 7V, ~5%, 1 bars above this value
+			gBatteryCalibration[2] = 745*gSubMenuSelection/760; // 7.45V, ~17%, 2 bars above this value
+			gBatteryCalibration[3] = gSubMenuSelection; // 7.6V, ~29%, 3 bars above this value
+			gBatteryCalibration[4] = 788*gSubMenuSelection/760; // 7.88V, ~65% 4 bars above this value
+			gBatteryCalibration[5] = 2300;
 			EEPROM_WriteBuffer(0x1F40, gBatteryCalibration);
+			uint16_t buf[4];
+			EEPROM_ReadBuffer(0x1F48, buf, sizeof(buf));
+			buf[0] = gBatteryCalibration[4];
+			buf[1] = gBatteryCalibration[5];
+			EEPROM_WriteBuffer(0x1F48, buf);	
 			break;
 	}
 
