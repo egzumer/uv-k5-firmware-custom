@@ -618,6 +618,10 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 							gUpdateDisplay = true;
 						}
 					}
+					else
+					{
+						gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+					}
 					
 				#endif
 			}
