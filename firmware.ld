@@ -17,7 +17,7 @@ SECTIONS
 	.text :
 	{
 		. = ALIGN(4);
-		*(.text.isr)           /* .text sections of code  */
+		KEEP(*(.text.isr)) /* .text sections of code  */
 		*(.text)           /* .text sections of code  */
 		*(.text*)          /* .text* sections of code */
 		*(.rodata)         /* .rodata sections        */
