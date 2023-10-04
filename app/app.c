@@ -702,8 +702,12 @@ static void MR_NextChannel(void)
 	{
 		chan = RADIO_FindNextChannel(gNextMrChannel + gScanState, gScanState, (gEeprom.SCAN_LIST_DEFAULT < 2) ? true : false, gEeprom.SCAN_LIST_DEFAULT);
 		if (chan == 0xFF)
-			return;
-
+		{	// no valid channel found
+	
+			chan = MR_CHANNEL_FIRST;
+//			return;
+		}
+		
 		gNextMrChannel = chan;
 	}
 
