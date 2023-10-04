@@ -96,10 +96,13 @@ void UI_DisplayStatus(const bool test_display)
 		// SCAN indicator
 		if (gScanState != SCAN_OFF || gScreenToDisplay == DISPLAY_SCANNER || test_display)
 		{
-			memmove(line + x, BITMAP_SC, sizeof(BITMAP_SC));
-			x1 = x + sizeof(BITMAP_SC);
+			if (gEeprom.SCAN_LIST_DEFAULT == 0)
+				memmove(line + x, BITMAP_SC1, sizeof(BITMAP_SC1));
+			else
+				memmove(line + x, BITMAP_SC2, sizeof(BITMAP_SC2));
+			x1 = x + sizeof(BITMAP_SC1);
 		}
-	x += sizeof(BITMAP_SC);
+	x += sizeof(BITMAP_SC1);
 
 	#ifdef ENABLE_VOICE
 		// VOICE indicator

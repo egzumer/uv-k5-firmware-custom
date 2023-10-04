@@ -282,21 +282,28 @@ const uint8_t BITMAP_TDR2[12] =
 	};
 #endif
 
-const uint8_t BITMAP_SC[12] =
-{	// "SC"
-	0b00000000,
-	0b01000110,
-	0b01001001,
-	0b01001001,
-	0b01001001,
-	0b00110001,
+const uint8_t BITMAP_SC1[8] =
+{	// "I"
+	0b01000001,
+	0b01000001,
+	0b01000001,
+	0b01111111,
+	0b01000001,
+	0b01000001,
+	0b01000001,
+	0b00000000
+};
 
-	0b00000000,
-	0b00111110,
+const uint8_t BITMAP_SC2[8] =
+{	// "II"
 	0b01000001,
 	0b01000001,
+	0b01111111,
 	0b01000001,
-	0b00100010
+	0b01111111,
+	0b01000001,
+	0b01000001,
+	0b00000000
 };
 
 const uint8_t BITMAP_Antenna[5] =
@@ -385,17 +392,7 @@ const uint8_t BITMAP_VFO_NotDefault[8] =
 	0b00010100,
 	0b00001000
 };
-/*
-const uint8_t BITMAP_ScanList[6] =
-{	// diamond symbol
-	0b00001000,
-	0b00011100,
-	0b00111110,
-	0b00111110,
-	0b00011100,
-	0b00001000
-};
-*/
+
 const uint8_t BITMAP_ScanList1[6] =
 {	// 'I' symbol
 	0b00000000,
