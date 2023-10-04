@@ -47,26 +47,33 @@
 	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #endif
 
-void writeXtalFreqCal(const int32_t value)
-{
-	struct
+#ifdef ENABLE_F_CAL_MENU
+	void writeXtalFreqCal(const int32_t value, const bool update_eeprom)
 	{
-		int16_t  BK4819_XtalFreqLow;
-		uint16_t EEPROM_1F8A;
-		uint16_t EEPROM_1F8C;
-		uint8_t  VOLUME_GAIN;
-		uint8_t  DAC_GAIN;
-	} __attribute__((packed)) Misc;
-
-	gEeprom.BK4819_XTAL_FREQ_LOW = value;
-	BK4819_WriteRegister(BK4819_REG_3B, 22656 + gEeprom.BK4819_XTAL_FREQ_LOW);
-
-	// radio 1 .. 04 00 46 00 50 00 2C 0E
-	// radio 2 .. 05 00 46 00 50 00 2C 0E
-	EEPROM_ReadBuffer(0x1F88, &Misc, 8);
-	Misc.BK4819_XtalFreqLow = gEeprom.BK4819_XTAL_FREQ_LOW;
-	EEPROM_WriteBuffer(0x1F88, &Misc);
-}
+		BK4819_WriteRegister(BK4819_REG_3B, 22656 + value);
+	
+		if (update_eeprom)
+		{
+			struct
+			{
+				int16_t  BK4819_XtalFreqLow;
+				uint16_t EEPROM_1F8A;
+				uint16_t EEPROM_1F8C;
+				uint8_t  VOLUME_GAIN;
+				uint8_t  DAC_GAIN;
+			} __attribute__((packed)) misc;
+	
+			gEeprom.BK4819_XTAL_FREQ_LOW = value;
+	
+			// radio 1 .. 04 00 46 00 50 00 2C 0E
+			// radio 2 .. 05 00 46 00 50 00 2C 0E
+			//
+			EEPROM_ReadBuffer(0x1F88, &misc, 8);
+			misc.BK4819_XtalFreqLow = value;
+			EEPROM_WriteBuffer(0x1F88, &misc);
+		}
+	}
+#endif
 
 void MENU_StartCssScan(int8_t Direction)
 {
@@ -746,7 +753,7 @@ void MENU_AcceptSetting(void)
 
 		#ifdef ENABLE_F_CAL_MENU
 			case MENU_F_CALI:
-				writeXtalFreqCal(gSubMenuSelection);
+				writeXtalFreqCal(gSubMenuSelection, true);
 				return;
 		#endif
 

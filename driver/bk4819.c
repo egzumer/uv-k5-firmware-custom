@@ -839,9 +839,6 @@ void BK4819_SetCompander(const unsigned int mode)
 		return;
 	}
 
-	// enable
-	BK4819_WriteRegister(BK4819_REG_31, r31 | (1u < 3));
-
 	// set the compressor ratio
 	//
 	// REG_29 <15:14> 10 Compress (AF Tx) Ratio
@@ -883,6 +880,9 @@ void BK4819_SetCompander(const unsigned int mode)
 		  (expand_ratio    < 14)
 		| (expand_0dB      <  7)
 		| (expand_noise_dB <  0));
+
+	// enable
+	BK4819_WriteRegister(BK4819_REG_31, r31 | (1u < 3));
 }
 
 void BK4819_DisableVox(void)

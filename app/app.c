@@ -544,7 +544,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	}
 
 	{	// RF RX front end gain
-	
+
 		// original setting
 		uint16_t lna_short = orig_lna_short;
 		uint16_t lna       = orig_lna;
@@ -577,7 +577,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	#ifdef ENABLE_VOICE
 		if (gVoiceWriteIndex == 0)       // AM/FM RX mode will be set when the voice has finished
 	#endif
-			BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_OPEN);  // no need, set it now
+			BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_FM);  // no need, set it now
 
 	FUNCTION_Select(Function);
 
@@ -2057,17 +2057,6 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	if (gEeprom.AUTO_KEYPAD_LOCK)
 		gKeyLockCountdown = 30;     // 15 seconds
 
-	if (Key == KEY_EXIT && bKeyPressed && bKeyHeld && gDTMF_RX_live[0] != 0)
-	{	// clear the live DTMF decoder if the EXIT key is held
-		if (gDTMF_RX_live[0] != 0)
-		{
-			gDTMF_RX_live_timeout = 0;
-			memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
-
-			gUpdateDisplay = true;
-		}
-	}
-
 	if (!bKeyPressed)
 	{
 		if (gFlagSaveVfo)
@@ -2103,10 +2092,22 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	}
 	else
 	{
+		BACKLIGHT_TurnOn();
+
+		if (Key == KEY_EXIT && bKeyHeld)
+		{	// exit key held pressed
+
+			// clear the live DTMF decoder
+			if (gDTMF_RX_live[0] != 0)
+			{
+				memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
+				gDTMF_RX_live_timeout = 0;
+				gUpdateDisplay        = true;
+			}
+		}
+
 		if (gScreenToDisplay == DISPLAY_MENU)       // 1of11
 			gMenuCountdown = menu_timeout_500ms;
-
-		BACKLIGHT_TurnOn();
 
 		if (gDTMF_DecodeRingCountdown_500ms > 0)
 		{	// cancel the ringing
@@ -2164,24 +2165,27 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		Key != KEY_MENU)
 	{
 		if (gScanState != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF)
-		{	// frequency or CTCSS/DCS scanning
+		{	// FREQ/CTCSS/DCS scanning
 			if (bKeyPressed && !bKeyHeld)
 				AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 			return;
 		}
 	}
 
-	if (gPttWasPressed && Key == KEY_PTT)
+	if (Key == KEY_PTT)
 	{
-		bFlag = bKeyHeld;
-		if (!bKeyPressed)
+		if (gPttWasPressed)
 		{
-			bFlag          = true;
-			gPttWasPressed = false;
+			bFlag = bKeyHeld;
+			if (!bKeyPressed)
+			{
+				bFlag          = true;
+				gPttWasPressed = false;
+			}
 		}
 	}
-
-	if (gPttWasReleased && Key != KEY_PTT)
+	else
+	if (gPttWasReleased)
 	{
 		if (bKeyHeld)
 			bFlag = true;
@@ -2268,7 +2272,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					ALARM_Off();
 
 					// TODO:  fix side key 1750, you have to press it twice to restart the tone :(
-					
+
 					if (gEeprom.REPEATER_TAIL_TONE_ELIMINATION == 0)
 					{
 						//if (gCurrentFunction != FUNCTION_FOREGROUND)

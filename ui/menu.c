@@ -18,6 +18,7 @@
 #include <stdlib.h>  // abs()
 
 #include "app/dtmf.h"
+#include "app/menu.h"
 #include "bitmaps.h"
 #include "board.h"
 #include "dcs.h"
@@ -787,8 +788,7 @@ void UI_DisplayMenu(void)
 					const uint32_t value   = 22656 + gSubMenuSelection;
 					const uint32_t xtal_Hz = (0x4f0000u + value) * 5;
 	
-					//gEeprom.BK4819_XTAL_FREQ_LOW = gSubMenuSelection;  // already set when the user was adjusting the value
-					BK4819_WriteRegister(BK4819_REG_3B, value);
+					writeXtalFreqCal(gSubMenuSelection, false);
 	
 					sprintf(String, "%d\n%u.%06u\nMHz",
 						gSubMenuSelection,

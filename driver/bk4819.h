@@ -24,22 +24,22 @@
 
 enum BK4819_AF_Type_t
 {
-	BK4819_AF_MUTE     =  0u,
-	BK4819_AF_OPEN     =  1u,
-	BK4819_AF_ALAM     =  2u,
-	BK4819_AF_BEEP     =  3u,
-	BK4819_AF_UNKNOWN1 =  4u,
-	BK4819_AF_UNKNOWN2 =  5u,
-	BK4819_AF_CTCO     =  6u,
-	BK4819_AF_AM       =  7u,
-	BK4819_AF_FSKO     =  8u,
-	BK4819_AF_UNKNOWN3 =  9u,
-	BK4819_AF_UNKNOWN4 = 10u,
-	BK4819_AF_UNKNOWN5 = 11u,
-	BK4819_AF_UNKNOWN6 = 12u,
-	BK4819_AF_UNKNOWN7 = 13u,
-	BK4819_AF_UNKNOWN8 = 14u,
-	BK4819_AF_UNKNOWN9 = 15u
+	BK4819_AF_MUTE     =  0u,  //
+	BK4819_AF_FM       =  1u,  // FM
+	BK4819_AF_ALAM     =  2u,  //
+	BK4819_AF_BEEP     =  3u,  //
+	BK4819_AF_UNKNOWN1 =  4u,  // SSB I think
+	BK4819_AF_UNKNOWN2 =  5u,  // SSB again
+	BK4819_AF_CTCO     =  6u,  // strange LF audio .. maybe the CTCSS LF line ?
+	BK4819_AF_AM       =  7u,  // AM
+	BK4819_AF_FSKO     =  8u,  // nothing
+	BK4819_AF_UNKNOWN3 =  9u,  // distorted
+	BK4819_AF_UNKNOWN4 = 10u,  // nothing at all
+	BK4819_AF_UNKNOWN5 = 11u,  // distorted
+	BK4819_AF_UNKNOWN6 = 12u,  // distorted
+	BK4819_AF_UNKNOWN7 = 13u,  // interesting
+	BK4819_AF_UNKNOWN8 = 14u,  // interesting 
+	BK4819_AF_UNKNOWN9 = 15u   // not a lot
 };
 
 typedef enum BK4819_AF_Type_t BK4819_AF_Type_t;
