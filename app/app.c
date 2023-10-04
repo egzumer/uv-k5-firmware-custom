@@ -1979,9 +1979,9 @@ void APP_TimeSlice500ms(void)
 	    gCurrentFunction != FUNCTION_TRANSMIT &&
 	    gCurrentFunction != FUNCTION_RECEIVE)
 	{
-		if (gDTMF_AUTO_RESET_TIME > 0)
+		if (gDTMF_auto_reset_time_500ms > 0)
 		{
-			if (--gDTMF_AUTO_RESET_TIME == 0)
+			if (--gDTMF_auto_reset_time_500ms == 0)
 			{
 				gDTMF_CallState = DTMF_CALL_STATE_NONE;
 				gUpdateDisplay  = true;
@@ -2469,7 +2469,7 @@ Skip:
 
 		RADIO_SetupRegisters(true);
 
-		gDTMF_AUTO_RESET_TIME       = 0;
+		gDTMF_auto_reset_time_500ms = 0;
 		gDTMF_CallState             = DTMF_CALL_STATE_NONE;
 		gDTMF_TxStopCountdown_500ms = 0;
 		gDTMF_IsTx                  = false;

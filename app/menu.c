@@ -630,7 +630,7 @@ void MENU_AcceptSetting(void)
 			break;
 
 		case MENU_D_HOLD:
-			gEeprom.DTMF_AUTO_RESET_TIME = gSubMenuSelection;
+			gEeprom.DTMF_auto_reset_time = gSubMenuSelection;
 			break;
 
 		case MENU_D_PRE:
@@ -663,7 +663,7 @@ void MENU_AcceptSetting(void)
 			break;
 
 		case MENU_D_LIST:
-			gDTMFChosenContact = gSubMenuSelection - 1;
+			gDTMF_chosen_contact = gSubMenuSelection - 1;
 			if (gIsDtmfContactValid)
 			{
 				GUI_SelectNextDisplay(DISPLAY_MAIN);
@@ -1044,7 +1044,7 @@ void MENU_ShowCurrentSetting(void)
 			break;
 
 		case MENU_D_HOLD:
-			gSubMenuSelection = gEeprom.DTMF_AUTO_RESET_TIME;
+			gSubMenuSelection = gEeprom.DTMF_auto_reset_time;
 			break;
 
 		case MENU_D_PRE:
@@ -1064,7 +1064,7 @@ void MENU_ShowCurrentSetting(void)
 			break;
 
 		case MENU_D_LIST:
-			gSubMenuSelection = gDTMFChosenContact + 1;
+			gSubMenuSelection = gDTMF_chosen_contact + 1;
 			break;
 
 		case MENU_D_LIVE_DEC:

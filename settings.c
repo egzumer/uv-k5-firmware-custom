@@ -140,7 +140,7 @@ void SETTINGS_SaveSettings(void)
 	State[1] = gEeprom.DTMF_SEPARATE_CODE;
 	State[2] = gEeprom.DTMF_GROUP_CALL_CODE;
 	State[3] = gEeprom.DTMF_DECODE_RESPONSE;
-	State[4] = gEeprom.DTMF_AUTO_RESET_TIME;
+	State[4] = gEeprom.DTMF_auto_reset_time;
 	State[5] = gEeprom.DTMF_PRELOAD_TIME / 10U;
 	State[6] = gEeprom.DTMF_FIRST_CODE_PERSIST_TIME / 10U;
 	State[7] = gEeprom.DTMF_HASH_CODE_PERSIST_TIME / 10U;
