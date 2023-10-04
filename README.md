@@ -34,6 +34,7 @@ ENABLE_AIRCOPY                := 0       easier to just enter frequency with but
 ENABLE_FMRADIO                := 0       WBFM VHF broadcast band receiver
 ENABLE_NOAA                   := 0       everything NOAA (only of any use in the USA)
 ENABLE_VOICE                  := 0       want to hear voices ?
+ENABLE_VOX                    := 0
 ENABLE_ALARM                  := 0       TX alarms
 ENABLE_1750HZ                 := 0       side key 1750Hz TX tone (older style repeater access)
 ENABLE_BIG_FREQ               := 0       big font frequencies (like original QS firmware)

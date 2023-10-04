@@ -698,24 +698,26 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 		}
 	#endif
 
-	#ifdef ENABLE_NOAA
-		#ifdef ENABLE_FMRADIO
-			if (gEeprom.VOX_SWITCH && !gFmRadioMode && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
+	#ifdef ENABLE_VOX
+		#ifdef ENABLE_NOAA
+			#ifdef ENABLE_FMRADIO
+				if (gEeprom.VOX_SWITCH && !gFmRadioMode && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
+			#else
+				if (gEeprom.VOX_SWITCH && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
+			#endif
 		#else
-			if (gEeprom.VOX_SWITCH && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
+			#ifdef ENABLE_FMRADIO
+				if (gEeprom.VOX_SWITCH && !gFmRadioMode && gCurrentVfo->AM_mode == 0)
+			#else
+				if (gEeprom.VOX_SWITCH && gCurrentVfo->AM_mode == 0)
+			#endif
 		#endif
-	#else
-		#ifdef ENABLE_FMRADIO
-			if (gEeprom.VOX_SWITCH && !gFmRadioMode && gCurrentVfo->AM_mode == 0)
-		#else
-			if (gEeprom.VOX_SWITCH && gCurrentVfo->AM_mode == 0)
-		#endif
+		{
+			BK4819_EnableVox(gEeprom.VOX1_THRESHOLD, gEeprom.VOX0_THRESHOLD);
+			InterruptMask |= BK4819_REG_3F_VOX_FOUND | BK4819_REG_3F_VOX_LOST;
+		}
+		else
 	#endif
-	{
-		BK4819_EnableVox(gEeprom.VOX1_THRESHOLD, gEeprom.VOX0_THRESHOLD);
-		InterruptMask |= BK4819_REG_3F_VOX_FOUND | BK4819_REG_3F_VOX_LOST;
-	}
-	else
 		BK4819_DisableVox();
 
 	#ifdef ENABLE_COMPANDER

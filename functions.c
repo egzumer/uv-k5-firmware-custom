@@ -22,6 +22,7 @@
 #endif
 #include "bsp/dp32g030/gpio.h"
 #include "dcs.h"
+#include "driver/backlight.h"
 #if defined(ENABLE_FMRADIO)
 	#include "driver/bk1080.h"
 #endif
@@ -55,12 +56,15 @@ void FUNCTION_Init(void)
 	#endif
 
 	DTMF_clear_RX();
-	
+
 	g_CxCSS_TAIL_Found = false;
 	g_CDCSS_Lost       = false;
 	g_CTCSS_Lost       = false;
-					  
-	g_VOX_Lost         = false;
+
+	#ifdef ENABLE_VOX
+		g_VOX_Lost     = false;
+	#endif
+
 	g_SquelchLost      = false;
 
 	gFlagTailNoteEliminationComplete   = false;
@@ -117,35 +121,35 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 
 			gUpdateStatus = true;
 			return;
-	
+
 		case FUNCTION_MONITOR:
 			gMonitor = true;
 			break;
-			
+
 		case FUNCTION_INCOMING:
 		case FUNCTION_RECEIVE:
 			break;
-	
+
 		case FUNCTION_POWER_SAVE:
 			gPowerSave_10ms            = gEeprom.BATTERY_SAVE * 10;
 			gPowerSaveCountdownExpired = false;
 
 			gRxIdleMode = true;
-			
+
 			gMonitor = false;
 
-			BK4819_DisableVox();
+			BK4819_DisableVox();			
 			BK4819_Sleep();
-			
+
 			BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, false);
 
 			gUpdateStatus = true;
 
 			if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
 				GUI_SelectNextDisplay(DISPLAY_MAIN);
-				
+
 			return;
-	
+
 		case FUNCTION_TRANSMIT:
 
 			// if DTMF is enabled when TX'ing, it changes the TX audio filtering !! .. 1of11
@@ -158,7 +162,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			gDTMF_RX_live_timeout = 0;
 			gDTMF_RX_live_timeout = 0;
 			memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
-			
+
 			#if defined(ENABLE_FMRADIO)
 				if (gFmRadioMode)
 					BK1080_Init(0, false);
@@ -188,7 +192,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 					break;
 				}
 			#endif
-			
+
 			gUpdateStatus = true;
 
 			GUI_DisplayScreen();
@@ -197,9 +201,9 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 
 			// turn the RED LED on
 			BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, true);
-	
+
 			DTMF_Reply();
-	
+
 			#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 				if (gAlarmState != ALARM_STATE_OFF)
 				{
@@ -225,6 +229,9 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 				BK4819_EnableScramble(gCurrentVfo->SCRAMBLING_TYPE - 1);
 			else
 				BK4819_DisableScramble();
+
+			if (gSetting_backlight_on_tx_rx)
+				BACKLIGHT_TurnOn();
 
 			break;
 

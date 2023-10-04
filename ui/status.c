@@ -131,13 +131,15 @@ void UI_DisplayStatus(const bool test_display)
 	}
 	x += sizeof(BITMAP_XB);
 	
-	// VOX indicator
-	if (gEeprom.VOX_SWITCH || test_display)
-	{
-		memmove(line + x, BITMAP_VOX, sizeof(BITMAP_VOX));
-		x1 = x + sizeof(BITMAP_VOX);
-	}
-	x += sizeof(BITMAP_VOX);
+	#ifdef ENABLE_VOX
+		// VOX indicator
+		if (gEeprom.VOX_SWITCH || test_display)
+		{
+			memmove(line + x, BITMAP_VOX, sizeof(BITMAP_VOX));
+			x1 = x + sizeof(BITMAP_VOX);
+		}
+		x += sizeof(BITMAP_VOX);
+	#endif
 
 	// KEY-LOCK indicator
 	if (gEeprom.KEY_LOCK || test_display)

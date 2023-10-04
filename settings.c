@@ -86,8 +86,13 @@ void SETTINGS_SaveSettings(void)
 		State[3] = false;
 	#endif
 	State[4] = gEeprom.KEY_LOCK;
-	State[5] = gEeprom.VOX_SWITCH;
-	State[6] = gEeprom.VOX_LEVEL;
+	#ifdef ENABLE_VOX
+		State[5] = gEeprom.VOX_SWITCH;
+		State[6] = gEeprom.VOX_LEVEL;
+	#else
+		State[5] = false;
+		State[6] = 0;
+	#endif
 	State[7] = gEeprom.MIC_SENSITIVITY;
 	EEPROM_WriteBuffer(0x0E70, State);
 
@@ -174,7 +179,7 @@ void SETTINGS_SaveSettings(void)
 	#ifdef ENABLE_AM_FIX
 		if (!gSetting_AM_fix)            State[7] &= ~(1u << 5);
 	#endif
-	if (!gSetting_backlight_on_rx)   State[7] &= ~(1u << 6);
+	if (!gSetting_backlight_on_tx_rx)    State[7] &= ~(1u << 6);
 	 
 	EEPROM_WriteBuffer(0x0F40, State);
 }

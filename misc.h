@@ -116,7 +116,9 @@ extern const uint16_t        battery_save_count_10ms;
 extern const uint16_t        power_save1_10ms;
 extern const uint16_t        power_save2_10ms;
 
-extern const uint16_t        vox_stop_count_down_10ms;
+#ifdef ENABLE_VOX
+	extern const uint16_t    vox_stop_count_down_10ms;
+#endif
 
 extern const uint16_t        NOAA_countdown_10ms;
 extern const uint16_t        NOAA_countdown_2_10ms;
@@ -128,7 +130,9 @@ extern const uint16_t        dual_watch_count_after_1_10ms;
 extern const uint16_t        dual_watch_count_after_2_10ms;
 extern const uint16_t        dual_watch_count_toggle_10ms;
 extern const uint16_t        dual_watch_count_noaa_10ms;
-extern const uint16_t        dual_watch_count_after_vox_10ms;
+#ifdef ENABLE_VOX
+	extern const uint16_t    dual_watch_count_after_vox_10ms;
+#endif
 
 extern const uint16_t        scan_pause_delay_in_1_10ms;
 extern const uint16_t        scan_pause_delay_in_2_10ms;
@@ -152,7 +156,7 @@ extern bool                  gSetting_TX_EN;
 extern uint8_t               gSetting_F_LOCK;
 extern bool                  gSetting_ScrambleEnable;
 
-extern bool                  gSetting_backlight_on_rx;
+extern bool                  gSetting_backlight_on_tx_rx;
 
 #ifdef ENABLE_AM_FIX
 	extern bool              gSetting_AM_fix;
@@ -258,12 +262,14 @@ extern bool                  g_CDCSS_Lost;
 extern uint8_t               gCDCSSCodeType;
 extern bool                  g_CTCSS_Lost;
 extern bool                  g_CxCSS_TAIL_Found;
-extern bool                  g_VOX_Lost;
+#ifdef ENABLE_VOX
+	extern bool              g_VOX_Lost;
+	extern bool              gVOX_NoiseDetected;
+	extern uint16_t          gVoxResumeCountdown;
+	extern uint16_t          gVoxPauseCountdown;
+#endif
 extern bool                  g_SquelchLost;
 extern uint8_t               gFlashLightState;
-extern bool                  gVOX_NoiseDetected;
-extern uint16_t              gVoxResumeCountdown;
-extern uint16_t              gVoxPauseCountdown;
 extern volatile uint16_t     gFlashLightBlinkCounter;
 extern bool                  gFlagEndTransmission;
 extern uint16_t              gLowBatteryCountdown;
@@ -300,7 +306,9 @@ extern bool                  gF_LOCK;
 extern uint8_t               gShowChPrefix;
 extern volatile uint8_t      gFoundCDCSSCountdown_10ms;
 extern volatile uint8_t      gFoundCTCSSCountdown_10ms;
-extern volatile uint16_t     gVoxStopCountdown_10ms;
+#ifdef ENABLE_VOX
+	extern volatile uint16_t gVoxStopCountdown_10ms;
+#endif
 extern volatile bool         gNextTimeslice40ms;
 #ifdef ENABLE_NOAA
 	extern volatile uint16_t gNOAACountdown_10ms;

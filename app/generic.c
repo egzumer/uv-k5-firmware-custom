@@ -127,7 +127,9 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 				}
 
 				gFlagEndTransmission = false;
-				gVOX_NoiseDetected   = false;
+				#ifdef ENABLE_VOX
+					gVOX_NoiseDetected = false;
+				#endif
 			}
 
 			RADIO_SetVfoState(VFO_STATE_NORMAL);

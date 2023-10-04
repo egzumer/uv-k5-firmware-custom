@@ -21,7 +21,9 @@ extern const uint8_t BITMAP_KeyLock[6];
 
 extern const uint8_t BITMAP_F_Key[6];
 
-extern const uint8_t BITMAP_VOX[18];
+#ifdef ENABLE_VOX
+	extern const uint8_t BITMAP_VOX[18];
+#endif
 
 #if 0
 	extern const uint8_t BITMAP_WX[12];

@@ -209,7 +209,15 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			break;
 
 		case KEY_7:
-			ACTION_Vox();
+			#ifdef ENABLE_VOX
+				ACTION_Vox();
+			#else
+	
+
+				// TODO: make use of the function key press
+
+
+			#endif
 			break;
 
 		case KEY_8:
