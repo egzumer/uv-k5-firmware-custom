@@ -51,7 +51,7 @@
 	void writeXtalFreqCal(const int32_t value, const bool update_eeprom)
 	{
 		BK4819_WriteRegister(BK4819_REG_3B, 22656 + value);
-	
+
 		if (update_eeprom)
 		{
 			struct
@@ -62,9 +62,9 @@
 				uint8_t  VOLUME_GAIN;
 				uint8_t  DAC_GAIN;
 			} __attribute__((packed)) misc;
-	
+
 			gEeprom.BK4819_XTAL_FREQ_LOW = value;
-	
+
 			// radio 1 .. 04 00 46 00 50 00 2C 0E
 			// radio 2 .. 05 00 46 00 50 00 2C 0E
 			//
@@ -431,7 +431,7 @@ void MENU_AcceptSetting(void)
 
 				BK4819_SetCTCSSFrequency(CTCSS_Options[Code]);
 			}
-			
+
 			gRequestSaveChannel = 1;
 			return;
 
@@ -758,19 +758,24 @@ void MENU_AcceptSetting(void)
 		#endif
 
 		case MENU_BATCAL:
-			gBatteryCalibration[0] = 520*gSubMenuSelection/760; //5.2V empty, blinking above this value, reduced functionality below
-			gBatteryCalibration[1] = 700*gSubMenuSelection/760; // 7V, ~5%, 1 bars above this value
-			gBatteryCalibration[2] = 745*gSubMenuSelection/760; // 7.45V, ~17%, 2 bars above this value
-			gBatteryCalibration[3] = gSubMenuSelection; // 7.6V, ~29%, 3 bars above this value
-			gBatteryCalibration[4] = 788*gSubMenuSelection/760; // 7.88V, ~65% 4 bars above this value
+		{
+			uint16_t buf[4];
+
+			gBatteryCalibration[0] = (520ul * gSubMenuSelection) / 760;  // 5.20V empty, blinking above this value, reduced functionality below
+			gBatteryCalibration[1] = (700ul * gSubMenuSelection) / 760;  // 7.00V,  ~5%, 1 bars above this value
+			gBatteryCalibration[2] = (745ul * gSubMenuSelection) / 760;  // 7.45V, ~17%, 2 bars above this value
+			gBatteryCalibration[3] =          gSubMenuSelection;         // 7.6V,  ~29%, 3 bars above this value
+			gBatteryCalibration[4] = (788ul * gSubMenuSelection) / 760;  // 7.88V, ~65%, 4 bars above this value
 			gBatteryCalibration[5] = 2300;
 			EEPROM_WriteBuffer(0x1F40, gBatteryCalibration);
-			uint16_t buf[4];
-			EEPROM_ReadBuffer(0x1F48, buf, sizeof(buf));
+
+			EEPROM_ReadBuffer( 0x1F48, buf, sizeof(buf));
 			buf[0] = gBatteryCalibration[4];
 			buf[1] = gBatteryCalibration[5];
-			EEPROM_WriteBuffer(0x1F48, buf);	
+			EEPROM_WriteBuffer(0x1F48, buf);
+
 			break;
+		}
 	}
 
 	gRequestSaveSettings = true;
@@ -932,7 +937,7 @@ void MENU_ShowCurrentSetting(void)
 				gSubMenuSelection = gEeprom.VOX_SWITCH ? gEeprom.VOX_LEVEL + 1 : 0;
 				break;
 		#endif
-			
+
 		case MENU_ABR:
 			gSubMenuSelection = gEeprom.BACKLIGHT;
 
