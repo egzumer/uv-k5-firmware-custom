@@ -532,8 +532,10 @@ void BOARD_EEPROM_Init(void)
 		gEeprom.NOAA_AUTO_SCAN   = (Data[3] <  2) ? Data[3] : false;
 	#endif
 	gEeprom.KEY_LOCK             = (Data[4] <  2) ? Data[4] : false;
-	gEeprom.VOX_SWITCH           = (Data[5] <  2) ? Data[5] : false;
-	gEeprom.VOX_LEVEL            = (Data[6] < 10) ? Data[6] : 1;
+	#ifdef ENABLE_VOX
+		gEeprom.VOX_SWITCH       = (Data[5] <  2) ? Data[5] : false;
+		gEeprom.VOX_LEVEL        = (Data[6] < 10) ? Data[6] : 1;
+	#endif
 	gEeprom.MIC_SENSITIVITY      = (Data[7] <  5) ? Data[7] : 4;
 
 	// 0E78..0E7F
@@ -705,14 +707,14 @@ void BOARD_EEPROM_Init(void)
 	gSetting_ScrambleEnable    = (Data[6] < 2) ? Data[6] : true;
 	gSetting_TX_EN             = (Data[7] & (1u << 0)) ? true : false;
 	gSetting_live_DTMF_decoder = (Data[7] & (1u << 1)) ? true : false;
-	gSetting_battery_text      = (((Data[7] >> 2) & 3u) <= 2) ? (Data[7] >> 2) & 3: 2;
+	gSetting_battery_text      = (((Data[7] >> 2) & 3u) <= 2) ? (Data[7] >> 2) & 3 : 2;
 	#ifdef ENABLE_AUDIO_BAR
 		gSetting_mic_bar       = (Data[7] & (1u << 4)) ? true : false;
 	#endif
 	#ifdef ENABLE_AM_FIX
 		gSetting_AM_fix        = (Data[7] & (1u << 5)) ? true : false;
 	#endif
-	gSetting_backlight_on_rx   = (Data[7] & (1u << 6)) ? true : false;
+	gSetting_backlight_on_tx_rx = (Data[7] >> 6) & 3u;
 
 	if (!gEeprom.VFO_OPEN)
 	{
@@ -757,9 +759,11 @@ void BOARD_EEPROM_LoadMoreSettings(void)
 	}
 	gBatteryCalibration[5] = 2300;
 
-	EEPROM_ReadBuffer(0x1F50 + (gEeprom.VOX_LEVEL * 2), &gEeprom.VOX1_THRESHOLD, 2);
-	EEPROM_ReadBuffer(0x1F68 + (gEeprom.VOX_LEVEL * 2), &gEeprom.VOX0_THRESHOLD, 2);
-
+	#ifdef ENABLE_VOX
+		EEPROM_ReadBuffer(0x1F50 + (gEeprom.VOX_LEVEL * 2), &gEeprom.VOX1_THRESHOLD, 2);
+		EEPROM_ReadBuffer(0x1F68 + (gEeprom.VOX_LEVEL * 2), &gEeprom.VOX0_THRESHOLD, 2);
+	#endif
+	
 	//EEPROM_ReadBuffer(0x1F80 + gEeprom.MIC_SENSITIVITY, &Mic, 1);
 	//gEeprom.MIC_SENSITIVITY_TUNING = (Mic < 32) ? Mic : 15;
 	gEeprom.MIC_SENSITIVITY_TUNING = gMicGain_dB2[gEeprom.MIC_SENSITIVITY];

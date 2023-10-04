@@ -51,6 +51,22 @@ center_line_t center_line = CENTER_LINE_NONE;
 
 // ***************************************************************************
 
+void UI_drawBars(uint8_t *p, const unsigned int level)
+{
+	switch (level)
+	{
+		default:
+		case 7: memmove(p + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
+		case 6: memmove(p + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
+		case 5: memmove(p + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
+		case 4: memmove(p + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
+		case 3: memmove(p +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
+		case 2: memmove(p +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
+		case 1: memmove(p +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna));
+		case 0: break;
+	}
+}
+
 #ifdef ENABLE_AUDIO_BAR
 
 	unsigned int sqrt16(unsigned int value)
@@ -82,12 +98,17 @@ center_line_t center_line = CENTER_LINE_NONE;
 
 			if (gScreenToDisplay != DISPLAY_MAIN)
 				return;
-			
+
 			#if 1
 				// TX audio level
 
 				if (gCurrentFunction != FUNCTION_TRANSMIT)
 					return;
+
+				#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
+					if (gAlarmState != ALARM_STATE_OFF)
+						return;
+				#endif
 
 				const unsigned int voice_amp  = BK4819_GetVoiceAmplitudeOut();  // 15:0
 
@@ -275,25 +296,12 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 
 		memset(p_line, 0, 23);
 
-		if (rssi_level > 0)
-		{
-			//if (rssi_level >= 1)
-				memmove(p_line, BITMAP_Antenna, 5);
-			if (rssi_level >= 2)
-				memmove(p_line +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
-			if (rssi_level >= 3)
-				memmove(p_line +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
-			if (rssi_level >= 4)
-				memmove(p_line + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
-			if (rssi_level >= 5)
-				memmove(p_line + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
-			if (rssi_level >= 6)
-				memmove(p_line + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
-			if (rssi_level >= 7)
-				memmove(p_line + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
-		}
-		else
+		// untested !!!
+
+		if (rssi_level == 0)
 			p_line = NULL;
+		else
+			UI_drawBars(p_line, rssi_level);
 
 		ST7565_DrawLine(0, Line, 23, p_line);
 	#endif
@@ -535,10 +543,12 @@ void UI_DisplayMain(void)
 				if (attributes & MR_CH_SCANLIST2)
 					memmove(p_line0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
 				#ifndef ENABLE_BIG_FREQ
-					#ifdef ENABLE_COMPANDER
-						if ((attributes & MR_CH_COMPAND) > 0)
-							memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
-					#endif
+					if ((attributes & MR_CH_COMPAND) > 0)
+						memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+				#else
+					
+					// TODO:  // find somewhere else to put the symbol
+				
 				#endif
 
 				switch (gEeprom.CHANNEL_DISPLAY_MODE)
@@ -605,16 +615,14 @@ void UI_DisplayMain(void)
 					UI_PrintString(String, 32, 0, line, 8);
 				#endif
 
-				#ifdef ENABLE_COMPANDER
-					// show the channel symbols
-					const uint8_t attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
-					if ((attributes & MR_CH_COMPAND) > 0)
-						#ifdef ENABLE_BIG_FREQ
-							memmove(p_line0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
-						#else
-							memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
-						#endif
-				#endif
+				// show the channel symbols
+				const uint8_t attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
+				if ((attributes & MR_CH_COMPAND) > 0)
+					#ifdef ENABLE_BIG_FREQ
+						memmove(p_line0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
+					#else
+						memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+					#endif
 			}
 		}
 
@@ -642,23 +650,7 @@ void UI_DisplayMain(void)
 				#endif
 			}
 
-			if (Level >= 1)
-			{
-				uint8_t *p_line = p_line1 + LCD_WIDTH;
-					memmove(p_line +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna));
-				if (Level >= 2)
-					memmove(p_line +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
-				if (Level >= 3)
-					memmove(p_line +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
-				if (Level >= 4)
-					memmove(p_line + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
-				if (Level >= 5)
-					memmove(p_line + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
-				if (Level >= 6)
-					memmove(p_line + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
-				if (Level >= 7)
-					memmove(p_line + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
-			}
+			UI_drawBars(p_line1 + LCD_WIDTH, Level);
 		}
 
 		// ************

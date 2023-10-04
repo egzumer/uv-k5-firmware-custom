@@ -130,9 +130,7 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t
 	pInfo->freq_config_TX.Frequency = Frequency;
 	pInfo->pRX                      = &pInfo->freq_config_RX;
 	pInfo->pTX                      = &pInfo->freq_config_TX;
-	#ifdef ENABLE_COMPANDER
-		pInfo->Compander            = 0;  // off
-	#endif
+	pInfo->Compander                = 0;  // off
 
 	if (ChannelSave == (FREQ_CHANNEL_FIRST + BAND2_108MHz))
 		pInfo->AM_mode = 1;
@@ -420,9 +418,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		gEeprom.VfoInfo[VFO].freq_config_TX.CodeType = CODE_TYPE_OFF;
 	}
 
-	#ifdef ENABLE_COMPANDER
-		gEeprom.VfoInfo[VFO].Compander = (Attributes & MR_CH_COMPAND) >> 4;
-	#endif
+	gEeprom.VfoInfo[VFO].Compander = (Attributes & MR_CH_COMPAND) >> 4;
 
 	RADIO_ConfigureSquelchAndOutputPower(pRadio);
 }
@@ -461,16 +457,16 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 			//
 			// getting the best setting here is still experimental, bare with me
 			//
-			// note that 'noise' and 'glitch' value are inverted compared to 'rssi' values
+			// note that 'noise' and 'glitch' values are inverted compared to 'rssi' values
 
-			pInfo->SquelchOpenRSSIThresh    = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 10) / 11;
-			pInfo->SquelchCloseRSSIThresh   = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 10) / 11;
+			pInfo->SquelchOpenRSSIThresh    = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 8) / 9;
+			pInfo->SquelchCloseRSSIThresh   = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 8) / 9;
 
-			pInfo->SquelchOpenNoiseThresh   = ((uint16_t)pInfo->SquelchOpenNoiseThresh  * 11) / 10;
-			pInfo->SquelchCloseNoiseThresh  = ((uint16_t)pInfo->SquelchOpenNoiseThresh  * 11) / 10;
+			pInfo->SquelchOpenNoiseThresh   = ((uint16_t)pInfo->SquelchOpenNoiseThresh  * 9) / 8;
+			pInfo->SquelchCloseNoiseThresh  = ((uint16_t)pInfo->SquelchOpenNoiseThresh  * 9) / 8;
 
-			pInfo->SquelchOpenGlitchThresh  = ((uint16_t)pInfo->SquelchOpenGlitchThresh * 11) / 10;
-			pInfo->SquelchCloseGlitchThresh = ((uint16_t)pInfo->SquelchOpenGlitchThresh * 11) / 10;
+			pInfo->SquelchOpenGlitchThresh  = ((uint16_t)pInfo->SquelchOpenGlitchThresh * 9) / 8;
+			pInfo->SquelchCloseGlitchThresh = ((uint16_t)pInfo->SquelchOpenGlitchThresh * 9) / 8;
 		#endif
 
 		if (pInfo->SquelchOpenNoiseThresh > 127)
@@ -521,7 +517,7 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 
 static void RADIO_SelectCurrentVfo(void)
 {
-	gCurrentVfo = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gRxVfo : &gEeprom.VfoInfo[gEeprom.TX_CHANNEL];
+ 	gCurrentVfo = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gRxVfo : &gEeprom.VfoInfo[gEeprom.TX_CHANNEL];
 }
 
 void RADIO_SelectVfos(void)
@@ -698,30 +694,30 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 		}
 	#endif
 
-	#ifdef ENABLE_NOAA
-		#ifdef ENABLE_FMRADIO
-			if (gEeprom.VOX_SWITCH && !gFmRadioMode && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
+	#ifdef ENABLE_VOX
+		#ifdef ENABLE_NOAA
+			#ifdef ENABLE_FMRADIO
+				if (gEeprom.VOX_SWITCH && !gFmRadioMode && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
+			#else
+				if (gEeprom.VOX_SWITCH && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
+			#endif
 		#else
-			if (gEeprom.VOX_SWITCH && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
+			#ifdef ENABLE_FMRADIO
+				if (gEeprom.VOX_SWITCH && !gFmRadioMode && gCurrentVfo->AM_mode == 0)
+			#else
+				if (gEeprom.VOX_SWITCH && gCurrentVfo->AM_mode == 0)
+			#endif
 		#endif
-	#else
-		#ifdef ENABLE_FMRADIO
-			if (gEeprom.VOX_SWITCH && !gFmRadioMode && gCurrentVfo->AM_mode == 0)
-		#else
-			if (gEeprom.VOX_SWITCH && gCurrentVfo->AM_mode == 0)
-		#endif
+		{
+			BK4819_EnableVox(gEeprom.VOX1_THRESHOLD, gEeprom.VOX0_THRESHOLD);
+			InterruptMask |= BK4819_REG_3F_VOX_FOUND | BK4819_REG_3F_VOX_LOST;
+		}
+		else
 	#endif
-	{
-		BK4819_EnableVox(gEeprom.VOX1_THRESHOLD, gEeprom.VOX0_THRESHOLD);
-		InterruptMask |= BK4819_REG_3F_VOX_FOUND | BK4819_REG_3F_VOX_LOST;
-	}
-	else
 		BK4819_DisableVox();
 
-	#ifdef ENABLE_COMPANDER
-		// RX expander
-		BK4819_SetCompander((gRxVfo->AM_mode == 0 && gRxVfo->Compander >= 2) ? gRxVfo->Compander : 0);
-	#endif
+	// RX expander
+	BK4819_SetCompander((gRxVfo->AM_mode == 0 && gRxVfo->Compander >= 2) ? gRxVfo->Compander : 0);
 
 	#if 0
 		if (!gRxVfo->DTMF_DECODING_ENABLE && !gSetting_KILLED)
@@ -826,10 +822,8 @@ void RADIO_SetTxParameters(void)
 
 	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency);
 
-	#ifdef ENABLE_COMPANDER
-		// TX compressor
-		BK4819_SetCompander((gRxVfo->AM_mode == 0 && (gRxVfo->Compander == 1 || gRxVfo->Compander >= 3)) ? gRxVfo->Compander : 0);
-	#endif
+	// TX compressor
+	BK4819_SetCompander((gRxVfo->AM_mode == 0 && (gRxVfo->Compander == 1 || gRxVfo->Compander >= 3)) ? gRxVfo->Compander : 0);
 
 	BK4819_PrepareTransmit();
 

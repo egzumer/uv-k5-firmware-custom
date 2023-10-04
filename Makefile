@@ -11,7 +11,8 @@ ENABLE_AIRCOPY                := 0
 ENABLE_FMRADIO                := 1
 ENABLE_NOAA                   := 0
 ENABLE_VOICE                  := 0
-ENABLE_ALARM                  := 1
+ENABLE_VOX                    := 1
+ENABLE_ALARM                  := 0
 ENABLE_TX1750                 := 0
 ENABLE_BIG_FREQ               := 1
 ENABLE_SMALL_BOLD             := 1
@@ -22,7 +23,6 @@ ENABLE_F_CAL_MENU             := 0
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1
 ENABLE_MAIN_KEY_HOLD          := 1
 ENABLE_BOOT_BEEPS             := 0
-ENABLE_COMPANDER              := 1
 ENABLE_SHOW_CHARGE_LEVEL      := 1
 ENABLE_REVERSE_BAT_SYMBOL     := 1
 ENABLE_CODE_SCAN_TIMEOUT      := 0
@@ -32,9 +32,9 @@ ENABLE_SQUELCH_LOWER          := 0
 ENABLE_FASTER_CHANNEL_SCAN    := 1
 ENABLE_RSSI_BAR               := 1
 ENABLE_AUDIO_BAR              := 1
-ENABLE_SPECTRUM               := 1
-#ENABLE_COPY_CHAN_TO_VFO       := 1
+ENABLE_COPY_CHAN_TO_VFO       := 1
 #ENABLE_SINGLE_VFO_CHAN        := 1
+ENABLE_SPECTRUM               := 1
 #ENABLE_BAND_SCOPE             := 1
 
 #############################################################
@@ -209,6 +209,9 @@ endif
 ifeq ($(ENABLE_VOICE),1)
 	CFLAGS  += -DENABLE_VOICE
 endif
+ifeq ($(ENABLE_VOX),1)
+	CFLAGS  += -DENABLE_VOX
+endif
 ifeq ($(ENABLE_ALARM),1)
 	CFLAGS  += -DENABLE_ALARM
 endif
@@ -235,9 +238,6 @@ ifeq ($(ENABLE_MAIN_KEY_HOLD),1)
 endif
 ifeq ($(ENABLE_BOOT_BEEPS),1)
 	CFLAGS  += -DENABLE_BOOT_BEEPS
-endif
-ifeq ($(ENABLE_COMPANDER),1)
-	CFLAGS  += -DENABLE_COMPANDER
 endif
 ifeq ($(ENABLE_SHOW_CHARGE_LEVEL),1)
 	CFLAGS  += -DENABLE_SHOW_CHARGE_LEVEL
@@ -283,6 +283,9 @@ ifeq ($(ENABLE_BAND_SCOPE),1)
 endif
 
 LDFLAGS = -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld
+
+# Use newlib-nano instead of newlib
+LDFLAGS += --specs=nano.specs
 
 ifeq ($(DEBUG),1)
 	ASFLAGS += -g

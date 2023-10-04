@@ -187,7 +187,9 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 
 	GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 
-	gVoxResumeCountdown = 80;
+	#ifdef ENABLE_VOX
+		gVoxResumeCountdown = 80;
+	#endif
 
 	SYSTEM_DelayMs(5);
 	BK4819_TurnsOffTones_TurnsOnRX();
@@ -258,7 +260,9 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 				VoiceID += VOICE_ID_ENG_BASE;
 			}
 	
-			if (gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR)
+			if (gCurrentFunction == FUNCTION_RECEIVE ||
+			    gCurrentFunction == FUNCTION_MONITOR ||
+			    gCurrentFunction == FUNCTION_INCOMING)   // 1of11
 				BK4819_SetAF(BK4819_AF_MUTE);
 	
 			#ifdef ENABLE_FMRADIO
@@ -267,7 +271,11 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 			#endif
 			
 			GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
-			gVoxResumeCountdown = 2000;
+
+			#ifdef ENABLE_VOX
+				gVoxResumeCountdown = 2000;
+			#endif
+			
 			SYSTEM_DelayMs(5);
 			AUDIO_PlayVoice(VoiceID);
 	
@@ -278,8 +286,10 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 			{
 				SYSTEM_DelayMs(Delay * 10);
 	
-				if (gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR)
-					BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_OPEN);
+				if (gCurrentFunction == FUNCTION_RECEIVE ||
+				    gCurrentFunction == FUNCTION_MONITOR ||
+					gCurrentFunction == FUNCTION_INCOMING)	// 1of11
+					BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_FM);
 	
 				#ifdef ENABLE_FMRADIO
 					if (gFmRadioMode)
@@ -291,7 +301,11 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 	
 				gVoiceWriteIndex    = 0;
 				gVoiceReadIndex     = 0;
-				gVoxResumeCountdown = 80;
+	
+				#ifdef ENABLE_VOX
+					gVoxResumeCountdown = 80;
+				#endif
+					
 				return;
 			}
 	
@@ -404,14 +418,19 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 				
 				gCountdownToPlayNextVoice_10ms = Delay;
 				gFlagPlayQueuedVoice           = false;
-				gVoxResumeCountdown            = 2000;
+
+				#ifdef ENABLE_VOX
+					gVoxResumeCountdown = 2000;
+				#endif
 	
 				return;
 			}
 		}
 	
-		if (gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR)
-			BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_OPEN);
+		if (gCurrentFunction == FUNCTION_RECEIVE ||
+		    gCurrentFunction == FUNCTION_MONITOR ||
+		    gCurrentFunction == FUNCTION_INCOMING)    // 1of11
+			BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_FM);
 	
 		#ifdef ENABLE_FMRADIO
 			if (gFmRadioMode)
@@ -421,7 +440,10 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 		if (!gEnableSpeaker)
 			GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 	
-		gVoxResumeCountdown = 80;
+		#ifdef ENABLE_VOX
+			gVoxResumeCountdown = 80;
+		#endif
+		
 		gVoiceWriteIndex    = 0;
 		gVoiceReadIndex     = 0;
 	}

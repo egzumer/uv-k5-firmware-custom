@@ -224,19 +224,21 @@ void ACTION_Scan(bool bRestart)
 	}
 }
 
-void ACTION_Vox(void)
-{
-	gEeprom.VOX_SWITCH   = !gEeprom.VOX_SWITCH;
-	gRequestSaveSettings = true;
-	gFlagReconfigureVfos = true;
-	#ifdef ENABLE_VOICE
-		gAnotherVoiceID  = VOICE_ID_VOX;
-	#endif
-	gUpdateStatus        = true;
-}
+#ifdef ENABLE_VOX
+	void ACTION_Vox(void)
+	{
+		gEeprom.VOX_SWITCH   = !gEeprom.VOX_SWITCH;
+		gRequestSaveSettings = true;
+		gFlagReconfigureVfos = true;
+		#ifdef ENABLE_VOICE
+			gAnotherVoiceID  = VOICE_ID_VOX;
+		#endif
+		gUpdateStatus        = true;
+	}
+#endif
 
 #if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
-	static void ACTION_AlarmOr1750(bool b1750)
+	static void ACTION_AlarmOr1750(const bool b1750)
 	{
 		gInputBoxIndex = 0;
 
@@ -252,7 +254,7 @@ void ACTION_Vox(void)
 
 		gFlagPrepareTX = true;
 
-//		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
 			gRequestDisplayScreen = DISPLAY_MAIN;
 	}
 #endif
@@ -268,7 +270,9 @@ void ACTION_Vox(void)
 				FM_TurnOff();
 
 				gInputBoxIndex        = 0;
-				gVoxResumeCountdown   = 80;
+				#ifdef ENABLE_VOX
+					gVoxResumeCountdown = 80;
+				#endif
 				gFlagReconfigureVfos  = true;
 
 				gRequestDisplayScreen = DISPLAY_MAIN;
@@ -369,7 +373,9 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			ACTION_Scan(true);
 			break;
 		case ACTION_OPT_VOX:
-			ACTION_Vox();
+			#ifdef ENABLE_VOX
+				ACTION_Vox();
+			#endif
 			break;
 		case ACTION_OPT_ALARM:
 			#ifdef ENABLE_ALARM

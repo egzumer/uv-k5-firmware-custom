@@ -86,8 +86,13 @@ void SETTINGS_SaveSettings(void)
 		State[3] = false;
 	#endif
 	State[4] = gEeprom.KEY_LOCK;
-	State[5] = gEeprom.VOX_SWITCH;
-	State[6] = gEeprom.VOX_LEVEL;
+	#ifdef ENABLE_VOX
+		State[5] = gEeprom.VOX_SWITCH;
+		State[6] = gEeprom.VOX_LEVEL;
+	#else
+		State[5] = false;
+		State[6] = 0;
+	#endif
 	State[7] = gEeprom.MIC_SENSITIVITY;
 	EEPROM_WriteBuffer(0x0E70, State);
 
@@ -174,7 +179,7 @@ void SETTINGS_SaveSettings(void)
 	#ifdef ENABLE_AM_FIX
 		if (!gSetting_AM_fix)            State[7] &= ~(1u << 5);
 	#endif
-	if (!gSetting_backlight_on_rx)   State[7] &= ~(1u << 6);
+	State[7] = (State[7] & ~(3u << 6)) | ((gSetting_backlight_on_tx_rx & 3u) << 6);
 	 
 	EEPROM_WriteBuffer(0x0F40, State);
 }
@@ -255,20 +260,15 @@ void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool keep)
 	{
 		uint8_t  State[8];
 		uint8_t  Attributes = 0xFF;        // default attributes
-		#ifdef ENABLE_COMPANDER
-			Attributes &= ~MR_CH_COMPAND;  // default to '0' = compander disabled
-		#endif
 		uint16_t Offset = 0x0D60 + (Channel & ~7u);
+		
+		Attributes &= ~MR_CH_COMPAND;  // default to '0' = compander disabled
 
 		EEPROM_ReadBuffer(Offset, State, sizeof(State));
 
 		if (keep)
 		{
-			#ifdef ENABLE_COMPANDER
-				Attributes = (pVFO->SCANLIST1_PARTICIPATION << 7) | (pVFO->SCANLIST2_PARTICIPATION << 6) | (pVFO->Compander << 4) | (pVFO->Band << 0);
-			#else
-				Attributes = (pVFO->SCANLIST1_PARTICIPATION << 7) | (pVFO->SCANLIST2_PARTICIPATION << 6) | (pVFO->Band << 0);
-			#endif
+			Attributes = (pVFO->SCANLIST1_PARTICIPATION << 7) | (pVFO->SCANLIST2_PARTICIPATION << 6) | (pVFO->Compander << 4) | (pVFO->Band << 0);
 			if (State[Channel & 7u] == Attributes)
 				return; // no change in the attributes
 		}

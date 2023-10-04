@@ -47,26 +47,33 @@
 	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #endif
 
-void writeXtalFreqCal(const int32_t value)
-{
-	struct
+#ifdef ENABLE_F_CAL_MENU
+	void writeXtalFreqCal(const int32_t value, const bool update_eeprom)
 	{
-		int16_t  BK4819_XtalFreqLow;
-		uint16_t EEPROM_1F8A;
-		uint16_t EEPROM_1F8C;
-		uint8_t  VOLUME_GAIN;
-		uint8_t  DAC_GAIN;
-	} __attribute__((packed)) Misc;
-
-	gEeprom.BK4819_XTAL_FREQ_LOW = value;
-	BK4819_WriteRegister(BK4819_REG_3B, 22656 + gEeprom.BK4819_XTAL_FREQ_LOW);
-
-	// radio 1 .. 04 00 46 00 50 00 2C 0E
-	// radio 2 .. 05 00 46 00 50 00 2C 0E
-	EEPROM_ReadBuffer(0x1F88, &Misc, 8);
-	Misc.BK4819_XtalFreqLow = gEeprom.BK4819_XTAL_FREQ_LOW;
-	EEPROM_WriteBuffer(0x1F88, &Misc);
-}
+		BK4819_WriteRegister(BK4819_REG_3B, 22656 + value);
+	
+		if (update_eeprom)
+		{
+			struct
+			{
+				int16_t  BK4819_XtalFreqLow;
+				uint16_t EEPROM_1F8A;
+				uint16_t EEPROM_1F8C;
+				uint8_t  VOLUME_GAIN;
+				uint8_t  DAC_GAIN;
+			} __attribute__((packed)) misc;
+	
+			gEeprom.BK4819_XTAL_FREQ_LOW = value;
+	
+			// radio 1 .. 04 00 46 00 50 00 2C 0E
+			// radio 2 .. 05 00 46 00 50 00 2C 0E
+			//
+			EEPROM_ReadBuffer(0x1F88, &misc, 8);
+			misc.BK4819_XtalFreqLow = value;
+			EEPROM_WriteBuffer(0x1F88, &misc);
+		}
+	}
+#endif
 
 void MENU_StartCssScan(int8_t Direction)
 {
@@ -192,12 +199,11 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 			*pMax = ARRAY_SIZE(gSubMenu_RESET) - 1;
 			break;
 
-		#ifdef ENABLE_COMPANDER
-			case MENU_COMPAND:
-				*pMin = 0;
-				*pMax = ARRAY_SIZE(gSubMenu_Compand) - 1;
-				break;
-		#endif
+		case MENU_COMPAND:
+		case MENU_ABR_ON_TX_RX:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_RX_TX) - 1;
+			break;
 
 		#ifdef ENABLE_AM_FIX_TEST1
 			case MENU_AM_FIX_TEST1:
@@ -212,7 +218,6 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 		#ifdef ENABLE_AUDIO_BAR
 			case MENU_MIC_BAR:
 		#endif
-		case MENU_ABR_ON_RX:
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_AUTOLK:
@@ -246,7 +251,9 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 			*pMax = ARRAY_SIZE(gSubMenu_TOT) - 1;
 			break;
 
-		case MENU_VOX:
+		#ifdef ENABLE_VOX
+			case MENU_VOX:
+		#endif
 		case MENU_RP_STE:
 			*pMin = 0;
 			*pMax = 10;
@@ -289,11 +296,6 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 		case MENU_PTT_ID:
 			*pMin = 0;
 			*pMax = ARRAY_SIZE(gSubMenu_PTT_ID) - 1;
-			break;
-
-		case MENU_VOL:
-			*pMin = 0;
-			*pMax = 2300;
 			break;
 
 		case MENU_BAT_TXT:
@@ -497,21 +499,23 @@ void MENU_AcceptSetting(void)
 			gEeprom.BATTERY_SAVE = gSubMenuSelection;
 			break;
 
-		case MENU_VOX:
-			gEeprom.VOX_SWITCH = gSubMenuSelection != 0;
-			if (gEeprom.VOX_SWITCH)
-				gEeprom.VOX_LEVEL = gSubMenuSelection - 1;
-			BOARD_EEPROM_LoadMoreSettings();
-			gFlagReconfigureVfos = true;
-			gUpdateStatus        = true;
-			break;
+		#ifdef ENABLE_VOX
+			case MENU_VOX:
+				gEeprom.VOX_SWITCH = gSubMenuSelection != 0;
+				if (gEeprom.VOX_SWITCH)
+					gEeprom.VOX_LEVEL = gSubMenuSelection - 1;
+				BOARD_EEPROM_LoadMoreSettings();
+				gFlagReconfigureVfos = true;
+				gUpdateStatus        = true;
+				break;
+		#endif
 
 		case MENU_ABR:
 			gEeprom.BACKLIGHT = gSubMenuSelection;
 			break;
 
-		case MENU_ABR_ON_RX:
-			gSetting_backlight_on_rx = gSubMenuSelection;
+		case MENU_ABR_ON_TX_RX:
+			gSetting_backlight_on_tx_rx = gSubMenuSelection;
 			break;
 
 		case MENU_TDR:
@@ -595,15 +599,13 @@ void MENU_AcceptSetting(void)
 				break;
 		#endif
 
-		#ifdef ENABLE_COMPANDER
-			case MENU_COMPAND:
-				gTxVfo->Compander = gSubMenuSelection;
-				SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
-				gVfoConfigureMode = VFO_CONFIGURE;
-				gFlagResetVfos    = true;
-//				gRequestSaveChannel = 1;
-				return;
-		#endif
+		case MENU_COMPAND:
+			gTxVfo->Compander = gSubMenuSelection;
+			SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
+			gVfoConfigureMode = VFO_CONFIGURE;
+			gFlagResetVfos    = true;
+//			gRequestSaveChannel = 1;
+			return;
 
 		case MENU_1_CALL:
 			gEeprom.CHAN_1_CALL = gSubMenuSelection;
@@ -639,12 +641,6 @@ void MENU_AcceptSetting(void)
 			gTxVfo->DTMF_PTT_ID_TX_MODE = gSubMenuSelection;
 			gRequestSaveChannel         = 1;
 			return;
-
-		case MENU_VOL:
-			if(gF_LOCK) {
-				EEPROM_WriteBuffer(0x1F40, gBatteryCalibration);
-			}
-			break;
 
 		case MENU_BAT_TXT:
 			gSetting_battery_text = gSubMenuSelection;
@@ -757,13 +753,23 @@ void MENU_AcceptSetting(void)
 
 		#ifdef ENABLE_F_CAL_MENU
 			case MENU_F_CALI:
-				writeXtalFreqCal(gSubMenuSelection);
+				writeXtalFreqCal(gSubMenuSelection, true);
 				return;
 		#endif
 
 		case MENU_BATCAL:
-			gBatteryCalibration[3] = gSubMenuSelection;
+			gBatteryCalibration[0] = 520*gSubMenuSelection/760; //5.2V empty, blinking above this value, reduced functionality below
+			gBatteryCalibration[1] = 700*gSubMenuSelection/760; // 7V, ~5%, 1 bars above this value
+			gBatteryCalibration[2] = 745*gSubMenuSelection/760; // 7.45V, ~17%, 2 bars above this value
+			gBatteryCalibration[3] = gSubMenuSelection; // 7.6V, ~29%, 3 bars above this value
+			gBatteryCalibration[4] = 788*gSubMenuSelection/760; // 7.88V, ~65% 4 bars above this value
+			gBatteryCalibration[5] = 2300;
 			EEPROM_WriteBuffer(0x1F40, gBatteryCalibration);
+			uint16_t buf[4];
+			EEPROM_ReadBuffer(0x1F48, buf, sizeof(buf));
+			buf[0] = gBatteryCalibration[4];
+			buf[1] = gBatteryCalibration[5];
+			EEPROM_WriteBuffer(0x1F48, buf);	
 			break;
 	}
 
@@ -921,10 +927,12 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gEeprom.BATTERY_SAVE;
 			break;
 
-		case MENU_VOX:
-			gSubMenuSelection = gEeprom.VOX_SWITCH ? gEeprom.VOX_LEVEL + 1 : 0;
-			break;
-
+		#ifdef ENABLE_VOX
+			case MENU_VOX:
+				gSubMenuSelection = gEeprom.VOX_SWITCH ? gEeprom.VOX_LEVEL + 1 : 0;
+				break;
+		#endif
+			
 		case MENU_ABR:
 			gSubMenuSelection = gEeprom.BACKLIGHT;
 
@@ -932,8 +940,8 @@ void MENU_ShowCurrentSetting(void)
 			GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  	// turn the backlight ON while in backlight menu
 			break;
 
-		case MENU_ABR_ON_RX:
-			gSubMenuSelection = gSetting_backlight_on_rx;
+		case MENU_ABR_ON_TX_RX:
+			gSubMenuSelection = gSetting_backlight_on_tx_rx;
 			break;
 
 		case MENU_TDR:
@@ -996,11 +1004,9 @@ void MENU_ShowCurrentSetting(void)
 				break;
 		#endif
 
-		#ifdef ENABLE_COMPANDER
-			case MENU_COMPAND:
-				gSubMenuSelection = gTxVfo->Compander;
-				return;
-		#endif
+		case MENU_COMPAND:
+			gSubMenuSelection = gTxVfo->Compander;
+			return;
 
 		case MENU_1_CALL:
 			gSubMenuSelection = gEeprom.CHAN_1_CALL;
@@ -1043,10 +1049,6 @@ void MENU_ShowCurrentSetting(void)
 		case MENU_PTT_ID:
 			gSubMenuSelection = gTxVfo->DTMF_PTT_ID_TX_MODE;
 			break;
-
-		case MENU_VOL:
-			gSubMenuSelection = gBatteryCalibration[3];
-			return;
 
 		case MENU_BAT_TXT:
 			gSubMenuSelection = gSetting_battery_text;

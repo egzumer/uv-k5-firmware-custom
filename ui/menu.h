@@ -49,9 +49,11 @@ enum
 	MENU_MEM_NAME,
 	MENU_MDF,
 	MENU_SAVE,
+#ifdef ENABLE_VOX
 	MENU_VOX,
+#endif
 	MENU_ABR,
-	MENU_ABR_ON_RX,
+	MENU_ABR_ON_TX_RX,
 	MENU_TDR,
 	MENU_BEEP,
 #ifdef ENABLE_VOICE
@@ -67,9 +69,7 @@ enum
 #ifdef ENABLE_AUDIO_BAR
 	MENU_MIC_BAR,
 #endif
-#ifdef ENABLE_COMPANDER
 	MENU_COMPAND,
-#endif
 	MENU_1_CALL,
 	MENU_S_LIST,
 	MENU_SLIST1,
@@ -145,9 +145,7 @@ extern const char        gSubMenu_ROGER[3][9];
 extern const char        gSubMenu_RESET[2][4];
 extern const char        gSubMenu_F_LOCK[6][4];
 extern const char        gSubMenu_BACKLIGHT[8][7];
-#ifdef ENABLE_COMPANDER
-	extern const char    gSubMenu_Compand[4][6];
-#endif
+extern const char        gSubMenu_RX_TX[4][6];
 #ifdef ENABLE_AM_FIX_TEST1
 	extern const char    gSubMenu_AM_fix_test1[4][8];
 #endif

@@ -25,9 +25,7 @@
 
 enum {
 	MR_CH_BAND_MASK   = 0x0F << 0,
-	#ifdef ENABLE_COMPANDER
-		MR_CH_COMPAND =   3u << 4,  // new
-	#endif
+	MR_CH_COMPAND     =   3u << 4,  // new
 	MR_CH_SCANLIST2   =   1u << 6,
 	MR_CH_SCANLIST1   =   1u << 7
 };
@@ -111,9 +109,7 @@ typedef struct VFO_Info_t
 
 	uint8_t        AM_mode;
 
-	#ifdef ENABLE_COMPANDER
-		uint8_t    Compander;
-	#endif
+	uint8_t        Compander;
 
 	char           Name[16];
 } VFO_Info_t;
