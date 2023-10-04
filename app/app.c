@@ -1711,16 +1711,22 @@ void APP_TimeSlice500ms(void)
 
 	if (gDTMF_RX_live_timeout > 0)
 	{
-		if (--gDTMF_RX_live_timeout == 0)
+		#ifdef ENABLE_RSSI_BAR
+			if (center_line == CENTER_LINE_DTMF_DEC ||
+				center_line == CENTER_LINE_NONE)  // wait till the center line is free for us to use before timing out
+		#endif
 		{
-			if (gDTMF_RX_live[0] != 0)
+			if (--gDTMF_RX_live_timeout == 0)
 			{
-				memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
-				gUpdateDisplay   = true;
+				if (gDTMF_RX_live[0] != 0)
+				{
+					memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
+					gUpdateDisplay   = true;
+				}
 			}
 		}
 	}
-
+	
 	if (gDTMF_RX_timeout > 0)
 		if (--gDTMF_RX_timeout == 0)
 			DTMF_clear_RX();
