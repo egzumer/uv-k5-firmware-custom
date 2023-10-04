@@ -486,7 +486,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 
 	gEnableSpeaker = true;
 
-	if (gSetting_backlight_on_tx_rx)
+	if (gSetting_backlight_on_tx_rx >= 2)
 		BACKLIGHT_TurnOn();
 
 	if (gScanState != SCAN_OFF)
@@ -2104,7 +2104,8 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	}
 	else
 	{
-		BACKLIGHT_TurnOn();
+		if (Key != KEY_PTT)
+			BACKLIGHT_TurnOn();
 
 		if (Key == KEY_EXIT && bKeyHeld)
 		{	// exit key held pressed

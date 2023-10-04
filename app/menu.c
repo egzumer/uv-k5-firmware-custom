@@ -199,12 +199,11 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 			*pMax = ARRAY_SIZE(gSubMenu_RESET) - 1;
 			break;
 
-		#ifdef ENABLE_COMPANDER
-			case MENU_COMPAND:
-				*pMin = 0;
-				*pMax = ARRAY_SIZE(gSubMenu_Compand) - 1;
-				break;
-		#endif
+		case MENU_COMPAND:
+		case MENU_ABR_ON_TX_RX:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gSubMenu_RX_TX) - 1;
+			break;
 
 		#ifdef ENABLE_AM_FIX_TEST1
 			case MENU_AM_FIX_TEST1:
@@ -219,7 +218,6 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 		#ifdef ENABLE_AUDIO_BAR
 			case MENU_MIC_BAR:
 		#endif
-		case MENU_ABR_ON_TX_RX:
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_AUTOLK:
@@ -601,15 +599,13 @@ void MENU_AcceptSetting(void)
 				break;
 		#endif
 
-		#ifdef ENABLE_COMPANDER
-			case MENU_COMPAND:
-				gTxVfo->Compander = gSubMenuSelection;
-				SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
-				gVfoConfigureMode = VFO_CONFIGURE;
-				gFlagResetVfos    = true;
-//				gRequestSaveChannel = 1;
-				return;
-		#endif
+		case MENU_COMPAND:
+			gTxVfo->Compander = gSubMenuSelection;
+			SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
+			gVfoConfigureMode = VFO_CONFIGURE;
+			gFlagResetVfos    = true;
+//			gRequestSaveChannel = 1;
+			return;
 
 		case MENU_1_CALL:
 			gEeprom.CHAN_1_CALL = gSubMenuSelection;
@@ -998,11 +994,9 @@ void MENU_ShowCurrentSetting(void)
 				break;
 		#endif
 
-		#ifdef ENABLE_COMPANDER
-			case MENU_COMPAND:
-				gSubMenuSelection = gTxVfo->Compander;
-				return;
-		#endif
+		case MENU_COMPAND:
+			gSubMenuSelection = gTxVfo->Compander;
+			return;
 
 		case MENU_1_CALL:
 			gSubMenuSelection = gEeprom.CHAN_1_CALL;

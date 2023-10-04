@@ -82,9 +82,7 @@ const t_menu_item MenuList[] =
 #ifdef ENABLE_AUDIO_BAR
 	{"MICBAR", VOICE_ID_INVALID,                       MENU_MIC_BAR       },
 #endif
-#ifdef ENABLE_COMPANDER
 	{"COMPND", VOICE_ID_INVALID,                       MENU_COMPAND       },
-#endif
 	{"1 CALL", VOICE_ID_INVALID,                       MENU_1_CALL        },
 	{"SLIST",  VOICE_ID_INVALID,                       MENU_S_LIST        },
 	{"SLIST1", VOICE_ID_INVALID,                       MENU_SLIST1        },
@@ -293,15 +291,13 @@ const char gSubMenu_BACKLIGHT[8][7] =
 	"ON"
 };
 
-#ifdef ENABLE_COMPANDER
-	const char gSubMenu_Compand[4][6] =
-	{
-		"OFF",
-		"TX",
-		"RX",
-		"TX/RX"
-	};
-#endif
+const char gSubMenu_RX_TX[4][6] =
+{
+	"OFF",
+	"TX",
+	"RX",
+	"TX/RX"
+};
 
 #ifdef ENABLE_AM_FIX_TEST1
 	const char gSubMenu_AM_fix_test1[4][8] =
@@ -588,16 +584,14 @@ void UI_DisplayMenu(void)
 			strcpy(String, (gSubMenuSelection == 0) ? "OFF" : "AUTO");
 			break;
 
-		#ifdef ENABLE_COMPANDER
-			case MENU_COMPAND:
-				strcpy(String, gSubMenu_Compand[gSubMenuSelection]);
-				break;
-		#endif
+		case MENU_COMPAND:
+		case MENU_ABR_ON_TX_RX:
+			strcpy(String, gSubMenu_RX_TX[gSubMenuSelection]);
+			break;
 
 		#ifdef ENABLE_AM_FIX
 			case MENU_AM_FIX:
 		#endif
-		case MENU_ABR_ON_TX_RX:
 		case MENU_BCL:
 		case MENU_BEEP:
 		case MENU_S_ADD1:

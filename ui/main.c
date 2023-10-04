@@ -543,10 +543,12 @@ void UI_DisplayMain(void)
 				if (attributes & MR_CH_SCANLIST2)
 					memmove(p_line0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
 				#ifndef ENABLE_BIG_FREQ
-					#ifdef ENABLE_COMPANDER
-						if ((attributes & MR_CH_COMPAND) > 0)
-							memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
-					#endif
+					if ((attributes & MR_CH_COMPAND) > 0)
+						memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+				#else
+					
+					// TODO:  // find somewhere else to put the symbol
+				
 				#endif
 
 				switch (gEeprom.CHANNEL_DISPLAY_MODE)
@@ -613,16 +615,14 @@ void UI_DisplayMain(void)
 					UI_PrintString(String, 32, 0, line, 8);
 				#endif
 
-				#ifdef ENABLE_COMPANDER
-					// show the channel symbols
-					const uint8_t attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
-					if ((attributes & MR_CH_COMPAND) > 0)
-						#ifdef ENABLE_BIG_FREQ
-							memmove(p_line0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
-						#else
-							memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
-						#endif
-				#endif
+				// show the channel symbols
+				const uint8_t attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
+				if ((attributes & MR_CH_COMPAND) > 0)
+					#ifdef ENABLE_BIG_FREQ
+						memmove(p_line0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
+					#else
+						memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+					#endif
 			}
 		}
 

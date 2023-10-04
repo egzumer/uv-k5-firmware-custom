@@ -707,14 +707,14 @@ void BOARD_EEPROM_Init(void)
 	gSetting_ScrambleEnable    = (Data[6] < 2) ? Data[6] : true;
 	gSetting_TX_EN             = (Data[7] & (1u << 0)) ? true : false;
 	gSetting_live_DTMF_decoder = (Data[7] & (1u << 1)) ? true : false;
-	gSetting_battery_text      = (((Data[7] >> 2) & 3u) <= 2) ? (Data[7] >> 2) & 3: 2;
+	gSetting_battery_text      = (((Data[7] >> 2) & 3u) <= 2) ? (Data[7] >> 2) & 3 : 2;
 	#ifdef ENABLE_AUDIO_BAR
 		gSetting_mic_bar       = (Data[7] & (1u << 4)) ? true : false;
 	#endif
 	#ifdef ENABLE_AM_FIX
 		gSetting_AM_fix        = (Data[7] & (1u << 5)) ? true : false;
 	#endif
-	gSetting_backlight_on_tx_rx = (Data[7] & (1u << 6)) ? true : false;
+	gSetting_backlight_on_tx_rx = (Data[7] >> 6) & 3u;
 
 	if (!gEeprom.VFO_OPEN)
 	{

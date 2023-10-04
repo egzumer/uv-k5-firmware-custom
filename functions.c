@@ -230,7 +230,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			else
 				BK4819_DisableScramble();
 
-			if (gSetting_backlight_on_tx_rx)
+			if (gSetting_backlight_on_tx_rx == 1 || gSetting_backlight_on_tx_rx == 3)
 				BACKLIGHT_TurnOn();
 
 			break;

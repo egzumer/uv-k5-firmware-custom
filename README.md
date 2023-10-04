@@ -46,7 +46,6 @@ ENABLE_F_CAL_MENU             := 0       enable/disable the radios hidden freque
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       standard CTCSS tail phase shift rather than QS's own 55Hz tone method
 ENABLE_MAIN_KEY_HOLD          := 1       initial F-key press not needed, instead just hold down keys 0-9 to access the secondary butt functions
 ENABLE_BOOT_BEEPS             := 0       gives user audio feedback on volume knob position at boot-up
-ENABLE_COMPANDER              := 0       compander option (per channel)
 ENABLE_SHOW_CHARGE_LEVEL      := 0       show the charge level when the radio is on charge
 ENABLE_REVERSE_BAT_SYMBOL     := 1       mirror the battery symbol on the status bar (+ pole on the right)
 ENABLE_CODE_SCAN_TIMEOUT      := 0       enable/disable 32-sec CTCSS/DCS scan timeout (press exit butt instead of time-out to end scan)

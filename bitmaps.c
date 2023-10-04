@@ -416,14 +416,12 @@ const uint8_t BITMAP_ScanList2[6] =
 	0b01000010
 };
 
-#ifdef ENABLE_COMPANDER
-	const uint8_t BITMAP_compand[6] =
-	{
-		0b00000000,
-		0b00111100,
-		0b01000010,
-		0b01000010,
-		0b01000010,
-		0b00100100
-	};
-#endif
+const uint8_t BITMAP_compand[6] =
+{
+	0b00000000,
+	0b00111100,
+	0b01000010,
+	0b01000010,
+	0b01000010,
+	0b00100100
+};
