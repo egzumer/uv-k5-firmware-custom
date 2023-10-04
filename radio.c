@@ -564,8 +564,8 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
 			#ifdef ENABLE_AM_FIX
-				BK4819_SetFilterBandwidth(Bandwidth, gRxVfo->AM_mode && gSetting_AM_fix);
-//				BK4819_SetFilterBandwidth(Bandwidth, false);
+//				BK4819_SetFilterBandwidth(Bandwidth, gRxVfo->AM_mode && gSetting_AM_fix);
+				BK4819_SetFilterBandwidth(Bandwidth, true);
 			#else
 				BK4819_SetFilterBandwidth(Bandwidth, false);
 			#endif
@@ -732,6 +732,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 	#else
 		if (gCurrentFunction != FUNCTION_TRANSMIT)
 		{
+			BK4819_DisableDTMF();
 			BK4819_EnableDTMF();
 			InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
 		}
@@ -812,8 +813,8 @@ void RADIO_SetTxParameters(void)
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
 			#ifdef ENABLE_AM_FIX
-				BK4819_SetFilterBandwidth(Bandwidth, gCurrentVfo->AM_mode && gSetting_AM_fix);
-//				BK4819_SetFilterBandwidth(Bandwidth, false);
+//				BK4819_SetFilterBandwidth(Bandwidth, gCurrentVfo->AM_mode && gSetting_AM_fix);
+				BK4819_SetFilterBandwidth(Bandwidth, true);
 			#else
 				BK4819_SetFilterBandwidth(Bandwidth, false);
 			#endif

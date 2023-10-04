@@ -125,18 +125,14 @@ typedef struct SpectrumSettings {
   uint32_t frequencyChangeStep;  
   StepsCount stepsCount;
   ScanStep scanStepIndex;
-
   uint16_t scanDelay;
   uint16_t rssiTriggerLevel;
-
-  
   BK4819_FilterBandwidth_t bw;
   BK4819_FilterBandwidth_t listenBw;
   int dbMin;
   int dbMax;  
   ModulationType modulationType;
   bool backlightState;
-  uint8_t _pad[2];
 } SpectrumSettings;
 
 typedef struct KeyboardState {
@@ -151,7 +147,6 @@ typedef struct ScanInfo {
   uint32_t f, fPeak;
   uint16_t scanStep;
   uint8_t measurementsCount;
-  uint8_t _pad[1];
 } ScanInfo;
 
 typedef struct RegisterSpec {
@@ -160,7 +155,6 @@ typedef struct RegisterSpec {
   uint8_t offset;
   uint16_t maxValue;
   uint16_t inc;
-  uint8_t _pad[2];
 } RegisterSpec;
 
 typedef struct PeakInfo {
@@ -168,7 +162,6 @@ typedef struct PeakInfo {
   uint16_t rssi;
   uint32_t f;
   uint8_t i;
-  uint8_t _pad[3];
 } PeakInfo;
 
 void APP_RunSpectrum(void);

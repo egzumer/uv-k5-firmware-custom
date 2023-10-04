@@ -13,7 +13,7 @@ ENABLE_NOAA                   := 0
 ENABLE_VOICE                  := 0
 ENABLE_VOX                    := 1
 ENABLE_ALARM                  := 0
-ENABLE_TX1750                 := 0
+ENABLE_TX1750                 := 1
 ENABLE_BIG_FREQ               := 1
 ENABLE_SMALL_BOLD             := 1
 ENABLE_KEEP_MEM_NAME          := 1
@@ -176,7 +176,7 @@ ifeq ($(ENABLE_LTO), 1)
 	CFLAGS += -flto=2
 endif
 
-CFLAGS += -Wpadded
+#CFLAGS += -Wpadded
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
 

@@ -913,7 +913,7 @@ void BK4819_EnableDTMF(void)
 	// REG_24 <3:0>  14 Max symbol number for SelCall detection
 
 //	const uint16_t threshold = 24;    // doesn't decode non-QS radios
-	const uint16_t threshold = 140;   // but 128 ~ 247 does
+	const uint16_t threshold = 200;   // but 128 ~ 247 does
 	BK4819_WriteRegister(BK4819_REG_24,                // 1 00011000 1 1 1 1110
 		  (1u        << BK4819_REG_24_SHIFT_UNKNOWN_15)
 		| (threshold << BK4819_REG_24_SHIFT_THRESHOLD)      // 0 ~ 255
@@ -1183,7 +1183,25 @@ void BK4819_TransmitTone(bool bLocalLoopback, uint32_t Frequency)
 {
 	BK4819_EnterTxMute();
 
-	BK4819_WriteRegister(BK4819_REG_70, 0 | BK4819_REG_70_MASK_ENABLE_TONE1 | (96U << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+	// REG_70 <15>   0 Enable TONE1
+	//               1 = Enable
+	//               0 = Disable
+	//
+	// REG_70 <14:8> 0 TONE1 tuning gain
+	//               0 ~ 127
+	//
+	// REG_70 <7>    0 Enable TONE2
+	//               1 = Enable
+	//               0 = Disable
+	//
+	// REG_70 <6:0>  0 TONE2/FSK tuning gain
+	//               0 ~ 127
+	//
+	// set the tone amplitude
+	//
+//	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_MASK_ENABLE_TONE1 | (96u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_MASK_ENABLE_TONE1 | (50u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+
 	BK4819_WriteRegister(BK4819_REG_71, scale_freq(Frequency));
 
 	BK4819_SetAF(bLocalLoopback ? BK4819_AF_BEEP : BK4819_AF_MUTE);

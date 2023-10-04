@@ -194,7 +194,7 @@ typedef struct {
 	char                  DTMF_SEPARATE_CODE;
 	char                  DTMF_GROUP_CALL_CODE;
 	uint8_t               DTMF_DECODE_RESPONSE;
-	uint8_t               DTMF_AUTO_RESET_TIME;
+	uint8_t               DTMF_auto_reset_time;
 	uint16_t              DTMF_PRELOAD_TIME;
 	uint16_t              DTMF_FIRST_CODE_PERSIST_TIME;
 	uint16_t              DTMF_HASH_CODE_PERSIST_TIME;

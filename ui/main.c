@@ -36,17 +36,6 @@
 #include "ui/main.h"
 #include "ui/ui.h"
 
-enum center_line_t {
-	CENTER_LINE_NONE = 0,
-	CENTER_LINE_IN_USE,
-	CENTER_LINE_AUDIO_BAR,
-	CENTER_LINE_RSSI,
-	CENTER_LINE_AM_FIX_DATA,
-	CENTER_LINE_DTMF_DEC,
-	CENTER_LINE_CHARGE_DATA
-};
-typedef enum center_line_t center_line_t;
-
 center_line_t center_line = CENTER_LINE_NONE;
 
 // ***************************************************************************

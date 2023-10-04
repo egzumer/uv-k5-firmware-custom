@@ -54,8 +54,8 @@ char              gDTMF_Caller[4];
 char              gDTMF_Callee[4];
 DTMF_State_t      gDTMF_State;
 uint8_t           gDTMF_DecodeRingCountdown_500ms;
-uint8_t           gDTMFChosenContact;
-uint8_t           gDTMF_AUTO_RESET_TIME;
+uint8_t           gDTMF_chosen_contact;
+uint8_t           gDTMF_auto_reset_time_500ms;
 DTMF_CallState_t  gDTMF_CallState;
 DTMF_ReplyState_t gDTMF_ReplyState;
 DTMF_CallMode_t   gDTMF_CallMode;
@@ -403,13 +403,12 @@ void DTMF_Reply(void)
 	if (pString == NULL)
 		return;
 
-	Delay = gEeprom.DTMF_PRELOAD_TIME;
+	Delay = (gEeprom.DTMF_PRELOAD_TIME < 200) ? 200 : gEeprom.DTMF_PRELOAD_TIME;
 
 	if (gEeprom.DTMF_SIDE_TONE)
-	{	// the will also hear the transmitted tones
+	{	// the user will also hear the transmitted tones
 		GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 		gEnableSpeaker = true;
-		Delay = (gEeprom.DTMF_PRELOAD_TIME < 60) ? 60 : gEeprom.DTMF_PRELOAD_TIME;
 	}
 
 	SYSTEM_DelayMs(Delay);
