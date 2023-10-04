@@ -13,7 +13,7 @@ ENABLE_NOAA                   := 0
 ENABLE_VOICE                  := 0
 ENABLE_VOX                    := 0
 ENABLE_ALARM                  := 0
-ENABLE_TX1750                 := 1
+ENABLE_TX1750                 := 0
 ENABLE_BIG_FREQ               := 0
 ENABLE_SMALL_BOLD             := 1
 ENABLE_KEEP_MEM_NAME          := 1
@@ -23,13 +23,13 @@ ENABLE_F_CAL_MENU             := 0
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1
 ENABLE_MAIN_KEY_HOLD          := 1
 ENABLE_BOOT_BEEPS             := 0
-ENABLE_COMPANDER              := 0
+ENABLE_COMPANDER              := 1
 ENABLE_SHOW_CHARGE_LEVEL      := 1
 ENABLE_REVERSE_BAT_SYMBOL     := 1
 ENABLE_CODE_SCAN_TIMEOUT      := 0
 ENABLE_AM_FIX                 := 1
 ENABLE_AM_FIX_SHOW_DATA       := 1
-ENABLE_SQUELCH_MORE_SENSITIVE := 0
+ENABLE_SQUELCH_MORE_SENSITIVE := 1
 ENABLE_FASTER_CHANNEL_SCAN    := 0
 ENABLE_RSSI_BAR               := 1
 ENABLE_AUDIO_BAR              := 1
@@ -279,6 +279,9 @@ ifeq ($(ENABLE_BAND_SCOPE),1)
 endif
 
 LDFLAGS = -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld
+
+# Use newlib-nano instead of newlib
+LDFLAGS += --specs=nano.specs
 
 ifeq ($(DEBUG),1)
 	ASFLAGS += -g

@@ -835,7 +835,7 @@ void BK4819_SetCompander(const unsigned int mode)
 	
 	if (mode == 0)
 	{	// disable
-		BK4819_WriteRegister(BK4819_REG_31, r31 & ~(1u < 3));
+		BK4819_WriteRegister(BK4819_REG_31, r31 & ~(1u << 3));
 		return;
 	}
 
@@ -856,9 +856,9 @@ void BK4819_SetCompander(const unsigned int mode)
 	const uint16_t compress_noise_dB = 64;
 //	AB40  10 1010110 1000000
 	BK4819_WriteRegister(BK4819_REG_29, // (BK4819_ReadRegister(BK4819_REG_29) & ~(3u < 14)) | (compress_ratio < 14));
-		  (compress_ratio    < 14)
-		| (compress_0dB      <  7)
-		| (compress_noise_dB <  0));
+		  (compress_ratio    << 14)
+		| (compress_0dB      <<  7)
+		| (compress_noise_dB <<  0));
  
 	// set the expander ratio
 	//
@@ -877,12 +877,12 @@ void BK4819_SetCompander(const unsigned int mode)
 	const uint16_t expand_noise_dB = 56;
 //	6B38  01 1010110 0111000
 	BK4819_WriteRegister(BK4819_REG_28, // (BK4819_ReadRegister(BK4819_REG_28) & ~(3u < 14)) | (expand_ratio < 14));
-		  (expand_ratio    < 14)
-		| (expand_0dB      <  7)
-		| (expand_noise_dB <  0));
+		  (expand_ratio    << 14)
+		| (expand_0dB      <<  7)
+		| (expand_noise_dB <<  0));
 
 	// enable
-	BK4819_WriteRegister(BK4819_REG_31, r31 | (1u < 3));
+	BK4819_WriteRegister(BK4819_REG_31, r31 | (1u << 3));
 }
 
 void BK4819_DisableVox(void)
