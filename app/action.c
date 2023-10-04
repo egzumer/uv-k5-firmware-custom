@@ -184,10 +184,16 @@ void ACTION_Scan(bool bRestart)
 
 			if (gScanState != SCAN_OFF)
 			{
-				SCANNER_Stop();
+				#if 1
+					// keep scanning but swap scan lists
+					gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) & 1u;
+					gUpdateStatus = true;
+				#else
+					SCANNER_Stop();
 
-				#ifdef ENABLE_VOICE
-					gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
+					#ifdef ENABLE_VOICE
+						gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
+					#endif
 				#endif
 			}
 			else
