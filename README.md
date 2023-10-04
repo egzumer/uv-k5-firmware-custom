@@ -60,6 +60,12 @@ ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO
 #ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter
 ```
 
+# New/modified function keys
+
+* Long-press 'M' = Copy selected channel into the same VFO, then switches to frequency mode
+* Long-press '5' = Toggle a selected channels scanlist setting .. if NOAA is disable in Makefile
+* Long-press '*' = Toggles the scanlist number 1, 2 or ALL channels .. if in channel scan mode
+
 # Some changes made from the Quansheng firmware
 
 * Various Quansheng firmware bugs fixed

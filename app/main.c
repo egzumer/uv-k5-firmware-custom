@@ -48,7 +48,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			#else
 
 
-				// TODO: do something useful with the key
+				// TODO: make use of this function key
 
 
 			#endif
@@ -166,6 +166,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 		case KEY_5:
 			#ifdef ENABLE_NOAA
+			
 				if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 				{
 					gEeprom.ScreenChannel[Vfo] = gEeprom.NoaaChannel[gEeprom.TX_CHANNEL];
@@ -179,29 +180,36 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				}
 				gRequestSaveVFO   = true;
 				gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
+				
 			#else
-				// toggle scanlist-1 and scanlist 2
+				// toggle the selected channels scanlist setting
+			
 				if (gScreenToDisplay != DISPLAY_SCANNER)
 				{
-					if (gTxVfo->SCANLIST1_PARTICIPATION)
+					if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
 					{
-						if (gTxVfo->SCANLIST2_PARTICIPATION)
-							gTxVfo->SCANLIST1_PARTICIPATION = 0;
+						if (gTxVfo->SCANLIST1_PARTICIPATION)
+						{
+							if (gTxVfo->SCANLIST2_PARTICIPATION)
+								gTxVfo->SCANLIST1_PARTICIPATION = 0;
+							else
+								gTxVfo->SCANLIST2_PARTICIPATION = 1;
+						}
 						else
-							gTxVfo->SCANLIST2_PARTICIPATION = 1;
+						{
+							if (gTxVfo->SCANLIST2_PARTICIPATION)
+								gTxVfo->SCANLIST2_PARTICIPATION = 0;
+							else
+								gTxVfo->SCANLIST1_PARTICIPATION = 1;
+						}
+						SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
+						gVfoConfigureMode = VFO_CONFIGURE;
+						gFlagResetVfos    = true;
 					}
-					else
-					{
-						if (gTxVfo->SCANLIST2_PARTICIPATION)
-							gTxVfo->SCANLIST2_PARTICIPATION = 0;
-						else
-							gTxVfo->SCANLIST1_PARTICIPATION = 1;
-					}
-					SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
-					gVfoConfigureMode = VFO_CONFIGURE;
-					gFlagResetVfos    = true;
 				}
+				
 			#endif
+			
 			break;
 
 		case KEY_6:
@@ -214,7 +222,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			#else
 	
 
-				// TODO: make use of the function key press
+				// TODO: make use of this function key
 
 
 			#endif
