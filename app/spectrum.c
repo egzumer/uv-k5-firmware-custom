@@ -62,17 +62,17 @@ const char *modulationTypeOptions[] = {" FM", " AM", "USB"};
 const uint8_t modulationTypeTuneSteps[] = {100, 50, 10};
 const uint8_t modTypeReg47Values[] = {1, 7, 5};
 
-SpectrumSettings settings = {STEPS_64,
-                             S_STEP_25_0kHz,
-                             80000,
-                             3200,
-                             150,
-                             true,
-                             BK4819_FILTER_BW_WIDE,
-                             BK4819_FILTER_BW_WIDE,
-                             false,
-                             -130,
-                             -50};
+SpectrumSettings settings = {stepsCount: STEPS_64,
+                             scanStepIndex: S_STEP_25_0kHz,
+                             frequencyChangeStep: 80000,
+                             scanDelay: 3200,
+                             rssiTriggerLevel: 150,
+                             backlightState: true,
+                             bw: BK4819_FILTER_BW_WIDE,
+                             listenBw: BK4819_FILTER_BW_WIDE,
+                             modulationType: false,
+                             dbMin: -130,
+                             dbMax: -50};
 
 uint32_t fMeasure = 0;
 uint32_t currentFreq, tempFreq;
