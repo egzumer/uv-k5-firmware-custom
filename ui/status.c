@@ -97,12 +97,16 @@ void UI_DisplayStatus(const bool test_display)
 		if (gScanState != SCAN_OFF || gScreenToDisplay == DISPLAY_SCANNER || test_display)
 		{
 			if (gEeprom.SCAN_LIST_DEFAULT == 0)
-				memmove(line + x, BITMAP_SC1, sizeof(BITMAP_SC1));
+//				memmove(line + x, BITMAP_SC1, sizeof(BITMAP_SC1));
+				UI_PrintStringSmallBuffer("1", line + x);
 			else
-				memmove(line + x, BITMAP_SC2, sizeof(BITMAP_SC2));
-			x1 = x + sizeof(BITMAP_SC1);
+//				memmove(line + x, BITMAP_SC2, sizeof(BITMAP_SC2));
+				UI_PrintStringSmallBuffer("2", line + x);
+//			x1 = x + sizeof(BITMAP_SC1);
+			x1 = x + 7;
 		}
-	x += sizeof(BITMAP_SC1);
+//	x += sizeof(BITMAP_SC1);
+	x += 7;  // font character width
 
 	#ifdef ENABLE_VOICE
 		// VOICE indicator
@@ -213,23 +217,37 @@ void UI_DisplayStatus(const bool test_display)
 
 		#ifndef ENABLE_REVERSE_BAT_SYMBOL
 			line += sizeof(BITMAP_BatteryLevel1);
-			if (gBatteryDisplayLevel >= 2)
-				memmove(line -  4, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-			if (gBatteryDisplayLevel >= 3)
-				memmove(line -  7, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-			if (gBatteryDisplayLevel >= 4)
-				memmove(line - 10, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-			if (gBatteryDisplayLevel >= 5)
-				memmove(line - 13, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
+			{
+				const int8_t pos[] = {-4, -7, -10, 13};
+				for (unsigned int i = 0; i < ARRAY_SIZE(pos); i++)
+					if (gBatteryDisplayLevel >= (2 + i))
+						memmove(line + pos[i], BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
+	
+/*				switch (gBatteryDisplayLevel)
+				{
+					default:
+					case 5: memmove(line - 13, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
+					case 4: memmove(line - 10, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
+					case 3: memmove(line -  7, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
+					case 2: memmove(line -  4, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
+				}
+*/			}
 		#else
-			if (gBatteryDisplayLevel >= 2)
-				memmove(line +  3, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-			if (gBatteryDisplayLevel >= 3)
-				memmove(line +  6, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-			if (gBatteryDisplayLevel >= 4)
-				memmove(line +  9, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-			if (gBatteryDisplayLevel >= 5)
-				memmove(line + 12, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
+		{
+			const int8_t pos[] = {3, 6, 9, 12};
+			for (unsigned int i = 0; i < ARRAY_SIZE(pos); i++)
+				if (gBatteryDisplayLevel >= (2 + i))
+					memmove(line + pos[i], BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
+/*
+			switch (gBatteryDisplayLevel)
+			{
+				default:
+				case 5: memmove(line + 12, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
+				case 4: memmove(line +  9, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
+				case 3: memmove(line +  6, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
+				case 2: memmove(line +  3, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
+			}
+*/		}
 		#endif
 	}
 	else
