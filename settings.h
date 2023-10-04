@@ -127,7 +127,15 @@ typedef struct {
 	uint8_t               field7_0xa;
 	uint8_t               field8_0xb;
 
-	uint32_t              POWER_ON_PASSWORD;
+	#ifdef ENABLE_FMRADIO
+		uint16_t          FM_SelectedFrequency;
+		uint8_t           FM_SelectedChannel;
+		bool              FM_IsMrMode;
+		uint16_t          FM_FrequencyPlaying;
+		uint16_t          FM_LowerLimit;
+		uint16_t          FM_UpperLimit;
+	#endif
+
 	uint8_t               SQUELCH_LEVEL;
 	uint8_t               TX_TIMEOUT_TIMER;
 	bool                  KEY_LOCK;
@@ -152,24 +160,9 @@ typedef struct {
 
 	uint8_t               field29_0x26;
 	uint8_t               field30_0x27;
-
-	uint16_t              VOX1_THRESHOLD;
-	uint16_t              VOX0_THRESHOLD;
-
-	#ifdef ENABLE_FMRADIO
-		uint16_t          FM_SelectedFrequency;
-		uint8_t           FM_SelectedChannel;
-		bool              FM_IsMrMode;
-		uint16_t          FM_FrequencyPlaying;
-	#endif
 	
 	uint8_t               field37_0x32;
 	uint8_t               field38_0x33;
-
-	#ifdef ENABLE_FMRADIO
-		uint16_t          FM_LowerLimit;
-		uint16_t          FM_UpperLimit;
-	#endif
 
 	bool                  AUTO_KEYPAD_LOCK;
 	#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
@@ -216,11 +209,16 @@ typedef struct {
 	uint8_t               VOLUME_GAIN;
 	uint8_t               DAC_GAIN;
 
+	VFO_Info_t            VfoInfo[2];
+	uint32_t              POWER_ON_PASSWORD;
+	uint16_t              VOX1_THRESHOLD;
+	uint16_t              VOX0_THRESHOLD;
+
 	uint8_t               field77_0x95;
 	uint8_t               field78_0x96;
 	uint8_t               field79_0x97;
 
-	VFO_Info_t            VfoInfo[2];
+	uint8_t _pad[1];
 } EEPROM_Config_t;
 extern EEPROM_Config_t gEeprom;
 
