@@ -42,6 +42,7 @@ ENABLE_VOICE                  := 0       want to hear voices ?
 ENABLE_VOX                    := 0
 ENABLE_ALARM                  := 0       TX alarms
 ENABLE_1750HZ                 := 0       side key 1750Hz TX tone (older style repeater access)
+ENABLE_PWRON_PASSWORD         := 1       enable the power-on password stuff
 ENABLE_BIG_FREQ               := 0       big font frequencies (like original QS firmware)
 ENABLE_SMALL_BOLD             := 1       bold channel name/no. (when name + freq channel display mode)
 ENABLE_KEEP_MEM_NAME          := 1       maintain channel name when (re)saving memory channel

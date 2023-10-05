@@ -15,6 +15,7 @@ ENABLE_VOICE                  := 0
 ENABLE_VOX                    := 0
 ENABLE_ALARM                  := 0
 ENABLE_TX1750                 := 0
+ENABLE_PWRON_PASSWORD         := 1
 ENABLE_BIG_FREQ               := 0
 ENABLE_SMALL_BOLD             := 1
 ENABLE_KEEP_MEM_NAME          := 1
@@ -133,7 +134,9 @@ ifeq ($(ENABLE_FMRADIO),1)
 endif
 OBJS += ui/helper.o
 OBJS += ui/inputbox.o
-OBJS += ui/lock.o
+ifeq ($(ENABLE_PWRON_PASSWORD),1)
+	OBJS += ui/lock.o
+endif
 OBJS += ui/main.o
 OBJS += ui/menu.o
 OBJS += ui/scanner.o
@@ -241,6 +244,9 @@ ifeq ($(ENABLE_ALARM),1)
 endif
 ifeq ($(ENABLE_TX1750),1)
 	CFLAGS  += -DENABLE_TX1750
+endif
+ifeq ($(ENABLE_PWRON_PASSWORD),1)
+	CFLAGS  += -DENABLE_PWRON_PASSWORD
 endif
 ifeq ($(ENABLE_KEEP_MEM_NAME),1)
 	CFLAGS  += -DENABLE_KEEP_MEM_NAME

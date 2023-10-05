@@ -117,8 +117,10 @@ void SETTINGS_SaveSettings(void)
 	EEPROM_WriteBuffer(0x0E90, State);
 
 	memset(Password, 0xFF, sizeof(Password));
-	Password[0] = gEeprom.POWER_ON_PASSWORD;
-	EEPROM_WriteBuffer(0x0E98, State);
+	#ifdef ENABLE_PWRON_PASSWORD
+		Password[0] = gEeprom.POWER_ON_PASSWORD;
+	#endif
+	EEPROM_WriteBuffer(0x0E98, Password);
 
 	#ifdef ENABLE_VOICE
 		memset(State, 0xFF, sizeof(State));

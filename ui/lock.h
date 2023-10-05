@@ -17,7 +17,9 @@
 #ifndef UI_LOCK_H
 #define UI_LOCK_H
 
-void UI_DisplayLock(void);
+#ifdef ENABLE_PWRON_PASSWORD
+	void UI_DisplayLock(void);
+#endif
 
 #endif
 
