@@ -61,13 +61,13 @@ ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO
 
 # New/modified function keys
 
-* Long-press 'M' = Copy selected channel into same VFO, then switch VFO to frequency mode
+* Long-press 'M' .. Copy selected channel into same VFO, then switch VFO to frequency mode
 *
-* Long-press '7' = Toggle selected channel scanlist setting .. if VOX  is disable in Makefile
-    or
-* Long-press '5' = Toggle selected channel scanlist setting .. if NOAA is disable in Makefile
+* Long-press '7' .. Toggle selected channel scanlist setting .. if VOX  is disabled in Makefile
+*       or
+* Long-press '5' .. Toggle selected channel scanlist setting .. if NOAA is disabled in Makefile
 *
-* Long-press '*' = Start scanning, then toggle scanlist scan 1, 2 or ALL channels (if in channel scan mode)
+* Long-press '*' .. Start scanning, then toggles scanlist scan 1, 2 or ALL channel scanning
 
 # Some changes made from the Quansheng firmware
 

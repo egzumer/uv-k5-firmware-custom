@@ -152,7 +152,7 @@ static void APP_CheckForIncoming(void)
 		gUpdateStatus    = true;
 	}
 	else
-	{
+	{	// RF scanning
 		if (gRxReceptionMode != RX_MODE_NONE)
 		{
 			if (gCurrentFunction != FUNCTION_INCOMING)
@@ -163,7 +163,6 @@ static void APP_CheckForIncoming(void)
 				updateRSSI(gEeprom.RX_VFO);
 				gUpdateRSSI = true;
 			}
-
 			return;
 		}
 
@@ -1068,7 +1067,8 @@ void APP_Update(void)
 	#else
 		if (gScreenToDisplay != DISPLAY_SCANNER && gScanState != SCAN_OFF && gScheduleScanListen && !gPttIsPressed)
 	#endif
-	{
+	{	// scanning
+	
 		if (IS_FREQ_CHANNEL(gNextMrChannel))
 		{
 			if (gCurrentFunction == FUNCTION_INCOMING)

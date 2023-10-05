@@ -549,16 +549,24 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 
 				#ifdef ENABLE_COPY_CHAN_TO_VFO
 
-					if (gEeprom.VFO_OPEN &&
-						gScanState == SCAN_OFF &&
-						gCssScanMode == CSS_SCAN_MODE_OFF)
-					{	// copy channel to VFO
+					if (gEeprom.VFO_OPEN && gCssScanMode == CSS_SCAN_MODE_OFF)
+					{
 
+						if (gScanState != SCAN_OFF)
+						{
+							if (gCurrentFunction != FUNCTION_INCOMING ||
+							    gRxReceptionMode == RX_MODE_NONE      ||
+								ScanPauseDelayIn_10ms == 0)
+							{	// scan is running (not paused)
+								return;
+							}
+						}
+						
 						const unsigned int vfo = get_rx_VFO();
 
 						if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo]))
-						{	// swap to the VFO
-
+						{	// copy channel to VFO, then swap to the VFO
+							
 							const unsigned int channel = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
 
 							gEeprom.ScreenChannel[vfo] = channel;
