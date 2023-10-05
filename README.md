@@ -26,6 +26,7 @@ You can customize the firmware by enabling/disabling various compile options.
 You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) ..
 
 ```
+ENABLE_CLANG                  := 0       experimental, builds with clang instead of gcc (LTO will be disabled if you enable this)
 ENABLE_SWD                    := 0       only needed if using CPU's SWD port (debugging/programming)
 ENABLE_OVERLAY                := 0       cpu FLASH stuff, not needed
 ENABLE_LTO                    := 0     **experimental, reduces size of compiled firmware but might break EEPROM reads (overlay will be disabled if you enable this)
@@ -87,6 +88,9 @@ ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO
 arm-none-eabi GCC version 10.3.1 is recommended, which is the current version on Ubuntu 22.04.03 LTS.
 Other versions may generate a flash file that is too big.
 You can get an appropriate version from: https://developer.arm.com/downloads/-/gnu-rm
+
+clang may be used but isn't fully supported. Resulting binaries may also be bigger.
+You can get it from: https://releases.llvm.org/download.html
 
 # Building
 
