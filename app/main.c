@@ -68,8 +68,15 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 	uint8_t Vfo = gEeprom.TX_VFO;
 
 	if (gScreenToDisplay == DISPLAY_MENU)
+	{
+//		if (beep)
+			gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 		return;
+	}
 	
+//	if (beep)
+		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
 	switch (Key)
 	{
 		case KEY_0:
@@ -530,6 +537,10 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 
 static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 {
+	if (bKeyPressed && !bKeyHeld)
+		// menu key pressed
+		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
 	if (bKeyHeld)
 	{	// menu key held down (long press)
 
@@ -603,14 +614,10 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		const bool bFlag = (gInputBoxIndex == 0);
 		gInputBoxIndex   = 0;
 
-		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-
 		if (bFlag)
 		{
 			gFlagRefreshSetting = true;
-
 			gRequestDisplayScreen = DISPLAY_MENU;
-
 			#ifdef ENABLE_VOICE
 				gAnotherVoiceID   = VOICE_ID_MENU;
 			#endif
@@ -808,7 +815,7 @@ void MAIN_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	{
 		if (!bKeyHeld)
 		{
-			const char Character = DTMF_GetCharacter(Key);
+			const char Character = DTMF_GetCharacter(Key - KEY_0);
 			if (Character != 0xFF)
 			{	// add key to DTMF string
 				DTMF_Append(Character);
@@ -827,7 +834,7 @@ void MAIN_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	// TODO: ???
 	if (Key > KEY_PTT)
 	{
-		Key = KEY_SIDE2;
+		Key = KEY_SIDE2;      // what's this doing ???
 	}
 
 	switch (Key)

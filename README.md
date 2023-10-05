@@ -9,20 +9,24 @@ Anyway, have fun.
 
 # Radio performance
 
-Please note that the Quansheng uv-k radios are not professional quality transceivers, their
-performance is strictly limited, somewhat below that of a decent transceiver. The RX front
-end has no track-tuned band pass filtering at all, and so are wide band/wide open to any
-and all signals over a wide frequency range.
-Using the radio in high intensity RF environments will nearly always destroy your reception,
-the receiver simply doesn't have a great dynamic range, which means distorted AM audio with
-strong received signals, there is nothing more anyone can do in firmware/software to stop that
-happening once the RX gain adjustment I do (AM fix) reaches the hardwares limit.
+Please note that the Quansheng UV-Kx radios are not professional quality transceivers, their
+performance is strictly limited. The RX front end has no track-tuned band pass filtering
+at all, and so are wide band/wide open to any and all signals over a large frequency range.
 
-Saying that, they are nice toys for the price, fun to play with.
+Using the radio in high intensity RF environments will most likely make reception anything but
+easy (AM mode will suffer far more than FM ever will), the receiver simply doesn't have a
+great dynamic range, which results in distorted AM audio with stronger RX'ed signals.
+There is nothing more anyone can do in firmware/software to improve that, once the RX gain
+adjustment I do (AM fix) reaches the hardwares limit, your AM RX audio will be all but
+non-existant (just like Quansheng's firmware).
+On the other hand, FM RX audio will/should be fine.
+
+But, they are nice toys for the price, fun to play with.
 
 # User customization
 
-You can customize the firmware by enabling/disabling various compile options.
+You can customize the firmware by enabling/disabling various compile options, this allows
+us to remove certain firmware features in order to make room in the flash for others.
 You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) ..
 
 ```
@@ -68,7 +72,7 @@ ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO
 * or
 * Long-press '5' .. Toggle selected channel scanlist setting .. if NOAA is disabled in Makefile
 *
-* Long-press '*' .. Start scanning, then toggles scanlist scan 1, 2 or ALL channel scanning
+* Long-press '*' .. Start scanning, then toggles the scanning between scanlists 1, 2 or ALL channels
 
 # Some changes made from the Quansheng firmware
 

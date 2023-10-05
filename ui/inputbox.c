@@ -16,12 +16,13 @@
 
 #include <string.h>
 
+#include "driver/keyboard.h"
 #include "ui/inputbox.h"
 
 char    gInputBox[8];
 uint8_t gInputBoxIndex;
 
-void INPUTBOX_Append(char Digit)
+void INPUTBOX_Append(const char Digit)
 {
 	if (gInputBoxIndex >= sizeof(gInputBox))
 		return;
@@ -29,6 +30,6 @@ void INPUTBOX_Append(char Digit)
 	if (gInputBoxIndex == 0)
 		memset(gInputBox, 10, sizeof(gInputBox));
 
-	gInputBox[gInputBoxIndex++] = Digit;
+	gInputBox[gInputBoxIndex++] = Digit - KEY_0;
 }
 

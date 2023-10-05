@@ -22,10 +22,10 @@
 #include "driver/i2c.h"
 #include "misc.h"
 
-KEY_Code_t gKeyReading0 = KEY_INVALID;
-KEY_Code_t gKeyReading1 = KEY_INVALID;
-uint16_t   gDebounceCounter;
-bool       gWasFKeyPressed;
+KEY_Code_t gKeyReading0     = KEY_INVALID;
+KEY_Code_t gKeyReading1     = KEY_INVALID;
+uint16_t   gDebounceCounter = 0;
+bool       gWasFKeyPressed  = false;
 
 static const struct {
 
@@ -42,9 +42,8 @@ static const struct {
 
 } keyboard[] = {
 
-	// Zero row
-	{
-		// Set to zero to handle special case of nothing pulled down.
+	{	// Zero row
+		// Set to zero to handle special case of nothing pulled down
 		.set_to_zero_mask = 0xffff,
 		.pins = {
 			{ .key = KEY_SIDE1,   .pin = GPIOA_PIN_KEYBOARD_0},
@@ -120,6 +119,7 @@ KEY_Code_t KEYBOARD_Poll(void)
 
 		// Read all 4 GPIO pins at once
 		reg = GPIOA->DATA;
+
 		for (unsigned int i = 0; i < ARRAY_SIZE(keyboard[j].pins); i++)
 		{
 			const uint16_t mask = 1u << keyboard[j].pins[i].pin;
@@ -134,13 +134,13 @@ KEY_Code_t KEYBOARD_Poll(void)
 			break;
 	}
 
-	// Create I2C stop condition. Since we might have toggled I2C pins.
+	// Create I2C stop condition since we might have toggled I2C pins
 	// This leaves GPIOA_PIN_KEYBOARD_4 and GPIOA_PIN_KEYBOARD_5 high
 	I2C_Stop();
 
 	// Reset VOICE pins
 	GPIO_ClearBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_6);
-	GPIO_SetBit(&GPIOA->DATA, GPIOA_PIN_KEYBOARD_7);
+	GPIO_SetBit(  &GPIOA->DATA, GPIOA_PIN_KEYBOARD_7);
 
 	return Key;
 }
