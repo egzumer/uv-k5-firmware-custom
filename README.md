@@ -51,7 +51,7 @@ ENABLE_CODE_SCAN_TIMEOUT      := 0       enable/disable 32-sec CTCSS/DCS scan ti
 ENABLE_AM_FIX                 := 1       dynamically adjust the front end gains when in AM mode to helo prevent AM demodulator saturation, ignore the on-screen RSSI level (for now)
 ENABLE_AM_FIX_SHOW_DATA       := 1       show debug data for the AM fix (still tweaking it)
 ENABLE_SQUELCH_MORE_SENSITIVE := 0       make squelch levels a little bit more sensitive - I plan to let user adjust the values themselves
-ENABLE_FASTER_CHANNEL_SCAN    := 0       increases the channel scan speed, but the squelch is also made more twitchy
+#ENABLE_FASTER_CHANNEL_SCAN   := 0       don't use (for now) .. increases the channel scan speed, but the squelch is also made more twitchy
 ENABLE_RSSI_BAR               := 1       enable a dBm/Sn RSSI bar graph level inplace of the little antenna symbols
 ENABLE_AUDIO_BAR              := 0       experimental, display an audo bar level when TX'ing
 ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO. Long press Menu key ('M')
@@ -61,13 +61,13 @@ ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO
 
 # New/modified function keys
 
-* Long-press 'M' = Copy selected channel into the same VFO, then switches to frequency mode
+* Long-press 'M' = Copy selected channel into same VFO, then switch VFO to frequency mode
 *
-* Long-press '7' = Toggle a selected channels scanlist setting .. if VOX  is disable in Makefile
+* Long-press '7' = Toggle selected channel scanlist setting .. if VOX  is disable in Makefile
     or
-* Long-press '5' = Toggle a selected channels scanlist setting .. if NOAA is disable in Makefile
+* Long-press '5' = Toggle selected channel scanlist setting .. if NOAA is disable in Makefile
 *
-* Long-press '*' = Toggles the scanlist number 1, 2 or ALL channels .. if in channel scan mode
+* Long-press '*' = Start scanning, then toggle scanlist scan 1, 2 or ALL channels (if in channel scan mode)
 
 # Some changes made from the Quansheng firmware
 
