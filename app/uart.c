@@ -48,7 +48,7 @@ typedef struct {
 } Header_t;
 
 typedef struct {
-	uint8_t Padding[2];
+	uint8_t  Padding[2];
 	uint16_t ID;
 } Footer_t;
 
@@ -60,10 +60,10 @@ typedef struct {
 typedef struct {
 	Header_t Header;
 	struct {
-		char Version[16];
-		bool bHasCustomAesKey;
-		bool bIsInLockScreen;
-		uint8_t Padding[2];
+		char     Version[16];
+		bool     bHasCustomAesKey;
+		bool     bIsInLockScreen;
+		uint8_t  Padding[2];
 		uint32_t Challenge[4];
 	} Data;
 } REPLY_0514_t;
@@ -71,8 +71,8 @@ typedef struct {
 typedef struct {
 	Header_t Header;
 	uint16_t Offset;
-	uint8_t Size;
-	uint8_t Padding;
+	uint8_t  Size;
+	uint8_t  Padding;
 	uint32_t Timestamp;
 } CMD_051B_t;
 
@@ -80,19 +80,19 @@ typedef struct {
 	Header_t Header;
 	struct {
 		uint16_t Offset;
-		uint8_t Size;
-		uint8_t Padding;
-		uint8_t Data[128];
+		uint8_t  Size;
+		uint8_t  Padding;
+		uint8_t  Data[128];
 	} Data;
 } REPLY_051B_t;
 
 typedef struct {
 	Header_t Header;
 	uint16_t Offset;
-	uint8_t Size;
-	bool bAllowPassword;
+	uint8_t  Size;
+	bool     bAllowPassword;
 	uint32_t Timestamp;
-	uint8_t Data[0];
+	uint8_t  Data[0];
 } CMD_051D_t;
 
 typedef struct {
@@ -106,8 +106,8 @@ typedef struct {
 	Header_t Header;
 	struct {
 		uint16_t RSSI;
-		uint8_t ExNoiseIndicator;
-		uint8_t GlitchIndicator;
+		uint8_t  ExNoiseIndicator;
+		uint8_t  GlitchIndicator;
 	} Data;
 } REPLY_0527_t;
 
@@ -137,7 +137,10 @@ typedef struct {
 	uint32_t Timestamp;
 } CMD_052F_t;
 
-static const uint8_t Obfuscation[16] = { 0x16, 0x6C, 0x14, 0xE6, 0x2E, 0x91, 0x0D, 0x40, 0x21, 0x35, 0xD5, 0x40, 0x13, 0x03, 0xE9, 0x80 };
+static const uint8_t Obfuscation[16] =
+{
+	0x16, 0x6C, 0x14, 0xE6, 0x2E, 0x91, 0x0D, 0x40, 0x21, 0x35, 0xD5, 0x40, 0x13, 0x03, 0xE9, 0x80
+};
 
 static union
 {
@@ -157,12 +160,11 @@ static void SendReply(void *pReply, uint16_t Size)
 {
 	Header_t Header;
 	Footer_t Footer;
-	uint8_t *pBytes;
-	uint16_t i;
 
 	if (bIsEncrypted)
 	{
-		pBytes = (uint8_t *)pReply;
+		uint8_t     *pBytes = (uint8_t *)pReply;
+		unsigned int i;
 		for (i = 0; i < Size; i++)
 			pBytes[i] ^= Obfuscation[i % 16];
 	}
@@ -171,6 +173,7 @@ static void SendReply(void *pReply, uint16_t Size)
 	Header.Size = Size;
 	UART_Send(&Header, sizeof(Header));
 	UART_Send(pReply, Size);
+
 	if (bIsEncrypted)
 	{
 		Footer.Padding[0] = Obfuscation[(Size + 0) % 16] ^ 0xFF;
@@ -205,14 +208,16 @@ static void SendVersion(void)
 
 static bool IsBadChallenge(const uint32_t *pKey, const uint32_t *pIn, const uint32_t *pResponse)
 {
-	uint8_t i;
-	uint32_t IV[4];
+	unsigned int i;
+	uint32_t     IV[4];
 
 	IV[0] = 0;
 	IV[1] = 0;
 	IV[2] = 0;
 	IV[3] = 0;
+
 	AES_Encrypt(pKey, IV, pIn, IV, true);
+
 	for (i = 0; i < 4; i++)
 		if (IV[i] != pResponse[i])
 			return true;
@@ -254,10 +259,10 @@ static void CMD_051B(const uint8_t *pBuffer)
 	#endif
 
 	memset(&Reply, 0, sizeof(Reply));
-	Reply.Header.ID = 0x051C;
+	Reply.Header.ID   = 0x051C;
 	Reply.Header.Size = pCmd->Size + 4;
 	Reply.Data.Offset = pCmd->Offset;
-	Reply.Data.Size = pCmd->Size;
+	Reply.Data.Size   = pCmd->Size;
 
 	if (bHasCustomAesKey)
 		bLocked = gIsLocked;
@@ -294,7 +299,7 @@ static void CMD_051D(const uint8_t *pBuffer)
 
 	if (!bIsLocked)
 	{
-		uint16_t i;
+		unsigned int i;
 		for (i = 0; i < (pCmd->Size / 8); i++)
 		{
 			const uint16_t Offset = pCmd->Offset + (i * 8U);
@@ -331,23 +336,25 @@ static void CMD_0529(void)
 {
 	REPLY_0529_t Reply;
 
-	Reply.Header.ID = 0x52A;
+	Reply.Header.ID   = 0x52A;
 	Reply.Header.Size = sizeof(Reply.Data);
+
 	// Original doesn't actually send current!
 	BOARD_ADC_GetBatteryInfo(&Reply.Data.Voltage, &Reply.Data.Current);
+
 	SendReply(&Reply, sizeof(Reply));
 }
 
 static void CMD_052D(const uint8_t *pBuffer)
 {
 	const CMD_052D_t *pCmd = (const CMD_052D_t *)pBuffer;
-	REPLY_052D_t Reply;
-	bool bIsLocked;
+	REPLY_052D_t      Reply;
+	bool              bIsLocked;
 
 	#ifdef ENABLE_FMRADIO
 		gFmRadioCountdown_500ms = fm_radio_countdown_500ms;
 	#endif
-	Reply.Header.ID = 0x052E;
+	Reply.Header.ID   = 0x052E;
 	Reply.Header.Size = sizeof(Reply.Data);
 
 	bIsLocked = bHasCustomAesKey;
@@ -413,15 +420,13 @@ static void CMD_052F(const uint8_t *pBuffer)
 
 bool UART_IsCommandAvailable(void)
 {
-	uint16_t DmaLength;
-	uint16_t CommandLength;
 	uint16_t Index;
 	uint16_t TailIndex;
 	uint16_t Size;
 	uint16_t CRC;
-	uint16_t i;
+	uint16_t CommandLength;
+	uint16_t DmaLength = DMA_CH0->ST & 0xFFFU;
 
-	DmaLength = DMA_CH0->ST & 0xFFFU;
 	while (1)
 	{
 		if (gUART_WriteIndex == DmaLength)
@@ -495,9 +500,12 @@ bool UART_IsCommandAvailable(void)
 		bIsEncrypted = true;
 
 	if (bIsEncrypted)
-		for (i = 0; i < Size + 2; i++)
+	{
+		unsigned int i;
+		for (i = 0; i < (Size + 2u); i++)
 			UART_Command.Buffer[i] ^= Obfuscation[i % 16];
-
+	}
+	
 	CRC = UART_Command.Buffer[Size] | (UART_Command.Buffer[Size + 1] << 8);
 
 	return (CRC_Calculate(UART_Command.Buffer, Size) != CRC) ? false : true;

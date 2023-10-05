@@ -727,7 +727,7 @@ static void MR_NextChannel(void)
 	}
 
 	#ifdef ENABLE_FASTER_CHANNEL_SCAN
-		ScanPauseDelayIn_10ms = 8;  // 80ms .. <= ~60ms it misses signals (squelch response and/or PLL lock time) ?
+		ScanPauseDelayIn_10ms = 10;  // 100ms .. <= ~60ms it misses signals (squelch response and/or PLL lock time) ?
 	#else
 		ScanPauseDelayIn_10ms = scan_pause_delay_in_3_10ms;
 	#endif

@@ -354,7 +354,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 //			if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 //		#endif
 		if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
-		{	// user is entering frequency
+		{	// user is entering a frequency
 
 			uint32_t Frequency;
 

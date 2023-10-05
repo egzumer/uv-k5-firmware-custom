@@ -738,7 +738,7 @@ void BK4819_SetupSquelch(
 	//
 	BK4819_WriteRegister(BK4819_REG_70, 0);
 
-	// Glitch threshold for Squelch
+	// Glitch threshold for Squelch = close
 	//
 	// 0 ~ 255
 	//
@@ -748,47 +748,49 @@ void BK4819_SetupSquelch(
 	//
 	// <15:14> 1 ???
 	//
-	// <13:11> 5 Squelch = 1 Delay Setting
+	// <13:11> 5 Squelch = open  Delay Setting
 	//         0 ~ 7
 	//
-	// <10:9>  7 Squelch = 0 Delay Setting
+	// <10:9>  7 Squelch = close Delay Setting
 	//         0 ~ 3
 	//
 	// <8>     0 ???
 	//
-	// <7:0>   8 Glitch threshold for Squelch = 1
+	// <7:0>   8 Glitch threshold for Squelch = open
 	//         0 ~ 255
 	//
 	BK4819_WriteRegister(BK4819_REG_4E,  // 01 101 11 1 00000000
 	#ifndef ENABLE_FASTER_CHANNEL_SCAN
-		// original
-		(1u << 14) |                  // 1 ???
-		(5u << 11) |                  // 5  squelch = 1 delay .. 0 ~ 7
-		(3u <<  9) |                  // 3  squelch = 0 delay .. 0 ~ 3
-		SquelchOpenGlitchThresh);     // 0 ~ 255
+		// original (*)
+		(1u << 14) |                  //  1 ???
+		(3u << 11) |                  // *5  squelch = open  delay .. 0 ~ 7
+		(2u <<  9) |                  // *3  squelch = close delay .. 0 ~ 3
+		SquelchOpenGlitchThresh);     //  0 ~ 255
 	#else
 		// faster (but twitchier)
-		(1u << 14) |                  // 1 ???
-		SquelchOpenGlitchThresh);     // 0 ~ 255
+		(1u << 14) |                  //  1 ???
+		(2u << 11) |                  // *5  squelch = open  delay .. 0 ~ 7
+		(1u <<  9) |                  // *3  squelch = close delay .. 0 ~ 3
+		SquelchOpenGlitchThresh);     //  0 ~ 255
 	#endif
 
 	// REG_4F
 	//
-	// <14:8> 47 Ex-noise threshold for Squelch = 0
+	// <14:8> 47 Ex-noise threshold for Squelch = close
 	//        0 ~ 127
 	//
 	// <7>    ???
 	//
-	// <6:0>  46 Ex-noise threshold for Squelch = 1
+	// <6:0>  46 Ex-noise threshold for Squelch = open
 	//        0 ~ 127
 	//
 	BK4819_WriteRegister(BK4819_REG_4F, ((uint16_t)SquelchCloseNoiseThresh << 8) | SquelchOpenNoiseThresh);
 
 	// REG_78
 	//
-	// <15:8> 72 RSSI threshold for Squelch = 1   0.5dB/step
+	// <15:8> 72 RSSI threshold for Squelch = open    0.5dB/step
 	//
-	// <7:0>  70 RSSI threshold for Squelch = 0   0.5dB/step
+	// <7:0>  70 RSSI threshold for Squelch = close   0.5dB/step
 	//
 	BK4819_WriteRegister(BK4819_REG_78, ((uint16_t)SquelchOpenRSSIThresh   << 8) | SquelchCloseRSSIThresh);
 

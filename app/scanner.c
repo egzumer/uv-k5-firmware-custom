@@ -53,7 +53,9 @@ static void SCANNER_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			uint16_t Channel;
 
 			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
 			INPUTBOX_Append(Key);
+
 			gRequestDisplayScreen = DISPLAY_SCANNER;
 
 			if (gInputBoxIndex < 3)
@@ -65,8 +67,8 @@ static void SCANNER_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			}
 
 			gInputBoxIndex = 0;
-			Channel        = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
 
+			Channel = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
 			if (Channel <= MR_CHANNEL_LAST)
 			{
 				#ifdef ENABLE_VOICE

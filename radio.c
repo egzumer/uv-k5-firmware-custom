@@ -426,8 +426,13 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 {
 	uint8_t          Txp[3];
-	FREQUENCY_Band_t Band = FREQUENCY_GetBand(pInfo->pRX->Frequency);
-	uint16_t         Base = (Band < BAND4_174MHz) ? 0x1E60 : 0x1E00;
+	FREQUENCY_Band_t Band;
+
+	// *******************************
+	// squelch
+	
+	Band = FREQUENCY_GetBand(pInfo->pRX->Frequency);
+	uint16_t Base = (Band < BAND4_174MHz) ? 0x1E60 : 0x1E00;
 
 	if (gEeprom.SQUELCH_LEVEL == 0)
 	{	// squelch == 0 (off)
@@ -441,7 +446,7 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 	}
 	else
 	{	// squelch >= 1
-		Base += gEeprom.SQUELCH_LEVEL;                                        // my squelch-1
+		Base += gEeprom.SQUELCH_LEVEL;                                        // my eeprom squelch-1
 																			  // VHF   UHF
 		EEPROM_ReadBuffer(Base + 0x00, &pInfo->SquelchOpenRSSIThresh,    1);  //  50    10
 		EEPROM_ReadBuffer(Base + 0x10, &pInfo->SquelchCloseRSSIThresh,   1);  //  40     5
@@ -467,40 +472,35 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 			// note that 'noise' and 'glitch' values are inverted compared to 'rssi' values
 
 			#if 0
-				rssi_open    = (rssi_open    * 8) / 9;
-				rssi_close   = (rssi_close   * 8) / 9;
-
-				noise_open   = (noise_open   * 9) / 8;
-				noise_close  = (noise_close  * 9) / 8;
-
-				glitch_open  = (glitch_open  * 9) / 8;
-				glitch_close = (glitch_close * 9) / 8;
+				rssi_open   = (rssi_open   * 8) / 9;
+				noise_open  = (noise_open  * 9) / 8;
+				glitch_open = (glitch_open * 9) / 8;
 			#else
 				// even more sensitive .. use when RX bandwidths are fixed (no weak signal auto adjust)
-
-				rssi_open    = (rssi_open    * 1) / 2;
-				rssi_close   = (rssi_close   * 1) / 2;
-
-				noise_open   = (noise_open   * 2) / 1;
-				noise_close  = (noise_close  * 2) / 1;
-
-				glitch_open  = (glitch_open  * 2) / 1;
-				glitch_close = (glitch_close * 2) / 1;
+				rssi_open   = (rssi_open   * 1) / 2;
+				noise_open  = (noise_open  * 2) / 1;
+				glitch_open = (glitch_open * 2) / 1;
 			#endif
 
 		#else
 			// more sensitive .. use when RX bandwidths are fixed (no weak signal auto adjust)
-
-			rssi_open    = (rssi_open    * 3) / 4;
-			rssi_close   = (rssi_close   * 3) / 4;
-
-			noise_open   = (noise_open   * 4) / 3;
-			noise_close  = (noise_close  * 4) / 3;
-
-			glitch_open  = (glitch_open  * 4) / 3;
-			glitch_close = (glitch_close * 4) / 3;
+			rssi_open   = (rssi_open   * 3) / 4;
+			noise_open  = (noise_open  * 4) / 3;
+			glitch_open = (glitch_open * 4) / 3;
 		#endif
 
+		rssi_close   = (rssi_open   *  9) / 10;
+		noise_close  = (noise_open  * 10) / 9;
+		glitch_close = (glitch_open * 10) / 9;
+
+		// ensure the 'close' threshold is lower than the 'open' threshold
+		if (rssi_close   == rssi_open   && rssi_close   > 0)
+			rssi_close--;
+		if (noise_close  == noise_open  && noise_close  < 127)
+			noise_close++;
+		if (glitch_close == glitch_open && glitch_close < 255)
+			glitch_close++;
+		
 		pInfo->SquelchOpenRSSIThresh    = (rssi_open    > 255) ? 255 : rssi_open;
 		pInfo->SquelchCloseRSSIThresh   = (rssi_close   > 255) ? 255 : rssi_close;
 		pInfo->SquelchOpenNoiseThresh   = (noise_open   > 127) ? 127 : noise_open;
@@ -509,6 +509,9 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 		pInfo->SquelchCloseGlitchThresh = (glitch_close > 255) ? 255 : glitch_close;
 	}
 
+	// *******************************
+	// output power
+	
 	Band = FREQUENCY_GetBand(pInfo->pTX->Frequency);
 
 	EEPROM_ReadBuffer(0x1ED0 + (Band * 16) + (pInfo->OUTPUT_POWER * 3), Txp, 3);
@@ -521,6 +524,8 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 		(frequencyBandTable[Band].lower + frequencyBandTable[Band].upper) / 2,
 		 frequencyBandTable[Band].upper,
 		pInfo->pTX->Frequency);
+
+	// *******************************
 }
 
 void RADIO_ApplyOffset(VFO_Info_t *pInfo)
