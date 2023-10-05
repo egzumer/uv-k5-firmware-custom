@@ -26,10 +26,10 @@ You can customize the firmware by enabling/disabling various compile options.
 You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) ..
 
 ```
-ENABLE_CLANG                  := 0       experimental, builds with clang instead of gcc (LTO will be disabled if you enable this)
+ENABLE_CLANG                  := 0     **experimental, builds with clang instead of gcc (LTO will be disabled if you enable this)
 ENABLE_SWD                    := 0       only needed if using CPU's SWD port (debugging/programming)
 ENABLE_OVERLAY                := 0       cpu FLASH stuff, not needed
-ENABLE_LTO                    := 0     **experimental, reduces size of compiled firmware but might break EEPROM reads (overlay will be disabled if you enable this)
+ENABLE_LTO                    := 0     **experimental, reduces size of compiled firmware but might break EEPROM reads (OVERLAY will be disabled if you enable this)
 ENABLE_UART                   := 1       without this you can't configure radio via PC !
 ENABLE_AIRCOPY                := 0       easier to just enter frequency with butts
 ENABLE_FMRADIO                := 0       WBFM VHF broadcast band receiver

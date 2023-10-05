@@ -431,13 +431,13 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 
 	if (gEeprom.SQUELCH_LEVEL == 0)
 	{	// squelch == 0 (off)
-		pInfo->SquelchOpenRSSIThresh    = 0;
-		pInfo->SquelchOpenNoiseThresh   = 127;
-		pInfo->SquelchCloseGlitchThresh = 255;
+		pInfo->SquelchOpenRSSIThresh    = 0;     // 0 ~ 255
+		pInfo->SquelchOpenNoiseThresh   = 127;   // 127 ~ 0
+		pInfo->SquelchCloseGlitchThresh = 255;   // 255 ~ 0
 
-		pInfo->SquelchCloseRSSIThresh   = 0;
-		pInfo->SquelchCloseNoiseThresh  = 127;
-		pInfo->SquelchOpenGlitchThresh  = 255;
+		pInfo->SquelchCloseRSSIThresh   = 0;     // 0 ~ 255
+		pInfo->SquelchCloseNoiseThresh  = 127;   // 127 ~ 0
+		pInfo->SquelchOpenGlitchThresh  = 255;   // 255 ~ 0
 	}
 	else
 	{	// squelch >= 1
@@ -452,6 +452,13 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 		EEPROM_ReadBuffer(Base + 0x40, &pInfo->SquelchCloseGlitchThresh, 1);  //  90    90
 		EEPROM_ReadBuffer(Base + 0x50, &pInfo->SquelchOpenGlitchThresh,  1);  // 100   100
 
+		uint16_t rssi_open    = pInfo->SquelchOpenRSSIThresh;
+		uint16_t rssi_close   = pInfo->SquelchCloseRSSIThresh;
+		uint16_t noise_open   = pInfo->SquelchOpenNoiseThresh;
+		uint16_t noise_close  = pInfo->SquelchCloseNoiseThresh;
+		uint16_t glitch_open  = pInfo->SquelchOpenGlitchThresh;
+		uint16_t glitch_close = pInfo->SquelchCloseGlitchThresh;
+
 		#if ENABLE_SQUELCH_MORE_SENSITIVE
 			// make squelch a little more sensitive
 			//
@@ -459,21 +466,47 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 			//
 			// note that 'noise' and 'glitch' values are inverted compared to 'rssi' values
 
-			pInfo->SquelchOpenRSSIThresh    = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 8) / 9;
-			pInfo->SquelchCloseRSSIThresh   = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 8) / 9;
+			#if 0
+				rssi_open    = (rssi_open    * 8) / 9;
+				rssi_close   = (rssi_close   * 8) / 9;
 
-			pInfo->SquelchOpenNoiseThresh   = ((uint16_t)pInfo->SquelchOpenNoiseThresh  * 9) / 8;
-			pInfo->SquelchCloseNoiseThresh  = ((uint16_t)pInfo->SquelchOpenNoiseThresh  * 9) / 8;
+				noise_open   = (noise_open   * 9) / 8;
+				noise_close  = (noise_close  * 9) / 8;
 
-			pInfo->SquelchOpenGlitchThresh  = ((uint16_t)pInfo->SquelchOpenGlitchThresh * 9) / 8;
-			pInfo->SquelchCloseGlitchThresh = ((uint16_t)pInfo->SquelchOpenGlitchThresh * 9) / 8;
+				glitch_open  = (glitch_open  * 9) / 8;
+				glitch_close = (glitch_close * 9) / 8;
+			#else
+				// even more sensitive .. use when RX bandwidths are fixed (no weak signal auto adjust)
+
+				rssi_open    = (rssi_open    * 1) / 2;
+				rssi_close   = (rssi_close   * 1) / 2;
+
+				noise_open   = (noise_open   * 2) / 1;
+				noise_close  = (noise_close  * 2) / 1;
+
+				glitch_open  = (glitch_open  * 2) / 1;
+				glitch_close = (glitch_close * 2) / 1;
+			#endif
+
+		#else
+			// more sensitive .. use when RX bandwidths are fixed (no weak signal auto adjust)
+
+			rssi_open    = (rssi_open    * 3) / 4;
+			rssi_close   = (rssi_close   * 3) / 4;
+
+			noise_open   = (noise_open   * 4) / 3;
+			noise_close  = (noise_close  * 4) / 3;
+
+			glitch_open  = (glitch_open  * 4) / 3;
+			glitch_close = (glitch_close * 4) / 3;
 		#endif
 
-		if (pInfo->SquelchOpenNoiseThresh > 127)
-			pInfo->SquelchOpenNoiseThresh = 127;
-
-		if (pInfo->SquelchCloseNoiseThresh > 127)
-			pInfo->SquelchCloseNoiseThresh = 127;
+		pInfo->SquelchOpenRSSIThresh    = (rssi_open    > 255) ? 255 : rssi_open;
+		pInfo->SquelchCloseRSSIThresh   = (rssi_close   > 255) ? 255 : rssi_close;
+		pInfo->SquelchOpenNoiseThresh   = (noise_open   > 127) ? 127 : noise_open;
+		pInfo->SquelchCloseNoiseThresh  = (noise_close  > 127) ? 127 : noise_close;
+		pInfo->SquelchOpenGlitchThresh  = (glitch_open  > 255) ? 255 : glitch_open;
+		pInfo->SquelchCloseGlitchThresh = (glitch_close > 255) ? 255 : glitch_close;
 	}
 
 	Band = FREQUENCY_GetBand(pInfo->pTX->Frequency);

@@ -602,8 +602,8 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			{	// make the RX bandwidth the same with weak signals
 				val =
 					(0u << 15) |     //  0
-					(5u << 12) |     // *3 RF filter bandwidth
-					(5u <<  9) |     // *0 RF filter bandwidth when signal is weak
+					(4u << 12) |     // *3 RF filter bandwidth
+					(4u <<  9) |     // *0 RF filter bandwidth when signal is weak
 					(6u <<  6) |     // *0 AFTxLPF2 filter Band Width
 					(2u <<  4) |     //  2 BW Mode Selection
 					(1u <<  3) |     //  1
@@ -614,7 +614,7 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			{	// with weak RX signals the RX bandwidth is reduced
 				val =                // 0x3028);         // 0 011 000 000 10 1 0 00
 					(0u << 15) |     //  0
-					(5u << 12) |     // *3 RF filter bandwidth
+					(4u << 12) |     // *3 RF filter bandwidth
 					(2u <<  9) |     // *0 RF filter bandwidth when signal is weak
 					(6u <<  6) |     // *0 AFTxLPF2 filter Band Width
 					(2u <<  4) |     //  2 BW Mode Selection
@@ -629,8 +629,8 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			{
 				val =
 					(0u << 15) |     //  0
-					(5u << 12) |     // *4 RF filter bandwidth
-					(5u <<  9) |     // *0 RF filter bandwidth when signal is weak
+					(4u << 12) |     // *4 RF filter bandwidth
+					(4u <<  9) |     // *0 RF filter bandwidth when signal is weak
 					(0u <<  6) |     // *1 AFTxLPF2 filter Band Width
 					(0u <<  4) |     //  0 BW Mode Selection
 					(1u <<  3) |     //  1
@@ -641,7 +641,7 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			{
 				val =                // 0x4048);        // 0 100 000 001 00 1 0 00
 					(0u << 15) |     //  0
-					(5u << 12) |     // *4 RF filter bandwidth
+					(4u << 12) |     // *4 RF filter bandwidth
 					(2u <<  9) |     // *0 RF filter bandwidth when signal is weak
 					(0u <<  6) |     // *1 AFTxLPF2 filter Band Width
 					(0u <<  4) |     //  0 BW Mode Selection

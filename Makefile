@@ -153,6 +153,7 @@ AS = arm-none-eabi-gcc
 
 CC =
 LD = arm-none-eabi-gcc
+
 ifeq ($(ENABLE_CLANG),0)
 	CC += arm-none-eabi-gcc
 # Use GCC's linker to avoid undefined symbol errors
@@ -182,18 +183,18 @@ endif
 CFLAGS =
 ifeq ($(ENABLE_CLANG),0)
 	CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
-#	CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c99 -MMD
-#	CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu99 -MMD
-#	CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu11 -MMD
+	#CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c99 -MMD
+	#CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu99 -MMD
+	#CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu11 -MMD
 else
-#	Oz needed to make it fit on flash
+	# Oz needed to make it fit on flash
 	CFLAGS += -Oz -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
 endif
 
 ifeq ($(ENABLE_LTO),1)
 	CFLAGS += -flto=2
 else
-#	We get most of the space savings if LTO creates problems
+	# We get most of the space savings if LTO creates problems
 	CFLAGS += -ffunction-sections -fdata-sections
 endif
 
@@ -311,13 +312,13 @@ endif
 LDFLAGS += --specs=nano.specs
 
 ifeq ($(ENABLE_LTO),0)
-#	Throw away unneeded func/data sections like LTO does
+	# Throw away unneeded func/data sections like LTO does
 	LDFLAGS += -Wl,--gc-sections
 endif
 
 ifeq ($(DEBUG),1)
 	ASFLAGS += -g
-	CFLAGS += -g
+	CFLAGS  += -g
 	LDFLAGS += -g
 endif
 
