@@ -472,7 +472,7 @@ void MENU_AcceptSetting(void)
 			#if 0
 				gEeprom.MrChannel[0] = gSubMenuSelection;
 			#else
-				gEeprom.MrChannel[gEeprom.TX_CHANNEL] = gSubMenuSelection;
+				gEeprom.MrChannel[gEeprom.TX_VFO] = gSubMenuSelection;
 			#endif
 			gRequestSaveChannel = 2;
 			gVfoConfigureMode   = VFO_CONFIGURE_RELOAD;
@@ -492,7 +492,7 @@ void MENU_AcceptSetting(void)
 			// save the channel name
 			memset(gTxVfo->Name, 0, sizeof(gTxVfo->Name));
 			memmove(gTxVfo->Name, edit, 10);
-			SETTINGS_SaveChannel(gSubMenuSelection, gEeprom.TX_CHANNEL, gTxVfo, 3);
+			SETTINGS_SaveChannel(gSubMenuSelection, gEeprom.TX_VFO, gTxVfo, 3);
 			gFlagReconfigureVfos = true;
 			return;
 
@@ -921,12 +921,12 @@ void MENU_ShowCurrentSetting(void)
 			#if 0
 				gSubMenuSelection = gEeprom.MrChannel[0];
 			#else
-				gSubMenuSelection = gEeprom.MrChannel[gEeprom.TX_CHANNEL];
+				gSubMenuSelection = gEeprom.MrChannel[gEeprom.TX_VFO];
 			#endif
 			break;
 
 		case MENU_MEM_NAME:
-			gSubMenuSelection = gEeprom.MrChannel[gEeprom.TX_CHANNEL];
+			gSubMenuSelection = gEeprom.MrChannel[gEeprom.TX_VFO];
 			break;
 
 		case MENU_SAVE:
@@ -1106,7 +1106,7 @@ void MENU_ShowCurrentSetting(void)
 			#if 0
 				gSubMenuSelection = RADIO_FindNextChannel(gEeprom.MrChannel[0], 1, false, 1);
 			#else
-				gSubMenuSelection = RADIO_FindNextChannel(gEeprom.MrChannel[gEeprom.TX_CHANNEL], 1, false, 1);
+				gSubMenuSelection = RADIO_FindNextChannel(gEeprom.MrChannel[gEeprom.TX_VFO], 1, false, 1);
 			#endif
 			break;
 

@@ -121,8 +121,8 @@ typedef struct {
 	#ifdef ENABLE_NOAA
 		uint8_t           NoaaChannel[2];
 	#endif
-	uint8_t               RX_CHANNEL;
-	uint8_t               TX_CHANNEL;
+	uint8_t               RX_VFO;
+	uint8_t               TX_VFO;
 
 	uint8_t               field7_0xa;
 	uint8_t               field8_0xb;

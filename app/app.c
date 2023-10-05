@@ -122,7 +122,7 @@ static void APP_CheckForIncoming(void)
 				FUNCTION_Select(FUNCTION_INCOMING);
 				//gUpdateDisplay = true;
 
-				updateRSSI(gEeprom.RX_CHANNEL);
+				updateRSSI(gEeprom.RX_VFO);
 				gUpdateRSSI = true;
 			}
 
@@ -138,7 +138,7 @@ static void APP_CheckForIncoming(void)
 				FUNCTION_Select(FUNCTION_INCOMING);
 				//gUpdateDisplay = true;
 
-				updateRSSI(gEeprom.RX_CHANNEL);
+				updateRSSI(gEeprom.RX_VFO);
 				gUpdateRSSI = true;
 			}
 			return;
@@ -160,7 +160,7 @@ static void APP_CheckForIncoming(void)
 				FUNCTION_Select(FUNCTION_INCOMING);
 				//gUpdateDisplay = true;
 
-				updateRSSI(gEeprom.RX_CHANNEL);
+				updateRSSI(gEeprom.RX_VFO);
 				gUpdateRSSI = true;
 			}
 
@@ -178,7 +178,7 @@ static void APP_CheckForIncoming(void)
 		FUNCTION_Select(FUNCTION_INCOMING);
 		//gUpdateDisplay = true;
 
-		updateRSSI(gEeprom.RX_CHANNEL);
+		updateRSSI(gEeprom.RX_VFO);
 		gUpdateRSSI = true;
 	}
 }
@@ -468,7 +468,7 @@ static void APP_HandleFunction(void)
 
 void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 {
-	const unsigned int chan = gEeprom.RX_CHANNEL;
+	const unsigned int chan = gEeprom.RX_VFO;
 //	const unsigned int chan = gRxVfo->CHANNEL_SAVE;
 
 	if (gSetting_KILLED)
@@ -679,7 +679,7 @@ static void MR_NextChannel(void)
 				// dual watch is enabled - include the other VFO in the scan
 				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 				{
-					chan = (gEeprom.RX_CHANNEL + 1) & 1u;
+					chan = (gEeprom.RX_VFO + 1) & 1u;
 					chan = gEeprom.ScreenChannel[chan];
 					if (IS_MR_CHANNEL(chan))
 					{
@@ -713,10 +713,10 @@ static void MR_NextChannel(void)
 
 	if (gNextMrChannel != prev_chan)
 	{
-		gEeprom.MrChannel[    gEeprom.RX_CHANNEL] = gNextMrChannel;
-		gEeprom.ScreenChannel[gEeprom.RX_CHANNEL] = gNextMrChannel;
+		gEeprom.MrChannel[    gEeprom.RX_VFO] = gNextMrChannel;
+		gEeprom.ScreenChannel[gEeprom.RX_VFO] = gNextMrChannel;
 
-		RADIO_ConfigureChannel(gEeprom.RX_CHANNEL, VFO_CONFIGURE_RELOAD);
+		RADIO_ConfigureChannel(gEeprom.RX_VFO, VFO_CONFIGURE_RELOAD);
 		RADIO_SetupRegisters(true);
 
 		gUpdateDisplay = true;
@@ -749,11 +749,11 @@ static void DUALWATCH_Alternate(void)
 		if (gIsNoaaMode)
 		{
 			if (IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) || IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1]))
-				gEeprom.RX_CHANNEL = (gEeprom.RX_CHANNEL + 1) & 1;
+				gEeprom.RX_VFO = (gEeprom.RX_VFO + 1) & 1;
 			else
-				gEeprom.RX_CHANNEL = 0;
+				gEeprom.RX_VFO = 0;
 
-			gRxVfo = &gEeprom.VfoInfo[gEeprom.RX_CHANNEL];
+			gRxVfo = &gEeprom.VfoInfo[gEeprom.RX_VFO];
 
 			if (gEeprom.VfoInfo[0].CHANNEL_SAVE >= NOAA_CHANNEL_FIRST)
 				NOAA_IncreaseChannel();
@@ -761,8 +761,8 @@ static void DUALWATCH_Alternate(void)
 		else
 	#endif
 	{	// toggle between VFO's
-		gEeprom.RX_CHANNEL = (gEeprom.RX_CHANNEL + 1) & 1;
-		gRxVfo             = &gEeprom.VfoInfo[gEeprom.RX_CHANNEL];
+		gEeprom.RX_VFO = (gEeprom.RX_VFO + 1) & 1;
+		gRxVfo             = &gEeprom.VfoInfo[gEeprom.RX_VFO];
 
 		if (!gDualWatchActive)
 		{	// let the user see DW is active
@@ -1250,7 +1250,7 @@ void APP_Update(void)
 		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF || gScanState != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF || gUpdateRSSI)
 		{	// dual watch mode, go back to sleep
 
-			updateRSSI(gEeprom.RX_CHANNEL);
+			updateRSSI(gEeprom.RX_VFO);
 
 			// go back to sleep
 
@@ -1410,9 +1410,9 @@ void APP_TimeSlice10ms(void)
 	#endif
 
 	#ifdef ENABLE_AM_FIX
-//		if (gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
+//		if (gEeprom.VfoInfo[gEeprom.RX_VFO].AM_mode && gSetting_AM_fix)
 		if (gRxVfo->AM_mode && gSetting_AM_fix)
-			AM_fix_10ms(gEeprom.RX_CHANNEL);
+			AM_fix_10ms(gEeprom.RX_VFO);
 	#endif
 
 	if (UART_IsCommandAvailable())
@@ -1800,7 +1800,7 @@ void APP_TimeSlice500ms(void)
 	if (gCurrentFunction != FUNCTION_TRANSMIT)
 	{
 		if (gCurrentFunction != FUNCTION_POWER_SAVE)
-			updateRSSI(gEeprom.RX_CHANNEL);
+			updateRSSI(gEeprom.RX_VFO);
 
 		#ifdef ENABLE_FMRADIO
 			if ((gFM_ScanState == FM_SCAN_OFF || gAskToSave) && gCssScanMode == CSS_SCAN_MODE_OFF)
@@ -2110,10 +2110,10 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 		if (gFlagSaveChannel)
 		{
-			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_CHANNEL, gTxVfo, gFlagSaveChannel);
+			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_VFO, gTxVfo, gFlagSaveChannel);
 			gFlagSaveChannel = false;
 
-			RADIO_ConfigureChannel(gEeprom.TX_CHANNEL, VFO_CONFIGURE);
+			RADIO_ConfigureChannel(gEeprom.TX_VFO, VFO_CONFIGURE);
 			RADIO_SetupRegisters(true);
 
 			GUI_SelectNextDisplay(DISPLAY_MAIN);
@@ -2435,7 +2435,7 @@ Skip:
 	{
 		if (!bKeyHeld)
 		{
-			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_CHANNEL, gTxVfo, gRequestSaveChannel);
+			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_VFO, gTxVfo, gRequestSaveChannel);
 
 			if (gScreenToDisplay != DISPLAY_SCANNER)
 				if (gVfoConfigureMode == VFO_CONFIGURE_NONE)  // 'if' is so as we don't wipe out previously setting this variable elsewhere
@@ -2460,7 +2460,7 @@ Skip:
 			RADIO_ConfigureChannel(1, gVfoConfigureMode);
 		}
 		else
-			RADIO_ConfigureChannel(gEeprom.TX_CHANNEL, gVfoConfigureMode);
+			RADIO_ConfigureChannel(gEeprom.TX_VFO, gVfoConfigureMode);
 
 		if (gRequestDisplayScreen == DISPLAY_INVALID)
 			gRequestDisplayScreen = DISPLAY_MAIN;

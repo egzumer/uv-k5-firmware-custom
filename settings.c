@@ -133,7 +133,7 @@ void SETTINGS_SaveSettings(void)
 	#endif
 	State[1] = gEeprom.ROGER;
 	State[2] = gEeprom.REPEATER_TAIL_TONE_ELIMINATION;
-	State[3] = gEeprom.TX_CHANNEL;
+	State[3] = gEeprom.TX_VFO;
 	EEPROM_WriteBuffer(0x0EA8, State);
 
 	State[0] = gEeprom.DTMF_SIDE_TONE;

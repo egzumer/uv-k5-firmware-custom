@@ -517,30 +517,30 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 
 static void RADIO_SelectCurrentVfo(void)
 {
- 	gCurrentVfo = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gRxVfo : &gEeprom.VfoInfo[gEeprom.TX_CHANNEL];
+ 	gCurrentVfo = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gRxVfo : &gEeprom.VfoInfo[gEeprom.TX_VFO];
 }
 
 void RADIO_SelectVfos(void)
 {
 	if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_CHAN_B)
-		gEeprom.TX_CHANNEL = 1;
+		gEeprom.TX_VFO = 1;
 	else
 	if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_CHAN_A)
-		gEeprom.TX_CHANNEL = 0;
+		gEeprom.TX_VFO = 0;
 	else
 	if (gEeprom.DUAL_WATCH == DUAL_WATCH_CHAN_B)
-		gEeprom.TX_CHANNEL = 1;
+		gEeprom.TX_VFO = 1;
 	else
 	if (gEeprom.DUAL_WATCH == DUAL_WATCH_CHAN_A)
-		gEeprom.TX_CHANNEL = 0;
+		gEeprom.TX_VFO = 0;
 
 	if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF)
-		gEeprom.RX_CHANNEL =  gEeprom.TX_CHANNEL;
+		gEeprom.RX_VFO =  gEeprom.TX_VFO;
 	else
-		gEeprom.RX_CHANNEL = (gEeprom.TX_CHANNEL == 0) ? 1 : 0;
+		gEeprom.RX_VFO = (gEeprom.TX_VFO == 0) ? 1 : 0;
 
-	gTxVfo = &gEeprom.VfoInfo[gEeprom.TX_CHANNEL];
-	gRxVfo = &gEeprom.VfoInfo[gEeprom.RX_CHANNEL];
+	gTxVfo = &gEeprom.VfoInfo[gEeprom.TX_VFO];
+	gRxVfo = &gEeprom.VfoInfo[gEeprom.RX_VFO];
 
 	RADIO_SelectCurrentVfo();
 }
@@ -878,8 +878,8 @@ void RADIO_SetVfoState(VfoState_t State)
 		}
 		else
 		{
-			unsigned int chan = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive) ? (gEeprom.RX_CHANNEL + 1) & 1 : gEeprom.RX_CHANNEL;	// 1of11
-			             chan = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.TX_CHANNEL : chan;
+			unsigned int chan = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive) ? (gEeprom.RX_VFO + 1) & 1 : gEeprom.RX_VFO;	// 1of11
+			             chan = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.TX_VFO : chan;
 			VfoState[chan]    = State;
 		}
 
@@ -903,8 +903,8 @@ void RADIO_PrepareTX(void)
 
 		if (!gRxVfoIsActive)
 		{	// use the TX vfo
-			gEeprom.RX_CHANNEL = gEeprom.TX_CHANNEL;
-			gRxVfo             = &gEeprom.VfoInfo[gEeprom.TX_CHANNEL];
+			gEeprom.RX_VFO = gEeprom.TX_VFO;
+			gRxVfo             = &gEeprom.VfoInfo[gEeprom.TX_VFO];
 			gRxVfoIsActive     = true;
 		}
 

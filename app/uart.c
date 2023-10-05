@@ -385,7 +385,7 @@ static void CMD_052F(const uint8_t *pBuffer)
 
 	gEeprom.DUAL_WATCH                               = DUAL_WATCH_OFF;
 	gEeprom.CROSS_BAND_RX_TX                         = CROSS_BAND_OFF;
-	gEeprom.RX_CHANNEL                               = 0;
+	gEeprom.RX_VFO                                   = 0;
 	gEeprom.DTMF_SIDE_TONE                           = false;
 	gEeprom.VfoInfo[0].FrequencyReverse              = false;
 	gEeprom.VfoInfo[0].pRX                           = &gEeprom.VfoInfo[0].freq_config_RX;

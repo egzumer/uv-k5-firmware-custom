@@ -332,8 +332,8 @@ void UI_DisplayMain(void)
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
 		const unsigned int line       = (vfo_num == 0) ? line0 : line1;
-		uint8_t            channel    = gEeprom.TX_CHANNEL;
-//		uint8_t            tx_channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+		uint8_t            channel    = gEeprom.TX_VFO;
+//		uint8_t            tx_channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 		const bool         same_vfo   = (channel == vfo_num) ? true : false;
 		uint8_t           *p_line0    = gFrameBuffer[line + 0];
 		uint8_t           *p_line1    = gFrameBuffer[line + 1];
@@ -350,7 +350,7 @@ void UI_DisplayMain(void)
 		}
 
 		if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive)
-			channel = gEeprom.RX_CHANNEL;    // we're currently monitoring the other VFO
+			channel = gEeprom.RX_VFO;    // we're currently monitoring the other VFO
 
 		if (channel != vfo_num)
 		{
@@ -428,7 +428,7 @@ void UI_DisplayMain(void)
 				else
 			#endif
 			{
-				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 				if (channel == vfo_num)
 				{	// show the TX symbol
 					mode = 1;
@@ -446,7 +446,7 @@ void UI_DisplayMain(void)
 			if ((gCurrentFunction == FUNCTION_RECEIVE ||
 			     gCurrentFunction == FUNCTION_MONITOR ||
 			     gCurrentFunction == FUNCTION_INCOMING) &&
-			     gEeprom.RX_CHANNEL == vfo_num)
+			     gEeprom.RX_VFO == vfo_num)
 			{
 				#ifdef ENABLE_SMALL_BOLD
 					UI_PrintStringSmallBold("RX", 14, 0, line);
@@ -459,7 +459,7 @@ void UI_DisplayMain(void)
 		if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 		{	// channel mode
 			const unsigned int x = 2;
-			const bool inputting = (gInputBoxIndex == 0 || gEeprom.TX_CHANNEL != vfo_num) ? false : true;
+			const bool inputting = (gInputBoxIndex == 0 || gEeprom.TX_VFO != vfo_num) ? false : true;
 			if (!inputting)
 				NUMBER_ToDigits(gEeprom.ScreenChannel[vfo_num] + 1, String);  // show the memory channel number
 			else
@@ -479,7 +479,7 @@ void UI_DisplayMain(void)
 		#ifdef ENABLE_NOAA
 			else
 			{
-				if (gInputBoxIndex == 0 || gEeprom.TX_CHANNEL != vfo_num)
+				if (gInputBoxIndex == 0 || gEeprom.TX_VFO != vfo_num)
 				{	// channel number
 					sprintf(String, "N%u", 1 + gEeprom.ScreenChannel[vfo_num] - NOAA_CHANNEL_FIRST);
 				}
@@ -498,7 +498,7 @@ void UI_DisplayMain(void)
 		#ifdef ENABLE_ALARM
 			if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_ALARM)
 			{
-				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 				if (channel == vfo_num)
 					state = VFO_STATE_ALARM;
 			}
@@ -511,7 +511,7 @@ void UI_DisplayMain(void)
 				UI_PrintString(state_list[state], 31, 0, line, 8);
 		}
 		else
-		if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_CHANNEL == vfo_num)
+		if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_VFO == vfo_num)
 		{	// user entering a frequency
 			UI_DisplayFrequency(gInputBox, 32, line, true, false);
 
@@ -522,7 +522,7 @@ void UI_DisplayMain(void)
 			uint32_t frequency = gEeprom.VfoInfo[vfo_num].pRX->Frequency;
 			if (gCurrentFunction == FUNCTION_TRANSMIT)
 			{	// transmitting
-				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 				if (channel == vfo_num)
 					frequency = gEeprom.VfoInfo[vfo_num].pTX->Frequency;
 			}
@@ -722,14 +722,14 @@ void UI_DisplayMain(void)
 		#endif
 
 		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
-			if (rx && gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
+			if (rx && gEeprom.VfoInfo[gEeprom.RX_VFO].AM_mode && gSetting_AM_fix)
 			{
 				if (gScreenToDisplay != DISPLAY_MAIN ||
 					gDTMF_CallState != DTMF_CALL_STATE_NONE)
 					return;
 
 				center_line = CENTER_LINE_AM_FIX_DATA;
-				AM_fix_print_data(gEeprom.RX_CHANNEL, String);
+				AM_fix_print_data(gEeprom.RX_VFO, String);
 				UI_PrintStringSmall(String, 2, 0, 3);
 			}
 			else
@@ -739,7 +739,7 @@ void UI_DisplayMain(void)
 			if (rx)
 			{
 				center_line = CENTER_LINE_RSSI;
-				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_CHANNEL], false);
+				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_VFO], false);
 			}
 			else
 		#endif
