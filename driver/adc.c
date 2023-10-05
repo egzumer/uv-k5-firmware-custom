@@ -134,9 +134,9 @@ void ADC_Configure(ADC_Config_t *pAdc)
 		;
 
 	if (SARADC_IE == 0) {
-		NVIC_DisableIRQ(DP32_SARADC_IRQn);
+		NVIC_DisableIRQ((IRQn_Type)DP32_SARADC_IRQn);
 	} else {
-		NVIC_EnableIRQ(DP32_SARADC_IRQn);
+		NVIC_EnableIRQ((IRQn_Type)DP32_SARADC_IRQn);
 	}
 }
 

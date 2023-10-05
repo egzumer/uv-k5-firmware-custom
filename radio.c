@@ -51,7 +51,7 @@ bool RADIO_CheckValidChannel(uint16_t Channel, bool bCheckScanList, uint8_t VFO)
 	uint8_t PriorityCh1;
 	uint8_t PriorityCh2;
 
-	if (!IS_MR_CHANNEL(Channel))
+	if (Channel > MR_CHANNEL_LAST)
 		return false;
 
 	Attributes = gMR_ChannelAttributes[Channel];
@@ -176,7 +176,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 			}
 		#endif
 
-		if (IS_MR_CHANNEL(Channel))
+		if (Channel <= MR_CHANNEL_LAST)
 		{
 			Channel = RADIO_FindNextChannel(Channel, RADIO_CHANNEL_UP, false, VFO);
 			if (Channel == 0xFF)
@@ -200,7 +200,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 		uint8_t Index;
 
-		if (IS_MR_CHANNEL(Channel))
+		if (Channel <= MR_CHANNEL_LAST)
 		{
 			Channel                    = gEeprom.FreqChannel[VFO];
 			gEeprom.ScreenChannel[VFO] = gEeprom.FreqChannel[VFO];
@@ -218,7 +218,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		Band = BAND6_400MHz;
 	}
 
-	if (IS_MR_CHANNEL(Channel))
+	if (Channel <= MR_CHANNEL_LAST)
 	{
 		gEeprom.VfoInfo[VFO].Band                    = Band;
 		gEeprom.VfoInfo[VFO].SCANLIST1_PARTICIPATION = !!(Attributes & MR_CH_SCANLIST1);
@@ -235,7 +235,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 	gEeprom.VfoInfo[VFO].SCANLIST2_PARTICIPATION = bParticipation2;
 	gEeprom.VfoInfo[VFO].CHANNEL_SAVE            = Channel;
 
-	if (IS_MR_CHANNEL(Channel))
+	if (Channel <= MR_CHANNEL_LAST)
 		Base = Channel * 16;
 	else
 		Base = 0x0C80 + ((Channel - FREQ_CHANNEL_FIRST) * 32) + (VFO * 16);
@@ -380,13 +380,13 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 	if (Frequency >= 10800000 && Frequency < 13600000)
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY_DIRECTION = TX_OFFSET_FREQUENCY_DIRECTION_OFF;
 	else
-	if (!IS_MR_CHANNEL(Channel))
+	if (Channel > MR_CHANNEL_LAST)
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY = FREQUENCY_FloorToStep(gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY, gEeprom.VfoInfo[VFO].StepFrequency, 0);
 
 	RADIO_ApplyOffset(pRadio);
 
 	memset(gEeprom.VfoInfo[VFO].Name, 0, sizeof(gEeprom.VfoInfo[VFO].Name));
-	if (IS_MR_CHANNEL(Channel))
+	if (Channel < MR_CHANNEL_LAST)
 	{	// 16 bytes allocated to the channel name but only 10 used, the rest are 0's
 		EEPROM_ReadBuffer(0x0F50 + (Channel * 16), gEeprom.VfoInfo[VFO].Name + 0, 8);
 		EEPROM_ReadBuffer(0x0F58 + (Channel * 16), gEeprom.VfoInfo[VFO].Name + 8, 2);
@@ -576,6 +576,9 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 	BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_GREEN, false);
 
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+
 	switch (Bandwidth)
 	{
 		default:
@@ -590,6 +593,8 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 			#endif
 			break;
 	}
+
+	#pragma GCC diagnostic pop
 
 	BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, false);
 
@@ -825,6 +830,9 @@ void RADIO_SetTxParameters(void)
 
 	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, false);
 
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+
 	switch (Bandwidth)
 	{
 		default:
@@ -839,6 +847,8 @@ void RADIO_SetTxParameters(void)
 			#endif
 			break;
 	}
+
+	#pragma GCC diagnostic pop
 
 	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency);
 

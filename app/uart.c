@@ -450,7 +450,7 @@ bool UART_IsCommandAvailable(void)
 	Index = DMA_INDEX(gUART_WriteIndex, 2);
 	Size  = (UART_DMA_Buffer[DMA_INDEX(Index, 1)] << 8) | UART_DMA_Buffer[Index];
 
-	if ((Size + 8) > sizeof(UART_DMA_Buffer))
+	if ((Size + 8u) > sizeof(UART_DMA_Buffer))
 	{
 		gUART_WriteIndex = DmaLength;
 		return false;

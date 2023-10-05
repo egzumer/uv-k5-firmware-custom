@@ -647,6 +647,9 @@ static void MR_NextChannel(void)
 
 	if (enabled)
 	{
+		#pragma GCC diagnostic push
+		#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+
 		switch (gCurrentScanList)
 		{
 			case SCAN_NEXT_CHAN_SCANLIST1:
@@ -680,7 +683,7 @@ static void MR_NextChannel(void)
 //				{
 //					chan = (gEeprom.RX_VFO + 1) & 1u;
 //					chan = gEeprom.ScreenChannel[chan];
-//					if (IS_MR_CHANNEL(chan))
+//					if (chan <= MR_CHANNEL_LAST)
 //					{
 //						gCurrentScanList = SCAN_NEXT_CHAN_DUAL_WATCH;
 //						gNextMrChannel   = chan;
@@ -695,6 +698,8 @@ static void MR_NextChannel(void)
 				chan             = 0xff;
 				break;
 		}
+
+		#pragma GCC diagnostic pop
 	}
 
 	if (!enabled || chan == 0xff)
@@ -2042,7 +2047,7 @@ void CHANNEL_Next(bool bFlag, int8_t Direction)
 	gCurrentScanList = SCAN_NEXT_CHAN_SCANLIST1;
 	gScanState       = Direction;
 
-	if (IS_MR_CHANNEL(gNextMrChannel))
+	if (gNextMrChannel <= MR_CHANNEL_LAST)
 	{
 		if (bFlag)
 			gRestoreMrChannel = gNextMrChannel;

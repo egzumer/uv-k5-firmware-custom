@@ -184,10 +184,6 @@ void SETTINGS_SaveSettings(void)
 	EEPROM_WriteBuffer(0x0F40, State);
 }
 
-void SETTINGS_LoadChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO)
-{
-}
-
 void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, uint8_t Mode)
 {
 	#ifdef ENABLE_NOAA
@@ -197,13 +193,13 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 		const uint16_t OffsetMR  = Channel * 16;
 		      uint16_t OffsetVFO = OffsetMR;
 
-		if (!IS_MR_CHANNEL(Channel))
+		if (Channel > MR_CHANNEL_LAST)
 		{	// it's a VFO, not a channel
 			OffsetVFO  = (VFO == 0) ? 0x0C80 : 0x0C90;
 			OffsetVFO += (Channel - FREQ_CHANNEL_FIRST) * 32;
 		}
 
-		if (Mode >= 2 || !IS_MR_CHANNEL(Channel))
+		if (Mode >= 2 || Channel > MR_CHANNEL_LAST)
 		{	// copy VFO to a channel
 
 			uint8_t State[8];
@@ -228,8 +224,9 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 
 			SETTINGS_UpdateChannel(Channel, pVFO, true);
 
-			if (IS_MR_CHANNEL(Channel))
-			{
+			if (Channel <= MR_CHANNEL_LAST)
+			{	// it's a memory channel
+		
 				#ifndef ENABLE_KEEP_MEM_NAME
 					// clear/reset the channel name
 					//memset(&State, 0xFF, sizeof(State));
@@ -262,7 +259,7 @@ void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool keep)
 		uint8_t  Attributes = 0xFF;        // default attributes
 		uint16_t Offset = 0x0D60 + (Channel & ~7u);
 		
-		Attributes &= ~MR_CH_COMPAND;  // default to '0' = compander disabled
+		Attributes &= (uint8_t)(~MR_CH_COMPAND);  // default to '0' = compander disabled
 
 		EEPROM_ReadBuffer(Offset, State, sizeof(State));
 
@@ -280,8 +277,9 @@ void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool keep)
 		gMR_ChannelAttributes[Channel] = Attributes;
 
 //		#ifndef ENABLE_KEEP_MEM_NAME
-			if (IS_MR_CHANNEL(Channel))
-			{
+			if (Channel <= MR_CHANNEL_LAST)
+			{	// it's a memory channel
+		
 				const uint16_t OffsetMR = Channel * 16;
 				if (!keep)
 				{	// clear/reset the channel name

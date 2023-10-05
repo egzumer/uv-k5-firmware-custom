@@ -103,7 +103,7 @@ KEY_Code_t KEYBOARD_Poll(void)
 	
 
 	// *****************
-        for (int j = 0; j < ARRAY_SIZE(keyboard); j++)
+        for (unsigned int j = 0; j < ARRAY_SIZE(keyboard); j++)
 		{
             //Set all high
             GPIOA->DATA |=  1u << GPIOA_PIN_KEYBOARD_4 |
@@ -118,7 +118,7 @@ KEY_Code_t KEYBOARD_Poll(void)
 
             // Read all 4 GPIO pins at once
             uint16_t reg = GPIOA->DATA;
-            for (int i = 0; i < ARRAY_SIZE(keyboard[j].pins); i++)
+            for (unsigned int i = 0; i < ARRAY_SIZE(keyboard[j].pins); i++)
             {
                 uint16_t mask = 1u << keyboard[j].pins[i].pin;
                 if (!(reg & mask))

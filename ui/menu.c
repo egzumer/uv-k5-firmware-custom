@@ -436,6 +436,9 @@ void UI_DisplayMenu(void)
 
 	bool already_printed = false;
 
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+
 	switch (gMenuCursor)
 	{
 		case MENU_SQL:
@@ -805,6 +808,8 @@ void UI_DisplayMenu(void)
 			break;
 		}
 	}
+
+	#pragma GCC diagnostic pop
 
 	if (!already_printed)
 	{	// we now do multi-line text in a single string

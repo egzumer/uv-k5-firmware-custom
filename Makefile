@@ -200,6 +200,7 @@ endif
 
 # May cause unhelpful build failures
 #CFLAGS += -Wpadded
+CFLAGS += -Wextra
 
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"

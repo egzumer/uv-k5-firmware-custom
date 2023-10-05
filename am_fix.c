@@ -475,7 +475,7 @@
 
 		void AM_fix_print_data(const int vfo, char *s)
 		{
-			if (s != NULL && vfo >= 0 && vfo < ARRAY_SIZE(gain_table_index))
+			if (s != NULL && vfo >= 0 && vfo < (int)ARRAY_SIZE(gain_table_index))
 			{
 				const unsigned int index = gain_table_index[vfo];
 //				sprintf(s, "%2u.%u %4ddB %3u", index, ARRAY_SIZE(gain_table) - 1, gain_table[index].gain_dB, prev_rssi[vfo]);
