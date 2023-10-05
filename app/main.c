@@ -40,6 +40,9 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 	uint8_t Band;
 	uint8_t Vfo = gEeprom.TX_VFO;
 
+	if (gScreenToDisplay == DISPLAY_MENU)
+		return;
+	
 	switch (Key)
 	{
 		case KEY_0:
@@ -560,30 +563,16 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 						gCssScanMode == CSS_SCAN_MODE_OFF)
 					{	// copy channel to VFO
 
-						//const unsigned int vfo = (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
-						unsigned int vfo = gEeprom.TX_VFO;
-						if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_CHAN_B)
-							vfo = 1;
-						else
-						if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_CHAN_A)
-							vfo = 0;
-						else
-						if (gEeprom.DUAL_WATCH == DUAL_WATCH_CHAN_B)
-							vfo = 1;
-						else
-						if (gEeprom.DUAL_WATCH == DUAL_WATCH_CHAN_A)
-							vfo = 0;
-						if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)
-							vfo = (vfo + 1) & 1u;
+						const unsigned int vfo = get_rx_VFO();
 
 						if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo]))
 						{	// swap to the VFO
 
 							const unsigned int channel = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
 
-							gEeprom.ScreenChannel[vfo]        = channel;
+							gEeprom.ScreenChannel[vfo] = channel;
 							gEeprom.VfoInfo[vfo].CHANNEL_SAVE = channel;
-							gEeprom.TX_VFO                = vfo;
+							gEeprom.TX_VFO = vfo;
 
 							RADIO_SelectVfos();
 							RADIO_ApplyOffset(gRxVfo);

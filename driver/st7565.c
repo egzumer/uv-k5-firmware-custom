@@ -82,10 +82,10 @@ void ST7565_BlitFullScreen(void)
 	}
 
 	#if 0
-		// whats the delay for I wonder ?  .. it slows down scanning :(
+		// whats the delay for I wonder, it holds things up :(
 		SYSTEM_DelayMs(20);
 	#else
-		SYSTEM_DelayMs(1);
+//		SYSTEM_DelayMs(1);
 	#endif
 
 	SPI_ToggleMasterMode(&SPI0->CR, true);
@@ -119,6 +119,9 @@ void ST7565_FillScreen(uint8_t Value)
 {
 	unsigned int i;
 
+	// reset some of the displays settings to try and overcome the radios hardware problem - RF corrupting the display
+	ST7565_Init(false);
+	
 	SPI_ToggleMasterMode(&SPI0->CR, false);
 	for (i = 0; i < 8; i++)
 	{
@@ -135,18 +138,21 @@ void ST7565_FillScreen(uint8_t Value)
 	SPI_ToggleMasterMode(&SPI0->CR, true);
 }
 
-void ST7565_Init(void)
+void ST7565_Init(const bool full)
 {
-	SPI0_Init();
-
-	ST7565_Configure_GPIO_B11();
-
-	SPI_ToggleMasterMode(&SPI0->CR, false);
-
-	ST7565_WriteByte(0xE2);   // internal reset
-
-	SYSTEM_DelayMs(120);
-
+	if (full)
+	{
+		SPI0_Init();
+	
+		ST7565_Configure_GPIO_B11();
+	
+		SPI_ToggleMasterMode(&SPI0->CR, false);
+	
+		ST7565_WriteByte(0xE2);   // internal reset
+	
+		SYSTEM_DelayMs(120);
+	}
+	
 	ST7565_WriteByte(0xA2);   // bias 9
 	ST7565_WriteByte(0xC0);   // com normal
 	ST7565_WriteByte(0xA1);   // reverse ?
@@ -157,30 +163,35 @@ void ST7565_Init(void)
 	ST7565_WriteByte(0xA4);   // all points normal
 	ST7565_WriteByte(0x24);   //
 	ST7565_WriteByte(0x81);   // volume first ?
-	ST7565_WriteByte(0x1f);   // contrast ?
-	ST7565_WriteByte(0x2B);   // power control ?
 
-	SYSTEM_DelayMs(1);
-
-	ST7565_WriteByte(0x2E);   // power control ?
-
-	SYSTEM_DelayMs(1);
-
-	ST7565_WriteByte(0x2F);   //
-	ST7565_WriteByte(0x2F);   //
-	ST7565_WriteByte(0x2F);   //
-	ST7565_WriteByte(0x2F);   //
-
-	SYSTEM_DelayMs(40);
-
-	ST7565_WriteByte(0x40);   // start line ?
-	ST7565_WriteByte(0xAF);   // display on ?
-
+	if (full)
+	{
+		ST7565_WriteByte(0x1f);   // contrast ?
+		ST7565_WriteByte(0x2B);   // power control ?
+	
+		SYSTEM_DelayMs(1);
+	
+		ST7565_WriteByte(0x2E);   // power control ?
+	
+		SYSTEM_DelayMs(1);
+	
+		ST7565_WriteByte(0x2F);   //
+		ST7565_WriteByte(0x2F);   //
+		ST7565_WriteByte(0x2F);   //
+		ST7565_WriteByte(0x2F);   //
+	
+		SYSTEM_DelayMs(40);
+	
+		ST7565_WriteByte(0x40);   // start line ?
+		ST7565_WriteByte(0xAF);   // display on ?
+	}
+	
 	SPI_WaitForUndocumentedTxFifoStatusBit();
 
 	SPI_ToggleMasterMode(&SPI0->CR, true);
 
-	ST7565_FillScreen(0x00);
+	if (full)
+		ST7565_FillScreen(0x00);
 }
 
 void ST7565_Configure_GPIO_B11(void)

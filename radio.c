@@ -522,22 +522,8 @@ static void RADIO_SelectCurrentVfo(void)
 
 void RADIO_SelectVfos(void)
 {
-	if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_CHAN_B)
-		gEeprom.TX_VFO = 1;
-	else
-	if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_CHAN_A)
-		gEeprom.TX_VFO = 0;
-	else
-	if (gEeprom.DUAL_WATCH == DUAL_WATCH_CHAN_B)
-		gEeprom.TX_VFO = 1;
-	else
-	if (gEeprom.DUAL_WATCH == DUAL_WATCH_CHAN_A)
-		gEeprom.TX_VFO = 0;
-
-	if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF)
-		gEeprom.RX_VFO =  gEeprom.TX_VFO;
-	else
-		gEeprom.RX_VFO = (gEeprom.TX_VFO == 0) ? 1 : 0;
+	gEeprom.TX_VFO = get_tx_VFO();
+	gEeprom.RX_VFO = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.TX_VFO : (gEeprom.TX_VFO + 1) & 1u;
 
 	gTxVfo = &gEeprom.VfoInfo[gEeprom.TX_VFO];
 	gRxVfo = &gEeprom.VfoInfo[gEeprom.RX_VFO];
@@ -877,10 +863,9 @@ void RADIO_SetVfoState(VfoState_t State)
 			VfoState[1] = VFO_STATE_TX_DISABLE;
 		}
 		else
-		{
-			unsigned int chan = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive) ? (gEeprom.RX_VFO + 1) & 1 : gEeprom.RX_VFO;	// 1of11
-			             chan = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.TX_VFO : chan;
-			VfoState[chan]    = State;
+		{	// 1of11
+			const unsigned int vfo = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
+			VfoState[vfo] = State;
 		}
 
 		#ifdef ENABLE_FMRADIO
@@ -901,11 +886,11 @@ void RADIO_PrepareTX(void)
 		gDualWatchCountdown_10ms = dual_watch_count_after_tx_10ms;
 		gScheduleDualWatch       = false;
 
-		if (!gRxVfoIsActive)
+		if (gRxVfoIsActive)
 		{	// use the TX vfo
 			gEeprom.RX_VFO = gEeprom.TX_VFO;
-			gRxVfo             = &gEeprom.VfoInfo[gEeprom.TX_VFO];
-			gRxVfoIsActive     = true;
+			gRxVfo         = &gEeprom.VfoInfo[gEeprom.TX_VFO];
+//			gRxVfoIsActive = true;
 		}
 
 		// let the user see that DW is not active
@@ -939,7 +924,6 @@ void RADIO_PrepareTX(void)
 			State = VFO_STATE_TX_DISABLE;
 		}
 		else
-		//if (TX_freq_check(gCurrentVfo->pTX->Frequency) == 0 || gCurrentVfo->CHANNEL_SAVE <= FREQ_CHANNEL_LAST)
 		if (TX_freq_check(gCurrentVfo->pTX->Frequency) == 0)
 		{	// TX frequency is allowed
 			if (gCurrentVfo->BUSY_CHANNEL_LOCK && gCurrentFunction == FUNCTION_RECEIVE)
@@ -958,10 +942,13 @@ void RADIO_PrepareTX(void)
 	if (State != VFO_STATE_NORMAL)
 	{	// TX not allowed
 		RADIO_SetVfoState(State);
+
 		#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 			gAlarmState = ALARM_STATE_OFF;
 		#endif
+
 		gDTMF_ReplyState = DTMF_REPLY_NONE;
+
 		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 		return;
 	}

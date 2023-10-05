@@ -677,17 +677,17 @@ static void MR_NextChannel(void)
 			// this bit doesn't yet work if the other VFO is a frequency
 			case SCAN_NEXT_CHAN_DUAL_WATCH:
 				// dual watch is enabled - include the other VFO in the scan
-				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
-				{
-					chan = (gEeprom.RX_VFO + 1) & 1u;
-					chan = gEeprom.ScreenChannel[chan];
-					if (IS_MR_CHANNEL(chan))
-					{
-						gCurrentScanList = SCAN_NEXT_CHAN_DUAL_WATCH;
-						gNextMrChannel   = chan;
-						break;
-					}
-				}
+//				if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
+//				{
+//					chan = (gEeprom.RX_VFO + 1) & 1u;
+//					chan = gEeprom.ScreenChannel[chan];
+//					if (IS_MR_CHANNEL(chan))
+//					{
+//						gCurrentScanList = SCAN_NEXT_CHAN_DUAL_WATCH;
+//						gNextMrChannel   = chan;
+//						break;
+//					}
+//				}
 
 			default:
 			case SCAN_NEXT_CHAN_MR:
@@ -2163,8 +2163,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				return;
 
 			if (!bKeyHeld)
-			{
-				// keypad is locked, tell the user
+			{	// keypad is locked, tell the user
 				AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 				gKeypadLocked  = 4;      // 2 seconds
 				gUpdateDisplay = true;

@@ -173,6 +173,7 @@ void UI_drawBars(uint8_t *p, const unsigned int level)
 
 		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
 			return;     // display is in use
+
 		if (gCurrentFunction == FUNCTION_TRANSMIT ||
 		    gScreenToDisplay != DISPLAY_MAIN ||
 			gDTMF_CallState != DTMF_CALL_STATE_NONE)
