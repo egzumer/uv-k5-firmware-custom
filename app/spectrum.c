@@ -1166,7 +1166,7 @@ static void Tick() {
 void APP_RunSpectrum() {
   // TX here coz it always? set to active VFO
   currentFreq = initialFreq =
-      gEeprom.VfoInfo[gEeprom.TX_CHANNEL].pRX->Frequency;
+      gEeprom.VfoInfo[gEeprom.TX_VFO].pRX->Frequency;
 
   BackupRegisters();
 
