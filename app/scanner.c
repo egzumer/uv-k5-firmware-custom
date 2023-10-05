@@ -37,11 +37,11 @@ uint32_t          gScanFrequency;
 bool              gScanPauseMode;
 SCAN_CssState_t   gScanCssState;
 volatile bool     gScheduleScanListen = true;
-volatile uint16_t ScanPauseDelayIn_10ms;
+volatile uint16_t gScanPauseDelayIn_10ms;
 uint8_t           gScanProgressIndicator;
 uint8_t           gScanHitCount;
 bool              gScanUseCssResult;
-int8_t            gScanState;
+int8_t            gScanStateDir;
 bool              bScanKeepFrequency;
 
 static void SCANNER_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
@@ -426,7 +426,7 @@ void SCANNER_Stop(void)
 {
 	const uint8_t Previous = gRestoreMrChannel;
 
-	gScanState = SCAN_OFF;
+	gScanStateDir = SCAN_OFF;
 
 	if (!bScanKeepFrequency)
 	{

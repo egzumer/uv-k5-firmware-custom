@@ -86,8 +86,8 @@ void MENU_StartCssScan(int8_t Direction)
 
 	MENU_SelectNextCode();
 
-	ScanPauseDelayIn_10ms = scan_pause_delay_in_2_10ms;
-	gScheduleScanListen   = false;
+	gScanPauseDelayIn_10ms = scan_pause_delay_in_2_10ms;
+	gScheduleScanListen    = false;
 }
 
 void MENU_StopCssScan(void)
@@ -824,7 +824,7 @@ void MENU_SelectNextCode(void)
 
 	RADIO_SetupRegisters(true);
 
-	ScanPauseDelayIn_10ms = (gSelectedCodeType == CODE_TYPE_CONTINUOUS_TONE) ? scan_pause_delay_in_3_10ms : scan_pause_delay_in_4_10ms;
+	gScanPauseDelayIn_10ms = (gSelectedCodeType == CODE_TYPE_CONTINUOUS_TONE) ? scan_pause_delay_in_3_10ms : scan_pause_delay_in_4_10ms;
 
 	gUpdateDisplay = true;
 }

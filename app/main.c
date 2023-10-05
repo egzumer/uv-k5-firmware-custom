@@ -487,7 +487,7 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 			if (!gFmRadioMode)
 		#endif
 		{
-			if (gScanState == SCAN_OFF)
+			if (gScanStateDir == SCAN_OFF)
 			{
 				if (gInputBoxIndex == 0)
 					return;
@@ -563,11 +563,11 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 					if (gEeprom.VFO_OPEN && gCssScanMode == CSS_SCAN_MODE_OFF)
 					{
 
-						if (gScanState != SCAN_OFF)
+						if (gScanStateDir != SCAN_OFF)
 						{
 							if (gCurrentFunction != FUNCTION_INCOMING ||
 							    gRxReceptionMode == RX_MODE_NONE      ||
-								ScanPauseDelayIn_10ms == 0)
+								gScanPauseDelayIn_10ms == 0)
 							{	// scan is running (not paused)
 								return;
 							}
@@ -639,7 +639,8 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 	}
 
 	if (bKeyHeld || !bKeyPressed)
-	{
+	{	// long press
+
 		if (bKeyHeld || bKeyPressed)
 		{
 			if (!bKeyHeld)
@@ -654,9 +655,9 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 		}
 
 		#ifdef ENABLE_NOAA
-			if (gScanState == SCAN_OFF && IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
+			if (gScanStateDir == SCAN_OFF && IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 		#else
-			if (gScanState == SCAN_OFF)
+			if (gScanStateDir == SCAN_OFF)
 		#endif
 		{
 			gKeyInputCountdown    = key_input_timeout_500ms;
@@ -739,7 +740,7 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 	}
 
-	if (gScanState == SCAN_OFF)
+	if (gScanStateDir == SCAN_OFF)
 	{
 		#ifdef ENABLE_NOAA
 			if (IS_NOT_NOAA_CHANNEL(Channel))
@@ -795,7 +796,10 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 		return;
 	}
 
+	// jump to the next channel
 	CHANNEL_Next(false, Direction);
+	gScanPauseDelayIn_10ms = 1;
+	gScheduleScanListen    = false;
 
 	gPttWasReleased = true;
 }

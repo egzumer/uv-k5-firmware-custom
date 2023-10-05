@@ -184,7 +184,7 @@ void DTMF_HandleRequest(void)
 	if (!gDTMF_RX_pending)
 		return;   // nothing new received
 
-	if (gScanState != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF)
+	if (gScanStateDir != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF)
 	{	// we're busy scanning
 		DTMF_clear_RX();
 		return;

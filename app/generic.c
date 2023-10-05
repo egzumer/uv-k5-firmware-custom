@@ -154,7 +154,7 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 		return;
 	}
 
-	if (gScanState != SCAN_OFF)
+	if (gScanStateDir != SCAN_OFF)
 	{
 		SCANNER_Stop();
 

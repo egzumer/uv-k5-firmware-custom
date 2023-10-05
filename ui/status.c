@@ -94,23 +94,25 @@ void UI_DisplayStatus(const bool test_display)
 		else
 	#endif
 		// SCAN indicator
-		if (gScanState != SCAN_OFF || gScreenToDisplay == DISPLAY_SCANNER || test_display)
+		if (gScanStateDir != SCAN_OFF || gScreenToDisplay == DISPLAY_SCANNER || test_display)
 		{
-			if (gEeprom.SCAN_LIST_DEFAULT == 0)
-//				memmove(line + x, BITMAP_SC1, sizeof(BITMAP_SC1));
-				UI_PrintStringSmallBuffer("1", line + x);
+			if (gNextMrChannel <= MR_CHANNEL_LAST)
+			{	// channel mode
+				if (gEeprom.SCAN_LIST_DEFAULT == 0)
+					UI_PrintStringSmallBuffer("1", line + x);
+				else
+				if (gEeprom.SCAN_LIST_DEFAULT == 1)
+					UI_PrintStringSmallBuffer("2", line + x);
+				else
+				if (gEeprom.SCAN_LIST_DEFAULT == 2)
+					UI_PrintStringSmallBuffer("*", line + x);
+			}
 			else
-			if (gEeprom.SCAN_LIST_DEFAULT == 1)
-//				memmove(line + x, BITMAP_SC2, sizeof(BITMAP_SC2));
-				UI_PrintStringSmallBuffer("2", line + x);
-			else
-			if (gEeprom.SCAN_LIST_DEFAULT == 2)
-//				memmove(line + x, BITMAP_SCA, sizeof(BITMAP_SCA));
-				UI_PrintStringSmallBuffer("*", line + x);
-//			x1 = x + sizeof(BITMAP_SC1);
+			{	// frequency mode
+				UI_PrintStringSmallBuffer("S", line + x);
+			}
 			x1 = x + 7;
 		}
-//	x += sizeof(BITMAP_SC1);
 	x += 7;  // font character width
 
 	#ifdef ENABLE_VOICE

@@ -77,20 +77,20 @@ void SystickHandler(void)
 	if (gCurrentFunction == FUNCTION_POWER_SAVE)
 		DECREMENT_AND_TRIGGER(gPowerSave_10ms, gPowerSaveCountdownExpired);
 
-	if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
+	if (gScanStateDir == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE)
 			DECREMENT_AND_TRIGGER(gDualWatchCountdown_10ms, gScheduleDualWatch);
 
 	#ifdef ENABLE_NOAA
-		if (gScanState == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH == DUAL_WATCH_OFF)
+		if (gScanStateDir == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF && gEeprom.DUAL_WATCH == DUAL_WATCH_OFF)
 			if (gIsNoaaMode && gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
 				if (gCurrentFunction != FUNCTION_RECEIVE)
 					DECREMENT_AND_TRIGGER(gNOAA_Countdown_10ms, gScheduleNOAA);
 	#endif
 
-	if (gScanState != SCAN_OFF || gCssScanMode == CSS_SCAN_MODE_SCANNING)
+	if (gScanStateDir != SCAN_OFF || gCssScanMode == CSS_SCAN_MODE_SCANNING)
 		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
-			DECREMENT_AND_TRIGGER(ScanPauseDelayIn_10ms, gScheduleScanListen);
+			DECREMENT_AND_TRIGGER(gScanPauseDelayIn_10ms, gScheduleScanListen);
 
 	DECREMENT_AND_TRIGGER(gTailNoteEliminationCountdown_10ms, gFlagTailNoteEliminationComplete);
 
