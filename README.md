@@ -50,6 +50,7 @@ You can customize the firmware by enabling/disabling various compile options.
 You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) ..
 
 ```
+ENABLE_CLANG                  := 0       experimental, builds with clang instead of gcc (LTO will be disabled if you enable this)
 ENABLE_SWD                    := 0       only needed if using CPU's SWD port (debugging/programming)
 ENABLE_OVERLAY                := 0       cpu FLASH stuff, not needed
 ENABLE_LTO                    := 0     **experimental, reduces size of compiled firmware but might break EEPROM reads (overlay will be disabled if you enable this)
@@ -68,7 +69,6 @@ ENABLE_WIDE_RX                := 1       full 18MHz to 1300MHz RX (though front-
 ENABLE_TX_WHEN_AM             := 0       allow TX (always FM) when RX is set to AM
 ENABLE_F_CAL_MENU             := 0       enable/disable the radios hidden frequency calibration menu
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       standard CTCSS tail phase shift rather than QS's own 55Hz tone method
-ENABLE_MAIN_KEY_HOLD          := 1       initial F-key press not needed, instead just hold down keys 0-9 to access the secondary butt functions
 ENABLE_BOOT_BEEPS             := 0       gives user audio feedback on volume knob position at boot-up
 ENABLE_SHOW_CHARGE_LEVEL      := 0       show the charge level when the radio is on charge
 ENABLE_REVERSE_BAT_SYMBOL     := 1       mirror the battery symbol on the status bar (+ pole on the right)
@@ -76,7 +76,7 @@ ENABLE_CODE_SCAN_TIMEOUT      := 0       enable/disable 32-sec CTCSS/DCS scan ti
 ENABLE_AM_FIX                 := 1       dynamically adjust the front end gains when in AM mode to helo prevent AM demodulator saturation, ignore the on-screen RSSI level (for now)
 ENABLE_AM_FIX_SHOW_DATA       := 1       show debug data for the AM fix (still tweaking it)
 ENABLE_SQUELCH_MORE_SENSITIVE := 0       make squelch levels a little bit more sensitive - I plan to let user adjust the values themselves
-ENABLE_FASTER_CHANNEL_SCAN    := 0       increases the channel scan speed, but the squelch is also made more twitchy
+#ENABLE_FASTER_CHANNEL_SCAN   := 0       don't use (for now) .. increases the channel scan speed, but the squelch is also made more twitchy
 ENABLE_RSSI_BAR               := 1       enable a dBm/Sn RSSI bar graph level inplace of the little antenna symbols
 ENABLE_AUDIO_BAR              := 0       experimental, display an audo bar level when TX'ing
 ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO. Long press Menu key ('M')
@@ -86,9 +86,13 @@ ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO
 
 # New/modified function keys
 
-* Long-press 'M' = Copy selected channel into the same VFO, then switches to frequency mode
-* Long-press '5' = Toggle a selected channels scanlist setting .. if NOAA is disable in Makefile
-* Long-press '*' = Toggles the scanlist number 1, 2 or ALL channels .. if in channel scan mode
+* Long-press 'M' .. Copy selected channel into same VFO, then switch VFO to frequency mode
+*
+* Long-press '7' .. Toggle selected channel scanlist setting .. if VOX  is disabled in Makefile
+*       or
+* Long-press '5' .. Toggle selected channel scanlist setting .. if NOAA is disabled in Makefile
+*
+* Long-press '*' .. Start scanning, then toggles scanlist scan 1, 2 or ALL channel scanning
 
 # Some changes made from the Quansheng firmware
 
@@ -109,6 +113,9 @@ arm-none-eabi GCC version 10.3.1 is recommended, which is the current version on
 Other versions may generate a flash file that is too big.
 You can get an appropriate version from: https://developer.arm.com/downloads/-/gnu-rm
 
+clang may be used but isn't fully supported. Resulting binaries may also be bigger.
+You can get it from: https://releases.llvm.org/download.html
+
 # Building
 
 To build the firmware, you need to fetch the submodules and then run make:
@@ -123,10 +130,10 @@ To compile directly in windows without the need of a linux virtual machine:
 1. Download and install "gcc-arm-none-eabi-10.3-2021.10-win32.exe" from https://developer.arm.com/downloads/-/gnu-rm
 2. Download and install "gnu_make-3.81.exe" from https://gnuwin32.sourceforge.net/packages/make.htm
 
-3. You may (or not) need to manualy add gcc path to you OS environment PATH.
+3. You may need to (I didn't) manualy add gcc path to your OS environment PATH.
    ie add C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2021.10\bin
 
-4. You may (or not) need to reboot your PC after installing the above
+4. You may need to reboot your PC after installing the above
 ```
 
 Then you can run 'win_make.bat' from the directory you saved this source code too.

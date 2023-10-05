@@ -30,7 +30,7 @@ void ST7565_DrawLine(const unsigned int Column, const unsigned int Line, const u
 void ST7565_BlitFullScreen(void);
 void ST7565_BlitStatusLine(void);
 void ST7565_FillScreen(uint8_t Value);
-void ST7565_Init(void);
+void ST7565_Init(const bool full);
 void ST7565_Configure_GPIO_B11(void);
 void ST7565_SelectColumnAndLine(uint8_t Column, uint8_t Line);
 void ST7565_WriteByte(uint8_t Value);

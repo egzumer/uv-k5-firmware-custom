@@ -52,12 +52,22 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 			if (!bKeyPressed)
 				return;
 
-			#ifdef ENABLE_VOICE
-				gAnotherVoiceID = gEeprom.KEY_LOCK ? VOICE_ID_UNLOCK : VOICE_ID_LOCK;
-			#endif
-
-			gEeprom.KEY_LOCK = !gEeprom.KEY_LOCK;
-			gRequestSaveSettings = true;
+			if (gScreenToDisplay != DISPLAY_MENU &&
+			    gScreenToDisplay != DISPLAY_FM &&
+			    #ifdef ENABLE_FMRADIO
+					!gFmRadioMode &&
+			    #endif
+			    gCurrentFunction != FUNCTION_TRANSMIT)
+			{	// toggle the keyboad lock
+	
+				#ifdef ENABLE_VOICE
+					gAnotherVoiceID = gEeprom.KEY_LOCK ? VOICE_ID_UNLOCK : VOICE_ID_LOCK;
+				#endif
+	
+				gEeprom.KEY_LOCK = !gEeprom.KEY_LOCK;
+	
+				gRequestSaveSettings = true;
+			}
 		}
 		else
 		{

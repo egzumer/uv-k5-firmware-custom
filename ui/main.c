@@ -85,59 +85,60 @@ void UI_drawBars(uint8_t *p, const unsigned int level)
 			const unsigned int bar_width = LCD_WIDTH - 2 - bar_x;
 			unsigned int       i;
 
-			if (gScreenToDisplay != DISPLAY_MAIN)
-				return;
-
-			#if 1
-				// TX audio level
-
 			if (gCurrentFunction != FUNCTION_TRANSMIT ||
-			    gScreenToDisplay != DISPLAY_MAIN ||
-			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
+				gScreenToDisplay != DISPLAY_MAIN      ||
+				gDTMF_CallState != DTMF_CALL_STATE_NONE)
+			{
 				return;  // screen is in use
+			}
 				
-				#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
-					if (gAlarmState != ALARM_STATE_OFF)
-						return;
+			#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
+				if (gAlarmState != ALARM_STATE_OFF)
+					return;
+			#endif
+
+			{
+				#if 1
+					// TX audio level
+	
+					const unsigned int voice_amp  = BK4819_GetVoiceAmplitudeOut();  // 15:0
+	
+//					const unsigned int max        = 65535;
+//					const unsigned int level      = ((voice_amp * bar_width) + (max / 2)) / max;            // with rounding
+//					const unsigned int len        = (level <= bar_width) ? level : bar_width;
+	
+					// make non-linear to make more sensitive at low values
+					const unsigned int level      = voice_amp * 8;
+					const unsigned int sqrt_level = sqrt16((level < 65535) ? level : 65535);
+					const unsigned int len        = (sqrt_level <= bar_width) ? sqrt_level : bar_width;
+	
+				#else
+					// TX/RX AF input level (dB)
+	
+					const uint8_t      af_tx_rx   = BK4819_GetAfTxRx();             //  6:0
+					const unsigned int max        = 63;
+					const unsigned int level      = (((uint16_t)af_tx_rx * bar_width) + (max / 2)) / max;   // with rounding
+					const unsigned int len        = (level <= bar_width) ? level : bar_width;
+	
 				#endif
-
-				const unsigned int voice_amp  = BK4819_GetVoiceAmplitudeOut();  // 15:0
-
-//				const unsigned int max        = 65535;
-//				const unsigned int level      = ((voice_amp * bar_width) + (max / 2)) / max;            // with rounding
-//				const unsigned int len        = (level <= bar_width) ? level : bar_width;
-
-				// make non-linear to make more sensitive at low values
-				const unsigned int level      = voice_amp * 8;
-				const unsigned int sqrt_level = sqrt16((level < 65535) ? level : 65535);
-				const unsigned int len        = (sqrt_level <= bar_width) ? sqrt_level : bar_width;
-
-			#else
-				// TX/RX AF input level (dB)
-
-				const uint8_t      af_tx_rx   = BK4819_GetAfTxRx();             //  6:0
-				const unsigned int max        = 63;
-				const unsigned int level      = (((uint16_t)af_tx_rx * bar_width) + (max / 2)) / max;   // with rounding
-				const unsigned int len        = (level <= bar_width) ? level : bar_width;
-
-			#endif
-
-			uint8_t *p_line = gFrameBuffer[line];
-
-			memset(p_line, 0, LCD_WIDTH);
-
-			#if 1
-				// solid bar
-				for (i = 0; i < bar_width; i++)
-					p_line[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
-			#else
-				// knuled bar
-				for (i = 0; i < bar_width; i += 2)
-					p_line[bar_x + i] = (i <= len) ? 0x7f : 0x41;
-			#endif
-
-			if (gCurrentFunction == FUNCTION_TRANSMIT)
-				ST7565_BlitFullScreen();
+	
+				uint8_t *p_line = gFrameBuffer[line];
+	
+				memset(p_line, 0, LCD_WIDTH);
+	
+				#if 1
+					// solid bar
+					for (i = 0; i < bar_width; i++)
+						p_line[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
+				#else
+					// knuled bar
+					for (i = 0; i < bar_width; i += 2)
+						p_line[bar_x + i] = (i <= len) ? 0x7f : 0x41;
+				#endif
+	
+				if (gCurrentFunction == FUNCTION_TRANSMIT)
+					ST7565_BlitFullScreen();
+			}
 		}
 	}
 #endif
@@ -172,6 +173,7 @@ void UI_drawBars(uint8_t *p, const unsigned int level)
 
 		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
 			return;     // display is in use
+
 		if (gCurrentFunction == FUNCTION_TRANSMIT ||
 		    gScreenToDisplay != DISPLAY_MAIN ||
 			gDTMF_CallState != DTMF_CALL_STATE_NONE)
@@ -331,8 +333,8 @@ void UI_DisplayMain(void)
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
 		const unsigned int line       = (vfo_num == 0) ? line0 : line1;
-		uint8_t            channel    = gEeprom.TX_CHANNEL;
-//		uint8_t            tx_channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+		uint8_t            channel    = gEeprom.TX_VFO;
+//		uint8_t            tx_channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 		const bool         same_vfo   = (channel == vfo_num) ? true : false;
 		uint8_t           *p_line0    = gFrameBuffer[line + 0];
 		uint8_t           *p_line1    = gFrameBuffer[line + 1];
@@ -349,7 +351,7 @@ void UI_DisplayMain(void)
 		}
 
 		if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive)
-			channel = gEeprom.RX_CHANNEL;    // we're currently monitoring the other VFO
+			channel = gEeprom.RX_VFO;    // we're currently monitoring the other VFO
 
 		if (channel != vfo_num)
 		{
@@ -427,7 +429,7 @@ void UI_DisplayMain(void)
 				else
 			#endif
 			{
-				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 				if (channel == vfo_num)
 				{	// show the TX symbol
 					mode = 1;
@@ -445,7 +447,7 @@ void UI_DisplayMain(void)
 			if ((gCurrentFunction == FUNCTION_RECEIVE ||
 			     gCurrentFunction == FUNCTION_MONITOR ||
 			     gCurrentFunction == FUNCTION_INCOMING) &&
-			     gEeprom.RX_CHANNEL == vfo_num)
+			     gEeprom.RX_VFO == vfo_num)
 			{
 				#ifdef ENABLE_SMALL_BOLD
 					UI_PrintStringSmallBold("RX", 14, 0, line);
@@ -458,7 +460,7 @@ void UI_DisplayMain(void)
 		if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 		{	// channel mode
 			const unsigned int x = 2;
-			const bool inputting = (gInputBoxIndex == 0 || gEeprom.TX_CHANNEL != vfo_num) ? false : true;
+			const bool inputting = (gInputBoxIndex == 0 || gEeprom.TX_VFO != vfo_num) ? false : true;
 			if (!inputting)
 				NUMBER_ToDigits(gEeprom.ScreenChannel[vfo_num] + 1, String);  // show the memory channel number
 			else
@@ -478,7 +480,7 @@ void UI_DisplayMain(void)
 		#ifdef ENABLE_NOAA
 			else
 			{
-				if (gInputBoxIndex == 0 || gEeprom.TX_CHANNEL != vfo_num)
+				if (gInputBoxIndex == 0 || gEeprom.TX_VFO != vfo_num)
 				{	// channel number
 					sprintf(String, "N%u", 1 + gEeprom.ScreenChannel[vfo_num] - NOAA_CHANNEL_FIRST);
 				}
@@ -497,7 +499,7 @@ void UI_DisplayMain(void)
 		#ifdef ENABLE_ALARM
 			if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_ALARM)
 			{
-				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 				if (channel == vfo_num)
 					state = VFO_STATE_ALARM;
 			}
@@ -510,7 +512,7 @@ void UI_DisplayMain(void)
 				UI_PrintString(state_list[state], 31, 0, line, 8);
 		}
 		else
-		if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_CHANNEL == vfo_num)
+		if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_VFO == vfo_num)
 		{	// user entering a frequency
 			UI_DisplayFrequency(gInputBox, 32, line, true, false);
 
@@ -521,7 +523,7 @@ void UI_DisplayMain(void)
 			uint32_t frequency = gEeprom.VfoInfo[vfo_num].pRX->Frequency;
 			if (gCurrentFunction == FUNCTION_TRANSMIT)
 			{	// transmitting
-				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_CHANNEL : gEeprom.TX_CHANNEL;
+				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 				if (channel == vfo_num)
 					frequency = gEeprom.VfoInfo[vfo_num].pTX->Frequency;
 			}
@@ -721,14 +723,14 @@ void UI_DisplayMain(void)
 		#endif
 
 		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
-			if (rx && gEeprom.VfoInfo[gEeprom.RX_CHANNEL].AM_mode && gSetting_AM_fix)
+			if (rx && gEeprom.VfoInfo[gEeprom.RX_VFO].AM_mode && gSetting_AM_fix)
 			{
 				if (gScreenToDisplay != DISPLAY_MAIN ||
 					gDTMF_CallState != DTMF_CALL_STATE_NONE)
 					return;
 
 				center_line = CENTER_LINE_AM_FIX_DATA;
-				AM_fix_print_data(gEeprom.RX_CHANNEL, String);
+				AM_fix_print_data(gEeprom.RX_VFO, String);
 				UI_PrintStringSmall(String, 2, 0, 3);
 			}
 			else
@@ -738,7 +740,7 @@ void UI_DisplayMain(void)
 			if (rx)
 			{
 				center_line = CENTER_LINE_RSSI;
-				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_CHANNEL], false);
+				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_VFO], false);
 			}
 			else
 		#endif

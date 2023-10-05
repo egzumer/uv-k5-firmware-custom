@@ -38,11 +38,41 @@
 #include "ui/inputbox.h"
 #include "ui/ui.h"
 
+void toggle_chan_scanlist(void)
+{	// toggle the selected channels scanlist setting
+
+	if (gScreenToDisplay == DISPLAY_SCANNER || !IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
+		return;
+
+	if (gTxVfo->SCANLIST1_PARTICIPATION)
+	{
+		if (gTxVfo->SCANLIST2_PARTICIPATION)
+			gTxVfo->SCANLIST1_PARTICIPATION = 0;
+		else
+			gTxVfo->SCANLIST2_PARTICIPATION = 1;
+	}
+	else
+	{
+		if (gTxVfo->SCANLIST2_PARTICIPATION)
+			gTxVfo->SCANLIST2_PARTICIPATION = 0;
+		else
+			gTxVfo->SCANLIST1_PARTICIPATION = 1;
+	}
+
+	SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
+
+	gVfoConfigureMode = VFO_CONFIGURE;
+	gFlagResetVfos    = true;
+}
+
 static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 {
 	uint8_t Band;
-	uint8_t Vfo = gEeprom.TX_CHANNEL;
+	uint8_t Vfo = gEeprom.TX_VFO;
 
+	if (gScreenToDisplay == DISPLAY_MENU)
+		return;
+	
 	switch (Key)
 	{
 		case KEY_0:
@@ -102,7 +132,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			if (gEeprom.DUAL_WATCH == DUAL_WATCH_CHAN_B)
 				gEeprom.DUAL_WATCH = DUAL_WATCH_CHAN_A;
 			else
-				gEeprom.TX_CHANNEL = (Vfo + 1) & 1u;
+				gEeprom.TX_VFO = (Vfo + 1) & 1u;
 
 			gRequestSaveSettings  = 1;
 			gFlagReconfigureVfos  = true;
@@ -125,7 +155,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 				if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
 				{	// swap to frequency mode
-					gEeprom.ScreenChannel[Vfo] = gEeprom.FreqChannel[gEeprom.TX_CHANNEL];
+					gEeprom.ScreenChannel[Vfo] = gEeprom.FreqChannel[gEeprom.TX_VFO];
 					#ifdef ENABLE_VOICE
 						gAnotherVoiceID        = VOICE_ID_FREQUENCY_MODE;
 					#endif
@@ -134,7 +164,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 					break;
 				}
 
-				Channel = RADIO_FindNextChannel(gEeprom.MrChannel[gEeprom.TX_CHANNEL], 1, false, 0);
+				Channel = RADIO_FindNextChannel(gEeprom.MrChannel[gEeprom.TX_VFO], 1, false, 0);
 				if (Channel != 0xFF)
 				{	// swap to channel mode
 					gEeprom.ScreenChannel[Vfo] = Channel;
@@ -170,52 +200,31 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 		case KEY_5:
 			if(beep) {
 			#ifdef ENABLE_NOAA
-			
+
 				if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 				{
-					gEeprom.ScreenChannel[Vfo] = gEeprom.NoaaChannel[gEeprom.TX_CHANNEL];
+					gEeprom.ScreenChannel[Vfo] = gEeprom.NoaaChannel[gEeprom.TX_VFO];
 				}
 				else
 				{
-					gEeprom.ScreenChannel[Vfo] = gEeprom.FreqChannel[gEeprom.TX_CHANNEL];
+					gEeprom.ScreenChannel[Vfo] = gEeprom.FreqChannel[gEeprom.TX_VFO];
 					#ifdef ENABLE_VOICE
 						gAnotherVoiceID = VOICE_ID_FREQUENCY_MODE;
 					#endif
 				}
 				gRequestSaveVFO   = true;
 				gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
-			#elif defined(ENABLE_SPECTRUM)
+#elif defined(ENABLE_SPECTRUM)
 				APP_RunSpectrum();
 				gRequestDisplayScreen = DISPLAY_MAIN;
-			#endif
+#endif
 			}
 			else {
-				// toggle the selected channels scanlist setting
-			
-				if (gScreenToDisplay != DISPLAY_SCANNER)
-				{
-					if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
-					{
-						if (gTxVfo->SCANLIST1_PARTICIPATION)
-						{
-							if (gTxVfo->SCANLIST2_PARTICIPATION)
-								gTxVfo->SCANLIST1_PARTICIPATION = 0;
-							else
-								gTxVfo->SCANLIST2_PARTICIPATION = 1;
-						}
-						else
-						{
-							if (gTxVfo->SCANLIST2_PARTICIPATION)
-								gTxVfo->SCANLIST2_PARTICIPATION = 0;
-							else
-								gTxVfo->SCANLIST1_PARTICIPATION = 1;
-						}
-						SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
-						gVfoConfigureMode = VFO_CONFIGURE;
-						gFlagResetVfos    = true;
-					}
-				}
+			#ifdef ENABLE_VOX
+				toggle_chan_scanlist();
+			#endif
 			}
+
 			break;
 
 		case KEY_6:
@@ -226,11 +235,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			#ifdef ENABLE_VOX
 				ACTION_Vox();
 			#else
-	
-
-				// TODO: make use of this function key
-
-
+				toggle_chan_scanlist();
 			#endif
 			break;
 
@@ -273,45 +278,36 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	if (bKeyHeld)
 	{	// key held down
 
-		#ifdef ENABLE_MAIN_KEY_HOLD
-			if (bKeyPressed)
+		if (bKeyPressed)
+		{
+			if (gScreenToDisplay == DISPLAY_MAIN)
 			{
-				if (gScreenToDisplay == DISPLAY_MAIN)
-				{
-					if (gInputBoxIndex > 0)
-					{	// delete any inputted chars
-						gInputBoxIndex        = 0;
-						gRequestDisplayScreen = DISPLAY_MAIN;
-					}
-
-					gWasFKeyPressed = false;
-					gUpdateStatus   = true;
-
-					processFKeyFunction(Key, false);
+				if (gInputBoxIndex > 0)
+				{	// delete any inputted chars
+					gInputBoxIndex        = 0;
+					gRequestDisplayScreen = DISPLAY_MAIN;
 				}
+
+				gWasFKeyPressed = false;
+				gUpdateStatus   = true;
+
+				processFKeyFunction(Key, false);
 			}
-		#endif
+		}
 
 		return;
 	}
 
-	#ifdef ENABLE_MAIN_KEY_HOLD
-		if (bKeyPressed)
-		{	// key is pressed
-			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;  // beep when key is pressed
-			return;                                 // don't use the key till it's released
-		}
-	#else
-		if (!bKeyPressed)
-			return;
-
-		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-	#endif
+	if (bKeyPressed)
+	{	// key is pressed
+		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;  // beep when key is pressed
+		return;                                 // don't use the key till it's released
+	}
 
 	if (!gWasFKeyPressed)
 	{	// F-key wasn't pressed
 
-		const uint8_t Vfo = gEeprom.TX_CHANNEL;
+		const uint8_t Vfo = gEeprom.TX_VFO;
 
 		gKeyInputCountdown = key_input_timeout_500ms;
 
@@ -560,71 +556,50 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 				gUpdateStatus   = true;
 
 				#ifdef ENABLE_COPY_CHAN_TO_VFO
-				if (gEeprom.VFO_OPEN &&
-				    gEeprom.DUAL_WATCH == DUAL_WATCH_OFF &&
-				    gScanState == SCAN_OFF &&
-				    gCssScanMode == CSS_SCAN_MODE_OFF)
-				{	// copy channel to VFO
 
-					int channel  = -1;
-					int vfo      = -1;
+					if (gEeprom.VFO_OPEN && gCssScanMode == CSS_SCAN_MODE_OFF)
+					{
 
-					#if 0
-						// copy channel to opposite VFO
-						if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[0]) &&
-							IS_MR_CHANNEL(gEeprom.ScreenChannel[1]))
+						if (gScanState != SCAN_OFF)
 						{
-							channel = gEeprom.ScreenChannel[1];
-							vfo     = 0;
+							if (gCurrentFunction != FUNCTION_INCOMING ||
+							    gRxReceptionMode == RX_MODE_NONE      ||
+								ScanPauseDelayIn_10ms == 0)
+							{	// scan is running (not paused)
+								return;
+							}
 						}
-						else
-						if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[1]) &&
-							IS_MR_CHANNEL(gEeprom.ScreenChannel[0]))
-						{
-							channel = gEeprom.ScreenChannel[0];
-							vfo     = 1;
+						
+						const unsigned int vfo = get_rx_VFO();
+
+						if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo]))
+						{	// copy channel to VFO, then swap to the VFO
+							
+							const unsigned int channel = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
+
+							gEeprom.ScreenChannel[vfo] = channel;
+							gEeprom.VfoInfo[vfo].CHANNEL_SAVE = channel;
+							gEeprom.TX_VFO = vfo;
+
+							RADIO_SelectVfos();
+							RADIO_ApplyOffset(gRxVfo);
+							RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
+							RADIO_SetupRegisters(true);
+
+							//SETTINGS_SaveChannel(channel, gEeprom.RX_VFO, gRxVfo, 1);
+
+							gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
+							gUpdateStatus  = true;
+							gUpdateDisplay = true;
 						}
-					#else
-						// copy channel to same VFO
-						if (IS_MR_CHANNEL(gEeprom.ScreenChannel[gEeprom.RX_CHANNEL]))
-						{
-							channel = gEeprom.ScreenChannel[gEeprom.RX_CHANNEL];
-							vfo     = gEeprom.RX_CHANNEL;
-						}
-					#endif
-					
-					if (channel >= 0 && vfo >= 0)
-					{	// copy the channel into the VFO
-
-						gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-
-						gEeprom.MrChannel[vfo]     = channel;
-						gEeprom.ScreenChannel[vfo] = channel;
-						RADIO_ConfigureChannel(vfo, VFO_CONFIGURE_RELOAD);
-
-						channel = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
-						gEeprom.MrChannel[vfo]     = channel;
-						gEeprom.ScreenChannel[vfo] = channel;
-						gEeprom.VfoInfo[vfo].CHANNEL_SAVE = channel;
-
-						// swap to the VFO
-						gEeprom.TX_CHANNEL = vfo;
-						gEeprom.RX_CHANNEL = vfo;
-						RADIO_SelectVfos();
-
-						RADIO_ApplyOffset(gRxVfo);
-						RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
-
-						RADIO_SetupRegisters(true);
-
-//						SETTINGS_SaveChannel(gRxVfo->CHANNEL_SAVE, gEeprom.RX_CHANNEL, gRxVfo, 1);
-
-						gUpdateStatus  = true;
-						gUpdateDisplay = true;
 					}
-				}
-				#endif
+					else
+					{
+						gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+					}
 
+				#endif
 			}
 		}
 
@@ -731,7 +706,7 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 
 static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 {
-	uint8_t Channel = gEeprom.ScreenChannel[gEeprom.TX_CHANNEL];
+	uint8_t Channel = gEeprom.ScreenChannel[gEeprom.TX_VFO];
 
 	if (bKeyHeld || !bKeyPressed)
 	{
@@ -796,8 +771,8 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 			if (Channel == Next)
 				return;
 
-			gEeprom.MrChannel[gEeprom.TX_CHANNEL]     = Next;
-			gEeprom.ScreenChannel[gEeprom.TX_CHANNEL] = Next;
+			gEeprom.MrChannel[gEeprom.TX_VFO]     = Next;
+			gEeprom.ScreenChannel[gEeprom.TX_VFO] = Next;
 
 			if (!bKeyHeld)
 			{
@@ -810,9 +785,9 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 		#ifdef ENABLE_NOAA
 			else
 			{
-				Channel = NOAA_CHANNEL_FIRST + NUMBER_AddWithWraparound(gEeprom.ScreenChannel[gEeprom.TX_CHANNEL] - NOAA_CHANNEL_FIRST, Direction, 0, 9);
-				gEeprom.NoaaChannel[gEeprom.TX_CHANNEL]   = Channel;
-				gEeprom.ScreenChannel[gEeprom.TX_CHANNEL] = Channel;
+				Channel = NOAA_CHANNEL_FIRST + NUMBER_AddWithWraparound(gEeprom.ScreenChannel[gEeprom.TX_VFO] - NOAA_CHANNEL_FIRST, Direction, 0, 9);
+				gEeprom.NoaaChannel[gEeprom.TX_VFO]   = Channel;
+				gEeprom.ScreenChannel[gEeprom.TX_VFO] = Channel;
 			}
 		#endif
 
