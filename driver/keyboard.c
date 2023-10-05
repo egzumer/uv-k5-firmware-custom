@@ -43,7 +43,7 @@ static const struct {
     /* Zero row  */
     {
         //Set to zero to handle special case of nothing pulled down.
-        .set_to_zero_mask = ~(0),
+        .set_to_zero_mask = 0,
         .pins = {
             { .key = KEY_SIDE1, .pin = GPIOA_PIN_KEYBOARD_0},
             { .key = KEY_SIDE2, .pin = GPIOA_PIN_KEYBOARD_1},
@@ -54,7 +54,7 @@ static const struct {
     },
     /* First row  */
     {
-        .set_to_zero_mask = ~(1 << GPIOA_PIN_KEYBOARD_4),
+        .set_to_zero_mask = ~(1u << GPIOA_PIN_KEYBOARD_4),
         .pins = {
             { .key = KEY_MENU,  .pin = GPIOA_PIN_KEYBOARD_0},
             { .key = KEY_1,     .pin = GPIOA_PIN_KEYBOARD_1},
@@ -64,7 +64,7 @@ static const struct {
     },
     /* Second row */
     {
-        .set_to_zero_mask = ~(1 << GPIOA_PIN_KEYBOARD_5),
+        .set_to_zero_mask = ~(1u << GPIOA_PIN_KEYBOARD_5),
         .pins = {
             { .key = KEY_UP,    .pin = GPIOA_PIN_KEYBOARD_0},
             { .key = KEY_2 ,    .pin = GPIOA_PIN_KEYBOARD_1},
@@ -74,7 +74,7 @@ static const struct {
     },
     /* Third row */
     {
-        .set_to_zero_mask = ~(1 << GPIOA_PIN_KEYBOARD_6),
+        .set_to_zero_mask = ~(1u << GPIOA_PIN_KEYBOARD_6),
         .pins = {
             { .key = KEY_DOWN,  .pin = GPIOA_PIN_KEYBOARD_0},
             { .key = KEY_3   ,  .pin = GPIOA_PIN_KEYBOARD_1},
@@ -84,7 +84,7 @@ static const struct {
     },
     /* Fourth row */
     {
-        .set_to_zero_mask = ~(1 << GPIOA_PIN_KEYBOARD_7),
+        .set_to_zero_mask = ~(1u << GPIOA_PIN_KEYBOARD_7),
         .pins = {
             { .key = KEY_EXIT,  .pin = GPIOA_PIN_KEYBOARD_0},
             { .key = KEY_STAR,  .pin = GPIOA_PIN_KEYBOARD_1},
@@ -103,12 +103,13 @@ KEY_Code_t KEYBOARD_Poll(void)
 	
 
 	// *****************
-        for(int j = 0; j < ARRAY_SIZE(keyboard); j++) {
+        for (int j = 0; j < ARRAY_SIZE(keyboard); j++)
+		{
             //Set all high
-            GPIOA->DATA |=  1 << GPIOA_PIN_KEYBOARD_4 |
-                            1 << GPIOA_PIN_KEYBOARD_5 |
-                            1 << GPIOA_PIN_KEYBOARD_6 |
-                            1 << GPIOA_PIN_KEYBOARD_7 ;
+            GPIOA->DATA |=  1u << GPIOA_PIN_KEYBOARD_4 |
+                            1u << GPIOA_PIN_KEYBOARD_5 |
+                            1u << GPIOA_PIN_KEYBOARD_6 |
+                            1u << GPIOA_PIN_KEYBOARD_7 ;
             //Clear the pin we are selecting
             GPIOA->DATA &= keyboard[j].set_to_zero_mask;
 
@@ -117,10 +118,11 @@ KEY_Code_t KEYBOARD_Poll(void)
 
             // Read all 4 GPIO pins at once
             uint16_t reg = GPIOA->DATA;
-            for(int i = 0; i < ARRAY_SIZE(keyboard[j].pins); i++)
+            for (int i = 0; i < ARRAY_SIZE(keyboard[j].pins); i++)
             {
-                uint16_t mask = 1 << keyboard[j].pins[i].pin;
-                if(! (reg & mask)) {
+                uint16_t mask = 1u << keyboard[j].pins[i].pin;
+                if (!(reg & mask))
+				{
                     Key = keyboard[j].pins[i].key;
                     break;
                 }
