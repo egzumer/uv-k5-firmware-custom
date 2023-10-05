@@ -200,6 +200,8 @@ endif
 
 # May cause unhelpful build failures
 #CFLAGS += -Wpadded
+
+# catch any and all warnings
 CFLAGS += -Wextra
 
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H

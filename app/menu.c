@@ -1175,7 +1175,7 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 		if (edit_index < 10)
 		{
-			if (/* Key >= KEY_0 && */ Key <= KEY_9)
+			if (Key >= KEY_0 && Key <= KEY_9)
 			{
 				edit[edit_index] = '0' + Key - KEY_0;
 

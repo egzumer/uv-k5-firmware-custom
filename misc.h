@@ -31,7 +31,7 @@
 #define IS_NOAA_CHANNEL(x)     ((x) >= NOAA_CHANNEL_FIRST && (x) <= NOAA_CHANNEL_LAST)
 #define IS_NOT_NOAA_CHANNEL(x) ((x) >= MR_CHANNEL_FIRST   && (x) <= FREQ_CHANNEL_LAST)
 
-typedef enum {
+enum {
 	MR_CHANNEL_FIRST   = 0,
 	MR_CHANNEL_LAST    = 199u,
 	FREQ_CHANNEL_FIRST = 200u,
@@ -39,7 +39,7 @@ typedef enum {
 	NOAA_CHANNEL_FIRST = 207u,
 	NOAA_CHANNEL_LAST  = 216u,
 	LAST_CHANNEL
-} channel_num_t;
+};
 
 enum {
 	FLASHLIGHT_OFF = 0,
