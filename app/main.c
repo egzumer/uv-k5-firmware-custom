@@ -35,6 +35,33 @@
 #include "ui/inputbox.h"
 #include "ui/ui.h"
 
+void toggle_chan_scanlist(void)
+{	// toggle the selected channels scanlist setting
+
+	if (gScreenToDisplay == DISPLAY_SCANNER || !IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
+		return;
+
+	if (gTxVfo->SCANLIST1_PARTICIPATION)
+	{
+		if (gTxVfo->SCANLIST2_PARTICIPATION)
+			gTxVfo->SCANLIST1_PARTICIPATION = 0;
+		else
+			gTxVfo->SCANLIST2_PARTICIPATION = 1;
+	}
+	else
+	{
+		if (gTxVfo->SCANLIST2_PARTICIPATION)
+			gTxVfo->SCANLIST2_PARTICIPATION = 0;
+		else
+			gTxVfo->SCANLIST1_PARTICIPATION = 1;
+	}
+
+	SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
+
+	gVfoConfigureMode = VFO_CONFIGURE;
+	gFlagResetVfos    = true;
+}
+
 static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 {
 	uint8_t Band;
@@ -185,32 +212,9 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
 
 			#else
-				// toggle the selected channels scanlist setting
-
-				if (gScreenToDisplay != DISPLAY_SCANNER)
-				{
-					if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
-					{
-						if (gTxVfo->SCANLIST1_PARTICIPATION)
-						{
-							if (gTxVfo->SCANLIST2_PARTICIPATION)
-								gTxVfo->SCANLIST1_PARTICIPATION = 0;
-							else
-								gTxVfo->SCANLIST2_PARTICIPATION = 1;
-						}
-						else
-						{
-							if (gTxVfo->SCANLIST2_PARTICIPATION)
-								gTxVfo->SCANLIST2_PARTICIPATION = 0;
-							else
-								gTxVfo->SCANLIST1_PARTICIPATION = 1;
-						}
-						SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
-						gVfoConfigureMode = VFO_CONFIGURE;
-						gFlagResetVfos    = true;
-					}
-				}
-
+				#ifdef ENABLE_VOX
+					toggle_chan_scanlist();
+				#endif
 			#endif
 
 			break;
@@ -223,11 +227,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			#ifdef ENABLE_VOX
 				ACTION_Vox();
 			#else
-
-
-				// TODO: make use of this function key
-
-
+				toggle_chan_scanlist();
 			#endif
 			break;
 
@@ -270,40 +270,31 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	if (bKeyHeld)
 	{	// key held down
 
-		#ifdef ENABLE_MAIN_KEY_HOLD
-			if (bKeyPressed)
+		if (bKeyPressed)
+		{
+			if (gScreenToDisplay == DISPLAY_MAIN)
 			{
-				if (gScreenToDisplay == DISPLAY_MAIN)
-				{
-					if (gInputBoxIndex > 0)
-					{	// delete any inputted chars
-						gInputBoxIndex        = 0;
-						gRequestDisplayScreen = DISPLAY_MAIN;
-					}
-
-					gWasFKeyPressed = false;
-					gUpdateStatus   = true;
-
-					processFKeyFunction(Key, false);
+				if (gInputBoxIndex > 0)
+				{	// delete any inputted chars
+					gInputBoxIndex        = 0;
+					gRequestDisplayScreen = DISPLAY_MAIN;
 				}
+
+				gWasFKeyPressed = false;
+				gUpdateStatus   = true;
+
+				processFKeyFunction(Key, false);
 			}
-		#endif
+		}
 
 		return;
 	}
 
-	#ifdef ENABLE_MAIN_KEY_HOLD
-		if (bKeyPressed)
-		{	// key is pressed
-			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;  // beep when key is pressed
-			return;                                 // don't use the key till it's released
-		}
-	#else
-		if (!bKeyPressed)
-			return;
-
-		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-	#endif
+	if (bKeyPressed)
+	{	// key is pressed
+		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;  // beep when key is pressed
+		return;                                 // don't use the key till it's released
+	}
 
 	if (!gWasFKeyPressed)
 	{	// F-key wasn't pressed

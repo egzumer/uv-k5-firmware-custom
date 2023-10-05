@@ -1370,11 +1370,8 @@ void APP_CheckKeys(void)
 		    Key == KEY_UP    ||
 		    Key == KEY_DOWN  ||
 		    Key == KEY_EXIT  ||
-		    Key == KEY_MENU
-		    #ifdef ENABLE_MAIN_KEY_HOLD
-		        || Key <= KEY_9       // keys 0-9 can be held down to bypass pressing the F-Key
-		    #endif
-			)
+		    Key == KEY_MENU  ||
+			Key <= KEY_9)       // keys 0-9 can be held down to bypass pressing the F-Key
 		{
 			gKeyBeingHeld = true;
 			APP_ProcessKey(Key, true, true);
@@ -2326,9 +2323,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				case DISPLAY_MAIN:
 					MAIN_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 
-					#ifdef ENABLE_MAIN_KEY_HOLD
-						bKeyHeld = false;	// allow the channel setting to be saved
-					#endif
+					bKeyHeld = false;	// allow the channel setting to be saved
 
 					break;
 
