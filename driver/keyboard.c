@@ -54,7 +54,7 @@ static const struct {
     },
     /* First row  */
     {
-        .set_to_zero_mask = ~(1u << GPIOA_PIN_KEYBOARD_4),
+        .set_to_zero_mask = (uint16_t)(~(1u << GPIOA_PIN_KEYBOARD_4)),
         .pins = {
             { .key = KEY_MENU,  .pin = GPIOA_PIN_KEYBOARD_0},
             { .key = KEY_1,     .pin = GPIOA_PIN_KEYBOARD_1},
@@ -64,7 +64,7 @@ static const struct {
     },
     /* Second row */
     {
-        .set_to_zero_mask = ~(1u << GPIOA_PIN_KEYBOARD_5),
+        .set_to_zero_mask = (uint16_t)(~(1u << GPIOA_PIN_KEYBOARD_5)),
         .pins = {
             { .key = KEY_UP,    .pin = GPIOA_PIN_KEYBOARD_0},
             { .key = KEY_2 ,    .pin = GPIOA_PIN_KEYBOARD_1},
@@ -74,7 +74,7 @@ static const struct {
     },
     /* Third row */
     {
-        .set_to_zero_mask = ~(1u << GPIOA_PIN_KEYBOARD_6),
+        .set_to_zero_mask = (uint16_t)(~(1u << GPIOA_PIN_KEYBOARD_6)),
         .pins = {
             { .key = KEY_DOWN,  .pin = GPIOA_PIN_KEYBOARD_0},
             { .key = KEY_3   ,  .pin = GPIOA_PIN_KEYBOARD_1},
@@ -84,7 +84,7 @@ static const struct {
     },
     /* Fourth row */
     {
-        .set_to_zero_mask = ~(1u << GPIOA_PIN_KEYBOARD_7),
+        .set_to_zero_mask = (uint16_t)(~(1u << GPIOA_PIN_KEYBOARD_7)),
         .pins = {
             { .key = KEY_EXIT,  .pin = GPIOA_PIN_KEYBOARD_0},
             { .key = KEY_STAR,  .pin = GPIOA_PIN_KEYBOARD_1},

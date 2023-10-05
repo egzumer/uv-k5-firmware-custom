@@ -65,7 +65,7 @@ ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO
 * Long-press 'M' .. Copy selected channel into same VFO, then switch VFO to frequency mode
 *
 * Long-press '7' .. Toggle selected channel scanlist setting .. if VOX  is disabled in Makefile
-*       or
+* or
 * Long-press '5' .. Toggle selected channel scanlist setting .. if NOAA is disabled in Makefile
 *
 * Long-press '*' .. Start scanning, then toggles scanlist scan 1, 2 or ALL channel scanning
