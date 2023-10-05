@@ -660,7 +660,7 @@ static void MR_NextChannel(void)
 					if (RADIO_CheckValidChannel(chan1, false, 0))
 					{
 						gCurrentScanList = SCAN_NEXT_CHAN_SCANLIST1;
-						gNextMrChannel = chan1;
+						gNextMrChannel   = chan1;
 						break;
 					}
 				}
@@ -1079,14 +1079,14 @@ void APP_Update(void)
 			if (gCurrentFunction == FUNCTION_INCOMING)
 				APP_StartListening(gMonitor ? FUNCTION_MONITOR : FUNCTION_RECEIVE, true);
 			else
-				FREQ_NextChannel();
+				FREQ_NextChannel();  // switch to next frequency
 		}
 		else
 		{
 			if (gCurrentCodeType == CODE_TYPE_OFF && gCurrentFunction == FUNCTION_INCOMING)
 				APP_StartListening(gMonitor ? FUNCTION_MONITOR : FUNCTION_RECEIVE, true);
 			else
-				MR_NextChannel();
+				MR_NextChannel();    // switch to next channel
 		}
 
 		gScanPauseMode      = false;
