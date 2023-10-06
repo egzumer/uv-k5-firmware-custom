@@ -561,7 +561,7 @@ static void UpdateFreqInput(KEY_Code_t key) {
   for (int i = 0; i < 10; ++i) {
     if (i < freqInputIndex) {
       digitKey = freqInputArr[i];
-      freqInputString[i] = digitKey <= KEY_9 ? '0' + digitKey : '.';
+      freqInputString[i] = digitKey <= KEY_9 ? '0' + digitKey-KEY_0 : '.';
     } else {
       freqInputString[i] = '-';
     }
@@ -569,14 +569,14 @@ static void UpdateFreqInput(KEY_Code_t key) {
 
   uint32_t base = 100000; // 1MHz in BK units
   for (int i = dotIndex - 1; i >= 0; --i) {
-    tempFreq += freqInputArr[i] * base;
+    tempFreq += (freqInputArr[i]-KEY_0) * base;
     base *= 10;
   }
 
   base = 10000; // 0.1MHz in BK units
   if (dotIndex < freqInputIndex) {
     for (int i = dotIndex + 1; i < freqInputIndex; ++i) {
-      tempFreq += freqInputArr[i] * base;
+      tempFreq += (freqInputArr[i]-KEY_0) * base;
       base /= 10;
     }
   }
