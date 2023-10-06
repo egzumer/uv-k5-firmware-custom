@@ -602,8 +602,8 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			{	// make the RX bandwidth the same with weak signals
 				val =
 					(0u << 15) |     //  0
-					(5u << 12) |     // *3 RF filter bandwidth
-					(5u <<  9) |     // *0 RF filter bandwidth when signal is weak
+					(4u << 12) |     // *3 RF filter bandwidth
+					(4u <<  9) |     // *0 RF filter bandwidth when signal is weak
 					(6u <<  6) |     // *0 AFTxLPF2 filter Band Width
 					(2u <<  4) |     //  2 BW Mode Selection
 					(1u <<  3) |     //  1
@@ -614,7 +614,7 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			{	// with weak RX signals the RX bandwidth is reduced
 				val =                // 0x3028);         // 0 011 000 000 10 1 0 00
 					(0u << 15) |     //  0
-					(5u << 12) |     // *3 RF filter bandwidth
+					(4u << 12) |     // *3 RF filter bandwidth
 					(2u <<  9) |     // *0 RF filter bandwidth when signal is weak
 					(6u <<  6) |     // *0 AFTxLPF2 filter Band Width
 					(2u <<  4) |     //  2 BW Mode Selection
@@ -629,8 +629,8 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			{
 				val =
 					(0u << 15) |     //  0
-					(5u << 12) |     // *4 RF filter bandwidth
-					(5u <<  9) |     // *0 RF filter bandwidth when signal is weak
+					(4u << 12) |     // *4 RF filter bandwidth
+					(4u <<  9) |     // *0 RF filter bandwidth when signal is weak
 					(0u <<  6) |     // *1 AFTxLPF2 filter Band Width
 					(0u <<  4) |     //  0 BW Mode Selection
 					(1u <<  3) |     //  1
@@ -641,7 +641,7 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 			{
 				val =                // 0x4048);        // 0 100 000 001 00 1 0 00
 					(0u << 15) |     //  0
-					(5u << 12) |     // *4 RF filter bandwidth
+					(4u << 12) |     // *4 RF filter bandwidth
 					(2u <<  9) |     // *0 RF filter bandwidth when signal is weak
 					(0u <<  6) |     // *1 AFTxLPF2 filter Band Width
 					(0u <<  4) |     //  0 BW Mode Selection
@@ -738,7 +738,7 @@ void BK4819_SetupSquelch(
 	//
 	BK4819_WriteRegister(BK4819_REG_70, 0);
 
-	// Glitch threshold for Squelch
+	// Glitch threshold for Squelch = close
 	//
 	// 0 ~ 255
 	//
@@ -748,47 +748,49 @@ void BK4819_SetupSquelch(
 	//
 	// <15:14> 1 ???
 	//
-	// <13:11> 5 Squelch = 1 Delay Setting
+	// <13:11> 5 Squelch = open  Delay Setting
 	//         0 ~ 7
 	//
-	// <10:9>  7 Squelch = 0 Delay Setting
+	// <10:9>  7 Squelch = close Delay Setting
 	//         0 ~ 3
 	//
 	// <8>     0 ???
 	//
-	// <7:0>   8 Glitch threshold for Squelch = 1
+	// <7:0>   8 Glitch threshold for Squelch = open
 	//         0 ~ 255
 	//
 	BK4819_WriteRegister(BK4819_REG_4E,  // 01 101 11 1 00000000
 	#ifndef ENABLE_FASTER_CHANNEL_SCAN
-		// original
-		(1u << 14) |                  // 1 ???
-		(5u << 11) |                  // 5  squelch = 1 delay .. 0 ~ 7
-		(3u <<  9) |                  // 3  squelch = 0 delay .. 0 ~ 3
-		SquelchOpenGlitchThresh);     // 0 ~ 255
+		// original (*)
+		(1u << 14) |                  //  1 ???
+		(3u << 11) |                  // *5  squelch = open  delay .. 0 ~ 7
+		(2u <<  9) |                  // *3  squelch = close delay .. 0 ~ 3
+		SquelchOpenGlitchThresh);     //  0 ~ 255
 	#else
 		// faster (but twitchier)
-		(1u << 14) |                  // 1 ???
-		SquelchOpenGlitchThresh);     // 0 ~ 255
+		(1u << 14) |                  //  1 ???
+		(2u << 11) |                  // *5  squelch = open  delay .. 0 ~ 7
+		(1u <<  9) |                  // *3  squelch = close delay .. 0 ~ 3
+		SquelchOpenGlitchThresh);     //  0 ~ 255
 	#endif
 
 	// REG_4F
 	//
-	// <14:8> 47 Ex-noise threshold for Squelch = 0
+	// <14:8> 47 Ex-noise threshold for Squelch = close
 	//        0 ~ 127
 	//
 	// <7>    ???
 	//
-	// <6:0>  46 Ex-noise threshold for Squelch = 1
+	// <6:0>  46 Ex-noise threshold for Squelch = open
 	//        0 ~ 127
 	//
 	BK4819_WriteRegister(BK4819_REG_4F, ((uint16_t)SquelchCloseNoiseThresh << 8) | SquelchOpenNoiseThresh);
 
 	// REG_78
 	//
-	// <15:8> 72 RSSI threshold for Squelch = 1   0.5dB/step
+	// <15:8> 72 RSSI threshold for Squelch = open    0.5dB/step
 	//
-	// <7:0>  70 RSSI threshold for Squelch = 0   0.5dB/step
+	// <7:0>  70 RSSI threshold for Squelch = close   0.5dB/step
 	//
 	BK4819_WriteRegister(BK4819_REG_78, ((uint16_t)SquelchOpenRSSIThresh   << 8) | SquelchCloseRSSIThresh);
 
@@ -1000,6 +1002,42 @@ void BK4819_PlayTone(uint16_t Frequency, bool bTuningGainSwitch)
 	BK4819_WriteRegister(BK4819_REG_30, BK4819_REG_30_ENABLE_AF_DAC | BK4819_REG_30_ENABLE_DISC_MODE | BK4819_REG_30_ENABLE_TX_DSP);
 
 	BK4819_WriteRegister(BK4819_REG_71, scale_freq(Frequency));
+}
+
+void BK4819_PlaySingleTone(const unsigned int tone_Hz, const unsigned int delay, const unsigned int level, const bool play_speaker)
+{
+	BK4819_EnterTxMute();
+	
+	if (play_speaker)
+	{
+		GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+		BK4819_SetAF(BK4819_AF_BEEP);
+	}
+	else
+		BK4819_SetAF(BK4819_AF_MUTE);
+
+	// level 0 ~ 127
+//	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (96u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+//	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (28u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | ((level & 0x7f) << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+
+	BK4819_EnableTXLink();
+	SYSTEM_DelayMs(50);
+
+	BK4819_WriteRegister(BK4819_REG_71, scale_freq(tone_Hz));
+
+	BK4819_ExitTxMute();
+	SYSTEM_DelayMs(delay);
+	BK4819_EnterTxMute();
+
+	if (play_speaker)
+	{
+		GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+		BK4819_SetAF(BK4819_AF_MUTE);
+	}
+	
+	BK4819_WriteRegister(BK4819_REG_70, 0x0000);
+	BK4819_WriteRegister(BK4819_REG_30, 0xC1FE);
 }
 
 void BK4819_EnterTxMute(void)
@@ -1285,7 +1323,7 @@ void BK4819_TransmitTone(bool bLocalLoopback, uint32_t Frequency)
 	// set the tone amplitude
 	//
 //	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_MASK_ENABLE_TONE1 | (96u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
-	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_MASK_ENABLE_TONE1 | (50u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_MASK_ENABLE_TONE1 | (28u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
 
 	BK4819_WriteRegister(BK4819_REG_71, scale_freq(Frequency));
 
@@ -1629,7 +1667,9 @@ void BK4819_PlayRoger(void)
 
 	BK4819_EnterTxMute();
 	BK4819_SetAF(BK4819_AF_MUTE);
-	BK4819_WriteRegister(BK4819_REG_70, 0xE000);  // 1110 0000 0000 0000
+
+//	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (96u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (28u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
 
 	BK4819_EnableTXLink();
 	SYSTEM_DelayMs(50);

@@ -86,8 +86,8 @@ void MENU_StartCssScan(int8_t Direction)
 
 	MENU_SelectNextCode();
 
-	ScanPauseDelayIn_10ms = scan_pause_delay_in_2_10ms;
-	gScheduleScanListen   = false;
+	gScanPauseDelayIn_10ms = scan_pause_delay_in_2_10ms;
+	gScheduleScanListen    = false;
 }
 
 void MENU_StopCssScan(void)
@@ -408,6 +408,9 @@ void MENU_AcceptSetting(void)
 			gRequestSaveChannel = 1;
 			return;
 
+		#pragma GCC diagnostic push
+		#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+
 		case MENU_T_CTCS:
 			pConfig = &gTxVfo->freq_config_TX;
 		case MENU_R_CTCS:
@@ -435,6 +438,8 @@ void MENU_AcceptSetting(void)
 
 			gRequestSaveChannel = 1;
 			return;
+
+		#pragma GCC diagnostic pop
 
 		case MENU_SFT_D:
 			gTxVfo->TX_OFFSET_FREQUENCY_DIRECTION = gSubMenuSelection;
@@ -819,7 +824,7 @@ void MENU_SelectNextCode(void)
 
 	RADIO_SetupRegisters(true);
 
-	ScanPauseDelayIn_10ms = (gSelectedCodeType == CODE_TYPE_CONTINUOUS_TONE) ? scan_pause_delay_in_3_10ms : scan_pause_delay_in_4_10ms;
+	gScanPauseDelayIn_10ms = (gSelectedCodeType == CODE_TYPE_CONTINUOUS_TONE) ? scan_pause_delay_in_3_10ms : scan_pause_delay_in_4_10ms;
 
 	gUpdateDisplay = true;
 }
@@ -1193,6 +1198,9 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 	if (!gIsInSubMenu)
 	{
+		#pragma GCC diagnostic push
+		#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+
 		switch (gInputBoxIndex)
 		{
 			case 2:
@@ -1223,6 +1231,8 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				}
 				break;
 		}
+
+		#pragma GCC diagnostic pop
 
 		gInputBoxIndex = 0;
 
@@ -1269,7 +1279,7 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 		Value = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
 
-		if (IS_MR_CHANNEL(Value))
+		if (Value <= MR_CHANNEL_LAST)
 		{
 			#ifdef ENABLE_VOICE
 				gAnotherVoiceID = (VOICE_ID_t)Key;
@@ -1661,6 +1671,9 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 
 	VFO = 0;
 
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+
 	switch (gMenuCursor)
 	{
 		case MENU_DEL_CH:
@@ -1680,6 +1693,8 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 			gRequestDisplayScreen = DISPLAY_MENU;
 			return;
 	}
+
+	#pragma GCC diagnostic pop
 
 	Channel = RADIO_FindNextChannel(gSubMenuSelection + Direction, Direction, bCheckScanList, VFO);
 	if (Channel != 0xFF)

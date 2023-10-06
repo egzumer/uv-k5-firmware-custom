@@ -51,7 +51,7 @@ bool RADIO_CheckValidChannel(uint16_t Channel, bool bCheckScanList, uint8_t VFO)
 	uint8_t PriorityCh1;
 	uint8_t PriorityCh2;
 
-	if (!IS_MR_CHANNEL(Channel))
+	if (Channel > MR_CHANNEL_LAST)
 		return false;
 
 	Attributes = gMR_ChannelAttributes[Channel];
@@ -176,7 +176,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 			}
 		#endif
 
-		if (IS_MR_CHANNEL(Channel))
+		if (Channel <= MR_CHANNEL_LAST)
 		{
 			Channel = RADIO_FindNextChannel(Channel, RADIO_CHANNEL_UP, false, VFO);
 			if (Channel == 0xFF)
@@ -200,7 +200,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 		uint8_t Index;
 
-		if (IS_MR_CHANNEL(Channel))
+		if (Channel <= MR_CHANNEL_LAST)
 		{
 			Channel                    = gEeprom.FreqChannel[VFO];
 			gEeprom.ScreenChannel[VFO] = gEeprom.FreqChannel[VFO];
@@ -218,7 +218,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		Band = BAND6_400MHz;
 	}
 
-	if (IS_MR_CHANNEL(Channel))
+	if (Channel <= MR_CHANNEL_LAST)
 	{
 		gEeprom.VfoInfo[VFO].Band                    = Band;
 		gEeprom.VfoInfo[VFO].SCANLIST1_PARTICIPATION = !!(Attributes & MR_CH_SCANLIST1);
@@ -235,7 +235,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 	gEeprom.VfoInfo[VFO].SCANLIST2_PARTICIPATION = bParticipation2;
 	gEeprom.VfoInfo[VFO].CHANNEL_SAVE            = Channel;
 
-	if (IS_MR_CHANNEL(Channel))
+	if (Channel <= MR_CHANNEL_LAST)
 		Base = Channel * 16;
 	else
 		Base = 0x0C80 + ((Channel - FREQ_CHANNEL_FIRST) * 32) + (VFO * 16);
@@ -332,12 +332,12 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		if (Data[5] == 0xFF)
 		{
 			gEeprom.VfoInfo[VFO].DTMF_DECODING_ENABLE = false;
-			gEeprom.VfoInfo[VFO].DTMF_PTT_ID_TX_MODE  = 0;
+			gEeprom.VfoInfo[VFO].DTMF_PTT_ID_TX_MODE  = PTT_ID_OFF;
 		}
 		else
 		{
-			gEeprom.VfoInfo[VFO].DTMF_DECODING_ENABLE = !!((Data[5] >> 0) & 1u);
-			gEeprom.VfoInfo[VFO].DTMF_PTT_ID_TX_MODE  =   ((Data[5] >> 1) & 3u);
+			gEeprom.VfoInfo[VFO].DTMF_DECODING_ENABLE = ((Data[5] >> 0) & 1u) ? true : false;
+			gEeprom.VfoInfo[VFO].DTMF_PTT_ID_TX_MODE  = ((Data[5] >> 1) & 7u);
 		}
 
 		// ***************
@@ -380,13 +380,13 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 	if (Frequency >= 10800000 && Frequency < 13600000)
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY_DIRECTION = TX_OFFSET_FREQUENCY_DIRECTION_OFF;
 	else
-	if (!IS_MR_CHANNEL(Channel))
+	if (Channel > MR_CHANNEL_LAST)
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY = FREQUENCY_FloorToStep(gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY, gEeprom.VfoInfo[VFO].StepFrequency, 0);
 
 	RADIO_ApplyOffset(pRadio);
 
 	memset(gEeprom.VfoInfo[VFO].Name, 0, sizeof(gEeprom.VfoInfo[VFO].Name));
-	if (IS_MR_CHANNEL(Channel))
+	if (Channel < MR_CHANNEL_LAST)
 	{	// 16 bytes allocated to the channel name but only 10 used, the rest are 0's
 		EEPROM_ReadBuffer(0x0F50 + (Channel * 16), gEeprom.VfoInfo[VFO].Name + 0, 8);
 		EEPROM_ReadBuffer(0x0F58 + (Channel * 16), gEeprom.VfoInfo[VFO].Name + 8, 2);
@@ -426,22 +426,27 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 {
 	uint8_t          Txp[3];
-	FREQUENCY_Band_t Band = FREQUENCY_GetBand(pInfo->pRX->Frequency);
-	uint16_t         Base = (Band < BAND4_174MHz) ? 0x1E60 : 0x1E00;
+	FREQUENCY_Band_t Band;
+
+	// *******************************
+	// squelch
+	
+	Band = FREQUENCY_GetBand(pInfo->pRX->Frequency);
+	uint16_t Base = (Band < BAND4_174MHz) ? 0x1E60 : 0x1E00;
 
 	if (gEeprom.SQUELCH_LEVEL == 0)
 	{	// squelch == 0 (off)
-		pInfo->SquelchOpenRSSIThresh    = 0;
-		pInfo->SquelchOpenNoiseThresh   = 127;
-		pInfo->SquelchCloseGlitchThresh = 255;
+		pInfo->SquelchOpenRSSIThresh    = 0;     // 0 ~ 255
+		pInfo->SquelchOpenNoiseThresh   = 127;   // 127 ~ 0
+		pInfo->SquelchCloseGlitchThresh = 255;   // 255 ~ 0
 
-		pInfo->SquelchCloseRSSIThresh   = 0;
-		pInfo->SquelchCloseNoiseThresh  = 127;
-		pInfo->SquelchOpenGlitchThresh  = 255;
+		pInfo->SquelchCloseRSSIThresh   = 0;     // 0 ~ 255
+		pInfo->SquelchCloseNoiseThresh  = 127;   // 127 ~ 0
+		pInfo->SquelchOpenGlitchThresh  = 255;   // 255 ~ 0
 	}
 	else
 	{	// squelch >= 1
-		Base += gEeprom.SQUELCH_LEVEL;                                        // my squelch-1
+		Base += gEeprom.SQUELCH_LEVEL;                                        // my eeprom squelch-1
 																			  // VHF   UHF
 		EEPROM_ReadBuffer(Base + 0x00, &pInfo->SquelchOpenRSSIThresh,    1);  //  50    10
 		EEPROM_ReadBuffer(Base + 0x10, &pInfo->SquelchCloseRSSIThresh,   1);  //  40     5
@@ -452,6 +457,13 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 		EEPROM_ReadBuffer(Base + 0x40, &pInfo->SquelchCloseGlitchThresh, 1);  //  90    90
 		EEPROM_ReadBuffer(Base + 0x50, &pInfo->SquelchOpenGlitchThresh,  1);  // 100   100
 
+		uint16_t rssi_open    = pInfo->SquelchOpenRSSIThresh;
+		uint16_t rssi_close   = pInfo->SquelchCloseRSSIThresh;
+		uint16_t noise_open   = pInfo->SquelchOpenNoiseThresh;
+		uint16_t noise_close  = pInfo->SquelchCloseNoiseThresh;
+		uint16_t glitch_open  = pInfo->SquelchOpenGlitchThresh;
+		uint16_t glitch_close = pInfo->SquelchCloseGlitchThresh;
+
 		#if ENABLE_SQUELCH_MORE_SENSITIVE
 			// make squelch a little more sensitive
 			//
@@ -459,23 +471,47 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 			//
 			// note that 'noise' and 'glitch' values are inverted compared to 'rssi' values
 
-			pInfo->SquelchOpenRSSIThresh    = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 8) / 9;
-			pInfo->SquelchCloseRSSIThresh   = ((uint16_t)pInfo->SquelchOpenRSSIThresh   * 8) / 9;
+			#if 0
+				rssi_open   = (rssi_open   * 8) / 9;
+				noise_open  = (noise_open  * 9) / 8;
+				glitch_open = (glitch_open * 9) / 8;
+			#else
+				// even more sensitive .. use when RX bandwidths are fixed (no weak signal auto adjust)
+				rssi_open   = (rssi_open   * 1) / 2;
+				noise_open  = (noise_open  * 2) / 1;
+				glitch_open = (glitch_open * 2) / 1;
+			#endif
 
-			pInfo->SquelchOpenNoiseThresh   = ((uint16_t)pInfo->SquelchOpenNoiseThresh  * 9) / 8;
-			pInfo->SquelchCloseNoiseThresh  = ((uint16_t)pInfo->SquelchOpenNoiseThresh  * 9) / 8;
-
-			pInfo->SquelchOpenGlitchThresh  = ((uint16_t)pInfo->SquelchOpenGlitchThresh * 9) / 8;
-			pInfo->SquelchCloseGlitchThresh = ((uint16_t)pInfo->SquelchOpenGlitchThresh * 9) / 8;
+		#else
+			// more sensitive .. use when RX bandwidths are fixed (no weak signal auto adjust)
+			rssi_open   = (rssi_open   * 3) / 4;
+			noise_open  = (noise_open  * 4) / 3;
+			glitch_open = (glitch_open * 4) / 3;
 		#endif
 
-		if (pInfo->SquelchOpenNoiseThresh > 127)
-			pInfo->SquelchOpenNoiseThresh = 127;
+		rssi_close   = (rssi_open   *  9) / 10;
+		noise_close  = (noise_open  * 10) / 9;
+		glitch_close = (glitch_open * 10) / 9;
 
-		if (pInfo->SquelchCloseNoiseThresh > 127)
-			pInfo->SquelchCloseNoiseThresh = 127;
+		// ensure the 'close' threshold is lower than the 'open' threshold
+		if (rssi_close   == rssi_open   && rssi_close   > 0)
+			rssi_close--;
+		if (noise_close  == noise_open  && noise_close  < 127)
+			noise_close++;
+		if (glitch_close == glitch_open && glitch_close < 255)
+			glitch_close++;
+		
+		pInfo->SquelchOpenRSSIThresh    = (rssi_open    > 255) ? 255 : rssi_open;
+		pInfo->SquelchCloseRSSIThresh   = (rssi_close   > 255) ? 255 : rssi_close;
+		pInfo->SquelchOpenNoiseThresh   = (noise_open   > 127) ? 127 : noise_open;
+		pInfo->SquelchCloseNoiseThresh  = (noise_close  > 127) ? 127 : noise_close;
+		pInfo->SquelchOpenGlitchThresh  = (glitch_open  > 255) ? 255 : glitch_open;
+		pInfo->SquelchCloseGlitchThresh = (glitch_close > 255) ? 255 : glitch_close;
 	}
 
+	// *******************************
+	// output power
+	
 	Band = FREQUENCY_GetBand(pInfo->pTX->Frequency);
 
 	EEPROM_ReadBuffer(0x1ED0 + (Band * 16) + (pInfo->OUTPUT_POWER * 3), Txp, 3);
@@ -488,6 +524,8 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 		(frequencyBandTable[Band].lower + frequencyBandTable[Band].upper) / 2,
 		 frequencyBandTable[Band].upper,
 		pInfo->pTX->Frequency);
+
+	// *******************************
 }
 
 void RADIO_ApplyOffset(VFO_Info_t *pInfo)
@@ -543,6 +581,9 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 	BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_GREEN, false);
 
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+
 	switch (Bandwidth)
 	{
 		default:
@@ -557,6 +598,8 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 			#endif
 			break;
 	}
+
+	#pragma GCC diagnostic pop
 
 	BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, false);
 
@@ -792,6 +835,9 @@ void RADIO_SetTxParameters(void)
 
 	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, false);
 
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+
 	switch (Bandwidth)
 	{
 		default:
@@ -806,6 +852,8 @@ void RADIO_SetTxParameters(void)
 			#endif
 			break;
 	}
+
+	#pragma GCC diagnostic pop
 
 	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency);
 
@@ -1032,8 +1080,12 @@ void RADIO_SendEndOfTransmission(void)
 	if (gEeprom.ROGER == ROGER_MODE_MDC)
 		BK4819_PlayRogerMDC();
 
+	if (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_APOLLO)
+		BK4819_PlaySingleTone(2475, 250, 28, gEeprom.DTMF_SIDE_TONE);
+
 	if (gDTMF_CallState == DTMF_CALL_STATE_NONE &&
-	   (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN || gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH))
+	   (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN ||
+	    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH))
 	{	// end-of-tx
 		if (gEeprom.DTMF_SIDE_TONE)
 		{
@@ -1045,15 +1097,14 @@ void RADIO_SendEndOfTransmission(void)
 		BK4819_EnterDTMF_TX(gEeprom.DTMF_SIDE_TONE);
 
 		BK4819_PlayDTMFString(
-			gEeprom.DTMF_DOWN_CODE,
-			0,
-			gEeprom.DTMF_FIRST_CODE_PERSIST_TIME,
-			gEeprom.DTMF_HASH_CODE_PERSIST_TIME,
-			gEeprom.DTMF_CODE_PERSIST_TIME,
-			gEeprom.DTMF_CODE_INTERVAL_TIME);
-
+				gEeprom.DTMF_DOWN_CODE,
+				0,
+				gEeprom.DTMF_FIRST_CODE_PERSIST_TIME,
+				gEeprom.DTMF_HASH_CODE_PERSIST_TIME,
+				gEeprom.DTMF_CODE_PERSIST_TIME,
+				gEeprom.DTMF_CODE_INTERVAL_TIME);
+		
 		GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
-
 		gEnableSpeaker = false;
 	}
 

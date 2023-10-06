@@ -15,6 +15,7 @@ ENABLE_VOICE                  := 0
 ENABLE_VOX                    := 1
 ENABLE_ALARM                  := 0
 ENABLE_TX1750                 := 0
+ENABLE_PWRON_PASSWORD         := 0
 ENABLE_BIG_FREQ               := 1
 ENABLE_SMALL_BOLD             := 1
 ENABLE_KEEP_MEM_NAME          := 1
@@ -29,7 +30,7 @@ ENABLE_CODE_SCAN_TIMEOUT      := 0
 ENABLE_AM_FIX                 := 1
 ENABLE_AM_FIX_SHOW_DATA       := 0
 ENABLE_SQUELCH_MORE_SENSITIVE := 1
-#ENABLE_FASTER_CHANNEL_SCAN   := 0
+ENABLE_FASTER_CHANNEL_SCAN    := 1
 ENABLE_RSSI_BAR               := 1
 ENABLE_AUDIO_BAR              := 1
 ENABLE_COPY_CHAN_TO_VFO       := 1
@@ -137,7 +138,9 @@ ifeq ($(ENABLE_FMRADIO),1)
 endif
 OBJS += ui/helper.o
 OBJS += ui/inputbox.o
-OBJS += ui/lock.o
+ifeq ($(ENABLE_PWRON_PASSWORD),1)
+	OBJS += ui/lock.o
+endif
 OBJS += ui/main.o
 OBJS += ui/menu.o
 OBJS += ui/scanner.o
@@ -157,6 +160,7 @@ AS = arm-none-eabi-gcc
 
 CC =
 LD = arm-none-eabi-gcc
+
 ifeq ($(ENABLE_CLANG),0)
 	CC += arm-none-eabi-gcc
 # Use GCC's linker to avoid undefined symbol errors
@@ -186,23 +190,26 @@ endif
 CFLAGS =
 ifeq ($(ENABLE_CLANG),0)
 	CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
-#	CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c99 -MMD
-#	CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu99 -MMD
-#	CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu11 -MMD
+	#CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c99 -MMD
+	#CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu99 -MMD
+	#CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu11 -MMD
 else
-#	Oz needed to make it fit on flash
+	# Oz needed to make it fit on flash
 	CFLAGS += -Oz -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
 endif
 
 ifeq ($(ENABLE_LTO),1)
 	CFLAGS += -flto=2
 else
-#	We get most of the space savings if LTO creates problems
+	# We get most of the space savings if LTO creates problems
 	CFLAGS += -ffunction-sections -fdata-sections
 endif
 
 # May cause unhelpful build failures
 #CFLAGS += -Wpadded
+
+# catch any and all warnings
+#CFLAGS += -Wextra
 
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
@@ -245,6 +252,9 @@ ifeq ($(ENABLE_ALARM),1)
 endif
 ifeq ($(ENABLE_TX1750),1)
 	CFLAGS  += -DENABLE_TX1750
+endif
+ifeq ($(ENABLE_PWRON_PASSWORD),1)
+	CFLAGS  += -DENABLE_PWRON_PASSWORD
 endif
 ifeq ($(ENABLE_KEEP_MEM_NAME),1)
 	CFLAGS  += -DENABLE_KEEP_MEM_NAME
@@ -319,13 +329,13 @@ endif
 LDFLAGS += --specs=nano.specs
 
 ifeq ($(ENABLE_LTO),0)
-#	Throw away unneeded func/data sections like LTO does
+	# Throw away unneeded func/data sections like LTO does
 	LDFLAGS += -Wl,--gc-sections
 endif
 
 ifeq ($(DEBUG),1)
 	ASFLAGS += -g
-	CFLAGS += -g
+	CFLAGS  += -g
 	LDFLAGS += -g
 endif
 

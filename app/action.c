@@ -84,11 +84,11 @@ void ACTION_Monitor(void)
 
 	gMonitor = false;
 	
-	if (gScanState != SCAN_OFF)
+	if (gScanStateDir != SCAN_OFF)
 	{
-		ScanPauseDelayIn_10ms = scan_pause_delay_in_1_10ms;
-		gScheduleScanListen   = false;
-		gScanPauseMode        = true;
+		gScanPauseDelayIn_10ms = scan_pause_delay_in_1_10ms;
+		gScheduleScanListen    = false;
+		gScanPauseMode         = true;
 	}
 
 	#ifdef ENABLE_NOAA
@@ -182,23 +182,36 @@ void ACTION_Scan(bool bRestart)
 		{
 			GUI_SelectNextDisplay(DISPLAY_MAIN);
 
-			if (gScanState != SCAN_OFF)
-			{
-				#if 1
+			if (gScanStateDir != SCAN_OFF)
+			{	// already scanning
+		
+				if (gNextMrChannel <= MR_CHANNEL_LAST)
+				{	// channel mode
+
 					// keep scanning but toggle between scan lists
 					gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) % 3;
+
+					// jump to the next channel
+					CHANNEL_Next(true, gScanStateDir);
+					gScanPauseDelayIn_10ms = 1;
+					gScheduleScanListen    = false;
+
 					gUpdateStatus = true;
-				#else
+				}
+				else
+				{	// stop scanning
+			
 					SCANNER_Stop();
 
 					#ifdef ENABLE_VOICE
 						gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
 					#endif
-				#endif
+				}
 			}
 			else
-			{
-				CHANNEL_Next(true, 1);
+			{	// start scanning
+	
+				CHANNEL_Next(true, SCAN_FWD);
 
 				#ifdef ENABLE_VOICE
 					AUDIO_SetVoiceID(0, VOICE_ID_SCANNING_BEGIN);
@@ -215,9 +228,16 @@ void ACTION_Scan(bool bRestart)
 		}
 	}
 	else
-	if (!bRestart)
-	{	// keep scanning but toggle between scan lists
+//	if (!bRestart)
+	if (!bRestart && gNextMrChannel <= MR_CHANNEL_LAST)
+	{	// channel mode, keep scanning but toggle between scan lists
 		gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) % 3;
+
+		// jump to the next channel
+		CHANNEL_Next(true, gScanStateDir);
+		gScanPauseDelayIn_10ms = 1;
+		gScheduleScanListen    = false;
+
 		gUpdateStatus = true;
 	}
 	else
@@ -313,6 +333,7 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		if (Key == KEY_SIDE1 && !bKeyHeld && bKeyPressed)
 		{
 			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
 			if (gDTMF_InputIndex > 0)
 			{
 				gDTMF_InputBox[--gDTMF_InputIndex] = '-';

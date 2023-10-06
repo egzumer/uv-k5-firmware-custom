@@ -30,21 +30,17 @@ void DATA_Init(void);
 void BSS_Init(void)
 {
 	uint32_t *pBss;
-
-	for (pBss = __bss_start__; pBss < __bss_end__; pBss++) {
+	for (pBss = __bss_start__; pBss < __bss_end__; pBss++)
 		*pBss = 0;
-	}
 }
 
 void DATA_Init(void)
 {
-	volatile uint32_t *pDataRam = (volatile uint32_t *)sram_data_start;
+	volatile uint32_t *pDataRam   = (volatile uint32_t *)sram_data_start;
 	volatile uint32_t *pDataFlash = (volatile uint32_t *)flash_data_start;
-	uint32_t Size = (uint32_t)sram_data_end - (uint32_t)sram_data_start;
-	uint32_t i;
+	uint32_t           Size       = (uint32_t)sram_data_end - (uint32_t)sram_data_start;
+	unsigned int i;
 
-	for (i = 0; i < Size / 4; i++) {
+	for (i = 0; i < (Size / 4); i++)
 		*pDataRam++ = *pDataFlash++;
-	}
 }
-

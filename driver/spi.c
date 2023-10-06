@@ -93,9 +93,9 @@ void SPI_Configure(volatile SPI_Port_t *pPort, SPI_Config_t *pConfig)
 
 	if (pPort->IE) {
 		if (pPort == SPI0) {
-			NVIC_EnableIRQ(DP32_SPI0_IRQn);
+			NVIC_EnableIRQ((IRQn_Type)DP32_SPI0_IRQn);
 		} else if (pPort == SPI1) {
-			NVIC_EnableIRQ(DP32_SPI1_IRQn);
+			NVIC_EnableIRQ((IRQn_Type)DP32_SPI1_IRQn);
 		}
 	}
 }

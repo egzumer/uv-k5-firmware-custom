@@ -32,7 +32,9 @@ typedef enum SCAN_CssState_t SCAN_CssState_t;
 
 enum
 {
-	SCAN_OFF = 0,
+	SCAN_REV = -1,
+	SCAN_OFF =  0,
+	SCAN_FWD = +1
 };
 
 extern DCS_CodeType_t    gScanCssResultType;
@@ -46,11 +48,11 @@ extern uint32_t          gScanFrequency;
 extern bool              gScanPauseMode;
 extern SCAN_CssState_t   gScanCssState;
 extern volatile bool     gScheduleScanListen;
-extern volatile uint16_t ScanPauseDelayIn_10ms;
+extern volatile uint16_t gScanPauseDelayIn_10ms;
 extern uint8_t           gScanProgressIndicator;
 extern uint8_t           gScanHitCount;
 extern bool              gScanUseCssResult;
-extern int8_t            gScanState;
+extern int8_t            gScanStateDir;
 extern bool              bScanKeepFrequency;
 
 void SCANNER_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);

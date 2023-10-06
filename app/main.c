@@ -37,6 +37,9 @@
 #include "settings.h"
 #include "ui/inputbox.h"
 #include "ui/ui.h"
+#ifdef ENABLE_SPECTRUM
+//	#include "app/spectrum.h"
+#endif
 
 void toggle_chan_scanlist(void)
 {	// toggle the selected channels scanlist setting
@@ -71,8 +74,15 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 	uint8_t Vfo = gEeprom.TX_VFO;
 
 	if (gScreenToDisplay == DISPLAY_MENU)
+	{
+//		if (beep)
+			gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 		return;
+	}
 	
+//	if (beep)
+		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
 	switch (Key)
 	{
 		case KEY_0:
@@ -355,7 +365,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 //			if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 //		#endif
 		if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
-		{	// user is entering frequency
+		{	// user is entering a frequency
 
 			uint32_t Frequency;
 
@@ -488,7 +498,7 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 			if (!gFmRadioMode)
 		#endif
 		{
-			if (gScanState == SCAN_OFF)
+			if (gScanStateDir == SCAN_OFF)
 			{
 				if (gInputBoxIndex == 0)
 					return;
@@ -538,6 +548,10 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 
 static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 {
+	if (bKeyPressed && !bKeyHeld)
+		// menu key pressed
+		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
 	if (bKeyHeld)
 	{	// menu key held down (long press)
 
@@ -560,11 +574,11 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 					if (gEeprom.VFO_OPEN && gCssScanMode == CSS_SCAN_MODE_OFF)
 					{
 
-						if (gScanState != SCAN_OFF)
+						if (gScanStateDir != SCAN_OFF)
 						{
 							if (gCurrentFunction != FUNCTION_INCOMING ||
 							    gRxReceptionMode == RX_MODE_NONE      ||
-								ScanPauseDelayIn_10ms == 0)
+								gScanPauseDelayIn_10ms == 0)
 							{	// scan is running (not paused)
 								return;
 							}
@@ -611,14 +625,10 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		const bool bFlag = (gInputBoxIndex == 0);
 		gInputBoxIndex   = 0;
 
-		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-
 		if (bFlag)
 		{
 			gFlagRefreshSetting = true;
-
 			gRequestDisplayScreen = DISPLAY_MENU;
-
 			#ifdef ENABLE_VOICE
 				gAnotherVoiceID   = VOICE_ID_MENU;
 			#endif
@@ -640,7 +650,8 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 	}
 
 	if (bKeyHeld || !bKeyPressed)
-	{
+	{	// long press
+
 		if (bKeyHeld || bKeyPressed)
 		{
 			if (!bKeyHeld)
@@ -655,9 +666,9 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 		}
 
 		#ifdef ENABLE_NOAA
-			if (gScanState == SCAN_OFF && IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
+			if (gScanStateDir == SCAN_OFF && IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 		#else
-			if (gScanState == SCAN_OFF)
+			if (gScanStateDir == SCAN_OFF)
 		#endif
 		{
 			gKeyInputCountdown    = key_input_timeout_500ms;
@@ -740,7 +751,7 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 	}
 
-	if (gScanState == SCAN_OFF)
+	if (gScanStateDir == SCAN_OFF)
 	{
 		#ifdef ENABLE_NOAA
 			if (IS_NOT_NOAA_CHANNEL(Channel))
@@ -796,7 +807,10 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 		return;
 	}
 
+	// jump to the next channel
 	CHANNEL_Next(false, Direction);
+	gScanPauseDelayIn_10ms = 1;
+	gScheduleScanListen    = false;
 
 	gPttWasReleased = true;
 }
@@ -816,7 +830,7 @@ void MAIN_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	{
 		if (!bKeyHeld)
 		{
-			const char Character = DTMF_GetCharacter(Key);
+			const char Character = DTMF_GetCharacter(Key - KEY_0);
 			if (Character != 0xFF)
 			{	// add key to DTMF string
 				DTMF_Append(Character);
@@ -835,7 +849,7 @@ void MAIN_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	// TODO: ???
 	if (Key > KEY_PTT)
 	{
-		Key = KEY_SIDE2;
+		Key = KEY_SIDE2;      // what's this doing ???
 	}
 
 	switch (Key)

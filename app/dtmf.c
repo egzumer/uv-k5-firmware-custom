@@ -184,7 +184,7 @@ void DTMF_HandleRequest(void)
 	if (!gDTMF_RX_pending)
 		return;   // nothing new received
 
-	if (gScanState != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF)
+	if (gScanStateDir != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF)
 	{	// we're busy scanning
 		DTMF_clear_RX();
 		return;
@@ -331,6 +331,9 @@ void DTMF_HandleRequest(void)
 
 			gUpdateDisplay = true;
 
+			#pragma GCC diagnostic push
+			#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+
 			switch (gEeprom.DTMF_DECODE_RESPONSE)
 			{
 				case DTMF_DEC_RESPONSE_BOTH:
@@ -347,6 +350,8 @@ void DTMF_HandleRequest(void)
 					gDTMF_ReplyState = DTMF_REPLY_NONE;
 					break;
 			}
+
+			#pragma GCC diagnostic pop
 
 			if (gDTMF_IsGroupCall)
 				gDTMF_ReplyState = DTMF_REPLY_NONE;
@@ -385,8 +390,9 @@ void DTMF_Reply(void)
 
 		default:
 		case DTMF_REPLY_NONE:
-			if (gDTMF_CallState != DTMF_CALL_STATE_NONE        ||
-			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_OFF ||
+			if (gDTMF_CallState != DTMF_CALL_STATE_NONE           ||
+			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_APOLLO ||
+			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_OFF    ||
 			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN)
 			{
 				gDTMF_ReplyState = DTMF_REPLY_NONE;

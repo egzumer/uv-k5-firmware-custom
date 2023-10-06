@@ -14,6 +14,8 @@
  *     limitations under the License.
  */
 
+#ifdef ENABLE_PWRON_PASSWORD
+
 #include <string.h>
 
 #include "ARMCM0.h"
@@ -156,3 +158,5 @@ void UI_DisplayLock(void)
 		}
 	}
 }
+
+#endif

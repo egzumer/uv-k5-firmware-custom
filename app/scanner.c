@@ -37,11 +37,11 @@ uint32_t          gScanFrequency;
 bool              gScanPauseMode;
 SCAN_CssState_t   gScanCssState;
 volatile bool     gScheduleScanListen = true;
-volatile uint16_t ScanPauseDelayIn_10ms;
+volatile uint16_t gScanPauseDelayIn_10ms;
 uint8_t           gScanProgressIndicator;
 uint8_t           gScanHitCount;
 bool              gScanUseCssResult;
-int8_t            gScanState;
+int8_t            gScanStateDir;
 bool              bScanKeepFrequency;
 
 static void SCANNER_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
@@ -53,7 +53,9 @@ static void SCANNER_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			uint16_t Channel;
 
 			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
 			INPUTBOX_Append(Key);
+
 			gRequestDisplayScreen = DISPLAY_SCANNER;
 
 			if (gInputBoxIndex < 3)
@@ -65,9 +67,9 @@ static void SCANNER_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			}
 
 			gInputBoxIndex = 0;
-			Channel        = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
 
-			if (IS_MR_CHANNEL(Channel))
+			Channel = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
+			if (Channel <= MR_CHANNEL_LAST)
 			{
 				#ifdef ENABLE_VOICE
 					gAnotherVoiceID = (VOICE_ID_t)Key;
@@ -193,7 +195,7 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 				}
 			}
 
-			if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
+			if (gTxVfo->CHANNEL_SAVE <= MR_CHANNEL_LAST)
 			{
 				gScannerEditState = 1;
 				gScanChannel      = gTxVfo->CHANNEL_SAVE;
@@ -247,7 +249,7 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 				gTxVfo->freq_config_TX.Code     = gScanCssResultCode;
 			}
 
-			if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
+			if (gTxVfo->CHANNEL_SAVE <= MR_CHANNEL_LAST)
 			{
 				Channel                               = gScanChannel;
 				gEeprom.MrChannel[gEeprom.TX_VFO] = Channel;
@@ -424,11 +426,11 @@ void SCANNER_Stop(void)
 {
 	const uint8_t Previous = gRestoreMrChannel;
 
-	gScanState = SCAN_OFF;
+	gScanStateDir = SCAN_OFF;
 
 	if (!bScanKeepFrequency)
 	{
-		if (IS_MR_CHANNEL(gNextMrChannel))
+		if (gNextMrChannel <= MR_CHANNEL_LAST)
 		{
 			gEeprom.MrChannel[gEeprom.RX_VFO]     = gRestoreMrChannel;
 			gEeprom.ScreenChannel[gEeprom.RX_VFO] = Previous;
@@ -446,7 +448,7 @@ void SCANNER_Stop(void)
 		return;
 	}
 
-	if (!IS_MR_CHANNEL(gRxVfo->CHANNEL_SAVE))
+	if (gRxVfo->CHANNEL_SAVE > MR_CHANNEL_LAST)
 	{
 		RADIO_ApplyOffset(gRxVfo);
 		RADIO_ConfigureSquelchAndOutputPower(gRxVfo);

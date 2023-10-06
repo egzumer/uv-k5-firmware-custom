@@ -33,27 +33,31 @@ Anyway, have fun.
 
 # Radio performance
 
-Please note that the Quansheng uv-k radios are not professional quality transceivers, their
-performance is strictly limited, somewhat below that of a decent transceiver. The RX front
-end has no track-tuned band pass filtering at all, and so are wide band/wide open to any
-and all signals over a wide frequency range.
-Using the radio in high intensity RF environments will nearly always destroy your reception,
-the receiver simply doesn't have a great dynamic range, which means distorted AM audio with
-strong received signals, there is nothing more anyone can do in firmware/software to stop that
-happening once the RX gain adjustment I do (AM fix) reaches the hardwares limit.
+Please note that the Quansheng UV-Kx radios are not professional quality transceivers, their
+performance is strictly limited. The RX front end has no track-tuned band pass filtering
+at all, and so are wide band/wide open to any and all signals over a large frequency range.
 
-Saying that, they are nice toys for the price, fun to play with.
+Using the radio in high intensity RF environments will most likely make reception anything but
+easy (AM mode will suffer far more than FM ever will), the receiver simply doesn't have a
+great dynamic range, which results in distorted AM audio with stronger RX'ed signals.
+There is nothing more anyone can do in firmware/software to improve that, once the RX gain
+adjustment I do (AM fix) reaches the hardwares limit, your AM RX audio will be all but
+non-existant (just like Quansheng's firmware).
+On the other hand, FM RX audio will/should be fine.
+
+But, they are nice toys for the price, fun to play with.
 
 # User customization
 
-You can customize the firmware by enabling/disabling various compile options.
+You can customize the firmware by enabling/disabling various compile options, this allows
+us to remove certain firmware features in order to make room in the flash for others.
 You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) ..
 
 ```
-ENABLE_CLANG                  := 0       experimental, builds with clang instead of gcc (LTO will be disabled if you enable this)
+ENABLE_CLANG                  := 0     **experimental, builds with clang instead of gcc (LTO will be disabled if you enable this)
 ENABLE_SWD                    := 0       only needed if using CPU's SWD port (debugging/programming)
 ENABLE_OVERLAY                := 0       cpu FLASH stuff, not needed
-ENABLE_LTO                    := 0     **experimental, reduces size of compiled firmware but might break EEPROM reads (overlay will be disabled if you enable this)
+ENABLE_LTO                    := 0     **experimental, reduces size of compiled firmware but might break EEPROM reads (OVERLAY will be disabled if you enable this)
 ENABLE_UART                   := 1       without this you can't configure radio via PC !
 ENABLE_AIRCOPY                := 0       easier to just enter frequency with butts
 ENABLE_FMRADIO                := 0       WBFM VHF broadcast band receiver
@@ -62,6 +66,7 @@ ENABLE_VOICE                  := 0       want to hear voices ?
 ENABLE_VOX                    := 0
 ENABLE_ALARM                  := 0       TX alarms
 ENABLE_1750HZ                 := 0       side key 1750Hz TX tone (older style repeater access)
+ENABLE_PWRON_PASSWORD         := 1       power-on password stuff
 ENABLE_BIG_FREQ               := 0       big font frequencies (like original QS firmware)
 ENABLE_SMALL_BOLD             := 1       bold channel name/no. (when name + freq channel display mode)
 ENABLE_KEEP_MEM_NAME          := 1       maintain channel name when (re)saving memory channel
@@ -76,7 +81,7 @@ ENABLE_CODE_SCAN_TIMEOUT      := 0       enable/disable 32-sec CTCSS/DCS scan ti
 ENABLE_AM_FIX                 := 1       dynamically adjust the front end gains when in AM mode to helo prevent AM demodulator saturation, ignore the on-screen RSSI level (for now)
 ENABLE_AM_FIX_SHOW_DATA       := 1       show debug data for the AM fix (still tweaking it)
 ENABLE_SQUELCH_MORE_SENSITIVE := 0       make squelch levels a little bit more sensitive - I plan to let user adjust the values themselves
-#ENABLE_FASTER_CHANNEL_SCAN   := 0       don't use (for now) .. increases the channel scan speed, but the squelch is also made more twitchy
+ENABLE_FASTER_CHANNEL_SCAN    := 0       increases the channel scan speed, but the squelch is also made more twitchy
 ENABLE_RSSI_BAR               := 1       enable a dBm/Sn RSSI bar graph level inplace of the little antenna symbols
 ENABLE_AUDIO_BAR              := 0       experimental, display an audo bar level when TX'ing
 ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO. Long press Menu key ('M')
@@ -89,10 +94,10 @@ ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO
 * Long-press 'M' .. Copy selected channel into same VFO, then switch VFO to frequency mode
 *
 * Long-press '7' .. Toggle selected channel scanlist setting .. if VOX  is disabled in Makefile
-*       or
+* or
 * Long-press '5' .. Toggle selected channel scanlist setting .. if NOAA is disabled in Makefile
 *
-* Long-press '*' .. Start scanning, then toggles scanlist scan 1, 2 or ALL channel scanning
+* Long-press '*' .. Start scanning, then toggles the scanning between scanlists 1, 2 or ALL channels
 
 # Some changes made from the Quansheng firmware
 
@@ -178,13 +183,13 @@ You may obtain a copy of the License at
 # Example changes/updates
 
 <p float="left">
-  <img src="/image1.png" width=300 />
-  <img src="/image2.png" width=300 />
-  <img src="/image3.png" width=300 />
+  <img src="/images/image1.png" width=300 />
+  <img src="/images/image2.png" width=300 />
+  <img src="/images/image3.png" width=300 />
 </p>
 
 Video showing the AM fix working ..
 
-<video src="/AM_fix.mp4"></video>
+<video src="/images/AM_fix.mp4"></video>
 
 <video src="https://github.com/OneOfEleven/uv-k5-firmware-custom/assets/51590168/2a3a9cdc-97da-4966-bf0d-1ce6ad09779c"></video>

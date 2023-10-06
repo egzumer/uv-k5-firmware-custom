@@ -240,12 +240,13 @@ const char gSubMenu_D_RSP[4][11] =
 	"BOTH"
 };
 
-const char gSubMenu_PTT_ID[4][7] =
+const char gSubMenu_PTT_ID[5][15] =
 {
 	"OFF",
-	"KEY UP",
-	"KEY DN",
-	"BOTH"
+	"KEY\nUP",
+	"KEY\nDOWN",
+	"KEY\nUP+DOWN",
+	"APOLLO\nQUINDAR"
 };
 
 const char gSubMenu_PONMSG[4][8] =
@@ -435,6 +436,9 @@ void UI_DisplayMenu(void)
 	memset(String, 0, sizeof(String));
 
 	bool already_printed = false;
+
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
 
 	switch (gMenuCursor)
 	{
@@ -805,6 +809,8 @@ void UI_DisplayMenu(void)
 			break;
 		}
 	}
+
+	#pragma GCC diagnostic pop
 
 	if (!already_printed)
 	{	// we now do multi-line text in a single string

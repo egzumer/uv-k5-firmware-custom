@@ -14,6 +14,10 @@
  *     limitations under the License.
  */
 
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+	#pragma GCC diagnostic pop
+
 #include <string.h>
 #include <stdlib.h>  // abs()
 
@@ -42,6 +46,9 @@ center_line_t center_line = CENTER_LINE_NONE;
 
 void UI_drawBars(uint8_t *p, const unsigned int level)
 {
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+
 	switch (level)
 	{
 		default:
@@ -54,6 +61,8 @@ void UI_drawBars(uint8_t *p, const unsigned int level)
 		case 1: memmove(p +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna));
 		case 0: break;
 	}
+
+	#pragma GCC diagnostic pop
 }
 
 #ifdef ENABLE_AUDIO_BAR
@@ -214,6 +223,8 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 {
 	#ifdef ENABLE_RSSI_BAR
 
+		(void)vfo;  // unused
+		
 		// optional larger RSSI dBm, S-point and bar level
 
 		if (center_line != CENTER_LINE_RSSI)
@@ -333,13 +344,13 @@ void UI_DisplayMain(void)
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
 		const unsigned int line       = (vfo_num == 0) ? line0 : line1;
-		uint8_t            channel    = gEeprom.TX_VFO;
-//		uint8_t            tx_channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
+		unsigned int       channel    = gEeprom.TX_VFO;
+//		unsigned int       tx_channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 		const bool         same_vfo   = (channel == vfo_num) ? true : false;
 		uint8_t           *p_line0    = gFrameBuffer[line + 0];
 		uint8_t           *p_line1    = gFrameBuffer[line + 1];
-		uint8_t            mode       = 0;
-		uint8_t            state;
+		unsigned int       mode       = 0;
+		unsigned int       state;
 
 		if (single_vfo)
 		{	// we're in single VFO mode - screen is dedicated to just one VFO
@@ -457,7 +468,7 @@ void UI_DisplayMain(void)
 			}
 		}
 
-		if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
+		if (gEeprom.ScreenChannel[vfo_num] <= MR_CHANNEL_LAST)
 		{	// channel mode
 			const unsigned int x = 2;
 			const bool inputting = (gInputBoxIndex == 0 || gEeprom.TX_VFO != vfo_num) ? false : true;
@@ -508,7 +519,7 @@ void UI_DisplayMain(void)
 		if (state != VFO_STATE_NORMAL)
 		{
 			const char *state_list[] = {"", "BUSY", "BAT LOW", "TX DISABLE", "TIMEOUT", "ALARM", "VOLT HIGH"};
-			if (state >= 0 && state < ARRAY_SIZE(state_list))
+			if (state < ARRAY_SIZE(state_list))
 				UI_PrintString(state_list[state], 31, 0, line, 8);
 		}
 		else
@@ -528,8 +539,8 @@ void UI_DisplayMain(void)
 					frequency = gEeprom.VfoInfo[vfo_num].pTX->Frequency;
 			}
 
-			if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
-			{	// channel mode
+			if (gEeprom.ScreenChannel[vfo_num] <= MR_CHANNEL_LAST)
+			{	// it's a channel
 
 				// show the channel symbols
 				const uint8_t attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
@@ -545,6 +556,9 @@ void UI_DisplayMain(void)
 					// TODO:  // find somewhere else to put the symbol
 				
 				#endif
+
+				#pragma GCC diagnostic push
+				#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
 
 				switch (gEeprom.CHANNEL_DISPLAY_MODE)
 				{
@@ -595,6 +609,8 @@ void UI_DisplayMain(void)
 
 						break;
 				}
+				
+				#pragma GCC diagnostic pop
 			}
 			else
 			{	// frequency mode
@@ -660,7 +676,7 @@ void UI_DisplayMain(void)
 			const FREQ_Config_t *pConfig = (mode == 1) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
 			const unsigned int code_type = pConfig->CodeType;
 			const char *code_list[] = {"", "CT", "DCS", "DCR"};
-			if (code_type >= 0 && code_type < ARRAY_SIZE(code_list))
+			if (code_type < ARRAY_SIZE(code_list))
 				strcpy(String, code_list[code_type]);
 		}
 		UI_PrintStringSmall(String, LCD_WIDTH + 24, 0, line + 1);
@@ -669,7 +685,7 @@ void UI_DisplayMain(void)
 		{	// show the TX power
 			const char pwr_list[] = "LMH";
 			const unsigned int i = gEeprom.VfoInfo[vfo_num].OUTPUT_POWER;
-			String[0] = (i >= 0 && i < ARRAY_SIZE(pwr_list)) ? pwr_list[i] : '\0';
+			String[0] = (i < ARRAY_SIZE(pwr_list)) ? pwr_list[i] : '\0';
 			String[1] = '\0';
 			UI_PrintStringSmall(String, LCD_WIDTH + 46, 0, line + 1);
 		}

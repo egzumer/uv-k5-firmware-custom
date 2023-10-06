@@ -123,6 +123,7 @@ void ST7565_FillScreen(uint8_t Value)
 	ST7565_Init(false);
 	
 	SPI_ToggleMasterMode(&SPI0->CR, false);
+
 	for (i = 0; i < 8; i++)
 	{
 		unsigned int j;
@@ -135,6 +136,7 @@ void ST7565_FillScreen(uint8_t Value)
 		}
 		SPI_WaitForUndocumentedTxFifoStatusBit();
 	}
+
 	SPI_ToggleMasterMode(&SPI0->CR, true);
 }
 
@@ -152,6 +154,8 @@ void ST7565_Init(const bool full)
 	
 		SYSTEM_DelayMs(120);
 	}
+	else
+		SPI_ToggleMasterMode(&SPI0->CR, false);
 	
 	ST7565_WriteByte(0xA2);   // bias 9
 	ST7565_WriteByte(0xC0);   // com normal
@@ -164,9 +168,10 @@ void ST7565_Init(const bool full)
 	ST7565_WriteByte(0x24);   //
 	ST7565_WriteByte(0x81);   // volume first ?
 
+	ST7565_WriteByte(0x1f);   // contrast ?
+
 	if (full)
 	{
-		ST7565_WriteByte(0x1f);   // contrast ?
 		ST7565_WriteByte(0x2B);   // power control ?
 	
 		SYSTEM_DelayMs(1);
@@ -181,10 +186,10 @@ void ST7565_Init(const bool full)
 		ST7565_WriteByte(0x2F);   //
 	
 		SYSTEM_DelayMs(40);
-	
-		ST7565_WriteByte(0x40);   // start line ?
-		ST7565_WriteByte(0xAF);   // display on ?
 	}
+	
+	ST7565_WriteByte(0x40);   // start line ?
+	ST7565_WriteByte(0xAF);   // display on ?
 	
 	SPI_WaitForUndocumentedTxFifoStatusBit();
 

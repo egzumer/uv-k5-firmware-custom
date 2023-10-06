@@ -139,7 +139,7 @@ extern const char        gSubMenu_MDF[4][15];
 	extern const char    gSubMenu_AL_MOD[2][5];
 #endif
 extern const char        gSubMenu_D_RSP[4][11];
-extern const char        gSubMenu_PTT_ID[4][7];
+extern const char        gSubMenu_PTT_ID[5][15];
 extern const char        gSubMenu_PONMSG[4][8];
 extern const char        gSubMenu_ROGER[3][9];
 extern const char        gSubMenu_RESET[2][4];

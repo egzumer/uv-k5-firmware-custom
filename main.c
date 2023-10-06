@@ -174,12 +174,14 @@ void Main(void)
 			}
 		}
 
-		if (gEeprom.POWER_ON_PASSWORD < 1000000)
-		{
-			bIsInLockScreen = true;
-			UI_DisplayLock();
-			bIsInLockScreen = false;
-		}
+		#ifdef ENABLE_PWRON_PASSWORD
+			if (gEeprom.POWER_ON_PASSWORD < 1000000)
+			{
+				bIsInLockScreen = true;
+				UI_DisplayLock();
+				bIsInLockScreen = false;
+			}
+		#endif
 
 		BOOT_ProcessMode(BootMode);
 
