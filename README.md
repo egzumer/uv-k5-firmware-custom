@@ -123,26 +123,33 @@ You can get it from: https://releases.llvm.org/download.html
 
 # Building
 
-To build the firmware, you need to fetch the submodules and then run make:
-```
-git submodule update --init --recursive --depth=1
-make
-```
+If you have docker installed you can use `compile-with-docker.bat`, the output files are created in `compiled-firmware` folder. This method gives significantly smaller binaries, I've seen differences up to 1kb, so it can fit more functionalities this way. The challange can be (or not) installing the docker itself.
 
-To compile directly in windows without the need of a linux virtual machine:
 
-```
-1. Download and install "gcc-arm-none-eabi-10.3-2021.10-win32.exe" from https://developer.arm.com/downloads/-/gnu-rm
-2. Download and install "gnu_make-3.81.exe" from https://gnuwin32.sourceforge.net/packages/make.htm
+To compile directly in windows:
 
-3. You may need to (I didn't) manualy add gcc path to your OS environment PATH.
-   ie add C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2021.10\bin
-
-4. You may need to reboot your PC after installing the above
-```
-
-Then you can run 'win_make.bat' from the directory you saved this source code too.
-You may need to edit the bat file (path to make.exe) depending on where you installed the above two packages too.
+1. Open windows command line and run:
+    ```
+    winget install -e -h git.git Python.Python.3.8 GnuWin32.Make
+    winget install -e -h Arm.GnuArmEmbeddedToolchain -v "10 2021.10"
+    ```
+2. Close command line, open a new one and run:
+    ```
+    pip install --user --upgrade pip
+    pip install crcmod
+    mkdir c:\projects & cd /D c:/projects
+    git clone https://github.com/egzumer/uv-k5-firmware-custom.git
+    ```
+3. From now on you can build the firmware by going to `c:\projects\uv-k5-firmware-custom` and running `win_make.bat` or by running a command line:
+    ```
+    cd /D c:\projects\uv-k5-firmware-custom
+    win_make.bat
+    ```
+4. To reset the repository and pull new changes run (!!! it will delete all your changes !!!):
+    ```
+    cd /D c:\projects\uv-k5-firmware-custom
+    git reset --hard & git clean -fd & git pull
+    ```
 
 I've left some notes in the win_make.bat file to maybe help with stuff.
 
@@ -150,6 +157,7 @@ I've left some notes in the win_make.bat file to maybe help with stuff.
 
 Many thanks to various people on Telegram for putting up with me during this effort and helping:
 
+* [OneOfEleven](https://github.com/OneOfEleven)
 * [DualTachyon](https://github.com/DualTachyon)
 * [Mikhail](https://github.com/fagci)
 * [Andrej](https://github.com/Tunas1337)
