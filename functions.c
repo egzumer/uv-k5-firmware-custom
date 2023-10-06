@@ -204,6 +204,9 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 
 			DTMF_Reply();
 
+			if (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_APOLLO)
+				BK4819_PlaySingleTone(2525, 250, 0, gEeprom.DTMF_SIDE_TONE);
+
 			#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 				if (gAlarmState != ALARM_STATE_OFF)
 				{

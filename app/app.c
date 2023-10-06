@@ -2256,14 +2256,16 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					char Code;
 
 					if (Key == KEY_SIDE2)
-					{
+					{	// transmit 1750Hz tone
 						Code = 0xFE;
 					}
 					else
 					{
-						Code = DTMF_GetCharacter(Key);
+						Code = DTMF_GetCharacter(Key - KEY_0);
 						if (Code == 0xFF)
 							goto Skip;
+						
+						// transmit DTMF keys
 					}
 
 					if (!bKeyPressed || bKeyHeld)

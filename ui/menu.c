@@ -240,12 +240,13 @@ const char gSubMenu_D_RSP[4][11] =
 	"BOTH"
 };
 
-const char gSubMenu_PTT_ID[4][7] =
+const char gSubMenu_PTT_ID[5][15] =
 {
 	"OFF",
-	"KEY UP",
-	"KEY DN",
-	"BOTH"
+	"KEY\nUP",
+	"KEY\nDOWN",
+	"KEY\nUP+DOWN",
+	"APOLLO\nQUINDAR"
 };
 
 const char gSubMenu_PONMSG[4][8] =

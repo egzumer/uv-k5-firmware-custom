@@ -333,6 +333,7 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		if (Key == KEY_SIDE1 && !bKeyHeld && bKeyPressed)
 		{
 			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+
 			if (gDTMF_InputIndex > 0)
 			{
 				gDTMF_InputBox[--gDTMF_InputIndex] = '-';

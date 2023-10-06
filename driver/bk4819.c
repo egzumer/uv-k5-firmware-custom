@@ -1004,6 +1004,42 @@ void BK4819_PlayTone(uint16_t Frequency, bool bTuningGainSwitch)
 	BK4819_WriteRegister(BK4819_REG_71, scale_freq(Frequency));
 }
 
+void BK4819_PlaySingleTone(const unsigned int tone_Hz, const unsigned int delay, const unsigned int level, const bool play_speaker)
+{
+	BK4819_EnterTxMute();
+	
+	if (play_speaker)
+	{
+		GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+		BK4819_SetAF(BK4819_AF_BEEP);
+	}
+	else
+		BK4819_SetAF(BK4819_AF_MUTE);
+
+	// level 0 ~ 127
+//	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (96u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+//	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (28u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | ((level & 0x7f) << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+
+	BK4819_EnableTXLink();
+	SYSTEM_DelayMs(50);
+
+	BK4819_WriteRegister(BK4819_REG_71, scale_freq(tone_Hz));
+
+	BK4819_ExitTxMute();
+	SYSTEM_DelayMs(delay);
+	BK4819_EnterTxMute();
+
+	if (play_speaker)
+	{
+		GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+		BK4819_SetAF(BK4819_AF_MUTE);
+	}
+	
+	BK4819_WriteRegister(BK4819_REG_70, 0x0000);
+	BK4819_WriteRegister(BK4819_REG_30, 0xC1FE);
+}
+
 void BK4819_EnterTxMute(void)
 {
 	BK4819_WriteRegister(BK4819_REG_50, 0xBB20);
@@ -1287,7 +1323,7 @@ void BK4819_TransmitTone(bool bLocalLoopback, uint32_t Frequency)
 	// set the tone amplitude
 	//
 //	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_MASK_ENABLE_TONE1 | (96u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
-	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_MASK_ENABLE_TONE1 | (50u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_MASK_ENABLE_TONE1 | (28u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
 
 	BK4819_WriteRegister(BK4819_REG_71, scale_freq(Frequency));
 
@@ -1631,7 +1667,9 @@ void BK4819_PlayRoger(void)
 
 	BK4819_EnterTxMute();
 	BK4819_SetAF(BK4819_AF_MUTE);
-	BK4819_WriteRegister(BK4819_REG_70, 0xE000);  // 1110 0000 0000 0000
+
+//	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (96u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (28u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
 
 	BK4819_EnableTXLink();
 	SYSTEM_DelayMs(50);

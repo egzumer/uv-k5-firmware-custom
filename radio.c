@@ -332,12 +332,12 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		if (Data[5] == 0xFF)
 		{
 			gEeprom.VfoInfo[VFO].DTMF_DECODING_ENABLE = false;
-			gEeprom.VfoInfo[VFO].DTMF_PTT_ID_TX_MODE  = 0;
+			gEeprom.VfoInfo[VFO].DTMF_PTT_ID_TX_MODE  = PTT_ID_OFF;
 		}
 		else
 		{
-			gEeprom.VfoInfo[VFO].DTMF_DECODING_ENABLE = !!((Data[5] >> 0) & 1u);
-			gEeprom.VfoInfo[VFO].DTMF_PTT_ID_TX_MODE  =   ((Data[5] >> 1) & 3u);
+			gEeprom.VfoInfo[VFO].DTMF_DECODING_ENABLE = ((Data[5] >> 0) & 1u) ? true : false;
+			gEeprom.VfoInfo[VFO].DTMF_PTT_ID_TX_MODE  = ((Data[5] >> 1) & 7u);
 		}
 
 		// ***************
@@ -1080,8 +1080,12 @@ void RADIO_SendEndOfTransmission(void)
 	if (gEeprom.ROGER == ROGER_MODE_MDC)
 		BK4819_PlayRogerMDC();
 
+	if (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_APOLLO)
+		BK4819_PlaySingleTone(2475, 250, 28, gEeprom.DTMF_SIDE_TONE);
+
 	if (gDTMF_CallState == DTMF_CALL_STATE_NONE &&
-	   (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN || gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH))
+	   (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN ||
+	    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH))
 	{	// end-of-tx
 		if (gEeprom.DTMF_SIDE_TONE)
 		{
@@ -1093,15 +1097,14 @@ void RADIO_SendEndOfTransmission(void)
 		BK4819_EnterDTMF_TX(gEeprom.DTMF_SIDE_TONE);
 
 		BK4819_PlayDTMFString(
-			gEeprom.DTMF_DOWN_CODE,
-			0,
-			gEeprom.DTMF_FIRST_CODE_PERSIST_TIME,
-			gEeprom.DTMF_HASH_CODE_PERSIST_TIME,
-			gEeprom.DTMF_CODE_PERSIST_TIME,
-			gEeprom.DTMF_CODE_INTERVAL_TIME);
-
+				gEeprom.DTMF_DOWN_CODE,
+				0,
+				gEeprom.DTMF_FIRST_CODE_PERSIST_TIME,
+				gEeprom.DTMF_HASH_CODE_PERSIST_TIME,
+				gEeprom.DTMF_CODE_PERSIST_TIME,
+				gEeprom.DTMF_CODE_INTERVAL_TIME);
+		
 		GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
-
 		gEnableSpeaker = false;
 	}
 

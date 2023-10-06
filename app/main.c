@@ -34,6 +34,9 @@
 #include "settings.h"
 #include "ui/inputbox.h"
 #include "ui/ui.h"
+#ifdef ENABLE_SPECTRUM
+//	#include "app/spectrum.h"
+#endif
 
 void toggle_chan_scanlist(void)
 {	// toggle the selected channels scanlist setting
