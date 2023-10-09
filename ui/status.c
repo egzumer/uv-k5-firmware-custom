@@ -218,7 +218,7 @@ void UI_DisplayStatus(const bool test_display)
 	x += sizeof(BITMAP_USB_C);
 
 	// BATTERY LEVEL indicator
-	UI_DrawBattery(line + x, gBatteryDisplayLevel, gLowBattery);
+	UI_DrawBattery(line + x, gBatteryDisplayLevel, gLowBatteryBlink);
 	
 	// **************
 

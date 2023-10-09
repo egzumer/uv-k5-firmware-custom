@@ -24,34 +24,33 @@
 
 void UI_DrawBattery(uint8_t* bitmap, uint8_t level, uint8_t blink)
 {
-	memmove(bitmap, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
-
-	if (level >= 1)
+	if (level < 2 && blink == 1) {
+		memset(bitmap, 0, sizeof(BITMAP_BatteryLevel1));
+	}
+	else 
 	{
-		unsigned int i;
-		uint8_t bars = level > 0 ? level - 1 : 0;
-		if(bars>4) bars = 4;
-		for (i = 0; i < bars; i++)
+		memmove(bitmap, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
+		if (level > 1)
 		{
-			#ifndef ENABLE_REVERSE_BAT_SYMBOL
-				memcpy(bitmap + sizeof(bitmap) - 4 - (i * 3), BITMAP_BatteryLevel, 2);
-			#else
-				memcpy(bitmap + 3 + (i * 3) + 0, BITMAP_BatteryLevel, 2);
-			#endif
+			unsigned int i;
+			uint8_t bars = level - 1;
+			if (bars > 4)
+				bars = 4;
+			for (i = 0; i < bars; i++)
+			{
+				#ifndef ENABLE_REVERSE_BAT_SYMBOL
+					memcpy(bitmap + sizeof(BITMAP_BatteryLevel1) - 4 - (i * 3), BITMAP_BatteryLevel, 2);
+				#else
+					memcpy(bitmap + 3 + (i * 3) + 0, BITMAP_BatteryLevel, 2);
+				#endif
+			}
 		}
 	}
-	else
-	if (blink == 0)
-		memset(bitmap, 0, sizeof(bitmap));
 }
 
 void UI_DisplayBattery(uint8_t level, uint8_t blink)
 {
-	if (gCurrentFunction != FUNCTION_TRANSMIT) {
-	    uint8_t bitmap[sizeof(BITMAP_BatteryLevel1)];
-
-		UI_DrawBattery(bitmap, level, blink);
-		memmove(bitmap, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
-		ST7565_DrawLine(LCD_WIDTH - sizeof(bitmap), 0, sizeof(bitmap), bitmap);
-	}
+	uint8_t bitmap[sizeof(BITMAP_BatteryLevel1)];
+	UI_DrawBattery(bitmap, level, blink);
+	ST7565_DrawLine(LCD_WIDTH - sizeof(bitmap), 0, sizeof(bitmap), bitmap);
 }
