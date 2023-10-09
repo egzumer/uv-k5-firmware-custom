@@ -77,33 +77,28 @@ void GUI_DisplayScreen(void)
 
 void GUI_SelectNextDisplay(GUI_DisplayType_t Display)
 {
-	if (Display != DISPLAY_INVALID)
+	if (Display == DISPLAY_INVALID)
+		return;
+
+	if (gScreenToDisplay != Display)
 	{
-		if (gScreenToDisplay != Display)
-		{
-			gInputBoxIndex      = 0;
-			gIsInSubMenu        = false;
-			gCssScanMode        = CSS_SCAN_MODE_OFF;
-			gScanStateDir       = SCAN_OFF;
-			#ifdef ENABLE_FMRADIO
-				gFM_ScanState   = FM_SCAN_OFF;
-			#endif
-			gAskForConfirmation = 0;
-			gDTMF_InputMode     = false;
-			gDTMF_InputIndex    = 0;
-			gAskToSave          = false;
-			gAskToDelete        = false;
+		DTMF_clear_input_box();
 
-			if (gWasFKeyPressed)
-			{
-				gWasFKeyPressed = false;
-				gUpdateStatus   = true;
-			}
+		gInputBoxIndex       = 0;
+		gIsInSubMenu         = false;
+		gCssScanMode         = CSS_SCAN_MODE_OFF;
+		gScanStateDir        = SCAN_OFF;
+		#ifdef ENABLE_FMRADIO
+			gFM_ScanState    = FM_SCAN_OFF;
+		#endif
+		gAskForConfirmation  = 0;
+		gAskToSave           = false;
+		gAskToDelete         = false;
+		gWasFKeyPressed      = false;
 
-			gUpdateStatus       = true;
-		}
-
-		gUpdateDisplay   = true;
-		gScreenToDisplay = Display;
+		gUpdateStatus        = true;
 	}
+
+	gScreenToDisplay = Display;
+	gUpdateDisplay   = true;
 }

@@ -334,10 +334,10 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		{
 			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 
-			if (gDTMF_InputIndex > 0)
+			if (gDTMF_InputBox_Index > 0)
 			{
-				gDTMF_InputBox[--gDTMF_InputIndex] = '-';
-				if (gDTMF_InputIndex > 0)
+				gDTMF_InputBox[--gDTMF_InputBox_Index] = '-';
+				if (gDTMF_InputBox_Index > 0)
 				{
 					gPttWasReleased       = true;
 					gRequestDisplayScreen = DISPLAY_MAIN;

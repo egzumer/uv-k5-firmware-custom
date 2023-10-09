@@ -29,26 +29,17 @@ void SYSTICK_Init(void)
 
 void SYSTICK_DelayUs(uint32_t Delay)
 {
-	uint32_t i;
-	uint32_t Start;
-	uint32_t Previous;
-	uint32_t Current;
-	uint32_t Delta;
-
-	i = 0;
-	Start = SysTick->LOAD;
-	Previous = SysTick->VAL;
+	const uint32_t ticks    = Delay * gTickMultiplier;
+	uint32_t       i        = 0;
+	uint32_t       Start    = SysTick->LOAD;
+	uint32_t       Previous = SysTick->VAL;
 	do {
-		do {
-			Current = SysTick->VAL;
-		} while (Current == Previous);
-		if (Current < Previous) {
-			Delta = -Current;
-		} else {
-			Delta = Start - Current;
-		}
-		i += Delta + Previous;
+		uint32_t Current;
+		uint32_t Delta;
+		while ((Current = SysTick->VAL) == Previous) {}
+		Delta    = (Current < Previous) ? -Current : Start - Current;
+		i       += Delta + Previous;
 		Previous = Current;
-	} while (i < Delay * gTickMultiplier);
+	} while (i < ticks);
 }
 

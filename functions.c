@@ -116,8 +116,12 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 					gFM_RestoreCountdown_10ms = fm_restore_countdown_10ms;
 			#endif
 
-			if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT || gDTMF_CallState == DTMF_CALL_STATE_RECEIVED)
-				gDTMF_auto_reset_time_500ms = 1 + (gEeprom.DTMF_auto_reset_time * 2);
+			if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT ||
+			    gDTMF_CallState == DTMF_CALL_STATE_RECEIVED ||
+				gDTMF_CallState == DTMF_CALL_STATE_RECEIVED_STAY)
+			{
+				gDTMF_auto_reset_time_500ms = gEeprom.DTMF_auto_reset_time * 2;
+			}
 
 			gUpdateStatus = true;
 			return;

@@ -350,7 +350,7 @@ void UI_DisplayMain(void)
 					if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT)
 						strcpy(String, (gDTMF_State == DTMF_STATE_CALL_OUT_RSP) ? "CALL OUT(RSP)" : "CALL OUT");
 					else
-					if (gDTMF_CallState == DTMF_CALL_STATE_RECEIVED)
+					if (gDTMF_CallState == DTMF_CALL_STATE_RECEIVED || gDTMF_CallState == DTMF_CALL_STATE_RECEIVED_STAY)
 						sprintf(String, "CALL FRM:%s", (DTMF_FindContact(gDTMF_Caller, Contact)) ? Contact : gDTMF_Caller);
 					else
 					if (gDTMF_IsTx)
@@ -359,10 +359,8 @@ void UI_DisplayMain(void)
 				else
 				{
 					sprintf(String, ">%s", gDTMF_InputBox);
-
-					center_line = CENTER_LINE_IN_USE;
 				}
-				UI_PrintString(String, 2, 0, vfo_num * 3, 8);
+				UI_PrintString(String, 2, 0, 0 + (vfo_num * 3), 8);
 
 				memset(String,  0, sizeof(String));
 				if (!gDTMF_InputMode)
@@ -371,15 +369,11 @@ void UI_DisplayMain(void)
 					if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT)
 						sprintf(String, ">%s", (DTMF_FindContact(gDTMF_String, Contact)) ? Contact : gDTMF_String);
 					else
-					if (gDTMF_CallState == DTMF_CALL_STATE_RECEIVED)
+					if (gDTMF_CallState == DTMF_CALL_STATE_RECEIVED || gDTMF_CallState == DTMF_CALL_STATE_RECEIVED_STAY)
 						sprintf(String, ">%s", (DTMF_FindContact(gDTMF_Callee, Contact)) ? Contact : gDTMF_Callee);
 					else
 					if (gDTMF_IsTx)
 						sprintf(String, ">%s", gDTMF_String);
-				}
-				else
-				{
-					center_line = CENTER_LINE_IN_USE;
 				}
 				UI_PrintString(String, 2, 0, 2 + (vfo_num * 3), 8);
 

@@ -220,7 +220,7 @@ bool              gKeyBeingHeld;
 bool              gPttIsPressed;
 uint8_t           gPttDebounceCounter;
 uint8_t           gMenuListCount;
-uint8_t           gBackupCROSS_BAND_RX_TX;
+uint8_t           gBackup_CROSS_BAND_RX_TX;
 uint8_t           gScanDelay_10ms;
 #ifdef ENABLE_AIRCOPY
 	uint8_t       gAircopySendCountdown;

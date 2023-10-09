@@ -36,9 +36,9 @@
 char              gDTMF_String[15];
 
 char              gDTMF_InputBox[15];
-uint8_t           gDTMF_InputIndex    = 0;
-bool              gDTMF_InputMode     = false;
-uint8_t           gDTMF_PreviousIndex = 0;
+uint8_t           gDTMF_InputBox_Index = 0;
+bool              gDTMF_InputMode      = false;
+uint8_t           gDTMF_PreviousIndex  = 0;
 
 char              gDTMF_RX[17];
 uint8_t           gDTMF_RX_index   = 0;
@@ -133,8 +133,26 @@ bool DTMF_FindContact(const char *pContact, char *pResult)
 
 char DTMF_GetCharacter(const unsigned int code)
 {
-	const char list[] = "0123456789ABCD*#";
-	return (code < ARRAY_SIZE(list)) ? list[code] : 0xFF;
+	switch (code)
+	{
+		case KEY_0:    return '0';
+		case KEY_1:    return '1';
+		case KEY_2:    return '2';
+		case KEY_3:    return '3';
+		case KEY_4:    return '4';
+		case KEY_5:    return '5';
+		case KEY_6:    return '6';
+		case KEY_7:    return '7';
+		case KEY_8:    return '8';
+		case KEY_9:    return '9';
+		case KEY_MENU: return 'A';
+		case KEY_UP:   return 'B';
+		case KEY_DOWN: return 'C';
+		case KEY_EXIT: return 'D';
+		case KEY_STAR: return '*';
+		case KEY_F:    return '#';
+		default:       return 0xff;
+	}
 }
 
 bool DTMF_CompareMessage(const char *pMsg, const char *pTemplate, const unsigned int size, const bool bCheckGroup)
@@ -163,16 +181,23 @@ DTMF_CallMode_t DTMF_CheckGroupCall(const char *pMsg, const unsigned int size)
 	return (i < size) ? DTMF_CALL_MODE_GROUP : DTMF_CALL_MODE_NOT_GROUP;
 }
 
+void DTMF_clear_input_box(void)
+{
+	memset(gDTMF_InputBox, 0, sizeof(gDTMF_InputBox));
+	gDTMF_InputBox_Index = 0;
+	gDTMF_InputMode      = false;
+}
+
 void DTMF_Append(const char code)
 {
-	if (gDTMF_InputIndex == 0)
+	if (gDTMF_InputBox_Index == 0)
 	{
-		memset(gDTMF_InputBox, '-', sizeof(gDTMF_InputBox));
+		memset(gDTMF_InputBox, '-', sizeof(gDTMF_InputBox) - 1);
 		gDTMF_InputBox[sizeof(gDTMF_InputBox) - 1] = 0;
 	}
 
-	if (gDTMF_InputIndex < sizeof(gDTMF_InputBox))
-		gDTMF_InputBox[gDTMF_InputIndex++] = code;
+	if (gDTMF_InputBox_Index < (sizeof(gDTMF_InputBox) - 1))
+		gDTMF_InputBox[gDTMF_InputBox_Index++] = code;
 }
 
 void DTMF_HandleRequest(void)
