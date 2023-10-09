@@ -195,7 +195,7 @@ const char gSubMenu_CHAN[3][10] =
 
 const char gSubMenu_XB[3][10] =
 {
-	"MAIN\nVFO",
+	"RX\nVFO",
 	"UPPER\nVFO",
 	"LOWER\nVFO"
 };

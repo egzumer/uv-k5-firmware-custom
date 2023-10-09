@@ -494,13 +494,13 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 		glitch_close = (glitch_open * 10) / 9;
 
 		// ensure the 'close' threshold is lower than the 'open' threshold
-		if (rssi_close   == rssi_open   && rssi_close   > 0)
-			rssi_close--;
-		if (noise_close  == noise_open  && noise_close  < 127)
-			noise_close++;
-		if (glitch_close == glitch_open && glitch_close < 255)
-			glitch_close++;
-		
+		if (rssi_close   == rssi_open   && rssi_close   >= 2)
+			rssi_close -= 2;
+		if (noise_close  == noise_open  && noise_close  <= 125)
+			noise_close += 2;
+		if (glitch_close == glitch_open && glitch_close <= 253)
+			glitch_close += 2;
+
 		pInfo->SquelchOpenRSSIThresh    = (rssi_open    > 255) ? 255 : rssi_open;
 		pInfo->SquelchCloseRSSIThresh   = (rssi_close   > 255) ? 255 : rssi_close;
 		pInfo->SquelchOpenNoiseThresh   = (noise_open   > 127) ? 127 : noise_open;
@@ -934,12 +934,13 @@ void RADIO_PrepareTX(void)
 		gDualWatchCountdown_10ms = dual_watch_count_after_tx_10ms;
 		gScheduleDualWatch       = false;
 
-		if (gRxVfoIsActive)
-		{	// use the TX vfo
+		if (!gRxVfoIsActive)
+		{	// use the current RX vfo
 			gEeprom.RX_VFO = gEeprom.TX_VFO;
 			gRxVfo         = &gEeprom.VfoInfo[gEeprom.TX_VFO];
-//			gRxVfoIsActive = true;
+			gRxVfoIsActive = true;
 		}
+		gCurrentVfo = gRxVfo;
 
 		// let the user see that DW is not active
 		gDualWatchActive = false;
