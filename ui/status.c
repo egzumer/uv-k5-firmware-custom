@@ -28,6 +28,7 @@
 #include "helper/battery.h"
 #include "misc.h"
 #include "settings.h"
+#include "ui/battery.h"
 #include "ui/helper.h"
 #include "ui/ui.h"
 #include "ui/status.h"
@@ -217,50 +218,8 @@ void UI_DisplayStatus(const bool test_display)
 	x += sizeof(BITMAP_USB_C);
 
 	// BATTERY LEVEL indicator
-	if (gBatteryDisplayLevel >= 2 && !gLowBattery)
-	{
-		line += x;
-		memmove(line, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
-
-		#ifndef ENABLE_REVERSE_BAT_SYMBOL
-			line += sizeof(BITMAP_BatteryLevel1);
-			{
-				const int8_t pos[] = {-4, -7, -10, 13};
-				for (unsigned int i = 0; i < ARRAY_SIZE(pos); i++)
-					if (gBatteryDisplayLevel >= (2 + i))
-						memmove(line + pos[i], BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
+	UI_DrawBattery(line + x, gBatteryDisplayLevel, gLowBattery);
 	
-/*				switch (gBatteryDisplayLevel)
-				{
-					default:
-					case 5: memmove(line - 13, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-					case 4: memmove(line - 10, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-					case 3: memmove(line -  7, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-					case 2: memmove(line -  4, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-				}
-*/			}
-		#else
-		{
-			const int8_t pos[] = {3, 6, 9, 12};
-			for (unsigned int i = 0; i < ARRAY_SIZE(pos); i++)
-				if (gBatteryDisplayLevel >= (2 + i))
-					memmove(line + pos[i], BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-/*
-			switch (gBatteryDisplayLevel)
-			{
-				default:
-				case 5: memmove(line + 12, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-				case 4: memmove(line +  9, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-				case 3: memmove(line +  6, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-				case 2: memmove(line +  3, BITMAP_BatteryLevel, sizeof(BITMAP_BatteryLevel));
-			}
-*/		}
-		#endif
-	}
-	else
-	if (gLowBatteryBlink == 1)
-		memmove(line + x, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
-
 	// **************
 
 	ST7565_BlitStatusLine();
