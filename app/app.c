@@ -1189,8 +1189,7 @@ void APP_Update(void)
 			{
 				gBatterySaveCountdown_10ms   = battery_save_count_10ms;
 			}
-			else
-			if ((IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
+			else if ((IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
 			{
 				//if (gCurrentFunction != FUNCTION_POWER_SAVE)
 					FUNCTION_Select(FUNCTION_POWER_SAVE);
@@ -1288,8 +1287,6 @@ void APP_Update(void)
 // called every 10ms
 void APP_CheckKeys(void)
 {
-	KEY_Code_t Key;
-
 #ifdef ENABLE_AIRCOPY
 	if (gSetting_KILLED || (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState != AIRCOPY_READY))
 		return;
@@ -1327,16 +1324,16 @@ void APP_CheckKeys(void)
 	else
 		gPttDebounceCounter = 0;
 
-	// *****************
+// --------------------- OTHER KEYS ----------------------------
 
 	// scan the hardware keys
-	Key = KEYBOARD_Poll();
+	KEY_Code_t Key = KEYBOARD_Poll();
 
-	if (Key != KEY_INVALID)
+	if (Key != KEY_INVALID) // any key pressed
 		boot_counter_10ms = 0;   // cancel boot screen/beeps if any key pressed
 
-	if (gKeyReading0 != Key)
-	{	// new key pressed
+	if (gKeyReading0 != Key) // new key pressed
+	{	
 
 		if (gKeyReading0 != KEY_INVALID && Key != KEY_INVALID)
 			APP_ProcessKey(gKeyReading1, false, gKeyBeingHeld);  // key pressed without releasing previous key
@@ -1346,18 +1343,19 @@ void APP_CheckKeys(void)
 		return;
 	}
 
-	if (++gDebounceCounter == key_debounce_10ms)
-	{	// debounced new key pressed
+	gDebounceCounter++;
 
-		if (Key == KEY_INVALID)
+	if (gDebounceCounter == key_debounce_10ms) // debounced new key pressed
+	{	
+		if (Key == KEY_INVALID) //all PTT keys released
 		{
-			if (gKeyReading1 != KEY_INVALID)
+			if (gKeyReading1 != KEY_INVALID) // some button was pressed before
 			{
-				APP_ProcessKey(gKeyReading1, false, gKeyBeingHeld);
+				APP_ProcessKey(gKeyReading1, false, gKeyBeingHeld); // process last button released event
 				gKeyReading1 = KEY_INVALID;
 			}
 		}
-		else
+		else // process new key pressed
 		{
 			gKeyReading1 = Key;
 			APP_ProcessKey(Key, true, false);
@@ -1367,21 +1365,19 @@ void APP_CheckKeys(void)
 		return;
 	}
 
-	if (gDebounceCounter < key_repeat_delay_10ms)
+	if (gDebounceCounter < key_repeat_delay_10ms || Key == KEY_INVALID) // the button is not held long enough for repeat yet, or not really pressed
 		return;
 
-	// key is being held pressed
-
-	if (gDebounceCounter == key_repeat_delay_10ms)
-	{	// initial key repeat delay after pressed
+	if (gDebounceCounter == key_repeat_delay_10ms) //initial key repeat with longer delay
+	{	
 		if (Key != KEY_PTT)
 		{
 			gKeyBeingHeld = true;
 			APP_ProcessKey(Key, true, true);
 		}
 	}
-	else
-	{	// key repeat
+	else //subsequent fast key repeats
+	{	
 		if (Key == KEY_UP || Key == KEY_DOWN)
 		{
 			gKeyBeingHeld = true;
@@ -1392,7 +1388,7 @@ void APP_CheckKeys(void)
 		if (gDebounceCounter < 0xFFFF)
 			return;
 
-		gDebounceCounter = key_repeat_delay_10ms;
+		gDebounceCounter = key_repeat_delay_10ms+1;
 	}
 }
 
