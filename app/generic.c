@@ -37,19 +37,19 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 {
 	if (gInputBoxIndex > 0)
 	{
-		if (!bKeyHeld && bKeyPressed)
+		if (!bKeyHeld && bKeyPressed) // short pressed
 			gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 		return;
 	}
 
-	if (bKeyHeld || !bKeyPressed)
+	if (bKeyHeld || !bKeyPressed) // held or released
 	{
-		if (bKeyHeld || bKeyPressed)
+		if (bKeyHeld || bKeyPressed) // held or pressed (cannot be held and not pressed I guess, so it checks only if HELD?)
 		{
-			if (!bKeyHeld)
+			if (!bKeyHeld) // won't ever pass
 				return;
 
-			if (!bKeyPressed)
+			if (!bKeyPressed) // won't ever pass
 				return;
 
 			if (gScreenToDisplay != DISPLAY_MENU &&
@@ -65,7 +65,7 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 				gRequestSaveSettings = true;
 			}
 		}
-		else
+		else // released
 		{
 			#ifdef ENABLE_FMRADIO
 				if ((gFmRadioMode || gScreenToDisplay != DISPLAY_MAIN) && gScreenToDisplay != DISPLAY_FM)
@@ -75,7 +75,7 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 					return;
 			#endif
 
-			gWasFKeyPressed = !gWasFKeyPressed;
+			gWasFKeyPressed = !gWasFKeyPressed; // toggle F function
 
 			if (gWasFKeyPressed)
 				gKeyInputCountdown = key_input_timeout_500ms;
@@ -88,7 +88,7 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 			gUpdateStatus = true;
 		}
 	}
-	else
+	else // short pressed
 	{
 		if (gScreenToDisplay != DISPLAY_FM)
 		{
@@ -97,7 +97,7 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 		}
 
 		#ifdef ENABLE_FMRADIO
-			if (gFM_ScanState == FM_SCAN_OFF)
+			if (gFM_ScanState == FM_SCAN_OFF) // not scanning
 			{
 				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 				return;
@@ -116,7 +116,6 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 
 	if (!bKeyPressed || gSerialConfigCountDown_500ms > 0)
 	{	// PTT released
-
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
 		{	// we are transmitting .. stop
 
@@ -181,22 +180,22 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 		goto cancel_tx;
 	}
 
-	#ifdef ENABLE_FMRADIO
-		if (gFM_ScanState != FM_SCAN_OFF)
-		{	// FM radio is scanning .. stop
-			FM_PlayAndUpdate();
-			#ifdef ENABLE_VOICE
-				gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
-			#endif
-			gRequestDisplayScreen = DISPLAY_FM;
-			goto cancel_tx;
-		}
-	#endif
+#ifdef ENABLE_FMRADIO
+	if (gFM_ScanState != FM_SCAN_OFF)
+	{	// FM radio is scanning .. stop
+		FM_PlayAndUpdate();
+		#ifdef ENABLE_VOICE
+			gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
+		#endif
+		gRequestDisplayScreen = DISPLAY_FM;
+		goto cancel_tx;
+	}
+#endif
 
-	#ifdef ENABLE_FMRADIO
-		if (gScreenToDisplay == DISPLAY_FM)
-			goto start_tx;	// listening to the FM radio .. start TX'ing
-	#endif
+#ifdef ENABLE_FMRADIO
+	if (gScreenToDisplay == DISPLAY_FM)
+		goto start_tx;	// listening to the FM radio .. start TX'ing
+#endif
 
 	if (gCurrentFunction == FUNCTION_TRANSMIT && gRTTECountdown == 0)
 	{	// already transmitting
@@ -255,7 +254,6 @@ start_tx:
 cancel_tx:
 	if (gPttIsPressed)
 	{
-		gPttIsPressed  = false;
 		gPttWasPressed = true;
 	}
 

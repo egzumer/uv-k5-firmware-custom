@@ -1290,14 +1290,15 @@ void APP_CheckKeys(void)
 {
 	KEY_Code_t Key;
 
-	#ifdef ENABLE_AIRCOPY
-		if (gSetting_KILLED || (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState != AIRCOPY_READY))
-			return;
-	#else
-		if (gSetting_KILLED)
-			return;
-	#endif
+#ifdef ENABLE_AIRCOPY
+	if (gSetting_KILLED || (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState != AIRCOPY_READY))
+		return;
+#else
+	if (gSetting_KILLED)
+		return;
+#endif
 
+// -------------------- PTT ------------------------
 	if (gPttIsPressed)
 	{
 		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) || gSerialConfigCountDown_500ms > 0)
@@ -1313,8 +1314,7 @@ void APP_CheckKeys(void)
 		else
 			gPttDebounceCounter = 0;
 	}
-	else
-	if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) && gSerialConfigCountDown_500ms == 0)
+	else if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) && gSerialConfigCountDown_500ms == 0)
 	{	// PTT pressed
 		if (++gPttDebounceCounter >= 3)	    // 30ms
 		{	// start transmitting
@@ -2226,8 +2226,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			}
 		}
 	}
-	else
-	if (gPttWasReleased)
+	else if (gPttWasReleased)
 	{
 		if (bKeyHeld)
 			bFlag = true;
@@ -2249,9 +2248,9 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
 		{	// transmitting
 
-			#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
-				if (gAlarmState == ALARM_STATE_OFF)
-			#endif
+#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
+			if (gAlarmState == ALARM_STATE_OFF)
+#endif
 			{
 				char Code;
 
@@ -2306,7 +2305,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 						BK4819_PlayDTMFEx(gEeprom.DTMF_SIDE_TONE, Code);
 				}
 			}
-			#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
+#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 				else
 				if ((!bKeyHeld && bKeyPressed) || (gAlarmState == ALARM_STATE_TX1750 && bKeyHeld && !bKeyPressed))
 				{
@@ -2323,7 +2322,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					if (!bKeyHeld)
 						gPttWasReleased = true;
 				}
-			#endif
+#endif
 		}
 		else
 		if (Key != KEY_SIDE1 && Key != KEY_SIDE2)
@@ -2331,6 +2330,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			switch (gScreenToDisplay)
 			{
 				case DISPLAY_MAIN:
+				
 					MAIN_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 //					bKeyHeld = false;	// allow the channel setting to be saved
 					break;
@@ -2361,16 +2361,15 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			}
 		}
 		else
-		#ifdef ENABLE_AIRCOPY
-			if (gScreenToDisplay != DISPLAY_SCANNER && gScreenToDisplay != DISPLAY_AIRCOPY)
-		#else
-			if (gScreenToDisplay != DISPLAY_SCANNER)
-		#endif
+#ifdef ENABLE_AIRCOPY
+		if (gScreenToDisplay != DISPLAY_SCANNER && gScreenToDisplay != DISPLAY_AIRCOPY)
+#else
+		if (gScreenToDisplay != DISPLAY_SCANNER)
+#endif
 		{
 			ACTION_Handle(Key, bKeyPressed, bKeyHeld);
 		}
-		else
-		if (!bKeyHeld && bKeyPressed)
+		else if (!bKeyHeld && bKeyPressed)
 			gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 	}
 
