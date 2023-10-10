@@ -53,10 +53,6 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 				return;
 
 			if (gScreenToDisplay != DISPLAY_MENU &&
-			    gScreenToDisplay != DISPLAY_FM &&
-			    #ifdef ENABLE_FMRADIO
-					!gFmRadioMode &&
-			    #endif
 			    gCurrentFunction != FUNCTION_TRANSMIT)
 			{	// toggle the keyboad lock
 
