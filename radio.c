@@ -898,10 +898,7 @@ void RADIO_SetVfoState(VfoState_t State)
 	{
 		VfoState[0] = VFO_STATE_NORMAL;
 		VfoState[1] = VFO_STATE_NORMAL;
-
-		#ifdef ENABLE_FMRADIO
-			gFM_ResumeCountdown_500ms = 0;
-		#endif
+		gVFOStateResumeCountdown_500ms = 0;
 	}
 	else
 	{
@@ -916,9 +913,7 @@ void RADIO_SetVfoState(VfoState_t State)
 			VfoState[vfo] = State;
 		}
 
-		#ifdef ENABLE_FMRADIO
-			gFM_ResumeCountdown_500ms = fm_resume_countdown_500ms;
-		#endif
+		gVFOStateResumeCountdown_500ms = vfo_state_resume_countdown_500ms;
 	}
 
 	gUpdateDisplay = true;

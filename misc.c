@@ -19,11 +19,12 @@
 #include "misc.h"
 #include "settings.h"
 
-const uint8_t     fm_resume_countdown_500ms        =  2500 / 500;  // 2.5 seconds
 const uint8_t     fm_radio_countdown_500ms         =  2000 / 500;  // 2 seconds
 const uint16_t    fm_play_countdown_scan_10ms      =   100 / 10;   // 100ms
 const uint16_t    fm_play_countdown_noscan_10ms    =  1200 / 10;   // 1.2 seconds
 const uint16_t    fm_restore_countdown_10ms        =  5000 / 10;   // 5 seconds
+
+const uint8_t     vfo_state_resume_countdown_500ms =  2500 / 500;  // 2.5 seconds
 
 const uint8_t     menu_timeout_500ms               =  20000 / 500;  // 20 seconds
 const uint16_t    menu_timeout_long_500ms          = 120000 / 500;  // 2 minutes
@@ -140,6 +141,8 @@ volatile uint16_t gTxTimerCountdown_500ms;
 volatile bool     gTxTimeoutReached;
 
 volatile uint16_t gTailNoteEliminationCountdown_10ms;
+
+volatile uint8_t    gVFOStateResumeCountdown_500ms;
 
 #ifdef ENABLE_NOAA
 	volatile uint16_t gNOAA_Countdown_10ms;

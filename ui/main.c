@@ -323,7 +323,6 @@ void UI_DisplayMain(void)
 		uint8_t           *p_line0    = gFrameBuffer[line + 0];
 		uint8_t           *p_line1    = gFrameBuffer[line + 1];
 		unsigned int       mode       = 0;
-		unsigned int       state;
 
 		if (single_vfo)
 		{	// we're in single VFO mode - screen is dedicated to just one VFO
@@ -472,7 +471,7 @@ void UI_DisplayMain(void)
 
 		// ************
 
-		state = VfoState[vfo_num];
+		unsigned int state = VfoState[vfo_num];
 
 		#ifdef ENABLE_ALARM
 			if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_ALARM)

@@ -1895,24 +1895,24 @@ void APP_TimeSlice500ms(void)
 	if (gCurrentFunction != FUNCTION_POWER_SAVE && gCurrentFunction != FUNCTION_TRANSMIT)
 		updateRSSI(gEeprom.RX_VFO);
 
-	#ifdef ENABLE_FMRADIO
-		if (!gPttIsPressed && gFM_ResumeCountdown_500ms > 0)
+	if (!gPttIsPressed && gVFOStateResumeCountdown_500ms > 0)
+	{
+		if (--gVFOStateResumeCountdown_500ms == 0)
 		{
-			if (--gFM_ResumeCountdown_500ms == 0)
-			{
-				RADIO_SetVfoState(VFO_STATE_NORMAL);
-
-				if (gCurrentFunction != FUNCTION_RECEIVE  &&
-				    gCurrentFunction != FUNCTION_TRANSMIT &&
-				    gCurrentFunction != FUNCTION_MONITOR  &&
-					gFmRadioMode)
-				{	// switch back to FM radio mode
-					FM_Start();
-					GUI_SelectNextDisplay(DISPLAY_FM);
-				}
+			RADIO_SetVfoState(VFO_STATE_NORMAL);
+#ifdef ENABLE_FMRADIO
+			if (gCurrentFunction != FUNCTION_RECEIVE  &&
+			    gCurrentFunction != FUNCTION_TRANSMIT &&
+			    gCurrentFunction != FUNCTION_MONITOR  &&
+				gFmRadioMode)
+			{	// switch back to FM radio mode
+				FM_Start();
+				GUI_SelectNextDisplay(DISPLAY_FM);
 			}
+#endif				
 		}
-	#endif
+	}
+
 
 	if (gLowBattery)
 	{
