@@ -1823,7 +1823,7 @@ void APP_TimeSlice500ms(void)
 			if (gScanStateDir == SCAN_OFF && (gScreenToDisplay != DISPLAY_SCANNER || gScanCssState >= SCAN_CSS_STATE_FOUND))
 		#endif
 		{
-			if (gEeprom.AUTO_KEYPAD_LOCK && gKeyLockCountdown > 0 && !gDTMF_InputMode)
+			if (gEeprom.AUTO_KEYPAD_LOCK && gKeyLockCountdown > 0 && !gDTMF_InputMode && gScreenToDisplay != DISPLAY_MENU)
 			{
 				if (--gKeyLockCountdown == 0)
 					gEeprom.KEY_LOCK = true;     // lock the keyboard
