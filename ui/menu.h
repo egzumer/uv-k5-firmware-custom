@@ -39,7 +39,6 @@ enum
 	MENU_T_CTCS,
 	MENU_SFT_D,
 	MENU_OFFSET,
-	MENU_XB,
 	MENU_TOT,
 	MENU_W_N,
 	MENU_SCR,
@@ -128,18 +127,18 @@ extern const char        gSubMenu_W_N[2][7];
 extern const char        gSubMenu_OFF_ON[2][4];
 extern const char        gSubMenu_SAVE[5][4];
 extern const char        gSubMenu_TOT[11][7];
-extern const char        gSubMenu_CHAN[3][10];
-extern const char        gSubMenu_XB[3][10];
+extern const char*        gSubMenu_RXMode[4];
+
 #ifdef ENABLE_VOICE
 	extern const char    gSubMenu_VOICE[3][4];
 #endif
-extern const char        gSubMenu_SC_REV[3][13];
-extern const char        gSubMenu_MDF[4][15];
+extern const char        gSubMenu_SC_REV[3][8];
+extern const char*       gSubMenu_MDF[4];
 #ifdef ENABLE_ALARM
 	extern const char    gSubMenu_AL_MOD[2][5];
 #endif
 extern const char        gSubMenu_D_RSP[4][11];
-extern const char        gSubMenu_PTT_ID[5][15];
+extern const char*       gSubMenu_PTT_ID[5];
 extern const char        gSubMenu_PONMSG[4][8];
 extern const char        gSubMenu_ROGER[3][9];
 extern const char        gSubMenu_RESET[2][4];

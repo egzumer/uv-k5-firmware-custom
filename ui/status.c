@@ -85,15 +85,6 @@ void UI_DisplayStatus(const bool test_display)
 		x1 = x + 10;
 	}
 	else
-	#ifdef ENABLE_FMRADIO
-		// FM indicator
-		if (gFmRadioMode || test_display)
-		{
-			memmove(line + x, BITMAP_FM, sizeof(BITMAP_FM));
-			x1 = x + sizeof(BITMAP_FM);
-		}
-		else
-	#endif
 		// SCAN indicator
 		if (gScanStateDir != SCAN_OFF || gScreenToDisplay == DISPLAY_SCANNER || test_display)
 		{
@@ -123,28 +114,23 @@ void UI_DisplayStatus(const bool test_display)
 			memmove(line + x, BITMAP_VoicePrompt, sizeof(BITMAP_VoicePrompt));
 			x1 = x + sizeof(BITMAP_VoicePrompt);
 		}
-		x += sizeof(BITMAP_VoicePrompt);
+		x += sizeof(BITMAP_VoicePrompt) + 2;
 	#else
 		// hmmm, what to put in it's place
 	#endif
 
-	// DUAL-WATCH indicator
-	if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF || test_display)
-	{
-		if (gDualWatchActive || test_display)
-			memmove(line + x, BITMAP_TDR1, sizeof(BITMAP_TDR1));
-		else
-			memmove(line + x, BITMAP_TDR2, sizeof(BITMAP_TDR2));
+	uint8_t dw = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF) + (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF) * 2;
+	if(dw == 1 || dw == 3 || test_display) { // DWR - dual watch + respond
+		if(gDualWatchActive || test_display) 
+			memmove(line + x, BITMAP_TDR1, sizeof(BITMAP_TDR1) - (dw==1?0:5));
+		else 
+			memmove(line + x + 3, BITMAP_TDR2, sizeof(BITMAP_TDR2));
 	}
-	x += sizeof(BITMAP_TDR1);
-
-	// CROSS-VFO indicator
-	if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF || test_display)
-	{
+	else if(dw == 2) { // XB - crossband
 		memmove(line + x, BITMAP_XB, sizeof(BITMAP_XB));
-		x1 = x + sizeof(BITMAP_XB);
 	}
-	x += sizeof(BITMAP_XB);
+
+	x += sizeof(BITMAP_TDR1) + 2;
 	
 	#ifdef ENABLE_VOX
 		// VOX indicator
@@ -153,8 +139,11 @@ void UI_DisplayStatus(const bool test_display)
 			memmove(line + x, BITMAP_VOX, sizeof(BITMAP_VOX));
 			x1 = x + sizeof(BITMAP_VOX);
 		}
-		x += sizeof(BITMAP_VOX);
+		x += sizeof(BITMAP_VOX) + 2;
 	#endif
+
+	x = MAX(x, 61);
+	x1 = x;
 
 	// KEY-LOCK indicator
 	if (gEeprom.KEY_LOCK || test_display)

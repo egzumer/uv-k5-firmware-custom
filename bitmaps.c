@@ -197,11 +197,9 @@ const uint8_t BITMAP_F_Key[6] =
 	};
 #endif
 
-const uint8_t BITMAP_TDR1[12] =
-{	// "DW"
-	0b00000000,
+const uint8_t BITMAP_TDR1[15] =
+{	// "DWR"
 	0b01111111,
-	0b01000001,
 	0b01000001,
 	0b01000001,
 	0b00111110,
@@ -210,13 +208,16 @@ const uint8_t BITMAP_TDR1[12] =
 	0b00100000,
 	0b00011000,
 	0b00100000,
-	0b01111111
+	0b01111111,
+	0b00000000,
+	0b01111111,
+	0b00011001,
+	0b00101001,
+	0b01000110
 };
 
-const uint8_t BITMAP_TDR2[12] =
+const uint8_t BITMAP_TDR2[9] =
 {	// "><" .. DW on hold
-	0b00000000,
-	0b00000000,
 	0b00100010,
 	0b00110110,
 	0b00011100,
@@ -226,7 +227,6 @@ const uint8_t BITMAP_TDR2[12] =
 	0b00011100,
 	0b00110110,
 	0b00100010,
-	0b00000000
 };
 
 #ifdef ENABLE_VOICE
@@ -244,27 +244,8 @@ const uint8_t BITMAP_TDR2[12] =
 	};
 #endif
 
-#ifdef ENABLE_FMRADIO
-	const uint8_t BITMAP_FM[12] =
-	{	// "FM"
-		0b00000000,
-		0b01111111,
-		0b00001001,
-		0b00001001,
-		0b00001001,
-		0b00000001,
-
-		0b00000000,
-		0b01111111,
-		0b00000010,
-		0b00001100,
-		0b00000010,
-		0b01111111
-	};
-#endif
-
 #ifdef ENABLE_NOAA
-	const uint8_t BITMAP_NOAA[12] =
+	const uint8_t BITMAP_NOAA[11] =
 	{	// "NS"
 		0b00000000,
 		0b01111111,
@@ -272,10 +253,8 @@ const uint8_t BITMAP_TDR2[12] =
 		0b00001000,
 		0b00010000,
 		0b01111111,
-
 		0b00000000,
 		0b01000110,
-		0b01001001,
 		0b01001001,
 		0b01001001,
 		0b00110001

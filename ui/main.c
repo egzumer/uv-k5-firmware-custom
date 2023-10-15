@@ -314,29 +314,23 @@ void UI_DisplayMain(void)
 		return;
 	}
 
+	unsigned int activeTxVFO = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
+
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
 		const unsigned int line       = (vfo_num == 0) ? line0 : line1;
-		unsigned int       channel    = gEeprom.TX_VFO;
-//		unsigned int       tx_channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
-		const bool         same_vfo   = (channel == vfo_num) ? true : false;
+		const bool         isTxVFO   = (vfo_num == gEeprom.TX_VFO);
 		uint8_t           *p_line0    = gFrameBuffer[line + 0];
 		uint8_t           *p_line1    = gFrameBuffer[line + 1];
 		unsigned int       mode       = 0;
 
 		if (single_vfo)
 		{	// we're in single VFO mode - screen is dedicated to just one VFO
-
-			if (!same_vfo)
+			if (!isTxVFO)
 				continue;  // skip the unused vfo
-
-
 		}
 
-		if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive)
-			channel = gEeprom.RX_VFO;    // we're currently monitoring the other VFO
-
-		if (channel != vfo_num)
+		if (activeTxVFO != vfo_num)
 		{
 			if (gDTMF_CallState != DTMF_CALL_STATE_NONE || gDTMF_IsTx || gDTMF_InputMode)
 			{	// show DTMF stuff
@@ -381,19 +375,14 @@ void UI_DisplayMain(void)
 			}
 
 			// highlight the selected/used VFO with a marker
-			if (!single_vfo && same_vfo)
+			if (!single_vfo && isTxVFO)
 				memmove(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
-			else
-			if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)
-				memmove(p_line0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
-		else
-		if (!single_vfo)
+		else if (!single_vfo)
 		{	// highlight the selected/used VFO with a marker
-			if (same_vfo)
+			if (isTxVFO)
 				memmove(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			else
-			//if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)
 				memmove(p_line0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 
@@ -406,8 +395,8 @@ void UI_DisplayMain(void)
 				else
 			#endif
 			{
-				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
-				if (channel == vfo_num)
+				activeTxVFO = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
+				if (activeTxVFO == vfo_num)
 				{	// show the TX symbol
 					mode = 1;
 					#ifdef ENABLE_SMALL_BOLD
@@ -500,8 +489,8 @@ void UI_DisplayMain(void)
 			uint32_t frequency = gEeprom.VfoInfo[vfo_num].pRX->Frequency;
 			if (gCurrentFunction == FUNCTION_TRANSMIT)
 			{	// transmitting
-				channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
-				if (channel == vfo_num)
+				activeTxVFO = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
+				if (activeTxVFO == vfo_num)
 					frequency = gEeprom.VfoInfo[vfo_num].pTX->Frequency;
 			}
 

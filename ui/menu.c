@@ -52,7 +52,6 @@ const t_menu_item MenuList[] =
 	{"T CTCS", VOICE_ID_CTCSS,                         MENU_T_CTCS        }, // was "T_CTCS"
 	{"T DIR",  VOICE_ID_TX_OFFSET_FREQUENCY_DIRECTION, MENU_SFT_D         }, // was "SFT_D"
 	{"T OFFS", VOICE_ID_TX_OFFSET_FREQUENCY,           MENU_OFFSET        }, // was "OFFSET"
-	{"T VFO",  VOICE_ID_INVALID,                       MENU_XB            }, // was "WX"
 	{"T TOUT", VOICE_ID_TRANSMIT_OVER_TIME,            MENU_TOT           }, // was "TOT"
 	{"W/N",    VOICE_ID_CHANNEL_BANDWIDTH,             MENU_W_N           },
 	{"SCRAM",  VOICE_ID_SCRAMBLER_ON,                  MENU_SCR           }, // was "SCR"
@@ -67,7 +66,7 @@ const t_menu_item MenuList[] =
 #endif
 	{"BLT",    VOICE_ID_INVALID,                       MENU_ABR           }, // was "ABR"
 	{"BLTTRX", VOICE_ID_INVALID,                       MENU_ABR_ON_TX_RX  },
-	{"DUALRX", VOICE_ID_DUAL_STANDBY,                  MENU_TDR           }, // was "TDR"
+	{"RXMODE", VOICE_ID_DUAL_STANDBY,                  MENU_TDR           },
 	{"BEEP",   VOICE_ID_BEEP_PROMPT,                   MENU_BEEP          },
 #ifdef ENABLE_VOICE
 	{"VOICE",  VOICE_ID_VOICE_PROMPT,                  MENU_VOICE         },
@@ -186,18 +185,12 @@ const char gSubMenu_TOT[11][7] =
 	"15 min"
 };
 
-const char gSubMenu_CHAN[3][10] =
+const char* gSubMenu_RXMode[4] =
 {
-	"OFF",
-	"UPPER\nVFO",
-	"LOWER\nVFO"
-};
-
-const char gSubMenu_XB[3][10] =
-{
-	"RX\nVFO",
-	"UPPER\nVFO",
-	"LOWER\nVFO"
+	"MAIN\nONLY", // TX and RX on main only
+	"DUAL RX\nRESPOND", // Watch both and respond
+	"CROSS\nBAND", // TX on main, RX on secondary
+	"MAIN TX\nDUAL RX" // always TX on main, but RX on both
 };
 
 #ifdef ENABLE_VOICE
@@ -209,14 +202,14 @@ const char gSubMenu_XB[3][10] =
 	};
 #endif
 
-const char gSubMenu_SC_REV[3][13] =
+const char gSubMenu_SC_REV[3][8] =
 {
 	"TIME",
 	"CARRIER",
 	"SEARCH"
 };
 
-const char gSubMenu_MDF[4][15] =
+const char* gSubMenu_MDF[4] =
 {
 	"FREQ",
 	"CHANNEL\nNUMBER",
@@ -240,7 +233,7 @@ const char gSubMenu_D_RSP[4][11] =
 	"BOTH"
 };
 
-const char gSubMenu_PTT_ID[5][15] =
+const char* gSubMenu_PTT_ID[5] =
 {
 	"OFF",
 	"KEY\nUP",
@@ -680,11 +673,7 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_TDR:
-			strcpy(String, gSubMenu_CHAN[gSubMenuSelection]);
-			break;
-
-		case MENU_XB:
-			strcpy(String, gSubMenu_XB[gSubMenuSelection]);
+			strcpy(String, gSubMenu_RXMode[gSubMenuSelection]);
 			break;
 
 		case MENU_TOT:

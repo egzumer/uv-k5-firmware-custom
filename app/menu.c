@@ -139,12 +139,7 @@ int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
 
 		case MENU_TDR:
 			*pMin = 0;
-			*pMax = ARRAY_SIZE(gSubMenu_CHAN) - 1;
-			break;
-
-		case MENU_XB:
-			*pMin = 0;
-			*pMax = ARRAY_SIZE(gSubMenu_XB) - 1;
+			*pMax = ARRAY_SIZE(gSubMenu_RXMode) - 1;
 			break;
 
 		#ifdef ENABLE_VOICE
@@ -525,22 +520,11 @@ void MENU_AcceptSetting(void)
 			break;
 
 		case MENU_TDR:
-			gEeprom.DUAL_WATCH   = gSubMenuSelection;
+			gEeprom.DUAL_WATCH = (gEeprom.TX_VFO + 1) * (gSubMenuSelection & 1);
+			gEeprom.CROSS_BAND_RX_TX = (gEeprom.TX_VFO + 1) * ((gSubMenuSelection & 2) > 0);
+
 			gFlagReconfigureVfos = true;
 			gUpdateStatus        = true;
-			break;
-
-		case MENU_XB:
-			#ifdef ENABLE_NOAA
-				if (IS_NOAA_CHANNEL(gEeprom.ScreenChannel[0]))
-					return;
-				if (IS_NOAA_CHANNEL(gEeprom.ScreenChannel[1]))
-					return;
-			#endif
-
-			gEeprom.CROSS_BAND_RX_TX = gSubMenuSelection;
-			gFlagReconfigureVfos     = true;
-			gUpdateStatus            = true;
 			break;
 
 		case MENU_BEEP:
@@ -956,11 +940,7 @@ void MENU_ShowCurrentSetting(void)
 			break;
 
 		case MENU_TDR:
-			gSubMenuSelection = gEeprom.DUAL_WATCH;
-			break;
-
-		case MENU_XB:
-			gSubMenuSelection = gEeprom.CROSS_BAND_RX_TX;
+			gSubMenuSelection = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF) + (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF) * 2;
 			break;
 
 		case MENU_BEEP:

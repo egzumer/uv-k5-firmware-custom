@@ -25,25 +25,17 @@ extern const uint8_t BITMAP_F_Key[6];
 	extern const uint8_t BITMAP_VOX[18];
 #endif
 
-#if 0
-	extern const uint8_t BITMAP_WX[12];
-#else
-	extern const uint8_t BITMAP_XB[12];
-#endif
+extern const uint8_t BITMAP_XB[12];
 
-extern const uint8_t BITMAP_TDR1[12];
-extern const uint8_t BITMAP_TDR2[12];
+extern const uint8_t BITMAP_TDR1[15];
+extern const uint8_t BITMAP_TDR2[9];
 
 #ifdef ENABLE_VOICE
 	extern const uint8_t BITMAP_VoicePrompt[9];
 #endif
 
-#ifdef ENABLE_FMRADIO
-	extern const uint8_t BITMAP_FM[12];
-#endif
-
 #ifdef ENABLE_NOAA
-	extern const uint8_t BITMAP_NOAA[12];
+	extern const uint8_t BITMAP_NOAA[11];
 #endif
 
 extern const uint8_t BITMAP_Antenna[5];
