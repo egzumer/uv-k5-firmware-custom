@@ -36,9 +36,7 @@
 #include "ui/menu.h"
 #include "ui/ui.h"
 
-// NOTE. this menu list is half way through a change, what might seem
-// pointless at this time is for there for a reason.
-//
+
 const t_menu_item MenuList[] =
 {
 //   text,     voice ID,                               menu ID
@@ -327,6 +325,12 @@ const char gSubMenu_SCRAMBLER[11][7] =
 
 bool    gIsInSubMenu;
 uint8_t gMenuCursor;
+int GetCurrentMenuId() {
+	if(gMenuCursor < ARRAY_SIZE(MenuList))
+		return MenuList[gMenuCursor].menu_id;
+	else
+		return MenuList[ARRAY_SIZE(MenuList)-1].menu_id;
+}
 int8_t  gMenuScrollDirection;
 int32_t gSubMenuSelection;
 
@@ -433,7 +437,7 @@ void UI_DisplayMenu(void)
 	#pragma GCC diagnostic push
 	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
 
-	switch (gMenuCursor)
+	switch (GetCurrentMenuId())
 	{
 		case MENU_SQL:
 			sprintf(String, "%d", gSubMenuSelection);
@@ -476,7 +480,7 @@ void UI_DisplayMenu(void)
 		{
 			#if 1
 				unsigned int Code;
-				FREQ_Config_t *pConfig = (gMenuCursor == MENU_R_CTCS) ? &gTxVfo->freq_config_RX : &gTxVfo->freq_config_TX;
+				FREQ_Config_t *pConfig = (GetCurrentMenuId() == MENU_R_CTCS) ? &gTxVfo->freq_config_RX : &gTxVfo->freq_config_TX;
 				if (gSubMenuSelection == 0)
 				{
 					strcpy(String, "OFF");
@@ -855,9 +859,9 @@ void UI_DisplayMenu(void)
 		}
 	}
 
-	if (gMenuCursor == MENU_SLIST1 || gMenuCursor == MENU_SLIST2)
+	if (GetCurrentMenuId() == MENU_SLIST1 || GetCurrentMenuId() == MENU_SLIST2)
 	{
-		i = (gMenuCursor == MENU_SLIST1) ? 0 : 1;
+		i = (GetCurrentMenuId() == MENU_SLIST1) ? 0 : 1;
 
 //		if (gSubMenuSelection == 0xFF)
 		if (gSubMenuSelection < 0)
@@ -902,9 +906,9 @@ void UI_DisplayMenu(void)
 		}
 	}
 
-	if (gMenuCursor == MENU_MEM_CH   ||
-	    gMenuCursor == MENU_DEL_CH   ||
-	    gMenuCursor == MENU_1_CALL)
+	if (GetCurrentMenuId() == MENU_MEM_CH   ||
+	    GetCurrentMenuId() == MENU_DEL_CH   ||
+	    GetCurrentMenuId() == MENU_1_CALL)
 	{	// display the channel name
 		char s[11];
 		BOARD_fetchChannelName(s, gSubMenuSelection);
@@ -913,18 +917,18 @@ void UI_DisplayMenu(void)
 		UI_PrintString(s, menu_item_x1, menu_item_x2, 2, 8);
 	}
 
-	if ((gMenuCursor == MENU_R_CTCS || gMenuCursor == MENU_R_DCS) && gCssScanMode != CSS_SCAN_MODE_OFF)
+	if ((GetCurrentMenuId() == MENU_R_CTCS || GetCurrentMenuId() == MENU_R_DCS) && gCssScanMode != CSS_SCAN_MODE_OFF)
 		UI_PrintString("SCAN", menu_item_x1, menu_item_x2, 4, 8);
 
-	if (gMenuCursor == MENU_UPCODE)
+	if (GetCurrentMenuId() == MENU_UPCODE)
 		if (strlen(gEeprom.DTMF_UP_CODE) > 8)
 			UI_PrintString(gEeprom.DTMF_UP_CODE + 8, menu_item_x1, menu_item_x2, 4, 8);
 
-	if (gMenuCursor == MENU_DWCODE)
+	if (GetCurrentMenuId() == MENU_DWCODE)
 		if (strlen(gEeprom.DTMF_DOWN_CODE) > 8)
 			UI_PrintString(gEeprom.DTMF_DOWN_CODE + 8, menu_item_x1, menu_item_x2, 4, 8);
 
-	if (gMenuCursor == MENU_D_LIST && gIsDtmfContactValid)
+	if (GetCurrentMenuId() == MENU_D_LIST && gIsDtmfContactValid)
 	{
 		Contact[11] = 0;
 		memmove(&gDTMF_ID, Contact + 8, 4);
@@ -932,22 +936,22 @@ void UI_DisplayMenu(void)
 		UI_PrintString(String, menu_item_x1, menu_item_x2, 4, 8);
 	}
 
-	if (gMenuCursor == MENU_R_CTCS ||
-	    gMenuCursor == MENU_T_CTCS ||
-	    gMenuCursor == MENU_R_DCS  ||
-	    gMenuCursor == MENU_T_DCS  ||
-	    gMenuCursor == MENU_D_LIST)
+	if (GetCurrentMenuId() == MENU_R_CTCS ||
+	    GetCurrentMenuId() == MENU_T_CTCS ||
+	    GetCurrentMenuId() == MENU_R_DCS  ||
+	    GetCurrentMenuId() == MENU_T_DCS  ||
+	    GetCurrentMenuId() == MENU_D_LIST)
 	{
 		unsigned int Offset;
 		NUMBER_ToDigits(gSubMenuSelection, String);
-		Offset = (gMenuCursor == MENU_D_LIST) ? 2 : 3;
+		Offset = (GetCurrentMenuId() == MENU_D_LIST) ? 2 : 3;
 		UI_DisplaySmallDigits(Offset, String + (8 - Offset), 105, 0, false);
 	}
 
-	if ((gMenuCursor == MENU_RESET    ||
-	     gMenuCursor == MENU_MEM_CH   ||
-	     gMenuCursor == MENU_MEM_NAME ||
-	     gMenuCursor == MENU_DEL_CH) && gAskForConfirmation)
+	if ((GetCurrentMenuId() == MENU_RESET    ||
+	     GetCurrentMenuId() == MENU_MEM_CH   ||
+	     GetCurrentMenuId() == MENU_MEM_NAME ||
+	     GetCurrentMenuId() == MENU_DEL_CH) && gAskForConfirmation)
 	{	// display confirmation
 		strcpy(String, (gAskForConfirmation == 1) ? "SURE?" : "WAIT!");
 		UI_PrintString(String, menu_item_x1, menu_item_x2, 5, 8);

@@ -98,9 +98,9 @@ void MENU_StopCssScan(void)
 	RADIO_SetupRegisters(true);
 }
 
-int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax)
+int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 {
-	switch (Cursor)
+	switch (menu_id)
 	{
 		case MENU_SQL:
 			*pMin = 0;
@@ -340,14 +340,14 @@ void MENU_AcceptSetting(void)
 	uint8_t        Code;
 	FREQ_Config_t *pConfig = &gTxVfo->freq_config_RX;
 
-	if (!MENU_GetLimits(gMenuCursor, &Min, &Max))
+	if (!MENU_GetLimits(GetCurrentMenuId(), &Min, &Max))
 	{
 		if (gSubMenuSelection < Min) gSubMenuSelection = Min;
 		else
 		if (gSubMenuSelection > Max) gSubMenuSelection = Max;
 	}
 
-	switch (gMenuCursor)
+	switch (GetCurrentMenuId())
 	{
 		default:
 			return;
@@ -775,18 +775,17 @@ void MENU_SelectNextCode(void)
 {
 	int32_t UpperLimit;
 
-	if (gMenuCursor == MENU_R_DCS)
+	if (GetCurrentMenuId() == MENU_R_DCS)
 		UpperLimit = 208;
 		//UpperLimit = ARRAY_SIZE(DCS_Options);
-	else
-	if (gMenuCursor == MENU_R_CTCS)
+	else if (GetCurrentMenuId() == MENU_R_CTCS)
 		UpperLimit = ARRAY_SIZE(CTCSS_Options) - 1;
 	else
 		return;
 
 	gSubMenuSelection = NUMBER_AddWithWraparound(gSubMenuSelection, gMenuScrollDirection, 1, UpperLimit);
 
-	if (gMenuCursor == MENU_R_DCS)
+	if (GetCurrentMenuId() == MENU_R_DCS)
 	{
 		if (gSubMenuSelection > 104)
 		{
@@ -818,7 +817,7 @@ static void MENU_ClampSelection(int8_t Direction)
 	int32_t Min;
 	int32_t Max;
 
-	if (!MENU_GetLimits(gMenuCursor, &Min, &Max))
+	if (!MENU_GetLimits(GetCurrentMenuId(), &Min, &Max))
 	{
 		int32_t Selection = gSubMenuSelection;
 		if (Selection < Min) Selection = Min;
@@ -830,7 +829,7 @@ static void MENU_ClampSelection(int8_t Direction)
 
 void MENU_ShowCurrentSetting(void)
 {
-	switch (gMenuCursor)
+	switch (GetCurrentMenuId())
 	{
 		case MENU_SQL:
 			gSubMenuSelection = gEeprom.SQUELCH_LEVEL;
@@ -1150,7 +1149,7 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 	gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 
-	if (gMenuCursor == MENU_MEM_NAME && edit_index >= 0)
+	if (GetCurrentMenuId() == MENU_MEM_NAME && edit_index >= 0)
 	{	// currently editing the channel name
 
 		if (edit_index < 10)
@@ -1220,7 +1219,7 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		return;
 	}
 
-	if (gMenuCursor == MENU_OFFSET)
+	if (GetCurrentMenuId() == MENU_OFFSET)
 	{
 		uint32_t Frequency;
 
@@ -1242,8 +1241,11 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		gInputBoxIndex = 0;
 		return;
 	}
-
-	if (gMenuCursor == MENU_MEM_CH || gMenuCursor == MENU_DEL_CH || gMenuCursor == MENU_1_CALL || gMenuCursor == MENU_MEM_NAME)
+	
+	if (GetCurrentMenuId() == MENU_MEM_CH || 
+		GetCurrentMenuId() == MENU_DEL_CH || 
+		GetCurrentMenuId() == MENU_1_CALL || 
+		GetCurrentMenuId() == MENU_MEM_NAME)
 	{	// enter 3-digit channel number
 
 		if (gInputBoxIndex < 3)
@@ -1272,7 +1274,7 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		return;
 	}
 
-	if (MENU_GetLimits(gMenuCursor, &Min, &Max))
+	if (MENU_GetLimits(GetCurrentMenuId(), &Min, &Max))
 	{
 		gInputBoxIndex = 0;
 		gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
@@ -1317,7 +1319,7 @@ static void MENU_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 	{
 		if (gIsInSubMenu)
 		{
-			if (gInputBoxIndex == 0 || gMenuCursor != MENU_OFFSET)
+			if (gInputBoxIndex == 0 || GetCurrentMenuId() != MENU_OFFSET)
 			{
 				gAskForConfirmation = 0;
 				gIsInSubMenu        = false;
@@ -1374,12 +1376,12 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 	if (!gIsInSubMenu)
 	{
 		#ifdef ENABLE_VOICE
-			if (gMenuCursor != MENU_SCR)
+			if (GetCurrentMenuId() != MENU_SCR)
 				gAnotherVoiceID = MenuList[gMenuCursor].voice_id;
 		#endif
 
 		#if 1
-			if (gMenuCursor == MENU_DEL_CH || gMenuCursor == MENU_MEM_NAME)
+			if (GetCurrentMenuId() == MENU_DEL_CH || GetCurrentMenuId() == MENU_MEM_NAME)
 				if (!RADIO_CheckValidChannel(gSubMenuSelection, false, 0))
 					return;  // invalid channel
 		#endif
@@ -1387,7 +1389,7 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		gAskForConfirmation = 0;
 		gIsInSubMenu        = true;
 
-//		if (gMenuCursor != MENU_D_LIST)
+//		if (GetCurrentMenuId() != MENU_D_LIST)
 		{
 			gInputBoxIndex      = 0;
 			edit_index          = -1;
@@ -1396,7 +1398,7 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		return;
 	}
 
-	if (gMenuCursor == MENU_MEM_NAME)
+	if (GetCurrentMenuId() == MENU_MEM_NAME)
 	{
 		if (edit_index < 0)
 		{	// enter channel name edit mode
@@ -1443,10 +1445,10 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 
 	if (gIsInSubMenu)
 	{
-		if (gMenuCursor == MENU_RESET  ||
-			gMenuCursor == MENU_MEM_CH ||
-			gMenuCursor == MENU_DEL_CH ||
-			gMenuCursor == MENU_MEM_NAME)
+		if (GetCurrentMenuId() == MENU_RESET  ||
+			GetCurrentMenuId() == MENU_MEM_CH ||
+			GetCurrentMenuId() == MENU_DEL_CH ||
+			GetCurrentMenuId() == MENU_MEM_NAME)
 		{
 			switch (gAskForConfirmation)
 			{
@@ -1459,7 +1461,7 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 
 					UI_DisplayMenu();
 
-					if (gMenuCursor == MENU_RESET)
+					if (GetCurrentMenuId() == MENU_RESET)
 					{
 						#ifdef ENABLE_VOICE
 							AUDIO_SetVoiceID(0, VOICE_ID_CONFIRM);
@@ -1494,7 +1496,7 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 	}
 
 	#ifdef ENABLE_VOICE
-		if (gMenuCursor == MENU_SCR)
+		if (GetCurrentMenuId() == MENU_SCR)
 			gAnotherVoiceID = (gSubMenuSelection == 0) ? VOICE_ID_SCRAMBLER_OFF : VOICE_ID_SCRAMBLER_ON;
 		else
 			gAnotherVoiceID = VOICE_ID_CONFIRM;
@@ -1510,7 +1512,7 @@ static void MENU_Key_STAR(const bool bKeyPressed, const bool bKeyHeld)
 
 	gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 
-	if (gMenuCursor == MENU_MEM_NAME && edit_index >= 0)
+	if (GetCurrentMenuId() == MENU_MEM_NAME && edit_index >= 0)
 	{	// currently editing the channel name
 
 		if (edit_index < 10)
@@ -1537,7 +1539,7 @@ static void MENU_Key_STAR(const bool bKeyPressed, const bool bKeyHeld)
 		if (gRxVfo->AM_mode == 0)
 	#endif
 	{
-		if (gMenuCursor == MENU_R_CTCS || gMenuCursor == MENU_R_DCS)
+		if (GetCurrentMenuId() == MENU_R_CTCS || GetCurrentMenuId() == MENU_R_DCS)
 		{	// scan CTCSS or DCS to find the tone/code of the incoming signal
 
 			if (gCssScanMode == CSS_SCAN_MODE_OFF)
@@ -1572,7 +1574,7 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 	uint8_t Channel;
 	bool    bCheckScanList;
 
-	if (gMenuCursor == MENU_MEM_NAME && gIsInSubMenu && edit_index >= 0)
+	if (GetCurrentMenuId() == MENU_MEM_NAME && gIsInSubMenu && edit_index >= 0)
 	{	// change the character
 		if (bKeyPressed && edit_index < 10 && Direction != 0)
 		{
@@ -1624,7 +1626,7 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 
 		gRequestDisplayScreen = DISPLAY_MENU;
 
-		if (gMenuCursor != MENU_ABR && gEeprom.BACKLIGHT == 0)
+		if (GetCurrentMenuId() != MENU_ABR && gEeprom.BACKLIGHT == 0)
 		{
 			gBacklightCountdown = 0;
 			GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
@@ -1633,7 +1635,7 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 		return;
 	}
 
-	if (gMenuCursor == MENU_OFFSET)
+	if (GetCurrentMenuId() == MENU_OFFSET)
 	{
 		int32_t Offset = (Direction * gTxVfo->StepFrequency) + gSubMenuSelection;
 		if (Offset < 99999990)
@@ -1654,7 +1656,7 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 	#pragma GCC diagnostic push
 	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
 
-	switch (gMenuCursor)
+	switch (GetCurrentMenuId())
 	{
 		case MENU_DEL_CH:
 		case MENU_1_CALL:
@@ -1715,7 +1717,7 @@ void MENU_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			MENU_Key_STAR(bKeyPressed, bKeyHeld);
 			break;
 		case KEY_F:
-			if (gMenuCursor == MENU_MEM_NAME && edit_index >= 0)
+			if (GetCurrentMenuId() == MENU_MEM_NAME && edit_index >= 0)
 			{	// currently editing the channel name
 				if (!bKeyHeld && bKeyPressed)
 				{
@@ -1747,11 +1749,11 @@ void MENU_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 	if (gScreenToDisplay == DISPLAY_MENU)
 	{
-		if (gMenuCursor == MENU_VOL ||
+		if (GetCurrentMenuId() == MENU_VOL ||
 			#ifdef ENABLE_F_CAL_MENU
-				gMenuCursor == MENU_F_CALI ||
+				GetCurrentMenuId() == MENU_F_CALI ||
 		    #endif
-			gMenuCursor == MENU_BATCAL)
+			GetCurrentMenuId() == MENU_BATCAL)
 		{
 			gMenuCountdown = menu_timeout_long_500ms;
 		}

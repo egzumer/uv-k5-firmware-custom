@@ -1788,7 +1788,7 @@ void APP_TimeSlice500ms(void)
 	#endif
 
 	if (gBacklightCountdown > 0 && !gAskToSave && gCssScanMode == CSS_SCAN_MODE_OFF)
-		if (gScreenToDisplay != DISPLAY_MENU || gMenuCursor != MENU_ABR) // don't turn off backlight if user is in backlight menu option
+		if (gScreenToDisplay != DISPLAY_MENU || GetCurrentMenuId() != MENU_ABR) // don't turn off backlight if user is in backlight menu option
 			if (--gBacklightCountdown == 0)
 				if (gEeprom.BACKLIGHT < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1))
 					GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);   // turn backlight off

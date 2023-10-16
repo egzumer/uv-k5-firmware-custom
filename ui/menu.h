@@ -155,6 +155,7 @@ extern const char        gSubMenu_SCRAMBLER[11][7];
 extern bool              gIsInSubMenu;
 				         
 extern uint8_t           gMenuCursor;
+int GetCurrentMenuId();
 extern int8_t            gMenuScrollDirection;
 extern int32_t           gSubMenuSelection;
 				         

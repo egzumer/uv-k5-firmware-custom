@@ -23,7 +23,7 @@
 	void writeXtalFreqCal(const int32_t value, const bool update_eeprom);
 #endif
 
-int MENU_GetLimits(uint8_t Cursor, int32_t *pMin, int32_t *pMax);
+int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax);
 void MENU_AcceptSetting(void);
 void MENU_SelectNextCode(void);
 void MENU_ShowCurrentSetting(void);

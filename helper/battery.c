@@ -106,7 +106,7 @@ void BATTERY_GetReadings(const bool bDisplayBatteryLevel)
 
 	gBatteryVoltageAverage = (Voltage * 760) / gBatteryCalibration[3];
 
-	if ((gScreenToDisplay == DISPLAY_MENU) && gMenuCursor == MENU_VOL)
+	if ((gScreenToDisplay == DISPLAY_MENU) && GetCurrentMenuId() == MENU_VOL)
 		gUpdateDisplay = true;
 
 	if (gBatteryCurrent < 501)
