@@ -277,7 +277,6 @@ extern uint16_t              gLowBatteryCountdown;
 extern uint8_t               gNextMrChannel;
 extern ReceptionMode_t       gRxReceptionMode;
 
-extern uint8_t               gRestoreMrChannel;
 extern scan_next_chan_t      gCurrentScanList;
 extern uint32_t              gRestoreFrequency;
 

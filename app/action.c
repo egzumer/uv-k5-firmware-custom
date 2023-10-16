@@ -193,7 +193,7 @@ void ACTION_Scan(bool bRestart)
 					gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) % 3;
 
 					// jump to the next channel
-					CHANNEL_Next(true, gScanStateDir);
+					SCANNER_NextChannel(false, gScanStateDir);
 					gScanPauseDelayIn_10ms = 1;
 					gScheduleScanListen    = false;
 
@@ -212,7 +212,7 @@ void ACTION_Scan(bool bRestart)
 			else
 			{	// start scanning
 	
-				CHANNEL_Next(true, SCAN_FWD);
+				SCANNER_NextChannel(true, SCAN_FWD);
 
 				#ifdef ENABLE_VOICE
 					AUDIO_SetVoiceID(0, VOICE_ID_SCANNING_BEGIN);
@@ -235,7 +235,7 @@ void ACTION_Scan(bool bRestart)
 		gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) % 3;
 
 		// jump to the next channel
-		CHANNEL_Next(true, gScanStateDir);
+		SCANNER_NextChannel(false, gScanStateDir);
 		gScanPauseDelayIn_10ms = 1;
 		gScheduleScanListen    = false;
 

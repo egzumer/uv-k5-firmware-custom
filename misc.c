@@ -205,7 +205,6 @@ uint16_t          gLowBatteryCountdown;
 uint8_t           gNextMrChannel;
 ReceptionMode_t   gRxReceptionMode;
 
-uint8_t                gRestoreMrChannel;
 enum scan_next_chan_t  gCurrentScanList;
 uint32_t               gRestoreFrequency;
 

@@ -803,7 +803,7 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 	}
 
 	// jump to the next channel
-	CHANNEL_Next(false, Direction);
+	SCANNER_NextChannel(false, Direction);
 	gScanPauseDelayIn_10ms = 1;
 	gScheduleScanListen    = false;
 

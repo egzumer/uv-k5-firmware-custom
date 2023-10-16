@@ -58,6 +58,8 @@ extern bool              bScanKeepFrequency;
 void SCANNER_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 void SCANNER_Start(void);
 void SCANNER_Stop(void);
+void SCANNER_NextChannel(const bool storeBackupSettings, const int8_t scan_direction);
+void SCANNER_ContinueScanning();
 
 #endif
 
