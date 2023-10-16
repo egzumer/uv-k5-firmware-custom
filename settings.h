@@ -220,6 +220,7 @@ typedef struct {
 
 	uint8_t _pad[1];
 } EEPROM_Config_t;
+
 extern EEPROM_Config_t gEeprom;
 
 #ifdef ENABLE_FMRADIO
