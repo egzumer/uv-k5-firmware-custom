@@ -581,13 +581,11 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 	BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_GREEN, false);
 
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
-
 	switch (Bandwidth)
 	{
 		default:
 			Bandwidth = BK4819_FILTER_BW_WIDE;
+			[[fallthrough]];
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
 			#ifdef ENABLE_AM_FIX
@@ -598,8 +596,6 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 			#endif
 			break;
 	}
-
-	#pragma GCC diagnostic pop
 
 	BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, false);
 
@@ -835,13 +831,11 @@ void RADIO_SetTxParameters(void)
 
 	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, false);
 
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
-
 	switch (Bandwidth)
 	{
 		default:
 			Bandwidth = BK4819_FILTER_BW_WIDE;
+			[[fallthrough]];
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
 			#ifdef ENABLE_AM_FIX
@@ -852,8 +846,6 @@ void RADIO_SetTxParameters(void)
 			#endif
 			break;
 	}
-
-	#pragma GCC diagnostic pop
 
 	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency);
 

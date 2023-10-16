@@ -356,13 +356,11 @@ void DTMF_HandleRequest(void)
 
 			gUpdateDisplay = true;
 
-			#pragma GCC diagnostic push
-			#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
-
 			switch (gEeprom.DTMF_DECODE_RESPONSE)
 			{
 				case DTMF_DEC_RESPONSE_BOTH:
 					gDTMF_DecodeRingCountdown_500ms = DTMF_decode_ring_countdown_500ms;
+					[[fallthrough]];
 				case DTMF_DEC_RESPONSE_REPLY:
 					gDTMF_ReplyState = DTMF_REPLY_AAAAA;
 					break;
@@ -375,8 +373,6 @@ void DTMF_HandleRequest(void)
 					gDTMF_ReplyState = DTMF_REPLY_NONE;
 					break;
 			}
-
-			#pragma GCC diagnostic pop
 
 			if (gDTMF_IsGroupCall)
 				gDTMF_ReplyState = DTMF_REPLY_NONE;

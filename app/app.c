@@ -650,9 +650,6 @@ static void MR_NextChannel(void)
 
 	if (enabled)
 	{
-		#pragma GCC diagnostic push
-		#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
-
 		switch (gCurrentScanList)
 		{
 			case SCAN_NEXT_CHAN_SCANLIST1:
@@ -667,7 +664,7 @@ static void MR_NextChannel(void)
 						break;
 					}
 				}
-				
+				[[fallthrough]];
 			case SCAN_NEXT_CHAN_SCANLIST2:
 				if (chan2 >= 0)
 				{
@@ -678,6 +675,7 @@ static void MR_NextChannel(void)
 						break;
 					}
 				}
+				[[fallthrough]];
 				
 			// this bit doesn't yet work if the other VFO is a frequency
 			case SCAN_NEXT_CHAN_DUAL_WATCH:
@@ -701,8 +699,6 @@ static void MR_NextChannel(void)
 				chan             = 0xff;
 				break;
 		}
-
-		#pragma GCC diagnostic pop
 	}
 
 	if (!enabled || chan == 0xff)
@@ -2229,7 +2225,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		}
 	}
 
-	if ((Key >= KEY_0 && Key <= KEY_9) || Key == KEY_F)
+	if (Key <= KEY_9 || Key == KEY_F)
 	{
 		if (gScanStateDir != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF)
 		{	// FREQ/CTCSS/DCS scanning

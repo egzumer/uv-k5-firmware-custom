@@ -29,7 +29,7 @@ void INPUTBOX_Append(const KEY_Code_t Digit)
 	if (gInputBoxIndex == 0)
 		memset(gInputBox, 10, sizeof(gInputBox));
 
-	if (Digit >= KEY_0 && Digit != KEY_INVALID)
+	if (Digit != KEY_INVALID)
 		gInputBox[gInputBoxIndex++] = (char)(Digit - KEY_0);
 }
 

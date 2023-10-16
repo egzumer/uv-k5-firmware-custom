@@ -14,10 +14,6 @@
  *     limitations under the License.
  */
 
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
-	#pragma GCC diagnostic pop
-
 #include <string.h>
 #include <stdlib.h>  // abs()
 
@@ -46,23 +42,18 @@ center_line_t center_line = CENTER_LINE_NONE;
 
 void UI_drawBars(uint8_t *p, const unsigned int level)
 {
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
-
 	switch (level)
 	{
 		default:
-		case 7: memmove(p + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
-		case 6: memmove(p + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
-		case 5: memmove(p + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
-		case 4: memmove(p + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
-		case 3: memmove(p +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
-		case 2: memmove(p +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
+		case 7: memmove(p + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6)); [[fallthrough]];
+		case 6: memmove(p + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5)); [[fallthrough]];
+		case 5: memmove(p + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4)); [[fallthrough]];
+		case 4: memmove(p + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3)); [[fallthrough]];
+		case 3: memmove(p +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2)); [[fallthrough]];
+		case 2: memmove(p +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1)); [[fallthrough]];
 		case 1: memmove(p +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna)); break;
 		case 0: memset( p +  0, 0,                    sizeof(BITMAP_Antenna)); break;
 	}
-
-	#pragma GCC diagnostic pop
 }
 
 #ifdef ENABLE_AUDIO_BAR
@@ -501,8 +492,6 @@ void UI_DisplayMain(void)
 				
 				#endif
 
-				#pragma GCC diagnostic push
-				#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
 
 				switch (gEeprom.CHANNEL_DISPLAY_MODE)
 				{
@@ -553,8 +542,6 @@ void UI_DisplayMain(void)
 
 						break;
 				}
-				
-				#pragma GCC diagnostic pop
 			}
 			else
 			{	// frequency mode

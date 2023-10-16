@@ -209,7 +209,7 @@ endif
 #CFLAGS += -Wpadded
 
 # catch any and all warnings
-#CFLAGS += -Wextra
+CFLAGS += -Wextra
 
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"

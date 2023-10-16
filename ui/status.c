@@ -142,7 +142,7 @@ void UI_DisplayStatus(const bool test_display)
 		x += sizeof(BITMAP_VOX) + 2;
 	#endif
 
-	x = MAX(x, 61);
+	x = MAX(x, 61u);
 	x1 = x;
 
 	// KEY-LOCK indicator
