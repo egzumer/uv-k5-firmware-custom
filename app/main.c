@@ -202,7 +202,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 		case KEY_5:
 			if(beep) {
-			#ifdef ENABLE_NOAA
+#ifdef ENABLE_NOAA
 
 				if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 				{
@@ -211,9 +211,9 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				else
 				{
 					gEeprom.ScreenChannel[Vfo] = gEeprom.FreqChannel[gEeprom.TX_VFO];
-					#ifdef ENABLE_VOICE
+#ifdef ENABLE_VOICE
 						gAnotherVoiceID = VOICE_ID_FREQUENCY_MODE;
-					#endif
+#endif
 				}
 				gRequestSaveVFO   = true;
 				gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
@@ -223,9 +223,9 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 #endif
 			}
 			else {
-			#ifdef ENABLE_VOX
+#ifdef ENABLE_VOX
 				toggle_chan_scanlist();
-			#endif
+#endif
 			}
 
 			break;
@@ -235,11 +235,11 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			break;
 
 		case KEY_7:
-			#ifdef ENABLE_VOX
-				ACTION_Vox();
-			#else
-				toggle_chan_scanlist();
-			#endif
+#ifdef ENABLE_VOX
+			ACTION_Vox();
+#else
+			toggle_chan_scanlist();
+#endif
 			break;
 
 		case KEY_8:
@@ -252,11 +252,11 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			{
 				gEeprom.MrChannel[Vfo]     = gEeprom.CHAN_1_CALL;
 				gEeprom.ScreenChannel[Vfo] = gEeprom.CHAN_1_CALL;
-				#ifdef ENABLE_VOICE
-					AUDIO_SetVoiceID(0, VOICE_ID_CHANNEL_MODE);
-					AUDIO_SetDigitVoice(1, gEeprom.CHAN_1_CALL + 1);
-					gAnotherVoiceID        = (VOICE_ID_t)0xFE;
-				#endif
+#ifdef ENABLE_VOICE
+				AUDIO_SetVoiceID(0, VOICE_ID_CHANNEL_MODE);
+				AUDIO_SetDigitVoice(1, gEeprom.CHAN_1_CALL + 1);
+				gAnotherVoiceID        = (VOICE_ID_t)0xFE;
+#endif
 				gRequestSaveVFO            = true;
 				gVfoConfigureMode          = VFO_CONFIGURE_RELOAD;
 				break;
@@ -647,28 +647,28 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 		return;
 	}
 
-	if (bKeyHeld && !gWasFKeyPressed)
-	{	// long press .. toggle scanning
-		if (!bKeyPressed)
-			return; // released
+	if (bKeyHeld && !gWasFKeyPressed) // long press
+	{	 
+		if (!bKeyPressed) // released
+			return; 
 
-		ACTION_Scan(false);
+		ACTION_Scan(false);// toggle scanning
 
 		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 		return;
 	}
 
-	if (bKeyPressed)
-	{	// just pressed
-//		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+	if (bKeyPressed) // just pressed
+	{	
+		// gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 		gBeepToPlay = BEEP_880HZ_40MS_OPTIONAL;
 		return;
 	}
 	
 	// just released
 	
-	if (!gWasFKeyPressed)
-	{	// pressed without the F-key
+	if (!gWasFKeyPressed) // pressed without the F-key
+	{	
 
 		#ifdef ENABLE_NOAA
 			if (gScanStateDir == SCAN_OFF && IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))

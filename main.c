@@ -167,21 +167,21 @@ void Main(void)
 					boot_counter_10ms = 0;
 					break;
 				}
-				#ifdef ENABLE_BOOT_BEEPS
-					if ((boot_counter_10ms % 25) == 0)
-						AUDIO_PlayBeep(BEEP_880HZ_40MS_OPTIONAL);
-				#endif
+#ifdef ENABLE_BOOT_BEEPS
+				if ((boot_counter_10ms % 25) == 0)
+					AUDIO_PlayBeep(BEEP_880HZ_40MS_OPTIONAL);
+#endif
 			}
 		}
 
-		#ifdef ENABLE_PWRON_PASSWORD
-			if (gEeprom.POWER_ON_PASSWORD < 1000000)
-			{
-				bIsInLockScreen = true;
-				UI_DisplayLock();
-				bIsInLockScreen = false;
-			}
-		#endif
+#ifdef ENABLE_PWRON_PASSWORD
+		if (gEeprom.POWER_ON_PASSWORD < 1000000)
+		{
+			bIsInLockScreen = true;
+			UI_DisplayLock();
+			bIsInLockScreen = false;
+		}
+#endif
 
 		BOOT_ProcessMode(BootMode);
 
@@ -189,7 +189,7 @@ void Main(void)
 
 		gUpdateStatus = true;
 
-		#ifdef ENABLE_VOICE
+#ifdef ENABLE_VOICE
 		{
 			uint8_t Channel;
 
@@ -201,17 +201,16 @@ void Main(void)
 				AUDIO_SetVoiceID(1, VOICE_ID_CHANNEL_MODE);
 				AUDIO_SetDigitVoice(2, Channel + 1);
 			}
-			else
-			if (IS_FREQ_CHANNEL(Channel))
+			else if (IS_FREQ_CHANNEL(Channel))
 				AUDIO_SetVoiceID(1, VOICE_ID_FREQUENCY_MODE);
 
 			AUDIO_PlaySingleVoice(0);
 		}
-		#endif
+#endif
 
-		#ifdef ENABLE_NOAA
-			RADIO_ConfigureNOAA();
-		#endif
+#ifdef ENABLE_NOAA
+		RADIO_ConfigureNOAA();
+#endif
 
 		// ******************
 	}

@@ -943,38 +943,38 @@ void APP_Update(void)
 	if (gCurrentFunction != FUNCTION_TRANSMIT)
 		APP_HandleFunction();
 
-	#ifdef ENABLE_FMRADIO
-//		if (gFmRadioCountdown_500ms > 0)
-		if (gFmRadioMode && gFmRadioCountdown_500ms > 0)    // 1of11
-			return;
-	#endif
+#ifdef ENABLE_FMRADIO
+//	if (gFmRadioCountdown_500ms > 0)
+	if (gFmRadioMode && gFmRadioCountdown_500ms > 0)    // 1of11
+		return;
+#endif
 
-	#ifdef ENABLE_VOICE
-		if (gScreenToDisplay != DISPLAY_SCANNER && gScanStateDir != SCAN_OFF && gScheduleScanListen && !gPttIsPressed && gVoiceWriteIndex == 0)
-	#else
-		if (gScreenToDisplay != DISPLAY_SCANNER && gScanStateDir != SCAN_OFF && gScheduleScanListen && !gPttIsPressed)
-	#endif
+#ifdef ENABLE_VOICE
+	if (gScreenToDisplay != DISPLAY_SCANNER && gScanStateDir != SCAN_OFF && gScheduleScanListen && !gPttIsPressed && gVoiceWriteIndex == 0)
+#else
+	if (gScreenToDisplay != DISPLAY_SCANNER && gScanStateDir != SCAN_OFF && gScheduleScanListen && !gPttIsPressed)
+#endif
 	{	// scanning
 		SCANNER_ContinueScanning();
 	}
 
-	#ifdef ENABLE_VOICE
-		if (gCssScanMode == CSS_SCAN_MODE_SCANNING && gScheduleScanListen && gVoiceWriteIndex == 0)
-	#else
-		if (gCssScanMode == CSS_SCAN_MODE_SCANNING && gScheduleScanListen)
-	#endif
+#ifdef ENABLE_VOICE
+	if (gCssScanMode == CSS_SCAN_MODE_SCANNING && gScheduleScanListen && gVoiceWriteIndex == 0)
+#else
+	if (gCssScanMode == CSS_SCAN_MODE_SCANNING && gScheduleScanListen)
+#endif
 	{
 		MENU_SelectNextCode();
 
 		gScheduleScanListen = false;
 	}
 
-	#ifdef ENABLE_NOAA
-		#ifdef ENABLE_VOICE
-			if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gIsNoaaMode && gScheduleNOAA && gVoiceWriteIndex == 0)
-		#else
-			if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gIsNoaaMode && gScheduleNOAA)
-		#endif
+#ifdef ENABLE_NOAA
+#ifdef ENABLE_VOICE
+		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gIsNoaaMode && gScheduleNOAA && gVoiceWriteIndex == 0)
+#else
+		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gIsNoaaMode && gScheduleNOAA)
+#endif
 		{
 			NOAA_IncreaseChannel();
 			RADIO_SetupRegisters(false);
@@ -982,23 +982,23 @@ void APP_Update(void)
 			gNOAA_Countdown_10ms = 7;      // 70ms
 			gScheduleNOAA        = false;
 		}
-	#endif
+#endif
 
 	// toggle between the VFO's if dual watch is enabled
 	if (gScreenToDisplay != DISPLAY_SCANNER && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 	{
-		#ifdef ENABLE_VOICE
-			if (gScheduleDualWatch && gVoiceWriteIndex == 0)
-		#else
-			if (gScheduleDualWatch)
-		#endif
+#ifdef ENABLE_VOICE
+		if (gScheduleDualWatch && gVoiceWriteIndex == 0)
+#else
+		if (gScheduleDualWatch)
+#endif
 		{
 			if (gScanStateDir == SCAN_OFF && gCssScanMode == CSS_SCAN_MODE_OFF)
 			{
 				if (!gPttIsPressed &&
-					#ifdef ENABLE_FMRADIO
-						!gFmRadioMode &&
-					#endif
+#ifdef ENABLE_FMRADIO
+					!gFmRadioMode &&
+#endif
 				    gDTMF_CallState == DTMF_CALL_STATE_NONE &&
 				    gCurrentFunction != FUNCTION_POWER_SAVE)
 				{
@@ -1016,89 +1016,89 @@ void APP_Update(void)
 		}
 	}
 
-	#ifdef ENABLE_FMRADIO
-		if (gScheduleFM                          &&
-			gFM_ScanState    != FM_SCAN_OFF      &&
-			gCurrentFunction != FUNCTION_MONITOR &&
-			gCurrentFunction != FUNCTION_RECEIVE &&
-			gCurrentFunction != FUNCTION_TRANSMIT)
-		{	// switch to FM radio mode
-			FM_Play();
-			gScheduleFM = false;
-		}
-	#endif
+#ifdef ENABLE_FMRADIO
+	if (gScheduleFM                          &&
+		gFM_ScanState    != FM_SCAN_OFF      &&
+		gCurrentFunction != FUNCTION_MONITOR &&
+		gCurrentFunction != FUNCTION_RECEIVE &&
+		gCurrentFunction != FUNCTION_TRANSMIT)
+	{	// switch to FM radio mode
+		FM_Play();
+		gScheduleFM = false;
+	}
+#endif
 
-	#ifdef ENABLE_VOX
-		if (gEeprom.VOX_SWITCH)
-			APP_HandleVox();
-	#endif
+#ifdef ENABLE_VOX
+	if (gEeprom.VOX_SWITCH)
+		APP_HandleVox();
+#endif
 
 	if (gSchedulePowerSave)
 	{
-		#ifdef ENABLE_NOAA
-			if (
-				#ifdef ENABLE_FMRADIO
-					gFmRadioMode                  ||
-			    #endif
-				gPttIsPressed                     ||
-			    gKeyBeingHeld                     ||
-				gEeprom.BATTERY_SAVE == 0         ||
-			    gScanStateDir != SCAN_OFF         ||
-			    gCssScanMode != CSS_SCAN_MODE_OFF ||
-			    gScreenToDisplay != DISPLAY_MAIN  ||
-			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
-			{
-				gBatterySaveCountdown_10ms   = battery_save_count_10ms;
-			}
-			else if ((IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
-			{
-				//if (gCurrentFunction != FUNCTION_POWER_SAVE)
-					FUNCTION_Select(FUNCTION_POWER_SAVE);
-			}
-			else
-			{
-				gBatterySaveCountdown_10ms = battery_save_count_10ms;
-			}
-		#else
-			if (
-				#ifdef ENABLE_FMRADIO
-					gFmRadioMode                  ||
-			    #endif
-				gPttIsPressed                     ||
-			    gKeyBeingHeld                     ||
-				gEeprom.BATTERY_SAVE == 0         ||
-			    gScanStateDir != SCAN_OFF         ||
-			    gCssScanMode != CSS_SCAN_MODE_OFF ||
-			    gScreenToDisplay != DISPLAY_MAIN  ||
-			    gDTMF_CallState != DTMF_CALL_STATE_NONE)
-			{
-				gBatterySaveCountdown_10ms = battery_save_count_10ms;
-			}
-			else
-			{
-				//if (gCurrentFunction != FUNCTION_POWER_SAVE)
-					FUNCTION_Select(FUNCTION_POWER_SAVE);
-			}
+#ifdef ENABLE_NOAA
+		if (
+#ifdef ENABLE_FMRADIO
+			gFmRadioMode                  ||
+#endif
+			gPttIsPressed                     ||
+		    gKeyBeingHeld                     ||
+			gEeprom.BATTERY_SAVE == 0         ||
+		    gScanStateDir != SCAN_OFF         ||
+		    gCssScanMode != CSS_SCAN_MODE_OFF ||
+		    gScreenToDisplay != DISPLAY_MAIN  ||
+		    gDTMF_CallState != DTMF_CALL_STATE_NONE)
+		{
+			gBatterySaveCountdown_10ms   = battery_save_count_10ms;
+		}
+		else if ((IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
+		{
+			//if (gCurrentFunction != FUNCTION_POWER_SAVE)
+				FUNCTION_Select(FUNCTION_POWER_SAVE);
+		}
+		else
+		{
+			gBatterySaveCountdown_10ms = battery_save_count_10ms;
+		}
+#else
+		if (
+#ifdef ENABLE_FMRADIO
+				gFmRadioMode                  ||
+#endif
+			gPttIsPressed                     ||
+		    gKeyBeingHeld                     ||
+			gEeprom.BATTERY_SAVE == 0         ||
+		    gScanStateDir != SCAN_OFF         ||
+		    gCssScanMode != CSS_SCAN_MODE_OFF ||
+		    gScreenToDisplay != DISPLAY_MAIN  ||
+		    gDTMF_CallState != DTMF_CALL_STATE_NONE)
+		{
+			gBatterySaveCountdown_10ms = battery_save_count_10ms;
+		}
+		else
+		{
+			//if (gCurrentFunction != FUNCTION_POWER_SAVE)
+				FUNCTION_Select(FUNCTION_POWER_SAVE);
+		}
 
-			gSchedulePowerSave = false;
-		#endif
+		gSchedulePowerSave = false;
+#endif
 	}
 
-	#ifdef ENABLE_VOICE
-		if (gPowerSaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE && gVoiceWriteIndex == 0)
-	#else
-		if (gPowerSaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE)
-	#endif
+#ifdef ENABLE_VOICE
+	if (gPowerSaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE && gVoiceWriteIndex == 0)
+#else
+	if (gPowerSaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE)
+#endif
 	{	// wake up, enable RX then go back to sleep
 
 		if (gRxIdleMode)
 		{
 			BK4819_Conditional_RX_TurnOn_and_GPIO6_Enable();
 
-			#ifdef ENABLE_VOX
-				if (gEeprom.VOX_SWITCH)
-					BK4819_EnableVox(gEeprom.VOX1_THRESHOLD, gEeprom.VOX0_THRESHOLD);
-			#endif
+#ifdef ENABLE_VOX
+			if (gEeprom.VOX_SWITCH)
+				BK4819_EnableVox(gEeprom.VOX1_THRESHOLD, gEeprom.VOX0_THRESHOLD);
+#endif
 
 			if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF &&
 			    gScanStateDir == SCAN_OFF &&

@@ -161,20 +161,20 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 	if (IS_VALID_CHANNEL(Channel))
 	{
-		#ifdef ENABLE_NOAA
-			if (Channel >= NOAA_CHANNEL_FIRST)
-			{
-				RADIO_InitInfo(pRadio, gEeprom.ScreenChannel[VFO], NoaaFrequencyTable[Channel - NOAA_CHANNEL_FIRST]);
+#ifdef ENABLE_NOAA
+		if (Channel >= NOAA_CHANNEL_FIRST)
+		{
+			RADIO_InitInfo(pRadio, gEeprom.ScreenChannel[VFO], NoaaFrequencyTable[Channel - NOAA_CHANNEL_FIRST]);
 
-				if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF)
-					return;
-
-				gEeprom.CROSS_BAND_RX_TX = CROSS_BAND_OFF;
-
-				gUpdateStatus = true;
+			if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF)
 				return;
-			}
-		#endif
+
+			gEeprom.CROSS_BAND_RX_TX = CROSS_BAND_OFF;
+
+			gUpdateStatus = true;
+			return;
+		}
+#endif
 
 		if (Channel <= MR_CHANNEL_LAST)
 		{
