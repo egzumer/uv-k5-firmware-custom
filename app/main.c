@@ -130,19 +130,12 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			break;
 
 		case KEY_2:
-			if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_CHAN_A)
-				gEeprom.CROSS_BAND_RX_TX = CROSS_BAND_CHAN_B;
-			else
-			if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_CHAN_B)
-				gEeprom.CROSS_BAND_RX_TX = CROSS_BAND_CHAN_A;
-			else
-			if (gEeprom.DUAL_WATCH == DUAL_WATCH_CHAN_A)
-				gEeprom.DUAL_WATCH = DUAL_WATCH_CHAN_B;
-			else
-			if (gEeprom.DUAL_WATCH == DUAL_WATCH_CHAN_B)
-				gEeprom.DUAL_WATCH = DUAL_WATCH_CHAN_A;
-			else
-				gEeprom.TX_VFO = (Vfo + 1) & 1u;
+			gEeprom.TX_VFO ^= 1;
+
+			if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)
+				gEeprom.CROSS_BAND_RX_TX = gEeprom.TX_VFO + 1;
+			if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
+				gEeprom.DUAL_WATCH = gEeprom.TX_VFO + 1;
 
 			gRequestSaveSettings  = 1;
 			gFlagReconfigureVfos  = true;
@@ -586,7 +579,7 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 							}
 						}
 						
-						const unsigned int vfo = get_rx_VFO();
+						const uint8_t vfo = gEeprom.TX_VFO;
 
 						if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo]))
 						{	// copy channel to VFO, then swap to the VFO

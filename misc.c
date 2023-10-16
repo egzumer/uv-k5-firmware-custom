@@ -258,40 +258,6 @@ int16_t           gCurrentRSSI[2] = {0, 0};  // now one per VFO
 
 uint8_t           gIsLocked = 0xFF;
 
-unsigned int get_rx_VFO(void)
-{
-	unsigned int rx_vfo = gEeprom.TX_VFO;
-	if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_CHAN_B)
-		rx_vfo = 0;
-	else
-	if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_CHAN_A)
-		rx_vfo = 1;
-	else
-	if (gEeprom.DUAL_WATCH == DUAL_WATCH_CHAN_B)
-		rx_vfo = 1;
-	else
-	if (gEeprom.DUAL_WATCH == DUAL_WATCH_CHAN_A)
-		rx_vfo = 0;
-	return rx_vfo;
-}
-
-unsigned int get_tx_VFO(void)
-{
-	unsigned int tx_vfo = gEeprom.TX_VFO;
-	if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_CHAN_B)
-		tx_vfo = 1;
-	else
-	if (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_CHAN_A)
-		tx_vfo = 0;
-	else
-	if (gEeprom.DUAL_WATCH == DUAL_WATCH_CHAN_B)
-		tx_vfo = 1;
-	else
-	if (gEeprom.DUAL_WATCH == DUAL_WATCH_CHAN_A)
-		tx_vfo = 0;
-	return tx_vfo;
-}
-
 void NUMBER_Get(char *pDigits, uint32_t *pInteger)
 {
 	unsigned int i;

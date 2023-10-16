@@ -560,8 +560,7 @@ static void RADIO_SelectCurrentVfo(void)
 
 void RADIO_SelectVfos(void)
 {
-	gEeprom.TX_VFO = get_tx_VFO();
-	gEeprom.RX_VFO = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.TX_VFO : (gEeprom.TX_VFO + 1) & 1u;
+	gEeprom.RX_VFO = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.TX_VFO : !gEeprom.TX_VFO;
 
 	gTxVfo = &gEeprom.VfoInfo[gEeprom.TX_VFO];
 	gRxVfo = &gEeprom.VfoInfo[gEeprom.RX_VFO];
