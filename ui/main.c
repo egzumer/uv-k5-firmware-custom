@@ -58,8 +58,8 @@ void UI_drawBars(uint8_t *p, const unsigned int level)
 		case 4: memmove(p + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
 		case 3: memmove(p +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
 		case 2: memmove(p +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
-		case 1: memmove(p +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna));
-		case 0: break;
+		case 1: memmove(p +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna)); break;
+		case 0: memset( p +  0, 0,                    sizeof(BITMAP_Antenna)); break;
 	}
 
 	#pragma GCC diagnostic pop
@@ -218,24 +218,13 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 		const uint8_t Line  = (vfo == 0) ? 3 : 7;
 		uint8_t      *p_line = gFrameBuffer[Line - 1];
 
-		// TODO: sort out all 8 values from the eeprom
 
-		#if 0
-			// dBm     -105  -100  -95   -90      -70   -65   -60   -55
-			// RSSI     110   120   130   140      180   190   200   210
-			// 0000C0   6E 00 78 00 82 00 8C 00    B4 00 BE 00 C8 00 D2 00
-			//
-			const unsigned int band = 1;
-			const int16_t level0  = gEEPROM_RSSI_CALIB[band][0];
-			const int16_t level1  = gEEPROM_RSSI_CALIB[band][1];
-			const int16_t level2  = gEEPROM_RSSI_CALIB[band][2];
-			const int16_t level3  = gEEPROM_RSSI_CALIB[band][3];
-		#else
-			const int16_t level0  = (-115 + 160) * 2;   // dB
-			const int16_t level1  = ( -89 + 160) * 2;   // dB
-			const int16_t level2  = ( -64 + 160) * 2;   // dB
-			const int16_t level3  = ( -39 + 160) * 2;   // dB
-		#endif
+		const unsigned int band = gRxVfo->Band;
+		const int16_t level0  = gEEPROM_RSSI_CALIB[band][0];
+		const int16_t level1  = gEEPROM_RSSI_CALIB[band][1];
+		const int16_t level2  = gEEPROM_RSSI_CALIB[band][2];
+		const int16_t level3  = gEEPROM_RSSI_CALIB[band][3];
+
 		const int16_t level01 = (level0 + level1) / 2;
 		const int16_t level12 = (level1 + level2) / 2;
 		const int16_t level23 = (level2 + level3) / 2;

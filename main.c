@@ -84,7 +84,7 @@ void Main(void)
 
 	BOARD_EEPROM_Init();
 
-	BOARD_EEPROM_LoadMoreSettings();
+	BOARD_EEPROM_LoadCalibration();
 
 	RADIO_ConfigureChannel(0, VFO_CONFIGURE_RELOAD);
 	RADIO_ConfigureChannel(1, VFO_CONFIGURE_RELOAD);

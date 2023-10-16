@@ -739,14 +739,14 @@ void BOARD_EEPROM_Init(void)
 	}
 }
 
-void BOARD_EEPROM_LoadMoreSettings(void)
+void BOARD_EEPROM_LoadCalibration(void)
 {
 //	uint8_t Mic;
 
-	EEPROM_ReadBuffer(0x1EC0, gEEPROM_1EC0_0, 8);
-	memmove(gEEPROM_1EC0_1, gEEPROM_1EC0_0, 8);
-	memmove(gEEPROM_1EC0_2, gEEPROM_1EC0_0, 8);
-	memmove(gEEPROM_1EC0_3, gEEPROM_1EC0_0, 8);
+	EEPROM_ReadBuffer(0x1EC0, gEEPROM_RSSI_CALIB[3], 8);
+	memcpy(gEEPROM_RSSI_CALIB[4], gEEPROM_RSSI_CALIB[3], 8);
+	memcpy(gEEPROM_RSSI_CALIB[5], gEEPROM_RSSI_CALIB[3], 8);
+	memcpy(gEEPROM_RSSI_CALIB[6], gEEPROM_RSSI_CALIB[3], 8);
 
 	// 8 * 16-bit values
 	EEPROM_ReadBuffer(0x1EC0, gEEPROM_RSSI_CALIB[0], 8);

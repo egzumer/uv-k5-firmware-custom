@@ -110,12 +110,7 @@ bool              bHasCustomAesKey;
 uint32_t          gChallenge[4];
 uint8_t           gTryCount;
 
-uint8_t           gEEPROM_1EC0_0[8];
-uint8_t           gEEPROM_1EC0_1[8];
-uint8_t           gEEPROM_1EC0_2[8];
-uint8_t           gEEPROM_1EC0_3[8];
-
-uint16_t          gEEPROM_RSSI_CALIB[2][4];
+uint16_t          gEEPROM_RSSI_CALIB[7][4];
 
 uint16_t          gEEPROM_1F8A;
 uint16_t          gEEPROM_1F8C;
