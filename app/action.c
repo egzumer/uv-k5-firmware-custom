@@ -326,18 +326,15 @@ void ACTION_Scan(bool bRestart)
 
 void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
-	uint8_t Short = ACTION_OPT_NONE;
-	uint8_t Long  = ACTION_OPT_NONE;
-
-	if (gScreenToDisplay == DISPLAY_MAIN && gDTMF_InputMode)
+	if (gScreenToDisplay == DISPLAY_MAIN && gDTMF_InputMode) // entering DTMF code
 	{
-		if (Key == KEY_SIDE1 && !bKeyHeld && bKeyPressed)
+		if (Key == KEY_SIDE1 && !bKeyHeld && bKeyPressed) // side1 btn pressed
 		{
 			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 
-			if (gDTMF_InputBox_Index > 0)
+			if (gDTMF_InputBox_Index > 0) // DTMF codes are in the input box
 			{
-				gDTMF_InputBox[--gDTMF_InputBox_Index] = '-';
+				gDTMF_InputBox[--gDTMF_InputBox_Index] = '-'; // delete one code
 				if (gDTMF_InputBox_Index > 0)
 				{
 					gPttWasReleased       = true;
@@ -351,43 +348,47 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			#endif
 
 			gRequestDisplayScreen = DISPLAY_MAIN;
-			gDTMF_InputMode       = false;
+			gDTMF_InputMode       = false; // turn off DTMF input box if no codes left
 		}
 
 		gPttWasReleased = true;
 		return;
 	}
 
+	uint8_t funcShort = ACTION_OPT_NONE;
+	uint8_t funcLong  = ACTION_OPT_NONE;
 	if (Key == KEY_SIDE1)
 	{
-		Short = gEeprom.KEY_1_SHORT_PRESS_ACTION;
-		Long  = gEeprom.KEY_1_LONG_PRESS_ACTION;
+		funcShort = gEeprom.KEY_1_SHORT_PRESS_ACTION;
+		funcLong  = gEeprom.KEY_1_LONG_PRESS_ACTION;
 	}
-	else
-	if (Key == KEY_SIDE2)
+	else if (Key == KEY_SIDE2)
 	{
-		Short = gEeprom.KEY_2_SHORT_PRESS_ACTION;
-		Long  = gEeprom.KEY_2_LONG_PRESS_ACTION;
+		funcShort = gEeprom.KEY_2_SHORT_PRESS_ACTION;
+		funcLong  = gEeprom.KEY_2_LONG_PRESS_ACTION;
 	}
 
-	if (!bKeyHeld && bKeyPressed)
+	if (!bKeyHeld && bKeyPressed) // button pushed
 	{
 		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 		return;
 	}
 
-	if (bKeyHeld || bKeyPressed)
+	// held or released beyond this point
+
+
+
+	if (bKeyHeld || bKeyPressed) // held
 	{
-		if (!bKeyHeld)
-			return;
+		funcShort = funcLong;
 
-		Short = Long;
-
-		if (!bKeyPressed)
+		if (!bKeyPressed) //ignore release if held
 			return;
 	}
 
-	switch (Short)
+	// held or released after short press beyond this point
+
+	switch (funcShort)
 	{
 		default:
 		case ACTION_OPT_NONE:
