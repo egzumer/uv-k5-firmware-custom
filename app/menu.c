@@ -280,7 +280,6 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 
 		case MENU_S_LIST:
 			*pMin = 0;
-//			*pMax = 1;
 			*pMax = 2;
 			break;
 
@@ -324,6 +323,14 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 		case MENU_BATCAL:
 			*pMin = 1600;  // 0
 			*pMax = 2200;  // 2300
+			break;
+
+		case MENU_F1SHRT:
+		case MENU_F1LONG:
+		case MENU_F2SHRT:
+		case MENU_F2LONG:
+			*pMin = 0;
+			*pMax = gSubMenu_SIDEFUNCTIONS_size-1;
 			break;
 
 		default:
@@ -745,23 +752,30 @@ void MENU_AcceptSetting(void)
 
 		case MENU_BATCAL:
 		{
-			uint16_t buf[4];
-
 			gBatteryCalibration[0] = (520ul * gSubMenuSelection) / 760;  // 5.20V empty, blinking above this value, reduced functionality below
 			gBatteryCalibration[1] = (700ul * gSubMenuSelection) / 760;  // 7.00V,  ~5%, 1 bars above this value
 			gBatteryCalibration[2] = (745ul * gSubMenuSelection) / 760;  // 7.45V, ~17%, 2 bars above this value
 			gBatteryCalibration[3] =          gSubMenuSelection;         // 7.6V,  ~29%, 3 bars above this value
 			gBatteryCalibration[4] = (788ul * gSubMenuSelection) / 760;  // 7.88V, ~65%, 4 bars above this value
 			gBatteryCalibration[5] = 2300;
-			EEPROM_WriteBuffer(0x1F40, gBatteryCalibration);
-
-			EEPROM_ReadBuffer( 0x1F48, buf, sizeof(buf));
-			buf[0] = gBatteryCalibration[4];
-			buf[1] = gBatteryCalibration[5];
-			EEPROM_WriteBuffer(0x1F48, buf);
-
-			break;
+			SETTINGS_SaveBatteryCalibration(gBatteryCalibration);
+			return;
 		}
+
+		case MENU_F1SHRT:
+		case MENU_F1LONG:
+		case MENU_F2SHRT:
+		case MENU_F2LONG:
+			{
+				uint8_t * fun[]= {
+					&gEeprom.KEY_1_SHORT_PRESS_ACTION,
+					&gEeprom.KEY_1_LONG_PRESS_ACTION,
+					&gEeprom.KEY_2_SHORT_PRESS_ACTION,
+					&gEeprom.KEY_2_LONG_PRESS_ACTION};
+				*fun[GetCurrentMenuId()-MENU_F1SHRT] = gSubMenu_SIDEFUNCTIONS[gSubMenuSelection].id;
+			}
+			break;
+
 	}
 
 	gRequestSaveSettings = true;
@@ -1127,6 +1141,28 @@ void MENU_ShowCurrentSetting(void)
 		case MENU_BATCAL:
 			gSubMenuSelection = gBatteryCalibration[3];
 			break;
+
+		case MENU_F1SHRT:
+		case MENU_F1LONG:
+		case MENU_F2SHRT:
+		case MENU_F2LONG:
+		{
+			uint8_t * fun[]= {
+				&gEeprom.KEY_1_SHORT_PRESS_ACTION,
+				&gEeprom.KEY_1_LONG_PRESS_ACTION,
+				&gEeprom.KEY_2_SHORT_PRESS_ACTION,
+				&gEeprom.KEY_2_LONG_PRESS_ACTION};
+			uint8_t id = *fun[GetCurrentMenuId()-MENU_F1SHRT];
+
+			for(int i = 0; i < gSubMenu_SIDEFUNCTIONS_size; i++) {
+				if(gSubMenu_SIDEFUNCTIONS[i].id==id) {
+					gSubMenuSelection = i;
+					break;
+				}
+					
+			}
+			break;
+		}
 
 		default:
 			return;

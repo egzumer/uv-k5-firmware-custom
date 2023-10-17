@@ -251,6 +251,16 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 	}
 }
 
+void SETTINGS_SaveBatteryCalibration(const uint16_t * batteryCalibration)
+{
+	uint16_t buf[4];
+	EEPROM_WriteBuffer(0x1F40, batteryCalibration);
+	EEPROM_ReadBuffer( 0x1F48, buf, sizeof(buf));
+	buf[0] = batteryCalibration[4];
+	buf[1] = batteryCalibration[5];
+	EEPROM_WriteBuffer(0x1F48, buf);
+}
+
 void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool keep)
 {
 	#ifdef ENABLE_NOAA

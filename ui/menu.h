@@ -102,9 +102,6 @@ enum
 	MENU_NOAA_S,
 #endif
 	MENU_RESET,
-
-	// items after here are normally hidden
-
 	MENU_F_LOCK,
 	MENU_200TX,
 	MENU_350TX,
@@ -116,7 +113,11 @@ enum
 #ifdef ENABLE_F_CAL_MENU
 	MENU_F_CALI,  // reference xtal calibration
 #endif
-	MENU_BATCAL   // battery voltage calibration
+	MENU_BATCAL,  // battery voltage calibration
+	MENU_F1SHRT,
+	MENU_F1LONG,
+	MENU_F2SHRT,
+	MENU_F2LONG
 };
 
 extern const uint8_t FIRST_HIDDEN_MENU_ITEM;
@@ -141,7 +142,7 @@ extern const char*       gSubMenu_MDF[4];
 extern const char        gSubMenu_D_RSP[4][11];
 extern const char*       gSubMenu_PTT_ID[5];
 extern const char        gSubMenu_PONMSG[4][8];
-extern const char        gSubMenu_ROGER[3][9];
+extern const char*       gSubMenu_ROGER[3];
 extern const char        gSubMenu_RESET[2][4];
 extern const char        gSubMenu_F_LOCK[6][4];
 extern const char        gSubMenu_BACKLIGHT[8][7];
@@ -152,6 +153,10 @@ extern const char        gSubMenu_RX_TX[4][6];
 extern const char        gSubMenu_BAT_TXT[3][8];
 
 extern const char        gSubMenu_SCRAMBLER[11][7];
+
+typedef struct {char* name; uint8_t id;} t_sidefunction;
+extern const uint8_t 		 gSubMenu_SIDEFUNCTIONS_size;
+extern const t_sidefunction* gSubMenu_SIDEFUNCTIONS;
 				         
 extern bool              gIsInSubMenu;
 				         

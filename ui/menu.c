@@ -66,6 +66,11 @@ const t_menu_item MenuList[] =
 	{"NOAA-S", VOICE_ID_INVALID,                       MENU_NOAA_S        },
 #endif
 
+	{"F1Shrt",    VOICE_ID_INVALID,                    MENU_F1SHRT        },
+	{"F1Long",    VOICE_ID_INVALID,                    MENU_F1LONG        },
+	{"F2Shrt",    VOICE_ID_INVALID,                    MENU_F2SHRT        },
+	{"F2Long",    VOICE_ID_INVALID,                    MENU_F2LONG        },
+
 	{"KeyLck", VOICE_ID_INVALID,                       MENU_AUTOLK        }, // was "AUTOLk"
 	{"TxTOut", VOICE_ID_TRANSMIT_OVER_TIME,            MENU_TOT           }, // was "TOT"
 	{"BatSav", VOICE_ID_SAVE_MODE,                     MENU_SAVE          }, // was "SAVE"
@@ -185,10 +190,10 @@ const char gSubMenu_TOT[11][7] =
 
 const char* gSubMenu_RXMode[4] =
 {
-	"MAIN\nONLY", // TX and RX on main only
+	"MAIN\nONLY", 		// TX and RX on main only
 	"DUAL RX\nRESPOND", // Watch both and respond
-	"CROSS\nBAND", // TX on main, RX on secondary
-	"MAIN TX\nDUAL RX" // always TX on main, but RX on both
+	"CROSS\nBAND", 		// TX on main, RX on secondary
+	"MAIN TX\nDUAL RX" 	// always TX on main, but RX on both
 };
 
 #ifdef ENABLE_VOICE
@@ -248,7 +253,7 @@ const char gSubMenu_PONMSG[4][8] =
 	"NONE"
 };
 
-const char gSubMenu_ROGER[3][9] =
+const char* gSubMenu_ROGER[3] =
 {
 	"OFF",
 	"ROGER",
@@ -322,6 +327,30 @@ const char gSubMenu_SCRAMBLER[11][7] =
 	"3400Hz",
 	"3500Hz"
 };
+
+
+const t_sidefunction SIDEFUNCTIONS[] =
+{
+	{"NONE",			ACTION_OPT_NONE},
+	{"FLASH\nLIGHT",	ACTION_OPT_FLASHLIGHT},
+	{"POWER",			ACTION_OPT_POWER},
+	{"MONITOR",			ACTION_OPT_MONITOR},
+	{"SCAN",			ACTION_OPT_SCAN},
+#ifdef ENABLE_VOX
+	{"VOX",				ACTION_OPT_VOX},
+#endif
+#ifdef ENABLE_ALARM	
+	{"ALARM",			ACTION_OPT_ALARM},
+#endif
+#ifdef ENABLE_FMRADIO
+	{"FM RADIO",		ACTION_OPT_FM},
+#endif	
+#ifdef ENABLE_TX1750	
+	{"1750HZ",			ACTION_OPT_1750},
+#endif
+};
+const t_sidefunction* gSubMenu_SIDEFUNCTIONS = SIDEFUNCTIONS;
+const uint8_t gSubMenu_SIDEFUNCTIONS_size = ARRAY_SIZE(SIDEFUNCTIONS);
 
 bool    gIsInSubMenu;
 uint8_t gMenuCursor;
@@ -798,6 +827,14 @@ void UI_DisplayMenu(void)
 			sprintf(String, "%u.%02uV\n%u", vol / 100, vol % 100, gSubMenuSelection);
 			break;
 		}
+		
+		case MENU_F1SHRT:
+		case MENU_F1LONG:
+		case MENU_F2SHRT:
+		case MENU_F2LONG:
+			strcpy(String, gSubMenu_SIDEFUNCTIONS[gSubMenuSelection].name);
+			break;
+
 	}
 
 	if (!already_printed)
