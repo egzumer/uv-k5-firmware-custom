@@ -36,54 +36,56 @@
 #include "ui/menu.h"
 #include "ui/ui.h"
 
-
 const t_menu_item MenuList[] =
 {
 //   text,     voice ID,                               menu ID
-
-	{"Sql",    VOICE_ID_SQUELCH,                       MENU_SQL           },
 	{"Step",   VOICE_ID_FREQUENCY_STEP,                MENU_STEP          },
 	{"TxPwr",  VOICE_ID_POWER,                         MENU_TXP           }, // was "TXP"
 	{"RxDCS",  VOICE_ID_DCS,                           MENU_R_DCS         }, // was "R_DCS"
 	{"RxCTCS", VOICE_ID_CTCSS,                         MENU_R_CTCS        }, // was "R_CTCS"
 	{"TxDCS",  VOICE_ID_DCS,                           MENU_T_DCS         }, // was "T_DCS"
 	{"TxCTCS", VOICE_ID_CTCSS,                         MENU_T_CTCS        }, // was "T_CTCS"
-	{"TxODir",  VOICE_ID_TX_OFFSET_FREQUENCY_DIRECTION, MENU_SFT_D         }, // was "SFT_D"
+	{"TxODir", VOICE_ID_TX_OFFSET_FREQUENCY_DIRECTION, MENU_SFT_D         }, // was "SFT_D"
 	{"TxOffs", VOICE_ID_TX_OFFSET_FREQUENCY,           MENU_OFFSET        }, // was "OFFSET"
-	{"TxTOut", VOICE_ID_TRANSMIT_OVER_TIME,            MENU_TOT           }, // was "TOT"
 	{"W/N",    VOICE_ID_CHANNEL_BANDWIDTH,             MENU_W_N           },
 	{"Scramb", VOICE_ID_SCRAMBLER_ON,                  MENU_SCR           }, // was "SCR"
 	{"BusyCL", VOICE_ID_BUSY_LOCKOUT,                  MENU_BCL           }, // was "BCL"
+	{"Compnd", VOICE_ID_INVALID,                       MENU_COMPAND       },
+	{"Demodu", VOICE_ID_INVALID,                       MENU_AM            }, // was "AM"
+	{"ScAdd1", VOICE_ID_INVALID,                       MENU_S_ADD1        },
+	{"ScAdd2", VOICE_ID_INVALID,                       MENU_S_ADD2        },
 	{"ChSave", VOICE_ID_MEMORY_CHANNEL,                MENU_MEM_CH        }, // was "MEM-CH"
-	{"ChDele",  VOICE_ID_DELETE_CHANNEL,                MENU_DEL_CH        }, // was "DEL-CH"
-	{"ChName", VOICE_ID_INVALID,                       MENU_MEM_NAME      },
-	{"ChDisp", VOICE_ID_INVALID,                       MENU_MDF           }, // was "MDF"
-	{"BatSav", VOICE_ID_SAVE_MODE,                     MENU_SAVE          }, // was "SAVE"
-#ifdef ENABLE_VOX
-	{"VOX",    VOICE_ID_VOX,                           MENU_VOX           },
+	{"ChDele", VOICE_ID_DELETE_CHANNEL,                MENU_DEL_CH        }, // was "DEL-CH"
+	{"ChName", VOICE_ID_INVALID,                       MENU_MEM_NAME      },	
+
+	{"SList",  VOICE_ID_INVALID,                       MENU_S_LIST        },
+	{"SList1", VOICE_ID_INVALID,                       MENU_SLIST1        },
+	{"SList2", VOICE_ID_INVALID,                       MENU_SLIST2        },
+	{"ScnRev", VOICE_ID_INVALID,                       MENU_SC_REV        },
+#ifdef ENABLE_NOAA
+	{"NOAA-S", VOICE_ID_INVALID,                       MENU_NOAA_S        },
 #endif
-	{"BackLt",    VOICE_ID_INVALID,                       MENU_ABR           }, // was "ABR"
+
+	{"KeyLck", VOICE_ID_INVALID,                       MENU_AUTOLK        }, // was "AUTOLk"
+	{"TxTOut", VOICE_ID_TRANSMIT_OVER_TIME,            MENU_TOT           }, // was "TOT"
+	{"BatSav", VOICE_ID_SAVE_MODE,                     MENU_SAVE          }, // was "SAVE"
+	{"Mic",    VOICE_ID_INVALID,                       MENU_MIC           },
+#ifdef ENABLE_AUDIO_BAR
+	{"MicBar", VOICE_ID_INVALID,                       MENU_MIC_BAR       },
+#endif		
+	{"ChDisp", VOICE_ID_INVALID,                       MENU_MDF           }, // was "MDF"
+	{"POnMsg", VOICE_ID_INVALID,                       MENU_PONMSG        },
+	{"BatTxt", VOICE_ID_INVALID,                       MENU_BAT_TXT       },	
+	{"BackLt", VOICE_ID_INVALID,                       MENU_ABR           }, // was "ABR"
 	{"BltTRX", VOICE_ID_INVALID,                       MENU_ABR_ON_TX_RX  },
-	{"RxMode", VOICE_ID_DUAL_STANDBY,                  MENU_TDR           },
 	{"Beep",   VOICE_ID_BEEP_PROMPT,                   MENU_BEEP          },
 #ifdef ENABLE_VOICE
 	{"Voice",  VOICE_ID_VOICE_PROMPT,                  MENU_VOICE         },
 #endif
-	{"ScnRev", VOICE_ID_INVALID,                       MENU_SC_REV        },
-	{"KeyLck", VOICE_ID_INVALID,                       MENU_AUTOLK        }, // was "AUTOLk"
-	{"ScAdd1", VOICE_ID_INVALID,                       MENU_S_ADD1        },
-	{"ScAdd2", VOICE_ID_INVALID,                       MENU_S_ADD2        },
+	{"Roger",  VOICE_ID_INVALID,                       MENU_ROGER         },
 	{"STE",    VOICE_ID_INVALID,                       MENU_STE           },
 	{"RP STE", VOICE_ID_INVALID,                       MENU_RP_STE        },
-	{"Mic",    VOICE_ID_INVALID,                       MENU_MIC           },
-#ifdef ENABLE_AUDIO_BAR
-	{"MicBar", VOICE_ID_INVALID,                       MENU_MIC_BAR       },
-#endif
-	{"Compnd", VOICE_ID_INVALID,                       MENU_COMPAND       },
 	{"1 Call", VOICE_ID_INVALID,                       MENU_1_CALL        },
-	{"SList",  VOICE_ID_INVALID,                       MENU_S_LIST        },
-	{"SList1", VOICE_ID_INVALID,                       MENU_SLIST1        },
-	{"SList2", VOICE_ID_INVALID,                       MENU_SLIST2        },
 #ifdef ENABLE_ALARM
 	{"AlarmT", VOICE_ID_INVALID,                       MENU_AL_MOD        },
 #endif
@@ -92,46 +94,44 @@ const t_menu_item MenuList[] =
 	{"DWCode", VOICE_ID_INVALID,                       MENU_DWCODE        },
 	{"PTT ID", VOICE_ID_INVALID,                       MENU_PTT_ID        },
 	{"D ST",   VOICE_ID_INVALID,                       MENU_D_ST          },
-    {"D Resp", VOICE_ID_INVALID,                      MENU_D_RSP         },
+    {"D Resp", VOICE_ID_INVALID,                       MENU_D_RSP         },
 	{"D Hold", VOICE_ID_INVALID,                       MENU_D_HOLD        },
-	{"D Prel", VOICE_ID_INVALID,                      MENU_D_PRE         },
+	{"D Prel", VOICE_ID_INVALID,                       MENU_D_PRE         },
 	{"D Decd", VOICE_ID_INVALID,                       MENU_D_DCD         },
 	{"D List", VOICE_ID_INVALID,                       MENU_D_LIST        },
 	{"D Live", VOICE_ID_INVALID,                       MENU_D_LIVE_DEC    }, // live DTMF decoder
-	{"POnMsg", VOICE_ID_INVALID,                       MENU_PONMSG        },
-	{"Roger",  VOICE_ID_INVALID,                       MENU_ROGER         },
-	{"BatVol", VOICE_ID_INVALID,                       MENU_VOL           }, // was "VOL"
-	{"BatTxt", VOICE_ID_INVALID,                       MENU_BAT_TXT       },
-	{"Demodu", VOICE_ID_INVALID,                       MENU_AM          }, // was "AM"
 #ifdef ENABLE_AM_FIX
 	{"AM Fix", VOICE_ID_INVALID,                       MENU_AM_FIX        },
 #endif
 #ifdef ENABLE_AM_FIX_TEST1
 	{"AM FT1", VOICE_ID_INVALID,                       MENU_AM_FIX_TEST1  },
 #endif
-#ifdef ENABLE_NOAA
-	{"NOAA-S", VOICE_ID_INVALID,                       MENU_NOAA_S        },
+#ifdef ENABLE_VOX
+	{"VOX",    VOICE_ID_VOX,                           MENU_VOX           },
 #endif
-	{"Reset",  VOICE_ID_INITIALISATION,                MENU_RESET         }, // might be better to move this to the hidden menu items ?
+	{"BatVol", VOICE_ID_INVALID,                       MENU_VOL           }, // was "VOL"
+	{"RxMode", VOICE_ID_DUAL_STANDBY,                  MENU_TDR           },
+	{"Sql",    VOICE_ID_SQUELCH,                       MENU_SQL           },
 
 	// hidden menu items from here on
 	// enabled if pressing both the PTT and upper side button at power-on
-
 	{"F Lock", VOICE_ID_INVALID,                       MENU_F_LOCK        },
 	{"Tx 200", VOICE_ID_INVALID,                       MENU_200TX         }, // was "200TX"
 	{"Tx 350", VOICE_ID_INVALID,                       MENU_350TX         }, // was "350TX"
 	{"Tx 500", VOICE_ID_INVALID,                       MENU_500TX         }, // was "500TX"
 	{"350 En", VOICE_ID_INVALID,                       MENU_350EN         }, // was "350EN"
 	{"ScraEn", VOICE_ID_INVALID,                       MENU_SCREN         }, // was "SCREN"
-
-	{"TxEnab",  VOICE_ID_INVALID,                       MENU_TX_EN         }, // enable TX
+	{"TxEnab", VOICE_ID_INVALID,                       MENU_TX_EN         }, // enable TX
 #ifdef ENABLE_F_CAL_MENU
 	{"FrCali", VOICE_ID_INVALID,                       MENU_F_CALI        }, // reference xtal calibration
 #endif
 	{"BatCal", VOICE_ID_INVALID,                       MENU_BATCAL        }, // battery voltage calibration
+	{"Reset",  VOICE_ID_INITIALISATION,                MENU_RESET         }, // might be better to move this to the hidden menu items ?
 
 	{"",       VOICE_ID_INVALID,                       0xff               }  // end of list - DO NOT delete or move this this
 };
+
+const uint8_t FIRST_HIDDEN_MENU_ITEM = MENU_F_LOCK;
 
 const char gSubMenu_TXP[3][5] =
 {
