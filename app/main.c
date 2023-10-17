@@ -506,6 +506,7 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 			}
 			else
 			{
+				bScanKeepFrequency = false;
 				SCANNER_Stop();
 
 				#ifdef ENABLE_VOICE

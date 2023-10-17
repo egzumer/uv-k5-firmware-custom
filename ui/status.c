@@ -88,7 +88,7 @@ void UI_DisplayStatus(const bool test_display)
 		// SCAN indicator
 		if (gScanStateDir != SCAN_OFF || gScreenToDisplay == DISPLAY_SCANNER || test_display)
 		{
-			if (gNextMrChannel <= MR_CHANNEL_LAST)
+			if (gNextMrChannel <= MR_CHANNEL_LAST && gScreenToDisplay != DISPLAY_SCANNER)
 			{	// channel mode
 				if (gEeprom.SCAN_LIST_DEFAULT == 0)
 					UI_PrintStringSmallBuffer("1", line + x);
@@ -114,22 +114,24 @@ void UI_DisplayStatus(const bool test_display)
 			memmove(line + x, BITMAP_VoicePrompt, sizeof(BITMAP_VoicePrompt));
 			x1 = x + sizeof(BITMAP_VoicePrompt);
 		}
-		x += sizeof(BITMAP_VoicePrompt) + 2;
+		x += sizeof(BITMAP_VoicePrompt) + 1;
 	#else
 		// hmmm, what to put in it's place
 	#endif
 
-	uint8_t dw = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF) + (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF) * 2;
-	if(dw == 1 || dw == 3 || test_display) { // DWR - dual watch + respond
-		if(gDualWatchActive || test_display) 
-			memmove(line + x, BITMAP_TDR1, sizeof(BITMAP_TDR1) - (dw==1?0:5));
-		else 
-			memmove(line + x + 3, BITMAP_TDR2, sizeof(BITMAP_TDR2));
+	x++;
+	if(gScreenToDisplay != DISPLAY_SCANNER) {
+		uint8_t dw = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF) + (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF) * 2;
+		if(dw == 1 || dw == 3 || test_display) { // DWR - dual watch + respond
+			if(gDualWatchActive || test_display) 
+				memmove(line + x, BITMAP_TDR1, sizeof(BITMAP_TDR1) - (dw==1?0:5));
+			else 
+				memmove(line + x + 3, BITMAP_TDR2, sizeof(BITMAP_TDR2));
+		}
+		else if(dw == 2) { // XB - crossband
+			memmove(line + x, BITMAP_XB, sizeof(BITMAP_XB));
+		}
 	}
-	else if(dw == 2) { // XB - crossband
-		memmove(line + x, BITMAP_XB, sizeof(BITMAP_XB));
-	}
-
 	x += sizeof(BITMAP_TDR1) + 2;
 	
 	#ifdef ENABLE_VOX

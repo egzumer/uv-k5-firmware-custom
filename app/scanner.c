@@ -45,6 +45,7 @@ bool              gScanUseCssResult;
 int8_t            gScanStateDir;
 bool              bScanKeepFrequency;
 uint8_t           gRestoreMrChannel;
+uint8_t           gRestoreCROSS_BAND_RX_TX;
 
 static void SCANNER_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
@@ -426,6 +427,11 @@ void SCANNER_Start(void)
 
 void SCANNER_Stop(void)
 {
+	if(gRestoreCROSS_BAND_RX_TX != CROSS_BAND_OFF) {
+		gEeprom.CROSS_BAND_RX_TX = gRestoreCROSS_BAND_RX_TX;
+		gRestoreCROSS_BAND_RX_TX = CROSS_BAND_OFF;
+	}
+	
 	gScanStateDir = SCAN_OFF;
 
 	if (!bScanKeepFrequency)
@@ -580,6 +586,11 @@ static void SCANNER_NextMemChannel(void)
 
 void SCANNER_NextChannel(const bool storeBackupSettings, const int8_t scan_direction)
 {
+	if (storeBackupSettings) {
+		gRestoreCROSS_BAND_RX_TX = gEeprom.CROSS_BAND_RX_TX;
+		gEeprom.CROSS_BAND_RX_TX = CROSS_BAND_OFF;
+	}
+	
 	RADIO_SelectVfos();
 
 	gNextMrChannel   = gRxVfo->CHANNEL_SAVE;
