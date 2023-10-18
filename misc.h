@@ -324,7 +324,6 @@ extern uint8_t               gIsLocked;
 extern volatile uint8_t      boot_counter_10ms;
 
 void    NUMBER_Get(char *pDigits, uint32_t *pInteger);
-void    NUMBER_ToDigits(uint32_t Value, char *pDigits);
 int32_t NUMBER_AddWithWraparound(int32_t Base, int32_t Add, int32_t LowerLimit, int32_t UpperLimit);
 
 #endif

@@ -44,12 +44,19 @@ void UI_DisplayAircopy(void)
 
 	if (gInputBoxIndex == 0)
 	{
-		NUMBER_ToDigits(gRxVfo->freq_config_RX.Frequency, String);
-		UI_DisplayFrequency(String, 16, 2, 0, 0);
-		UI_DisplaySmallDigits(2, String + 6, 97, 3, true);
+		uint32_t frequency = gRxVfo->freq_config_RX.Frequency;
+		sprintf(String, "%3u.%05u", frequency / 100000, frequency % 100000);
+		// show the remaining 2 small frequency digits
+		UI_PrintStringSmall(String + 7, 97, 0, 3);
+		String[7] = 0;
+		// show the main large frequency digits
+		UI_DisplayFrequency(String, 16, 2, false);
 	}
-	else
-		UI_DisplayFrequency(gInputBox, 16, 2, 1, 0);
+	else {
+		const char * ascii = INPUTBOX_GetAscii();
+		sprintf(String, "%.3s.%.3s",ascii, ascii + 3);
+		UI_DisplayFrequency(String, 16, 2, false);
+	}
 
 	memset(String, 0, sizeof(String));
 	if (gAirCopyIsSendMode == 0)

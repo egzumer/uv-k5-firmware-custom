@@ -90,11 +90,14 @@ void UI_DisplayFM(void)
 	{
 		if (gInputBoxIndex == 0)
 		{
-			NUMBER_ToDigits(gEeprom.FM_FrequencyPlaying * 10000, String);
-			UI_DisplayFrequency(String, 23, 4, false, true);
+			sprintf(String, "%3d.%d", gEeprom.FM_FrequencyPlaying / 10, gEeprom.FM_FrequencyPlaying % 10);
+			UI_DisplayFrequency(String, 32, 4, true);
 		}
-		else
-			UI_DisplayFrequency(gInputBox, 23, 4, true, false);
+		else {
+			const char * ascii = INPUTBOX_GetAscii();
+			sprintf(String, "%.3s.%.1s",ascii, ascii + 3);
+			UI_DisplayFrequency(String, 32, 4, false);
+		}
 
 		ST7565_BlitFullScreen();
 		return;

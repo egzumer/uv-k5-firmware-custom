@@ -272,18 +272,6 @@ void NUMBER_Get(char *pDigits, uint32_t *pInteger)
 	*pInteger = Value;
 }
 
-void NUMBER_ToDigits(uint32_t Value, char *pDigits)
-{
-	unsigned int i;
-	for (i = 0; i < 8; i++)
-	{
-		const uint32_t Result = Value / 10U;
-		pDigits[7 - i] = Value - (Result * 10U);
-		Value = Result;
-	}
-	pDigits[8] = 0;
-}
-
 int32_t NUMBER_AddWithWraparound(int32_t Base, int32_t Add, int32_t LowerLimit, int32_t UpperLimit)
 {
 	Base += Add;

@@ -974,10 +974,8 @@ void UI_DisplayMenu(void)
 	    GetCurrentMenuId() == MENU_T_DCS  ||
 	    GetCurrentMenuId() == MENU_D_LIST)
 	{
-		unsigned int Offset;
-		NUMBER_ToDigits(gSubMenuSelection, String);
-		Offset = (GetCurrentMenuId() == MENU_D_LIST) ? 2 : 3;
-		UI_DisplaySmallDigits(Offset, String + (8 - Offset), 105, 0, false);
+		sprintf(String, "%2d", gSubMenuSelection);
+		UI_PrintStringSmall(String, 105, 0, 0);
 	}
 
 	if ((GetCurrentMenuId() == MENU_RESET    ||
