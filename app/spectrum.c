@@ -323,7 +323,7 @@ static void ToggleAudio(bool on) {
 static void ToggleRX(bool on) {
   isListening = on;
 
-  BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_GREEN, on);
+  BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, on);
 
   ToggleAudio(on);
   ToggleAFDAC(on);
@@ -905,8 +905,8 @@ void OnKeyDownStill(KEY_Code_t key) {
     break;
   case KEY_PTT:
     // TODO: start transmit
-    /* BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_GREEN, false);
-    BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, true); */
+    /* BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, false);
+    BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true); */
     break;
   case KEY_MENU:
     if (menuState == ARRAY_SIZE(registerSpecs) - 1) {

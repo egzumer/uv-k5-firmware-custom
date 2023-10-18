@@ -783,13 +783,13 @@ void APP_CheckRadioInterrupts(void)
 		if (interrupt_status_bits & BK4819_REG_02_SQUELCH_LOST)
 		{
 			g_SquelchLost = true;
-			BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_GREEN, true);
+			BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, true);
 		}
 
 		if (interrupt_status_bits & BK4819_REG_02_SQUELCH_FOUND)
 		{
 			g_SquelchLost = false;
-			BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_GREEN, false);
+			BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, false);
 		}
 
 		#ifdef ENABLE_AIRCOPY
@@ -1127,7 +1127,7 @@ void APP_Update(void)
 
 			BK4819_DisableVox();
 			BK4819_Sleep();
-			BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, false);
+			BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28, false);
 
 			// Authentic device checked removed
 
@@ -1375,9 +1375,9 @@ void APP_TimeSlice10ms(void)
 
 						RADIO_EnableCxCSS();
 						BK4819_SetupPowerAmplifier(0, 0);
-						BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1, false);
+						BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29, false);
 						BK4819_Enable_AfDac_DiscMode_TxDsp();
-						BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, false);
+						BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
 
 						GUI_DisplayScreen();
 					}
@@ -1387,7 +1387,7 @@ void APP_TimeSlice10ms(void)
 
 						GUI_DisplayScreen();
 
-						BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, true);
+						BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true);
 						RADIO_SetTxParameters();
 						BK4819_TransmitTone(true, 500);
 						SYSTEM_DelayMs(2);

@@ -578,7 +578,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 	gEnableSpeaker = false;
 
-	BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_GREEN, false);
+	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, false);
 
 	switch (Bandwidth)
 	{
@@ -596,11 +596,11 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 			break;
 	}
 
-	BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, false);
+	BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
 
 	BK4819_SetupPowerAmplifier(0, 0);
 
-	BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1, false);
+	BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29, false);
 
 	while (1)
 	{
@@ -634,7 +634,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 	BK4819_PickRXFilterPathBasedOnFrequency(Frequency);
 
 	// what does this in do ?
-	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, true);
+	BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28, true);
 
 	// AF RX Gain and DAC
 	BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);  // 1011 00 111010 1000
@@ -828,7 +828,7 @@ void RADIO_SetTxParameters(void)
 
 	gEnableSpeaker = false;
 
-	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, false);
+	BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28, false);
 
 	switch (Bandwidth)
 	{
@@ -857,7 +857,7 @@ void RADIO_SetTxParameters(void)
 
 	BK4819_PickRXFilterPathBasedOnFrequency(gCurrentVfo->pTX->Frequency);
 
-	BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1, true);
+	BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29, true);
 
 	SYSTEM_DelayMs(5);
 

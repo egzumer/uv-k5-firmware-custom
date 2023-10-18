@@ -145,7 +145,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			BK4819_DisableVox();			
 			BK4819_Sleep();
 
-			BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2, false);
+			BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28, false);
 
 			gUpdateStatus = true;
 
@@ -204,7 +204,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			RADIO_SetTxParameters();
 
 			// turn the RED LED on
-			BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_RED, true);
+			BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true);
 
 			DTMF_Reply();
 
