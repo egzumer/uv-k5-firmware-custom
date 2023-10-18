@@ -748,9 +748,9 @@ void BOARD_EEPROM_LoadCalibration(void)
 	memcpy(gEEPROM_RSSI_CALIB[5], gEEPROM_RSSI_CALIB[3], 8);
 	memcpy(gEEPROM_RSSI_CALIB[6], gEEPROM_RSSI_CALIB[3], 8);
 
-	// 8 * 16-bit values
-	EEPROM_ReadBuffer(0x1EC0, gEEPROM_RSSI_CALIB[0], 8);
-	EEPROM_ReadBuffer(0x1EC8, gEEPROM_RSSI_CALIB[1], 8);
+	EEPROM_ReadBuffer(0x1EC8, gEEPROM_RSSI_CALIB[0], 8);
+	memcpy(gEEPROM_RSSI_CALIB[1], gEEPROM_RSSI_CALIB[0], 8);
+	memcpy(gEEPROM_RSSI_CALIB[2], gEEPROM_RSSI_CALIB[0], 8);
 
 	EEPROM_ReadBuffer(0x1F40, gBatteryCalibration, 12);
 	if (gBatteryCalibration[0] >= 5000)
