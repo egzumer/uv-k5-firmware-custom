@@ -324,8 +324,8 @@ extern int16_t               gCurrentRSSI[2];   // now one per VFO
 extern uint8_t               gIsLocked;
 extern volatile uint8_t      boot_counter_10ms;
 
-void    NUMBER_Get(char *pDigits, uint32_t *pInteger);
 int32_t NUMBER_AddWithWraparound(int32_t Base, int32_t Add, int32_t LowerLimit, int32_t UpperLimit);
+unsigned long StrToUL(const char * str);
 
 #endif
 

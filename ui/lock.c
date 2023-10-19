@@ -102,10 +102,9 @@ void UI_DisplayLock(void)
 								uint32_t Password;
 
 								gInputBoxIndex = 0;
+								Password = StrToUL(INPUTBOX_GetAscii());
 
-								NUMBER_Get(gInputBox, &Password);
-
-								if ((gEeprom.POWER_ON_PASSWORD * 100) == Password)
+								if ((gEeprom.POWER_ON_PASSWORD) == Password)
 								{
 									AUDIO_PlayBeep(BEEP_1KHZ_60MS_OPTIONAL);
 									return;

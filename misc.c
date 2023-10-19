@@ -254,20 +254,7 @@ int16_t           gCurrentRSSI[2] = {0, 0};  // now one per VFO
 
 uint8_t           gIsLocked = 0xFF;
 
-void NUMBER_Get(char *pDigits, uint32_t *pInteger)
-{
-	unsigned int i;
-	uint32_t     Multiplier = 10000000;
-	uint32_t     Value      = 0;
-	for (i = 0; i < 8; i++)
-	{
-		if (pDigits[i] > 9)
-			break;
-		Value += pDigits[i] * Multiplier;
-		Multiplier /= 10U;
-	}
-	*pInteger = Value;
-}
+
 
 int32_t NUMBER_AddWithWraparound(int32_t Base, int32_t Add, int32_t LowerLimit, int32_t UpperLimit)
 {
@@ -280,4 +267,16 @@ int32_t NUMBER_AddWithWraparound(int32_t Base, int32_t Add, int32_t LowerLimit, 
 		return LowerLimit;
 
 	return Base;
+}
+
+unsigned long StrToUL(const char * str)
+{
+	unsigned long ul = 0;
+	for(uint8_t i = 0; i < strlen(str); i++){
+		char c = str[i];
+		if(c < '0' || c > '9')
+			break;
+		ul = ul * 10 + (uint8_t)(c-'0');
+	}
+	return ul;
 }

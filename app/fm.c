@@ -277,8 +277,7 @@ static void FM_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					uint32_t Frequency;
 
 					gInputBoxIndex = 0;
-					NUMBER_Get(gInputBox, &Frequency);
-					Frequency /= 10000;
+					Frequency = StrToUL(INPUTBOX_GetAscii());
 
 					if (Frequency < gEeprom.FM_LowerLimit || gEeprom.FM_UpperLimit < Frequency)
 					{

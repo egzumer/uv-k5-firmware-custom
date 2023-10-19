@@ -433,6 +433,8 @@ void UI_DisplayMain(void)
 		}
 #endif
 
+		uint32_t frequency = gEeprom.VfoInfo[vfo_num].pRX->Frequency;
+
 		if (state != VFO_STATE_NORMAL)
 		{
 			const char *state_list[] = {"", "BUSY", "BAT LOW", "TX DISABLE", "TIMEOUT", "ALARM", "VOLT HIGH"};
@@ -442,12 +444,27 @@ void UI_DisplayMain(void)
 		else if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_VFO == vfo_num)
 		{	// user entering a frequency
 			const char * ascii = INPUTBOX_GetAscii();
-			sprintf(String, "%.3s.%.3s", ascii, ascii + 3);
-			UI_DisplayFrequency(String, 32, line, false);
+			bool isGigaF = frequency>=100000000;
+			sprintf(String, "%.*s.%.3s", 3 + isGigaF, ascii, ascii + 3 + isGigaF);
+#ifdef ENABLE_BIG_FREQ
+			if(!isGigaF) {
+				// show the remaining 2 small frequency digits
+				UI_PrintStringSmall(String + 7, 113, 0, line + 1);
+				String[7] = 0;
+				// show the main large frequency digits
+				UI_DisplayFrequency(String, 32, line, false);
+			}
+			else
+#endif
+			{
+				// show the frequency in the main font
+				UI_PrintString(String, 32, 0, line, 8);
+			}
+
+			break;
 		}
 		else
 		{
-			uint32_t frequency = gEeprom.VfoInfo[vfo_num].pRX->Frequency;
 			if (gCurrentFunction == FUNCTION_TRANSMIT)
 			{	// transmitting
 				if (activeTxVFO == vfo_num)

@@ -18,15 +18,19 @@
 
 #include "app/action.h"
 #include "app/app.h"
+
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
+
 #include "app/generic.h"
 #include "app/main.h"
 #include "app/scanner.h"
+
 #ifdef ENABLE_SPECTRUM
 #include "app/spectrum.h"
 #endif
+
 #include "audio.h"
 #include "board.h"
 #include "driver/bk4819.h"
@@ -37,9 +41,7 @@
 #include "settings.h"
 #include "ui/inputbox.h"
 #include "ui/ui.h"
-#ifdef ENABLE_SPECTRUM
-//	#include "app/spectrum.h"
-#endif
+#include <stdlib.h>
 
 void toggle_chan_scanlist(void)
 {	// toggle the selected channels scanlist setting
@@ -98,26 +100,31 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			break;
 
 		case KEY_1:
-			if (!IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
-			{
+			if (!IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE)) {
 				gWasFKeyPressed = false;
 				gUpdateStatus   = true;
 				gBeepToPlay     = BEEP_1KHZ_60MS_OPTIONAL;
 				return;
 			}
 
-			Band = gTxVfo->Band + 1;
-			if (gSetting_350EN || Band != BAND5_350MHz)
-			{
-				if (Band > BAND7_470MHz)
-					Band = BAND1_50MHz;
+			if(gTxVfo->Band == 6 && gTxVfo->pRX->Frequency < 100000000) {
+					gTxVfo->pRX->Frequency = 100000000;
+					return;
 			}
-			else
-				Band = BAND6_400MHz;
-			gTxVfo->Band = Band;
+			else {
+				Band = gTxVfo->Band + 1;
+				if (gSetting_350EN || Band != BAND5_350MHz) {
+					if (Band > BAND7_470MHz)
+						Band = BAND1_50MHz;
+				}
+				else
+					Band = BAND6_400MHz;
 
-			gEeprom.ScreenChannel[Vfo] = FREQ_CHANNEL_FIRST + Band;
-			gEeprom.FreqChannel[Vfo]   = FREQ_CHANNEL_FIRST + Band;
+				gTxVfo->Band = Band;
+
+				gEeprom.ScreenChannel[Vfo] = FREQ_CHANNEL_FIRST + Band;
+				gEeprom.FreqChannel[Vfo]   = FREQ_CHANNEL_FIRST + Band;
+			}
 
 			gRequestSaveVFO            = true;
 			gVfoConfigureMode          = VFO_CONFIGURE_RELOAD;
@@ -361,8 +368,8 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		{	// user is entering a frequency
 
 			uint32_t Frequency;
-
-			if (gInputBoxIndex < 6)
+			bool isGigaF = gTxVfo->pRX->Frequency >= 100000000;
+			if (gInputBoxIndex < 6 + isGigaF)
 			{
 				#ifdef ENABLE_VOICE
 					gAnotherVoiceID = (VOICE_ID_t)Key;
@@ -372,8 +379,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			}
 
 			gInputBoxIndex = 0;
-
-			NUMBER_Get(gInputBox, &Frequency);
+			Frequency = StrToUL(INPUTBOX_GetAscii()) * 100;
 
 			// clamp the frequency entered to some valid value
 			if (Frequency < frequencyBandTable[0].lower)

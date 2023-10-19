@@ -1261,8 +1261,8 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		#ifdef ENABLE_VOICE
 			gAnotherVoiceID = (VOICE_ID_t)Key;
 		#endif
-
-		NUMBER_Get(gInputBox, &Frequency);
+		
+		Frequency = StrToUL(INPUTBOX_GetAscii());
 		gSubMenuSelection = FREQUENCY_FloorToStep(Frequency + 75, gTxVfo->StepFrequency, 0);
 
 		gInputBoxIndex = 0;
