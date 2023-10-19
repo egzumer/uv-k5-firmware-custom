@@ -58,212 +58,211 @@ void UI_drawBars(uint8_t *p, const unsigned int level)
 
 #ifdef ENABLE_AUDIO_BAR
 
-	unsigned int sqrt16(unsigned int value)
-	{	// return square root of 'value'
-		unsigned int shift = 16;         // number of bits supplied in 'value' .. 2 ~ 32
-		unsigned int bit   = 1u << --shift;
-		unsigned int sqrti = 0;
-		while (bit)
-		{
-			const unsigned int temp = ((sqrti << 1) | bit) << shift--;
-			if (value >= temp)
-			{
-				value -= temp;
-				sqrti |= bit;
-			}
-			bit >>= 1;
-		}
-		return sqrti;
-	}
-
-	void UI_DisplayAudioBar(void)
+unsigned int sqrt16(unsigned int value)
+{	// return square root of 'value'
+	unsigned int shift = 16;         // number of bits supplied in 'value' .. 2 ~ 32
+	unsigned int bit   = 1u << --shift;
+	unsigned int sqrti = 0;
+	while (bit)
 	{
-		if (gSetting_mic_bar)
-		{
-			const unsigned int line      = 3;
-			const unsigned int bar_x     = 2;
-			const unsigned int bar_width = LCD_WIDTH - 2 - bar_x;
-			unsigned int       i;
+		const unsigned int temp = ((sqrti << 1) | bit) << shift--;
+		if (value >= temp) {
+			value -= temp;
+			sqrti |= bit;
+		}
+		bit >>= 1;
+	}
+	return sqrti;
+}
 
-			if (gCurrentFunction != FUNCTION_TRANSMIT ||
-				gScreenToDisplay != DISPLAY_MAIN      ||
-				gDTMF_CallState != DTMF_CALL_STATE_NONE)
-			{
-				return;  // screen is in use
-			}
+void UI_DisplayAudioBar(void)
+{
+	if (gSetting_mic_bar)
+	{
+		const unsigned int line      = 3;
+		const unsigned int bar_x     = 2;
+		const unsigned int bar_width = LCD_WIDTH - 2 - bar_x;
+		unsigned int       i;
+
+		if (gCurrentFunction != FUNCTION_TRANSMIT ||
+			gScreenToDisplay != DISPLAY_MAIN      ||
+			gDTMF_CallState != DTMF_CALL_STATE_NONE)
+		{
+			return;  // screen is in use
+		}
 				
 #if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
-			if (gAlarmState != ALARM_STATE_OFF)
-				return;
+		if (gAlarmState != ALARM_STATE_OFF)
+			return;
 #endif
-			const unsigned int voice_amp  = BK4819_GetVoiceAmplitudeOut();  // 15:0
-	
-			// make non-linear to make more sensitive at low values
-			const unsigned int level      = voice_amp * 8;
-			const unsigned int sqrt_level = sqrt16((level < 65535) ? level : 65535);
-			const unsigned int len        = (sqrt_level <= bar_width) ? sqrt_level : bar_width;
+		const unsigned int voice_amp  = BK4819_GetVoiceAmplitudeOut();  // 15:0
 
-			uint8_t *p_line = gFrameBuffer[line];
-	
-			memset(p_line, 0, LCD_WIDTH);
-	
-			for (i = 0; i < bar_width; i++)
-				p_line[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
+		// make non-linear to make more sensitive at low values
+		const unsigned int level      = voice_amp * 8;
+		const unsigned int sqrt_level = sqrt16((level < 65535) ? level : 65535);
+		const unsigned int len        = (sqrt_level <= bar_width) ? sqrt_level : bar_width;
 
-			if (gCurrentFunction == FUNCTION_TRANSMIT)
-				ST7565_BlitFullScreen();
-		}
+		uint8_t *p_line = gFrameBuffer[line];
+
+		memset(p_line, 0, LCD_WIDTH);
+
+		for (i = 0; i < bar_width; i++)
+			p_line[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
+
+		if (gCurrentFunction == FUNCTION_TRANSMIT)
+			ST7565_BlitFullScreen();
 	}
+}
 #endif
 
 #if defined(ENABLE_RSSI_BAR)
-	void UI_DisplayRSSIBar(const int16_t rssi, const bool now)
-	{
+void UI_DisplayRSSIBar(const int16_t rssi, const bool now)
+{
 //		const int16_t      s0_dBm       = -127;                  // S0 .. base level
-		const int16_t      s0_dBm       = -147;                  // S0 .. base level
+	const int16_t      s0_dBm       = -147;                  // S0 .. base level
 
-		const int16_t      s9_dBm       = s0_dBm + (6 * 9);      // S9 .. 6dB/S-Point
-		const int16_t      bar_max_dBm  = s9_dBm + 30;           // S9+30dB
+	const int16_t      s9_dBm       = s0_dBm + (6 * 9);      // S9 .. 6dB/S-Point
+	const int16_t      bar_max_dBm  = s9_dBm + 30;           // S9+30dB
 //		const int16_t      bar_min_dBm  = s0_dBm + (6 * 0);      // S0
-		const int16_t      bar_min_dBm  = s0_dBm + (6 * 4);      // S4
+	const int16_t      bar_min_dBm  = s0_dBm + (6 * 4);      // S4
 
-		// ************
+	// ************
 
-		const unsigned int txt_width    = 7 * 8;                 // 8 text chars
-		const unsigned int bar_x        = 2 + txt_width + 4;     // X coord of bar graph
-		const unsigned int bar_width    = LCD_WIDTH - 1 - bar_x;
+	const unsigned int txt_width    = 7 * 8;                 // 8 text chars
+	const unsigned int bar_x        = 2 + txt_width + 4;     // X coord of bar graph
+	const unsigned int bar_width    = LCD_WIDTH - 1 - bar_x;
 
-		const int16_t      rssi_dBm     = (rssi / 2) - 160;
-		const int16_t      clamped_dBm  = (rssi_dBm <= bar_min_dBm) ? bar_min_dBm : (rssi_dBm >= bar_max_dBm) ? bar_max_dBm : rssi_dBm;
-		const unsigned int bar_range_dB = bar_max_dBm - bar_min_dBm;
-		const unsigned int len          = ((clamped_dBm - bar_min_dBm) * bar_width) / bar_range_dB;
+	const int16_t      rssi_dBm     = (rssi / 2) - 160;
+	const int16_t      clamped_dBm  = (rssi_dBm <= bar_min_dBm) ? bar_min_dBm : (rssi_dBm >= bar_max_dBm) ? bar_max_dBm : rssi_dBm;
+	const unsigned int bar_range_dB = bar_max_dBm - bar_min_dBm;
+	const unsigned int len          = ((clamped_dBm - bar_min_dBm) * bar_width) / bar_range_dB;
 
-		const unsigned int line         = 3;
-		uint8_t           *p_line        = gFrameBuffer[line];
+	const unsigned int line         = 3;
+	uint8_t           *p_line        = gFrameBuffer[line];
 
-		char               s[16];
-		unsigned int       i;
+	char               s[16];
+	unsigned int       i;
 
-		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
-			return;     // display is in use
+	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
+		return;     // display is in use
 
-		if (gCurrentFunction == FUNCTION_TRANSMIT ||
-		    gScreenToDisplay != DISPLAY_MAIN ||
-			gDTMF_CallState != DTMF_CALL_STATE_NONE)
-			return;     // display is in use
+	if (gCurrentFunction == FUNCTION_TRANSMIT ||
+		gScreenToDisplay != DISPLAY_MAIN ||
+		gDTMF_CallState != DTMF_CALL_STATE_NONE)
+		return;     // display is in use
 
-		if (now)
-			memset(p_line, 0, LCD_WIDTH);
+	if (now)
+		memset(p_line, 0, LCD_WIDTH);
 
-		if (rssi_dBm >= (s9_dBm + 6))
-		{	// S9+XXdB, 1dB increment
-			const char *fmt[] = {"%3d 9+%u  ", "%3d 9+%2u "};
-			const unsigned int s9_dB = ((rssi_dBm - s9_dBm) <= 99) ? rssi_dBm - s9_dBm : 99;
-			sprintf(s, (s9_dB < 10) ? fmt[0] : fmt[1], rssi_dBm, s9_dB);
-		}
-		else
-		{	// S0 ~ S9, 6dB per S-point
-			const unsigned int s_level = (rssi_dBm >= s0_dBm) ? (rssi_dBm - s0_dBm) / 6 : 0;
-			sprintf(s, "%4d S%u ", rssi_dBm, s_level);
-		}
-		UI_PrintStringSmall(s, 2, 0, line);
-
-		#if 1
-			// solid bar
-			for (i = 0; i < bar_width; i++)
-				p_line[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
-		#else
-			// knuled bar
-			for (i = 0; i < bar_width; i += 2)
-				p_line[bar_x + i] = (i <= len) ? 0x7f : 0x41;
-		#endif
-
-		if (now)
-			ST7565_BlitFullScreen();
+	if (rssi_dBm >= (s9_dBm + 6))
+	{	// S9+XXdB, 1dB increment
+		const char *fmt[] = {"%3d 9+%u  ", "%3d 9+%2u "};
+		const unsigned int s9_dB = ((rssi_dBm - s9_dBm) <= 99) ? rssi_dBm - s9_dBm : 99;
+		sprintf(s, (s9_dB < 10) ? fmt[0] : fmt[1], rssi_dBm, s9_dB);
 	}
+	else
+	{	// S0 ~ S9, 6dB per S-point
+		const unsigned int s_level = (rssi_dBm >= s0_dBm) ? (rssi_dBm - s0_dBm) / 6 : 0;
+		sprintf(s, "%4d S%u ", rssi_dBm, s_level);
+	}
+	UI_PrintStringSmall(s, 2, 0, line);
+
+	#if 1
+		// solid bar
+		for (i = 0; i < bar_width; i++)
+			p_line[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
+	#else
+		// knuled bar
+		for (i = 0; i < bar_width; i += 2)
+			p_line[bar_x + i] = (i <= len) ? 0x7f : 0x41;
+	#endif
+
+	if (now)
+		ST7565_BlitFullScreen();
+}
 #endif
 
 void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 {
-	#ifdef ENABLE_RSSI_BAR
+#ifdef ENABLE_RSSI_BAR
 
-		(void)vfo;  // unused
-		
-		// optional larger RSSI dBm, S-point and bar level
+	(void)vfo;  // unused
+	
+	// optional larger RSSI dBm, S-point and bar level
 
-		if (center_line != CENTER_LINE_RSSI)
-			return;
+	if (center_line != CENTER_LINE_RSSI)
+		return;
 
-		if (gCurrentFunction == FUNCTION_RECEIVE ||
-		    gCurrentFunction == FUNCTION_MONITOR ||
-		    gCurrentFunction == FUNCTION_INCOMING)
-		{
-			UI_DisplayRSSIBar(rssi, true);
-		}
+	if (gCurrentFunction == FUNCTION_RECEIVE ||
+		gCurrentFunction == FUNCTION_MONITOR ||
+		gCurrentFunction == FUNCTION_INCOMING)
+	{
+		UI_DisplayRSSIBar(rssi, true);
+	}
 
-	#else
+#else
 
-		// original little RS bars
+	// original little RS bars
 
 //		const int16_t dBm   = (rssi / 2) - 160;
-		const uint8_t Line  = (vfo == 0) ? 3 : 7;
-		uint8_t      *p_line = gFrameBuffer[Line - 1];
+	const uint8_t Line  = (vfo == 0) ? 3 : 7;
+	uint8_t      *p_line = gFrameBuffer[Line - 1];
 
 
-		const unsigned int band = gRxVfo->Band;
-		const int16_t level0  = gEEPROM_RSSI_CALIB[band][0];
-		const int16_t level1  = gEEPROM_RSSI_CALIB[band][1];
-		const int16_t level2  = gEEPROM_RSSI_CALIB[band][2];
-		const int16_t level3  = gEEPROM_RSSI_CALIB[band][3];
+	const unsigned int band = gRxVfo->Band;
+	const int16_t level0  = gEEPROM_RSSI_CALIB[band][0];
+	const int16_t level1  = gEEPROM_RSSI_CALIB[band][1];
+	const int16_t level2  = gEEPROM_RSSI_CALIB[band][2];
+	const int16_t level3  = gEEPROM_RSSI_CALIB[band][3];
 
-		const int16_t level01 = (level0 + level1) / 2;
-		const int16_t level12 = (level1 + level2) / 2;
-		const int16_t level23 = (level2 + level3) / 2;
+	const int16_t level01 = (level0 + level1) / 2;
+	const int16_t level12 = (level1 + level2) / 2;
+	const int16_t level23 = (level2 + level3) / 2;
 
-		gVFO_RSSI[vfo] = rssi;
+	gVFO_RSSI[vfo] = rssi;
 
-		uint8_t rssi_level = 0;
+	uint8_t rssi_level = 0;
 
-		if (rssi >= level3)  rssi_level = 7;
-		else
-		if (rssi >= level23) rssi_level = 6;
-		else
-		if (rssi >= level2)  rssi_level = 5;
-		else
-		if (rssi >= level12) rssi_level = 4;
-		else
-		if (rssi >= level1)  rssi_level = 3;
-		else
-		if (rssi >= level01) rssi_level = 2;
-		else
-		if (rssi >= level0)  rssi_level = 1;
+	if (rssi >= level3)  rssi_level = 7;
+	else
+	if (rssi >= level23) rssi_level = 6;
+	else
+	if (rssi >= level2)  rssi_level = 5;
+	else
+	if (rssi >= level12) rssi_level = 4;
+	else
+	if (rssi >= level1)  rssi_level = 3;
+	else
+	if (rssi >= level01) rssi_level = 2;
+	else
+	if (rssi >= level0)  rssi_level = 1;
 
-		if (gVFO_RSSI_bar_level[vfo] == rssi_level)
-			return;
+	if (gVFO_RSSI_bar_level[vfo] == rssi_level)
+		return;
 
-		gVFO_RSSI_bar_level[vfo] = rssi_level;
+	gVFO_RSSI_bar_level[vfo] = rssi_level;
 
-		// **********************************************************
+	// **********************************************************
 
-		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
-			return;    // display is in use
+	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
+		return;    // display is in use
 
-		if (gCurrentFunction == FUNCTION_TRANSMIT || gScreenToDisplay != DISPLAY_MAIN)
-			return;    // display is in use
+	if (gCurrentFunction == FUNCTION_TRANSMIT || gScreenToDisplay != DISPLAY_MAIN)
+		return;    // display is in use
 
-		p_line = gFrameBuffer[Line - 1];
+	p_line = gFrameBuffer[Line - 1];
 
-		memset(p_line, 0, 23);
+	memset(p_line, 0, 23);
 
-		// untested !!!
+	// untested !!!
 
-		if (rssi_level == 0)
-			p_line = NULL;
-		else
-			UI_drawBars(p_line, rssi_level);
+	if (rssi_level == 0)
+		p_line = NULL;
+	else
+		UI_drawBars(p_line, rssi_level);
 
-		ST7565_DrawLine(0, Line, 23, p_line);
-	#endif
+	ST7565_DrawLine(0, Line, 23, p_line);
+#endif
 }
 
 // ***************************************************************************
@@ -293,12 +292,12 @@ void UI_DisplayMain(void)
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
 		const unsigned int line       = (vfo_num == 0) ? line0 : line1;
-		const bool         isSelectedVFO   = (vfo_num == gEeprom.TX_VFO);
+		const bool         isMainVFO   = (vfo_num == gEeprom.TX_VFO);
 		uint8_t           *p_line0    = gFrameBuffer[line + 0];
 		uint8_t           *p_line1    = gFrameBuffer[line + 1];
 		unsigned int       mode       = 0;
 
-		if (activeTxVFO != vfo_num)
+		if (activeTxVFO != vfo_num) // this is not active TX VFO
 		{
 			if (gDTMF_CallState != DTMF_CALL_STATE_NONE || gDTMF_IsTx || gDTMF_InputMode)
 			{	// show DTMF stuff
@@ -343,12 +342,12 @@ void UI_DisplayMain(void)
 			}
 
 			// highlight the selected/used VFO with a marker
-			if (isSelectedVFO)
+			if (isMainVFO)
 				memmove(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 		}
-		else
+		else // active TX VFO
 		{	// highlight the selected/used VFO with a marker
-			if (isSelectedVFO)
+			if (isMainVFO)
 				memmove(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			else
 				memmove(p_line0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
@@ -366,11 +365,11 @@ void UI_DisplayMain(void)
 				if (activeTxVFO == vfo_num)
 				{	// show the TX symbol
 					mode = 1;
-					#ifdef ENABLE_SMALL_BOLD
-						UI_PrintStringSmallBold("TX", 14, 0, line);
-					#else
-						UI_PrintStringSmall("TX", 14, 0, line);
-					#endif
+#ifdef ENABLE_SMALL_BOLD
+					UI_PrintStringSmallBold("TX", 14, 0, line);
+#else
+					UI_PrintStringSmall("TX", 14, 0, line);
+#endif
 				}
 			}
 		}
@@ -382,11 +381,11 @@ void UI_DisplayMain(void)
 			     gCurrentFunction == FUNCTION_INCOMING) &&
 			     gEeprom.RX_VFO == vfo_num)
 			{
-				#ifdef ENABLE_SMALL_BOLD
-					UI_PrintStringSmallBold("RX", 14, 0, line);
-				#else
-					UI_PrintStringSmall("RX", 14, 0, line);
-				#endif
+#ifdef ENABLE_SMALL_BOLD
+				UI_PrintStringSmallBold("RX", 14, 0, line);
+#else
+				UI_PrintStringSmall("RX", 14, 0, line);
+#endif
 			}
 		}
 
@@ -397,11 +396,10 @@ void UI_DisplayMain(void)
 			if (!inputting)
 				sprintf(String, "M%u", gEeprom.ScreenChannel[vfo_num] + 1);
 			else
-				sprintf(String, "M%.3s", INPUTBOX_GetAscii());                            // show the input text
+				sprintf(String, "M%.3s", INPUTBOX_GetAscii());  // show the input text
 			UI_PrintStringSmall(String, x, 0, line + 1);
 		}
-		else
-		if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
+		else if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 		{	// frequency mode
 			// show the frequency band number
 			const unsigned int x = 2;
@@ -409,32 +407,31 @@ void UI_DisplayMain(void)
 			sprintf(String, "F%u%s", 1 + gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST, buf);
 			UI_PrintStringSmall(String, x, 0, line + 1);
 		}
-		#ifdef ENABLE_NOAA
-			else
-			{
-				if (gInputBoxIndex == 0 || gEeprom.TX_VFO != vfo_num)
-				{	// channel number
-					sprintf(String, "N%u", 1 + gEeprom.ScreenChannel[vfo_num] - NOAA_CHANNEL_FIRST);
-				}
-				else
-				{	// user entering channel number
-					sprintf(String, "N%u%u", '0' + gInputBox[0], '0' + gInputBox[1]);
-				}
-				UI_PrintStringSmall(String, 7, 0, line + 1);
+#ifdef ENABLE_NOAA
+		else
+		{
+			if (gInputBoxIndex == 0 || gEeprom.TX_VFO != vfo_num)
+			{	// channel number
+				sprintf(String, "N%u", 1 + gEeprom.ScreenChannel[vfo_num] - NOAA_CHANNEL_FIRST);
 			}
-		#endif
+			else
+			{	// user entering channel number
+				sprintf(String, "N%u%u", '0' + gInputBox[0], '0' + gInputBox[1]);
+			}
+			UI_PrintStringSmall(String, 7, 0, line + 1);
+		}
+#endif
 
 		// ************
 
 		unsigned int state = VfoState[vfo_num];
 
-		#ifdef ENABLE_ALARM
-			if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_ALARM)
-			{
+#ifdef ENABLE_ALARM
+		if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_ALARM) {
 			if (activeTxVFO == vfo_num)
-					state = VFO_STATE_ALARM;
-			}
-		#endif
+				state = VFO_STATE_ALARM;
+		}
+#endif
 
 		if (state != VFO_STATE_NORMAL)
 		{
@@ -442,8 +439,7 @@ void UI_DisplayMain(void)
 			if (state < ARRAY_SIZE(state_list))
 				UI_PrintString(state_list[state], 31, 0, line, 8);
 		}
-		else
-		if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_VFO == vfo_num)
+		else if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_VFO == vfo_num)
 		{	// user entering a frequency
 			const char * ascii = INPUTBOX_GetAscii();
 			sprintf(String, "%.3s.%.3s", ascii, ascii + 3);
@@ -469,12 +465,12 @@ void UI_DisplayMain(void)
 					memmove(p_line0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
 
 				// compander symbol
-				#ifndef ENABLE_BIG_FREQ
-					if ((attributes & MR_CH_COMPAND) > 0)
-						memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
-				#else
-					// TODO:  // find somewhere else to put the symbol
-				#endif
+#ifndef ENABLE_BIG_FREQ
+				if ((attributes & MR_CH_COMPAND) > 0)
+					memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+#else
+				// TODO:  // find somewhere else to put the symbol
+#endif
 
 				switch (gEeprom.CHANNEL_DISPLAY_MODE)
 				{
@@ -511,18 +507,15 @@ void UI_DisplayMain(void)
 							sprintf(String, "CH-%03u", gEeprom.ScreenChannel[vfo_num] + 1);
 						}
 
-						if (gEeprom.CHANNEL_DISPLAY_MODE == MDF_NAME)
-						{
+						if (gEeprom.CHANNEL_DISPLAY_MODE == MDF_NAME) {
 							UI_PrintString(String, 32, 0, line, 8);
 						}
-						else
-						{
-							#ifdef ENABLE_SMALL_BOLD
-								UI_PrintStringSmallBold(String, 32 + 4, 0, line);
-							#else
-								UI_PrintStringSmall(String, 32 + 4, 0, line);
-							#endif
-
+						else {
+#ifdef ENABLE_SMALL_BOLD
+							UI_PrintStringSmallBold(String, 32 + 4, 0, line);
+#else
+							UI_PrintStringSmall(String, 32 + 4, 0, line);
+#endif
 							// show the channel frequency below the channel number/name
 							sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
 							UI_PrintStringSmall(String, 32 + 4, 0, line + 1);
@@ -553,11 +546,11 @@ void UI_DisplayMain(void)
 				// show the channel symbols
 				const uint8_t attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
 				if ((attributes & MR_CH_COMPAND) > 0)
-					#ifdef ENABLE_BIG_FREQ
-						memmove(p_line0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
-					#else
-						memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
-					#endif
+#ifdef ENABLE_BIG_FREQ
+					memmove(p_line0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
+#else
+					memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+#endif
 			}
 		}
 
@@ -653,38 +646,35 @@ void UI_DisplayMain(void)
 		                 gCurrentFunction == FUNCTION_MONITOR ||
 		                 gCurrentFunction == FUNCTION_INCOMING);
 
-		#ifdef ENABLE_AUDIO_BAR
-			if (gSetting_mic_bar && gCurrentFunction == FUNCTION_TRANSMIT)
-			{
-				center_line = CENTER_LINE_AUDIO_BAR;
-				UI_DisplayAudioBar();
-			}
-			else
-		#endif
+#ifdef ENABLE_AUDIO_BAR
+		if (gSetting_mic_bar && gCurrentFunction == FUNCTION_TRANSMIT) {
+			center_line = CENTER_LINE_AUDIO_BAR;
+			UI_DisplayAudioBar();
+		}
+		else
+#endif
 
-		#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
-			if (rx && gEeprom.VfoInfo[gEeprom.RX_VFO].AM_mode && gSetting_AM_fix)
-			{
-				if (gScreenToDisplay != DISPLAY_MAIN ||
-					gDTMF_CallState != DTMF_CALL_STATE_NONE)
-					return;
+#if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
+		if (rx && gEeprom.VfoInfo[gEeprom.RX_VFO].AM_mode && gSetting_AM_fix)
+		{
+			if (gScreenToDisplay != DISPLAY_MAIN ||
+				gDTMF_CallState != DTMF_CALL_STATE_NONE)
+				return;
 
-				center_line = CENTER_LINE_AM_FIX_DATA;
-				AM_fix_print_data(gEeprom.RX_VFO, String);
-				UI_PrintStringSmall(String, 2, 0, 3);
-			}
-			else
-		#endif
+			center_line = CENTER_LINE_AM_FIX_DATA;
+			AM_fix_print_data(gEeprom.RX_VFO, String);
+			UI_PrintStringSmall(String, 2, 0, 3);
+		}
+		else
+#endif
 
-		#ifdef ENABLE_RSSI_BAR
-			if (rx)
-			{
-				center_line = CENTER_LINE_RSSI;
-				UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_VFO], false);
-			}
-			else
-		#endif
-
+#ifdef ENABLE_RSSI_BAR
+		if (rx) {
+			center_line = CENTER_LINE_RSSI;
+			UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_VFO], false);
+		}
+		else
+#endif
 		if (rx || gCurrentFunction == FUNCTION_FOREGROUND || gCurrentFunction == FUNCTION_POWER_SAVE)
 		{
 			#if 1
@@ -721,22 +711,21 @@ void UI_DisplayMain(void)
 				}
 			#endif
 
-			#ifdef ENABLE_SHOW_CHARGE_LEVEL
-				else
-				if (gChargingWithTypeC)
-				{	// charging .. show the battery state
-					if (gScreenToDisplay != DISPLAY_MAIN ||
-						gDTMF_CallState != DTMF_CALL_STATE_NONE)
-						return;
+#ifdef ENABLE_SHOW_CHARGE_LEVEL
+			else if (gChargingWithTypeC)
+			{	// charging .. show the battery state
+				if (gScreenToDisplay != DISPLAY_MAIN ||
+					gDTMF_CallState != DTMF_CALL_STATE_NONE)
+					return;
 						
-					center_line = CENTER_LINE_CHARGE_DATA;
+				center_line = CENTER_LINE_CHARGE_DATA;
 					
-					sprintf(String, "Charge %u.%02uV %u%%",
-						gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
-						BATTERY_VoltsToPercent(gBatteryVoltageAverage));
-					UI_PrintStringSmall(String, 2, 0, 3);
-				}
-			#endif
+				sprintf(String, "Charge %u.%02uV %u%%",
+					gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
+					BATTERY_VoltsToPercent(gBatteryVoltageAverage));
+				UI_PrintStringSmall(String, 2, 0, 3);
+			}
+#endif
 		}
 	}
 

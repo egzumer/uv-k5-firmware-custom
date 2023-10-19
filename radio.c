@@ -555,9 +555,10 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 
 static void RADIO_SelectCurrentVfo(void)
 {
-	// if crossband is active the current is gTxVfo (gTxVfo/TX_VFO is only ever changed by the user) 
-	// otherwise it is set to gRxVfo (gRxVfo/RX_VFO is equal to TX when dual watch is turned off)
+	// if crossband is active the gCurrentVfo is gTxVfo (gTxVfo/TX_VFO is only ever changed by the user) 
+	// otherwise it is set to gRxVfo
 	// so in the end gCurrentVfo is equal to gTxVfo unless dual watch changes it on incomming transmition (again, this can only happen when XB off)
+	// note: it is called only in certain situations so could not by up-to-date
  	gCurrentVfo = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gRxVfo : gTxVfo;
 }
 
