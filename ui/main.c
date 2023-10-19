@@ -277,12 +277,6 @@ void UI_DisplayMain(void)
 
 	center_line = CENTER_LINE_NONE;
 
-//	#ifdef SINGLE_VFO_CHAN
-//		const bool single_vfo = (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? true : false;
-//	#else
-		const bool single_vfo = false;
-//	#endif
-
 	// clear the screen
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 
@@ -293,22 +287,16 @@ void UI_DisplayMain(void)
 		ST7565_BlitFullScreen();
 		return;
 	}
-
+								// dual watch turned on and locked
 	unsigned int activeTxVFO = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
 		const unsigned int line       = (vfo_num == 0) ? line0 : line1;
-		const bool         isTxVFO   = (vfo_num == gEeprom.TX_VFO);
+		const bool         isSelectedVFO   = (vfo_num == gEeprom.TX_VFO);
 		uint8_t           *p_line0    = gFrameBuffer[line + 0];
 		uint8_t           *p_line1    = gFrameBuffer[line + 1];
 		unsigned int       mode       = 0;
-
-		if (single_vfo)
-		{	// we're in single VFO mode - screen is dedicated to just one VFO
-			if (!isTxVFO)
-				continue;  // skip the unused vfo
-		}
 
 		if (activeTxVFO != vfo_num)
 		{
@@ -355,12 +343,12 @@ void UI_DisplayMain(void)
 			}
 
 			// highlight the selected/used VFO with a marker
-			if (!single_vfo && isTxVFO)
+			if (isSelectedVFO)
 				memmove(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 		}
-		else if (!single_vfo)
+		else
 		{	// highlight the selected/used VFO with a marker
-			if (isTxVFO)
+			if (isSelectedVFO)
 				memmove(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			else
 				memmove(p_line0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
@@ -369,11 +357,11 @@ void UI_DisplayMain(void)
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
 		{	// transmitting
 
-			#ifdef ENABLE_ALARM
-				if (gAlarmState == ALARM_STATE_ALARM)
-					mode = 2;
-				else
-			#endif
+#ifdef ENABLE_ALARM
+			if (gAlarmState == ALARM_STATE_ALARM)
+				mode = 2;
+			else
+#endif
 			{
 				activeTxVFO = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 				if (activeTxVFO == vfo_num)
@@ -418,7 +406,8 @@ void UI_DisplayMain(void)
 		{	// frequency mode
 			// show the frequency band number
 			const unsigned int x = 2;
-			sprintf(String, "FB%u", 1 + gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST);
+			char * buf = gEeprom.VfoInfo[vfo_num].pRX->Frequency < 100000000 ? "" : "+";
+			sprintf(String, "F%u%s", 1 + gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST, buf);
 			UI_PrintStringSmall(String, x, 0, line + 1);
 		}
 		#ifdef ENABLE_NOAA
@@ -461,8 +450,6 @@ void UI_DisplayMain(void)
 			const char * ascii = INPUTBOX_GetAscii();
 			sprintf(String, "%.3s.%.3s", ascii, ascii + 3);
 			UI_DisplayFrequency(String, 32, line, false);
-
-//			center_line = CENTER_LINE_IN_USE;
 		}
 		else
 		{
@@ -477,21 +464,20 @@ void UI_DisplayMain(void)
 			if (gEeprom.ScreenChannel[vfo_num] <= MR_CHANNEL_LAST)
 			{	// it's a channel
 
-				// show the channel symbols
+				// show the scan list assigment symbols
 				const uint8_t attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
 				if (attributes & MR_CH_SCANLIST1)
 					memmove(p_line0 + 113, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
 				if (attributes & MR_CH_SCANLIST2)
 					memmove(p_line0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
+
+				// compander symbol
 				#ifndef ENABLE_BIG_FREQ
 					if ((attributes & MR_CH_COMPAND) > 0)
 						memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
 				#else
-					
 					// TODO:  // find somewhere else to put the symbol
-				
 				#endif
-
 
 				switch (gEeprom.CHANNEL_DISPLAY_MODE)
 				{

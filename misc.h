@@ -280,7 +280,7 @@ extern ReceptionMode_t       gRxReceptionMode;
 extern scan_next_chan_t      gCurrentScanList;
 extern uint32_t              gRestoreFrequency;
 
-extern bool                  gRxVfoIsActive;
+extern bool                  gRxVfoIsActive; //TRUE when dual watch is momentarly suspended and RX_VFO is locked to either last TX or RX
 extern uint8_t               gAlarmToneCounter;
 extern uint16_t              gAlarmRunningCounter;
 extern bool                  gKeyBeingHeld;

@@ -121,7 +121,13 @@ typedef struct {
 	#ifdef ENABLE_NOAA
 		uint8_t           NoaaChannel[2];
 	#endif
+
+	// The actual VFO index (0-upper/1-lower) that is now used for RX, 
+	// It is being alternated by dual watch, and flipped by crossband
 	uint8_t               RX_VFO;
+
+	// The main VFO index (0-upper/1-lower) selected by the user
+	// 
 	uint8_t               TX_VFO;
 
 	uint8_t               field7_0xa;

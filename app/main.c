@@ -589,7 +589,6 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 
 							gEeprom.ScreenChannel[vfo] = channel;
 							gEeprom.VfoInfo[vfo].CHANNEL_SAVE = channel;
-							gEeprom.TX_VFO = vfo;
 
 							RADIO_SelectVfos();
 							RADIO_ApplyOffset(gRxVfo);

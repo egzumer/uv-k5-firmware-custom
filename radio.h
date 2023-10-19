@@ -115,8 +115,16 @@ typedef struct VFO_Info_t
 	char           Name[16];
 } VFO_Info_t;
 
+// Settings of the main VFO that is selected by the user
+// The pointer follows gEeprom.RX_VFO index
 extern VFO_Info_t    *gTxVfo;
+
+// Settings of the actual VFO that is now used for RX,
+// It is being alternated by dual watch, and flipped by crossband
+// The pointer follows gEeprom.RX_VFO
 extern VFO_Info_t    *gRxVfo;
+
+// Equal to gTxVfo unless dual watch changes it on incomming transmition (this can only happen when XB off and DW on)
 extern VFO_Info_t    *gCurrentVfo;
 
 extern DCS_CodeType_t gSelectedCodeType;

@@ -555,11 +555,15 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 
 static void RADIO_SelectCurrentVfo(void)
 {
- 	gCurrentVfo = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gRxVfo : &gEeprom.VfoInfo[gEeprom.TX_VFO];
+	// if crossband is active the current is gTxVfo (gTxVfo/TX_VFO is only ever changed by the user) 
+	// otherwise it is set to gRxVfo (gRxVfo/RX_VFO is equal to TX when dual watch is turned off)
+	// so in the end gCurrentVfo is equal to gTxVfo unless dual watch changes it on incomming transmition (again, this can only happen when XB off)
+ 	gCurrentVfo = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gRxVfo : gTxVfo;
 }
 
 void RADIO_SelectVfos(void)
 {
+	// if crossband is used then RX_VFO is the opposite to the TX_VFO
 	gEeprom.RX_VFO = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.TX_VFO : !gEeprom.TX_VFO;
 
 	gTxVfo = &gEeprom.VfoInfo[gEeprom.TX_VFO];
@@ -923,10 +927,9 @@ void RADIO_PrepareTX(void)
 		if (!gRxVfoIsActive)
 		{	// use the current RX vfo
 			gEeprom.RX_VFO = gEeprom.TX_VFO;
-			gRxVfo         = &gEeprom.VfoInfo[gEeprom.TX_VFO];
+			gRxVfo         = gTxVfo;
 			gRxVfoIsActive = true;
 		}
-		gCurrentVfo = gRxVfo;
 
 		// let the user see that DW is not active
 		gDualWatchActive = false;
