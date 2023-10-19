@@ -535,7 +535,8 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		gDualWatchCountdown_10ms = dual_watch_count_after_2_10ms;
 		gScheduleDualWatch       = false;
 
-		gRxVfoIsActive = true;
+		if(gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF)
+			gRxVfoIsActive = true;
 
 		// let the user see DW is not active
 		gDualWatchActive = false;
