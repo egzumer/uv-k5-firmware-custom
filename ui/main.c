@@ -287,8 +287,8 @@ void UI_DisplayMain(void)
 		ST7565_BlitFullScreen();
 		return;
 	}
-								// dual watch turned on and locked
-	unsigned int activeTxVFO = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF && gRxVfoIsActive) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
+							
+	unsigned int activeTxVFO = gRxVfoIsActive ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 
 	for (vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
@@ -363,7 +363,6 @@ void UI_DisplayMain(void)
 			else
 #endif
 			{
-				activeTxVFO = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 				if (activeTxVFO == vfo_num)
 				{	// show the TX symbol
 					mode = 1;
@@ -432,8 +431,7 @@ void UI_DisplayMain(void)
 		#ifdef ENABLE_ALARM
 			if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_ALARM)
 			{
-				uint8_t channel = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
-				if (channel == vfo_num)
+			if (activeTxVFO == vfo_num)
 					state = VFO_STATE_ALARM;
 			}
 		#endif
@@ -456,7 +454,6 @@ void UI_DisplayMain(void)
 			uint32_t frequency = gEeprom.VfoInfo[vfo_num].pRX->Frequency;
 			if (gCurrentFunction == FUNCTION_TRANSMIT)
 			{	// transmitting
-				activeTxVFO = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 				if (activeTxVFO == vfo_num)
 					frequency = gEeprom.VfoInfo[vfo_num].pTX->Frequency;
 			}
