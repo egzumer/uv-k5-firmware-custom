@@ -1,8 +1,9 @@
 # Main features:
- - OneOfEleven mods, including AM fix
+ - many of OneOfEleven mods, including AM fix
  - fagci spectrum analyzer (**F+5** to turn on)
- - better battery percentage calculation (based on real measurement, battery calibration recommended)
- - battery calibration option available available in the menu (instructions below)
+ - some other smaller mods introduced by me
+
+ Go to [Wiki](https://github.com/egzumer/uv-k5-firmware-custom/wiki) to learn more.
 
 <img src="images/main.jpg" width=300 /><img src="images/spectrum.jpg" width=300 /><img src="images/audiobar.jpg" width=300 /><img src="images/rssibar.jpg" width=300 />
 
