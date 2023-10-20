@@ -627,19 +627,12 @@ static void DrawStatus() {
              gBatteryVoltages[3]) /
             4;
 
-  if (gBatteryCalibration[5] < Voltage) {
-    v = 5;
-  } else if (gBatteryCalibration[4] < Voltage) {
-    v = 5;
-  } else if (gBatteryCalibration[3] < Voltage) {
-    v = 4;
-  } else if (gBatteryCalibration[2] < Voltage) {
-    v = 3;
-  } else if (gBatteryCalibration[1] < Voltage) {
-    v = 2;
-  } else if (gBatteryCalibration[0] < Voltage) {
-    v = 1;
+for(uint8_t i = 5; i > 0; i--) {
+  if(Voltage > gBatteryCalibration[i - 1]) {
+    v = i;
+    break;
   }
+}
 
   gStatusLine[127] = 0b01111110;
   for (int i = 126; i >= 116; i--) {
