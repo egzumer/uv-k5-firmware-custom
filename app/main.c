@@ -103,6 +103,46 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				gWasFKeyPressed = false;
 				gUpdateStatus   = true;
 				gBeepToPlay     = BEEP_1KHZ_60MS_OPTIONAL;
+
+#ifdef ENABLE_COPY_CHAN_TO_VFO
+				if (gEeprom.VFO_OPEN && gCssScanMode == CSS_SCAN_MODE_OFF)
+				{
+
+					if (gScanStateDir != SCAN_OFF)
+					{
+						if (gCurrentFunction != FUNCTION_INCOMING ||
+							gRxReceptionMode == RX_MODE_NONE      ||
+							gScanPauseDelayIn_10ms == 0)
+						{	// scan is running (not paused)
+							return;
+						}
+					}
+
+					const uint8_t vfo = gEeprom.TX_VFO;
+
+					if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo]))
+					{	// copy channel to VFO, then swap to the VFO
+
+						const unsigned int channel = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
+
+						gEeprom.ScreenChannel[vfo] = channel;
+						gEeprom.VfoInfo[vfo].CHANNEL_SAVE = channel;
+
+						RADIO_SelectVfos();
+						RADIO_ApplyOffset(gRxVfo);
+						RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
+						RADIO_SetupRegisters(true);
+
+						//SETTINGS_SaveChannel(channel, gEeprom.RX_VFO, gRxVfo, 1);
+
+						gUpdateDisplay = true;
+					}
+				}
+				else
+				{
+					gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+				}
+#endif
 				return;
 			}
 
@@ -559,50 +599,6 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 				gWasFKeyPressed = false;
 				gUpdateStatus   = true;
 
-				#ifdef ENABLE_COPY_CHAN_TO_VFO
-
-					if (gEeprom.VFO_OPEN && gCssScanMode == CSS_SCAN_MODE_OFF)
-					{
-
-						if (gScanStateDir != SCAN_OFF)
-						{
-							if (gCurrentFunction != FUNCTION_INCOMING ||
-							    gRxReceptionMode == RX_MODE_NONE      ||
-								gScanPauseDelayIn_10ms == 0)
-							{	// scan is running (not paused)
-								return;
-							}
-						}
-						
-						const uint8_t vfo = gEeprom.TX_VFO;
-
-						if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo]))
-						{	// copy channel to VFO, then swap to the VFO
-							
-							const unsigned int channel = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
-
-							gEeprom.ScreenChannel[vfo] = channel;
-							gEeprom.VfoInfo[vfo].CHANNEL_SAVE = channel;
-
-							RADIO_SelectVfos();
-							RADIO_ApplyOffset(gRxVfo);
-							RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
-							RADIO_SetupRegisters(true);
-
-							//SETTINGS_SaveChannel(channel, gEeprom.RX_VFO, gRxVfo, 1);
-
-							gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-
-							gUpdateStatus  = true;
-							gUpdateDisplay = true;
-						}
-					}
-					else
-					{
-						gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
-					}
-
-				#endif
 			}
 		}
 
