@@ -17,9 +17,12 @@
 #include <string.h>
 
 #include "app/app.h"
+#include "app/common.h"
+
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
+
 #include "app/generic.h"
 #include "app/menu.h"
 #include "app/scanner.h"
@@ -52,18 +55,7 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 			if (!bKeyPressed) // won't ever pass
 				return;
 
-			if (gScreenToDisplay != DISPLAY_MENU &&
-			    gCurrentFunction != FUNCTION_TRANSMIT)
-			{	// toggle the keyboad lock
-
-				#ifdef ENABLE_VOICE
-					gAnotherVoiceID = gEeprom.KEY_LOCK ? VOICE_ID_UNLOCK : VOICE_ID_LOCK;
-				#endif
-
-				gEeprom.KEY_LOCK = !gEeprom.KEY_LOCK;
-
-				gRequestSaveSettings = true;
-			}
+			COMMON_KeypadLockToggle();
 		}
 		else // released
 		{

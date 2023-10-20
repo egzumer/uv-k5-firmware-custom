@@ -348,6 +348,8 @@ const t_sidefunction SIDEFUNCTIONS[] =
 #ifdef ENABLE_TX1750	
 	{"1750HZ",			ACTION_OPT_1750},
 #endif
+	{"LOCK\nKEYPAD",	ACTION_OPT_KEYLOCK},
+	{"SWITCH\nVFO",		ACTION_OPT_A_B},
 };
 const t_sidefunction* gSubMenu_SIDEFUNCTIONS = SIDEFUNCTIONS;
 const uint8_t gSubMenu_SIDEFUNCTIONS_size = ARRAY_SIZE(SIDEFUNCTIONS);

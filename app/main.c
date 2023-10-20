@@ -18,11 +18,10 @@
 
 #include "app/action.h"
 #include "app/app.h"
-
+#include "app/common.h"
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
-
 #include "app/generic.h"
 #include "app/main.h"
 #include "app/scanner.h"
@@ -137,21 +136,10 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			break;
 
 		case KEY_2:
-			gEeprom.TX_VFO ^= 1;
-
-			if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)
-				gEeprom.CROSS_BAND_RX_TX = gEeprom.TX_VFO + 1;
-			if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
-				gEeprom.DUAL_WATCH = gEeprom.TX_VFO + 1;
-
-			gRequestSaveSettings  = 1;
-			gFlagReconfigureVfos  = true;
-
-			gRequestDisplayScreen = DISPLAY_MAIN;
+			COMMON_SwitchVFOs();
 
 			if (beep)
 				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-
 			break;
 
 		case KEY_3:

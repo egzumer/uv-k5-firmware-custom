@@ -18,6 +18,7 @@
 
 #include "app/action.h"
 #include "app/app.h"
+#include "app/common.h"
 #include "app/dtmf.h"
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
@@ -411,19 +412,25 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			#endif
 			break;
 		case ACTION_OPT_ALARM:
-			#ifdef ENABLE_ALARM
-				ACTION_AlarmOr1750(false);
-			#endif
+#ifdef ENABLE_ALARM
+			ACTION_AlarmOr1750(false);
+#endif
 			break;
-		#ifdef ENABLE_FMRADIO
-			case ACTION_OPT_FM:
-				ACTION_FM();
-				break;
-		#endif
+#ifdef ENABLE_FMRADIO
+		case ACTION_OPT_FM:
+			ACTION_FM();
+			break;
+#endif
 		case ACTION_OPT_1750:
 			#ifdef ENABLE_TX1750
 				ACTION_AlarmOr1750(true);
 			#endif
+			break;
+		case ACTION_OPT_KEYLOCK:
+			COMMON_KeypadLockToggle();
+			break;
+		case ACTION_OPT_A_B:
+			COMMON_SwitchVFOs();
 			break;
 	}
 }
