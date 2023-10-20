@@ -207,9 +207,9 @@ const char* gSubMenu_RXMode[4] =
 
 const char gSubMenu_SC_REV[3][8] =
 {
-	"TIME",
+	"TIMEOUT",
 	"CARRIER",
-	"SEARCH"
+	"STOP"
 };
 
 const char* gSubMenu_MDF[4] =
