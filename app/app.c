@@ -1210,7 +1210,7 @@ void APP_CheckKeys(void)
 
 	if (gDebounceCounter == key_debounce_10ms) // debounced new key pressed
 	{	
-		if (Key == KEY_INVALID) //all PTT keys released
+		if (Key == KEY_INVALID) //all non PTT keys released
 		{
 			if (gKeyReading1 != KEY_INVALID) // some button was pressed before
 			{
@@ -1236,16 +1236,16 @@ void APP_CheckKeys(void)
 		if (Key != KEY_PTT)
 		{
 			gKeyBeingHeld = true;
-			APP_ProcessKey(Key, true, true);
+			APP_ProcessKey(Key, true, true); // key held event
 		}
 	}
 	else //subsequent fast key repeats
 	{	
-		if (Key == KEY_UP || Key == KEY_DOWN)
+		if (Key == KEY_UP || Key == KEY_DOWN) // fast key repeats for up/down buttons
 		{
 			gKeyBeingHeld = true;
 			if ((gDebounceCounter % key_repeat_10ms) == 0)
-				APP_ProcessKey(Key, true, true);
+				APP_ProcessKey(Key, true, true); // key held event
 		}
 
 		if (gDebounceCounter < 0xFFFF)
@@ -1946,8 +1946,6 @@ void APP_TimeSlice500ms(void)
 
 static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
-	bool bFlag = false;
-
 	const bool backlight_was_on = GPIO_CheckBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
 
 	if (Key == KEY_EXIT && !backlight_was_on && gEeprom.BACKLIGHT > 0)
@@ -2052,10 +2050,9 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				return;
 			}
 		}
-		else
-		if (Key != KEY_SIDE1 && Key != KEY_SIDE2)
+		else if (Key != KEY_SIDE1 && Key != KEY_SIDE2)
 		{
-			if (!bKeyPressed || bKeyHeld)
+			if (!bKeyPressed || bKeyHeld) // released or held
 				return;
 
 			// keypad is locked, tell the user
@@ -2076,6 +2073,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		}
 	}
 
+	bool bFlag = false;
 	if (Key == KEY_PTT)
 	{
 		if (gPttWasPressed)
@@ -2186,8 +2184,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				}
 #endif
 		}
-		else
-		if (Key != KEY_SIDE1 && Key != KEY_SIDE2)
+		else if (Key != KEY_SIDE1 && Key != KEY_SIDE2)
 		{
 			switch (gScreenToDisplay)
 			{
