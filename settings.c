@@ -107,6 +107,7 @@ void SETTINGS_SaveSettings(void)
 	EEPROM_WriteBuffer(0x0E78, State);
 
 	State[0] = gEeprom.BEEP_CONTROL;
+	State[0] |= gEeprom.KEY_M_LONG_PRESS_ACTION << 1;
 	State[1] = gEeprom.KEY_1_SHORT_PRESS_ACTION;
 	State[2] = gEeprom.KEY_1_LONG_PRESS_ACTION;
 	State[3] = gEeprom.KEY_2_SHORT_PRESS_ACTION;

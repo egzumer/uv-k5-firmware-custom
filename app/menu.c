@@ -329,6 +329,7 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 		case MENU_F1LONG:
 		case MENU_F2SHRT:
 		case MENU_F2LONG:
+		case MENU_MLONG:
 			*pMin = 0;
 			*pMax = gSubMenu_SIDEFUNCTIONS_size-1;
 			break;
@@ -766,12 +767,14 @@ void MENU_AcceptSetting(void)
 		case MENU_F1LONG:
 		case MENU_F2SHRT:
 		case MENU_F2LONG:
+		case MENU_MLONG:
 			{
 				uint8_t * fun[]= {
 					&gEeprom.KEY_1_SHORT_PRESS_ACTION,
 					&gEeprom.KEY_1_LONG_PRESS_ACTION,
 					&gEeprom.KEY_2_SHORT_PRESS_ACTION,
-					&gEeprom.KEY_2_LONG_PRESS_ACTION};
+					&gEeprom.KEY_2_LONG_PRESS_ACTION,
+					&gEeprom.KEY_M_LONG_PRESS_ACTION};
 				*fun[GetCurrentMenuId()-MENU_F1SHRT] = gSubMenu_SIDEFUNCTIONS[gSubMenuSelection].id;
 			}
 			break;
@@ -1146,12 +1149,14 @@ void MENU_ShowCurrentSetting(void)
 		case MENU_F1LONG:
 		case MENU_F2SHRT:
 		case MENU_F2LONG:
+		case MENU_MLONG:
 		{
 			uint8_t * fun[]= {
 				&gEeprom.KEY_1_SHORT_PRESS_ACTION,
 				&gEeprom.KEY_1_LONG_PRESS_ACTION,
 				&gEeprom.KEY_2_SHORT_PRESS_ACTION,
-				&gEeprom.KEY_2_LONG_PRESS_ACTION};
+				&gEeprom.KEY_2_LONG_PRESS_ACTION,
+				&gEeprom.KEY_M_LONG_PRESS_ACTION};
 			uint8_t id = *fun[GetCurrentMenuId()-MENU_F1SHRT];
 
 			for(int i = 0; i < gSubMenu_SIDEFUNCTIONS_size; i++) {

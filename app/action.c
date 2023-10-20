@@ -358,26 +358,31 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 	uint8_t funcShort = ACTION_OPT_NONE;
 	uint8_t funcLong  = ACTION_OPT_NONE;
-	if (Key == KEY_SIDE1)
-	{
-		funcShort = gEeprom.KEY_1_SHORT_PRESS_ACTION;
-		funcLong  = gEeprom.KEY_1_LONG_PRESS_ACTION;
-	}
-	else if (Key == KEY_SIDE2)
-	{
-		funcShort = gEeprom.KEY_2_SHORT_PRESS_ACTION;
-		funcLong  = gEeprom.KEY_2_LONG_PRESS_ACTION;
+	switch(Key) {
+		case KEY_SIDE1:
+			funcShort = gEeprom.KEY_1_SHORT_PRESS_ACTION;
+			funcLong  = gEeprom.KEY_1_LONG_PRESS_ACTION;
+			break;
+		case KEY_SIDE2:
+			funcShort = gEeprom.KEY_2_SHORT_PRESS_ACTION;
+			funcLong  = gEeprom.KEY_2_LONG_PRESS_ACTION;
+			break;
+		case KEY_MENU:
+			funcLong  = gEeprom.KEY_M_LONG_PRESS_ACTION;
+			break;
+		default:
+			break;
 	}
 
 	if (!bKeyHeld && bKeyPressed) // button pushed
 	{
-		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 		return;
 	}
 
 	// held or released beyond this point
 
-
+	if(!(bKeyHeld && !bKeyPressed)) // don't beep on released after hold
+		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 
 	if (bKeyHeld || bKeyPressed) // held
 	{

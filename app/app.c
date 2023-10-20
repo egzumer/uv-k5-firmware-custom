@@ -2050,9 +2050,14 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				return;
 			}
 		}
-		else if (Key != KEY_SIDE1 && Key != KEY_SIDE2)
+		// KEY_MENU has a special treatment here, because we want to pass hold event to ACTION_Handle
+		// but we don't want it to complain when initial press happens
+		// we want to react on realese instead
+		else if (Key != KEY_SIDE1 && Key != KEY_SIDE2 &&        // pass side buttons
+			     !(Key == KEY_MENU && bKeyHeld)) // pass KEY_MENU held
 		{
-			if (!bKeyPressed || bKeyHeld) // released or held
+			if ((!bKeyPressed || bKeyHeld || (Key == KEY_MENU && bKeyPressed)) && // prevent released or held, prevent KEY_MENU pressed
+				!(Key == KEY_MENU && !bKeyPressed))  // pass KEY_MENU released
 				return;
 
 			// keypad is locked, tell the user

@@ -599,6 +599,7 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 				gWasFKeyPressed = false;
 				gUpdateStatus   = true;
 
+			ACTION_Handle(KEY_MENU, bKeyPressed, bKeyHeld);
 			}
 		}
 
