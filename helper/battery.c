@@ -86,23 +86,12 @@ void BATTERY_GetReadings(const bool bDisplayBatteryLevel)
 
 	gBatteryDisplayLevel = 0;
 
-	if (gBatteryCalibration[5] < Voltage)
-		gBatteryDisplayLevel = 6;
-	else
-	if (gBatteryCalibration[4] < Voltage)
-		gBatteryDisplayLevel = 5;
-	else
-	if (gBatteryCalibration[3] < Voltage)
-		gBatteryDisplayLevel = 4;
-	else
-	if (gBatteryCalibration[2] < Voltage)
-		gBatteryDisplayLevel = 3;
-	else
-	if (gBatteryCalibration[1] < Voltage)
-		gBatteryDisplayLevel = 2;
-	else
-	if (gBatteryCalibration[0] < Voltage)
-		gBatteryDisplayLevel = 1;
+	for(uint8_t i = 6; i > 0; i--){
+		if (Voltage > gBatteryCalibration[i-1]) {
+			gBatteryDisplayLevel = i;
+			break;
+		}
+	}
 
 	gBatteryVoltageAverage = (Voltage * 760) / gBatteryCalibration[3];
 
