@@ -72,12 +72,12 @@ void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Lin
 
 	for (i = 0; i < Length; i++)
 	{
-		if (pString[i] >= ' ' && pString[i] < 127)
+		const unsigned int ofs   = (unsigned int)Start + (i * Width);
+		if (pString[i] > ' ' && pString[i] < 127)
 		{
-			const unsigned int index = pString[i] - ' ';
-			const unsigned int ofs   = (unsigned int)Start + (i * Width);
-			memmove(gFrameBuffer[Line + 0] + ofs, &gFontBig[index][0], 8);
-			memmove(gFrameBuffer[Line + 1] + ofs, &gFontBig[index][8], 7);
+			const unsigned int index = pString[i] - ' ' - 1;
+			memmove(gFrameBuffer[Line + 0] + ofs, &gFontBig[index][0], 7);
+			memmove(gFrameBuffer[Line + 1] + ofs, &gFontBig[index][7], 7);
 		}
 	}
 }
@@ -95,9 +95,9 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 	uint8_t            *pFb         = gFrameBuffer[Line] + Start;
 	for (i = 0; i < Length; i++)
 	{
-		if (pString[i] >= 32)
+		if (pString[i] > ' ')
 		{
-			const unsigned int index = (unsigned int)pString[i] - 32;
+			const unsigned int index = (unsigned int)pString[i] - ' ' - 1;
 			if (index < ARRAY_SIZE(gFontSmall))
 				memmove(pFb + (i * char_spacing) + 1, &gFontSmall[index], char_width);
 		}
@@ -118,9 +118,9 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 		uint8_t            *pFb         = gFrameBuffer[Line] + Start;
 		for (i = 0; i < Length; i++)
 		{
-			if (pString[i] >= 32)
+			if (pString[i] > ' ')
 			{
-				const unsigned int index = (unsigned int)pString[i] - 32;
+				const unsigned int index = (unsigned int)pString[i] - ' ' - 1;
 				if (index < ARRAY_SIZE(gFontSmallBold))
 					memmove(pFb + (i * char_spacing) + 1, &gFontSmallBold[index], char_width);
 			}
@@ -135,9 +135,9 @@ void UI_PrintStringSmallBuffer(const char *pString, uint8_t *buffer)
 	const unsigned int char_spacing = char_width + 1;
 	for (i = 0; i < strlen(pString); i++)
 	{
-		if (pString[i] >= 32)
+		if (pString[i] > ' ')
 		{
-			const unsigned int index = (unsigned int)pString[i] - 32;
+			const unsigned int index = (unsigned int)pString[i] - ' ' - 1;
 			if (index < ARRAY_SIZE(gFontSmall))
 				memmove(buffer + (i * char_spacing) + 1, &gFontSmall[index], char_width);
 		}
@@ -153,17 +153,14 @@ void UI_DisplayFrequency(const char *string, uint8_t X, uint8_t Y, bool center)
 
 	uint8_t len = strlen(string);
 	for(int i = 0; i < len; i++) {
-		const char c = string[i];
+		char c = string[i];
+		if(c=='-') c = '9' + 1;
 		if (bCanDisplay || c != ' ')
 		{
 			bCanDisplay = true;
-			if(c>='0' && c<='9') {
-				memmove(pFb0, gFontBigDigits[c-'0'],              char_width);
-				memmove(pFb1, gFontBigDigits[c-'0'] + char_width, char_width);
-			}
-			else if(c=='-') {
-				memmove(pFb0, gFontBigDigits[10],              char_width);
-				memmove(pFb1, gFontBigDigits[10] + char_width, char_width);				
+			if(c>='0' && c<='9' + 1) {
+				memcpy(pFb0 + 2, gFontBigDigits[c-'0'],                  char_width - 3);
+				memcpy(pFb1 + 2, gFontBigDigits[c-'0'] + char_width - 3, char_width - 3);
 			}
 			else if(c=='.') {
 				*pFb1 = 0x60; pFb0++; pFb1++;

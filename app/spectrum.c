@@ -675,7 +675,7 @@ static void DrawNums() {
   }
 
   if (IsCenterMode()) {
-    sprintf(String, "%u.%05u \xB1%u.%02uk", currentFreq / 100000,
+    sprintf(String, "%u.%05u \x7F%u.%02uk", currentFreq / 100000,
             currentFreq % 100000, settings.frequencyChangeStep / 100,
             settings.frequencyChangeStep % 100);
     GUI_DisplaySmallest(String, 36, 49, false, true);
@@ -683,7 +683,7 @@ static void DrawNums() {
     sprintf(String, "%u.%05u", GetFStart() / 100000, GetFStart() % 100000);
     GUI_DisplaySmallest(String, 0, 49, false, true);
 
-    sprintf(String, "\xB1%u.%02uk", settings.frequencyChangeStep / 100,
+    sprintf(String, "\x7F%u.%02uk", settings.frequencyChangeStep / 100,
             settings.frequencyChangeStep % 100);
     GUI_DisplaySmallest(String, 48, 49, false, true);
 
