@@ -31,6 +31,7 @@ void COMMON_SwitchVFOs()
 
     gRequestSaveSettings  = 1;
     gFlagReconfigureVfos  = true;
+    gScheduleDualWatch = true;
 
     gRequestDisplayScreen = DISPLAY_MAIN;
 }
