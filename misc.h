@@ -94,6 +94,13 @@ enum scan_next_chan_t {
 };
 typedef enum scan_next_chan_t scan_next_chan_t;
 
+enum BacklightOnRxTx_t {
+	BACKLIGHT_ON_TR_OFF,
+	BACKLIGHT_ON_TR_TX,
+	BACKLIGHT_ON_TR_RX,
+	BACKLIGHT_ON_TR_TXRX
+};
+
 extern const uint8_t         fm_radio_countdown_500ms;
 extern const uint16_t        fm_play_countdown_scan_10ms;
 extern const uint16_t        fm_play_countdown_noscan_10ms;
@@ -199,7 +206,6 @@ extern volatile bool         gSchedulePowerSave;
 extern volatile bool         gScheduleDualWatch;
 
 extern volatile uint16_t     gDualWatchCountdown_10ms;
-extern volatile bool         gDualWatchCountdownExpired;
 extern bool                  gDualWatchActive;
 
 extern volatile uint8_t      gSerialConfigCountDown_500ms;

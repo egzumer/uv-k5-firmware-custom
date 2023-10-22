@@ -412,9 +412,9 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			ACTION_Scan(true);
 			break;
 		case ACTION_OPT_VOX:
-			#ifdef ENABLE_VOX
-				ACTION_Vox();
-			#endif
+#ifdef ENABLE_VOX
+			ACTION_Vox();
+#endif
 			break;
 		case ACTION_OPT_ALARM:
 #ifdef ENABLE_ALARM

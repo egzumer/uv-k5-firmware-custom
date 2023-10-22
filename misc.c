@@ -122,7 +122,6 @@ volatile bool     gSchedulePowerSave;
 volatile bool     gScheduleDualWatch = true;
 
 volatile uint16_t gDualWatchCountdown_10ms;
-volatile bool     gDualWatchCountdownExpired = true;
 bool              gDualWatchActive           = false;
 
 volatile uint8_t  gSerialConfigCountDown_500ms;

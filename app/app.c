@@ -485,7 +485,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 
 	gEnableSpeaker = true;
 
-	if (gSetting_backlight_on_tx_rx >= 2)
+	if (gSetting_backlight_on_tx_rx >= BACKLIGHT_ON_TR_RX)
 		BACKLIGHT_TurnOn();
 
 	if (gScanStateDir != SCAN_OFF)
@@ -1963,7 +1963,7 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	if (gEeprom.AUTO_KEYPAD_LOCK)
 		gKeyLockCountdown = 30;     // 15 seconds
 
-	if (!bKeyPressed)
+	if (!bKeyPressed) // key released
 	{
 		if (gFlagSaveVfo)
 		{
@@ -1996,9 +1996,10 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			GUI_SelectNextDisplay(DISPLAY_MAIN);
 		}
 	}
-	else
+	else // key pressed or held
 	{
-		if (Key != KEY_PTT || gSetting_backlight_on_tx_rx == 1 || gSetting_backlight_on_tx_rx == 3)
+		if (Key != KEY_PTT || gSetting_backlight_on_tx_rx == BACKLIGHT_ON_TR_TX 
+		                   || gSetting_backlight_on_tx_rx == BACKLIGHT_ON_TR_TXRX)
 			BACKLIGHT_TurnOn();
 
 		if (Key == KEY_EXIT && bKeyHeld)
