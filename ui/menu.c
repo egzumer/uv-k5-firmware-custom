@@ -549,21 +549,13 @@ void UI_DisplayMenu(void)
 		case MENU_OFFSET:
 			if (!gIsInSubMenu || gInputBoxIndex == 0)
 			{
-				sprintf(String, "%d.%05u", gSubMenuSelection / 100000, abs(gSubMenuSelection) % 100000);
+				sprintf(String, "%3d.%05u", gSubMenuSelection / 100000, abs(gSubMenuSelection) % 100000);
 				UI_PrintString(String, menu_item_x1, menu_item_x2, 1, 8);
 			}
 			else
 			{
-				for (i = 0; i < 3; i++)
-					String[i    ] = (gInputBox[i] == 10) ? '-' : gInputBox[i] + '0';
-				String[3] = '.';
-				for (i = 3; i < 6; i++)
-					String[i + 1] = (gInputBox[i] == 10) ? '-' : gInputBox[i] + '0';
-				String[ 7] = '-';
-				String[ 8] = '-';
-				String[ 9] = 0;
-				String[10] = 0;
-				String[11] = 0;
+				const char * ascii = INPUTBOX_GetAscii();
+				sprintf(String, "%.3s.%.3s  ",ascii, ascii + 3);
 				UI_PrintString(String, menu_item_x1, menu_item_x2, 1, 8);
 			}
 
