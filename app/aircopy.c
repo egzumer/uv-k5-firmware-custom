@@ -141,8 +141,7 @@ static void AIRCOPY_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					gAnotherVoiceID        = (VOICE_ID_t)Key;
 				#endif
 				gRxVfo->Band               = i;
-				Frequency                 += 75;
-				Frequency                  = FREQUENCY_FloorToStep(Frequency, gRxVfo->StepFrequency, 0);
+				Frequency                  = FREQUENCY_RoundToStep(Frequency, gRxVfo->StepFrequency);
 				gRxVfo->freq_config_RX.Frequency = Frequency;
 				gRxVfo->freq_config_TX.Frequency = Frequency;
 				RADIO_ConfigureSquelchAndOutputPower(gRxVfo);

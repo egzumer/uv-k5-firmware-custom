@@ -100,25 +100,21 @@ uint8_t FREQUENCY_CalculateOutputPower(uint8_t TxpLow, uint8_t TxpMid, uint8_t T
 	return TxpMid;
 }
 
-uint32_t FREQUENCY_FloorToStep(uint32_t Upper, uint32_t Step, uint32_t Lower)
+static int32_t rnd(int32_t freq, uint16_t step)
 {
-	uint32_t Index;
+return (freq + (step + 1) / 2) / step * step;
+}
 
-	if (Step == 833)
-	{
-		const uint32_t Delta = Upper - Lower;
-		uint32_t       Base  = (Delta / 2500) * 2500;
-		const uint32_t Index = ((Delta - Base) % 2500) / 833;
-
-		if (Index == 2)
-			Base++;
-
-		return Lower + Base + (Index * 833);
+uint32_t FREQUENCY_RoundToStep(uint32_t freq, uint16_t step)
+{
+	if(step == 833) {
+        uint32_t base = freq/2500*2500;
+        int f = rnd(freq - base, step);
+        int x = f / step;
+        return base + f + (x == 3);
 	}
 
-	Index = (Upper - Lower) / Step;
-
-	return Lower + (Step * Index);
+	return rnd(freq, step);
 }
 
 int TX_freq_check(const uint32_t Frequency)

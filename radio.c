@@ -361,10 +361,8 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 	Frequency = pRadio->freq_config_RX.Frequency;
 
-#if 1
 	// fix previously set incorrect band
 	Band = FREQUENCY_GetBand(Frequency);
-#endif
 
 	if (Frequency < frequencyBandTable[Band].lower)
 		Frequency = frequencyBandTable[Band].lower;
@@ -373,15 +371,14 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		Frequency = frequencyBandTable[Band].upper;
 	else
 	if (Channel >= FREQ_CHANNEL_FIRST)
-		Frequency = FREQUENCY_FloorToStep(Frequency, gEeprom.VfoInfo[VFO].StepFrequency, frequencyBandTable[Band].lower);
+		Frequency = FREQUENCY_RoundToStep(Frequency, gEeprom.VfoInfo[VFO].StepFrequency);
 
 	pRadio->freq_config_RX.Frequency = Frequency;
 
 	if (Frequency >= 10800000 && Frequency < 13600000)
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY_DIRECTION = TX_OFFSET_FREQUENCY_DIRECTION_OFF;
-	else
-	if (Channel > MR_CHANNEL_LAST)
-		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY = FREQUENCY_FloorToStep(gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY, gEeprom.VfoInfo[VFO].StepFrequency, 0);
+	else if (Channel > MR_CHANNEL_LAST)
+		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY = FREQUENCY_RoundToStep(gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY, gEeprom.VfoInfo[VFO].StepFrequency);
 
 	RADIO_ApplyOffset(pRadio);
 

@@ -1268,7 +1268,7 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		#endif
 		
 		Frequency = StrToUL(INPUTBOX_GetAscii())*100;
-		gSubMenuSelection = FREQUENCY_FloorToStep(Frequency + 75, gTxVfo->StepFrequency, 0);
+		gSubMenuSelection = FREQUENCY_RoundToStep(Frequency, gTxVfo->StepFrequency);
 
 		gInputBoxIndex = 0;
 		return;
@@ -1678,7 +1678,7 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 		else
 			Offset = 0;
 
-		gSubMenuSelection     = FREQUENCY_FloorToStep(Offset, gTxVfo->StepFrequency, 0);
+		gSubMenuSelection     = FREQUENCY_RoundToStep(Offset, gTxVfo->StepFrequency);
 		gRequestDisplayScreen = DISPLAY_MENU;
 		return;
 	}

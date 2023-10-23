@@ -189,8 +189,6 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				if (gEeprom.VFO_OPEN)
 			#endif
 			{
-				uint8_t Channel;
-
 				if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
 				{	// swap to frequency mode
 					gEeprom.ScreenChannel[Vfo] = gEeprom.FreqChannel[gEeprom.TX_VFO];
@@ -202,7 +200,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 					break;
 				}
 
-				Channel = RADIO_FindNextChannel(gEeprom.MrChannel[gEeprom.TX_VFO], 1, false, 0);
+				uint8_t Channel = RADIO_FindNextChannel(gEeprom.MrChannel[gEeprom.TX_VFO], 1, false, 0);
 				if (Channel != 0xFF)
 				{	// swap to channel mode
 					gEeprom.ScreenChannel[Vfo] = Channel;
@@ -444,10 +442,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					RADIO_ConfigureChannel(Vfo, VFO_CONFIGURE_RELOAD);
 				}
 
-//				Frequency += 75;                        // is this meant to be rounding ?
-				Frequency += gTxVfo->StepFrequency / 2; // no idea, but this is
-
-				Frequency = FREQUENCY_FloorToStep(Frequency, gTxVfo->StepFrequency, frequencyBandTable[gTxVfo->Band].lower);
+				Frequency = FREQUENCY_RoundToStep(Frequency, gTxVfo->StepFrequency);
 
 				if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
 				{	// clamp the frequency to the limit

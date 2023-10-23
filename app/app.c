@@ -597,28 +597,14 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	gUpdateStatus = true;
 }
 
-uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step)
+uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t direction)
 {
-	uint32_t Frequency = pInfo->freq_config_RX.Frequency + (Step * pInfo->StepFrequency);
-
-	if (pInfo->StepFrequency == 833)
-	{
-		const uint32_t Lower = frequencyBandTable[pInfo->Band].lower;
-		const uint32_t Delta = Frequency - Lower;
-		uint32_t       Base  = (Delta / 2500) * 2500;
-		const uint32_t Index = ((Delta - Base) % 2500) / 833;
-
-		if (Index == 2)
-			Base++;
-
-		Frequency = Lower + Base + (Index * 833);
-	}
+	uint32_t Frequency = FREQUENCY_RoundToStep(pInfo->freq_config_RX.Frequency + (direction * pInfo->StepFrequency), pInfo->StepFrequency);
 
 	if (Frequency >= frequencyBandTable[pInfo->Band].upper)
 		Frequency =  frequencyBandTable[pInfo->Band].lower;
-	else
-	if (Frequency < frequencyBandTable[pInfo->Band].lower)
-		Frequency = FREQUENCY_FloorToStep(frequencyBandTable[pInfo->Band].upper, pInfo->StepFrequency, frequencyBandTable[pInfo->Band].lower);
+	else if (Frequency < frequencyBandTable[pInfo->Band].lower)
+		Frequency = FREQUENCY_RoundToStep(frequencyBandTable[pInfo->Band].upper, pInfo->StepFrequency);
 
 	return Frequency;
 }

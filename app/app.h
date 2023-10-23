@@ -30,7 +30,7 @@ extern const uint8_t orig_pga;
 
 void     APP_EndTransmission(void);
 void     APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix);
-uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t Step);
+uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t direction);
 void     APP_Update(void);
 void     APP_TimeSlice10ms(void);
 void     APP_TimeSlice500ms(void);

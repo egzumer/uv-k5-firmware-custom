@@ -167,34 +167,19 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 		case 0:
 			if (!gScanSingleFrequency)
 			{
-				int16_t  Delta625;
-				uint32_t Freq250  = FREQUENCY_FloorToStep(gScanFrequency, 250, 0);
-				uint32_t Freq625  = FREQUENCY_FloorToStep(gScanFrequency, 625, 0);
-				int16_t  Delta250 = (int16_t)gScanFrequency - (int16_t)Freq250;
+				uint32_t freq250  = FREQUENCY_RoundToStep(gScanFrequency, 250);
+				uint32_t freq625  = FREQUENCY_RoundToStep(gScanFrequency, 625);
 
-				if (125 < Delta250)
-				{
-					Delta250 = 250 - Delta250;
-					Freq250 += 250;
-				}
+				uint32_t diff250 = gScanFrequency > freq250 ? gScanFrequency - freq250 : freq250 - gScanFrequency;
+				uint32_t diff625 = gScanFrequency > freq625 ? gScanFrequency - freq625 : freq625 - gScanFrequency;
 
-				Delta625 = (int16_t)gScanFrequency - (int16_t)Freq625;
-
-				if (312 < Delta625)
-				{
-					Delta625 = 625 - Delta625;
-					Freq625 += 625;
-				}
-
-				if (Delta625 < Delta250)
-				{
+				if(diff250 > diff625) {
 					gStepSetting   = STEP_6_25kHz;
-					gScanFrequency = Freq625;
+					gScanFrequency = freq625;
 				}
-				else
-				{
+				else {
 					gStepSetting   = STEP_2_5kHz;
-					gScanFrequency = Freq250;
+					gScanFrequency = freq250;
 				}
 			}
 
