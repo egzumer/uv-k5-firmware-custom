@@ -26,22 +26,22 @@ const freq_band_table_t frequencyBandTable[7] =
 {
 	#ifndef ENABLE_WIDE_RX
 		// QS original
-		{ 5000000,   7600000},
-		{10800000,  13600000},
-		{13600000,  17400000},
-		{17400000,  35000000},
-		{35000000,  40000000},
-		{40000000,  47000000},
-		{47000000,  60000000}
+		{.lower =  5000000,  .upper =  7600000},
+		{.lower = 10800000,  .upper = 13700000},
+		{.lower = 13700000,  .upper = 17400000},
+		{.lower = 17400000,  .upper = 35000000},
+		{.lower = 35000000,  .upper = 40000000},
+		{.lower = 40000000,  .upper = 47000000},
+		{.lower = 47000000,  .upper = 60000000}
 	#else
 		// extended range
-		{ 1800000,  10800000},
-		{10800000,  13600000},
-		{13600000,  17400000},
-		{17400000,  35000000},
-		{35000000,  40000000},
-		{40000000,  47000000},
-		{47000000, 130000000}
+		{.lower =  1800000, .upper =  10800000},
+		{.lower = 10800000, .upper =  13700000},
+		{.lower = 13700000, .upper =  17400000},
+		{.lower = 17400000, .upper =  35000000},
+		{.lower = 35000000, .upper =  40000000},
+		{.lower = 40000000, .upper =  47000000},
+		{.lower = 47000000, .upper = 130000000}
 	#endif
 };
 
@@ -130,17 +130,17 @@ int TX_freq_check(const uint32_t Frequency)
 	switch (gSetting_F_LOCK)
 	{
 		case F_LOCK_OFF:
-			if (Frequency >= 13600000 && Frequency < 17400000)
+			if (Frequency >= frequencyBandTable[BAND3_137MHz].lower && Frequency < frequencyBandTable[BAND3_137MHz].upper)
 				return 0;
-			if (Frequency >= 17400000 && Frequency < 35000000)
+			if (Frequency >= frequencyBandTable[BAND4_174MHz].lower && Frequency < frequencyBandTable[BAND4_174MHz].upper)
 				if (gSetting_200TX)
 					return 0;
-			if (Frequency >= 35000000 && Frequency < 40000000)
+			if (Frequency >= frequencyBandTable[BAND5_350MHz].lower && Frequency < frequencyBandTable[BAND5_350MHz].upper)
 				if (gSetting_350TX && gSetting_350EN)
 					return 0;
-			if (Frequency >= 40000000 && Frequency < 47000000)
+			if (Frequency >= frequencyBandTable[BAND6_400MHz].lower && Frequency < frequencyBandTable[BAND6_400MHz].upper)
 				return 0;
-			if (Frequency >= 47000000 && Frequency <= 60000000)
+			if (Frequency >= frequencyBandTable[BAND7_470MHz].lower && Frequency <= 60000000)
 				if (gSetting_500TX)
 					return 0;
 			break;
@@ -167,14 +167,14 @@ int TX_freq_check(const uint32_t Frequency)
 			break;
 
 		case F_LOCK_430:
-			if (Frequency >= 13600000 && Frequency < 17400000)
+			if (Frequency >= frequencyBandTable[BAND3_137MHz].lower && Frequency < 17400000)
 				return 0;
 			if (Frequency >= 40000000 && Frequency < 43000000)
 				return 0;
 			break;
 
 		case F_LOCK_438:
-			if (Frequency >= 13600000 && Frequency < 17400000)
+			if (Frequency >= frequencyBandTable[BAND3_137MHz].lower && Frequency < 17400000)
 				return 0;
 			if (Frequency >= 40000000 && Frequency < 43800000)
 				return 0;

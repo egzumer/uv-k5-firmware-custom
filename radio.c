@@ -375,7 +375,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 	pRadio->freq_config_RX.Frequency = Frequency;
 
-	if (Frequency >= 10800000 && Frequency < 13600000)
+	if (Frequency >= frequencyBandTable[BAND2_108MHz].upper && Frequency < frequencyBandTable[BAND2_108MHz].upper)
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY_DIRECTION = TX_OFFSET_FREQUENCY_DIRECTION_OFF;
 	else if (Channel > MR_CHANNEL_LAST)
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY = FREQUENCY_RoundToStep(gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY, gEeprom.VfoInfo[VFO].StepFrequency);
