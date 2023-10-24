@@ -578,6 +578,11 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 
 		if (bFlag)
 		{
+			if (gScanStateDir != SCAN_OFF) {
+				SCANNER_Stop();
+				return;
+			}
+
 			gFlagRefreshSetting = true;
 			gRequestDisplayScreen = DISPLAY_MENU;
 			#ifdef ENABLE_VOICE
