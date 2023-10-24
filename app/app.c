@@ -604,7 +604,7 @@ uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t direction)
 	if (Frequency >= frequencyBandTable[pInfo->Band].upper)
 		Frequency =  frequencyBandTable[pInfo->Band].lower;
 	else if (Frequency < frequencyBandTable[pInfo->Band].lower)
-		Frequency = FREQUENCY_RoundToStep(frequencyBandTable[pInfo->Band].upper, pInfo->StepFrequency);
+		Frequency = FREQUENCY_RoundToStep(frequencyBandTable[pInfo->Band].upper - pInfo->StepFrequency, pInfo->StepFrequency);
 
 	return Frequency;
 }
