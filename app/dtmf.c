@@ -203,7 +203,7 @@ void DTMF_Append(const char code)
 void DTMF_HandleRequest(void)
 {	// proccess the RX'ed DTMF characters
 
-	char         String[20];
+	char         String[21];
 	unsigned int Offset;
 
 	if (!gDTMF_RX_pending)
@@ -383,7 +383,7 @@ void DTMF_HandleRequest(void)
 void DTMF_Reply(void)
 {
 	uint16_t    Delay;
-	char        String[20];
+	char        String[23];
 	const char *pString = NULL;
 
 	switch (gDTMF_ReplyState)

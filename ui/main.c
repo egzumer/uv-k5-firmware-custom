@@ -271,7 +271,7 @@ void UI_DisplayMain(void)
 {
 	const unsigned int line0 = 0;  // text screen line
 	const unsigned int line1 = 4;
-	char               String[16];
+	char               String[22];
 	unsigned int       vfo_num;
 
 	center_line = CENTER_LINE_NONE;
