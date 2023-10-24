@@ -183,37 +183,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			break;
 
 		case KEY_3:
-			#ifdef ENABLE_NOAA
-				if (gEeprom.VFO_OPEN && IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
-			#else
-				if (gEeprom.VFO_OPEN)
-			#endif
-			{
-				if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
-				{	// swap to frequency mode
-					gEeprom.ScreenChannel[Vfo] = gEeprom.FreqChannel[gEeprom.TX_VFO];
-					#ifdef ENABLE_VOICE
-						gAnotherVoiceID        = VOICE_ID_FREQUENCY_MODE;
-					#endif
-					gRequestSaveVFO            = true;
-					gVfoConfigureMode          = VFO_CONFIGURE_RELOAD;
-					break;
-				}
-
-				uint8_t Channel = RADIO_FindNextChannel(gEeprom.MrChannel[gEeprom.TX_VFO], 1, false, 0);
-				if (Channel != 0xFF)
-				{	// swap to channel mode
-					gEeprom.ScreenChannel[Vfo] = Channel;
-					#ifdef ENABLE_VOICE
-						AUDIO_SetVoiceID(0, VOICE_ID_CHANNEL_MODE);
-						AUDIO_SetDigitVoice(1, Channel + 1);
-						gAnotherVoiceID = (VOICE_ID_t)0xFE;
-					#endif
-					gRequestSaveVFO     = true;
-					gVfoConfigureMode   = VFO_CONFIGURE_RELOAD;
-					break;
-				}
-			}
+			COMMON_SwitchVFOMode();
 
 			if (beep)
 				gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;

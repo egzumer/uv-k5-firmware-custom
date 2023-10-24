@@ -351,6 +351,7 @@ const t_sidefunction SIDEFUNCTIONS[] =
 #endif
 	{"LOCK\nKEYPAD",	ACTION_OPT_KEYLOCK},
 	{"SWITCH\nVFO",		ACTION_OPT_A_B},
+	{"VFO/MR",		ACTION_OPT_VFO_MR},
 };
 const t_sidefunction* gSubMenu_SIDEFUNCTIONS = SIDEFUNCTIONS;
 const uint8_t gSubMenu_SIDEFUNCTIONS_size = ARRAY_SIZE(SIDEFUNCTIONS);
