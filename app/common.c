@@ -39,7 +39,7 @@ void COMMON_SwitchVFOs()
 void COMMON_SwitchVFOMode()
 {
 #ifdef ENABLE_NOAA
-    if (gEeprom.VFO_OPEN && IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
+    if (gEeprom.VFO_OPEN && !IS_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 #else
     if (gEeprom.VFO_OPEN)
 #endif

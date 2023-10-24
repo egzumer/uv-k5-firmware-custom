@@ -190,19 +190,19 @@ void SETTINGS_SaveSettings(void)
 void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, uint8_t Mode)
 {
 	#ifdef ENABLE_NOAA
-		if (IS_NOT_NOAA_CHANNEL(Channel))
+		if (!IS_NOAA_CHANNEL(Channel))
 	#endif
 	{
 		const uint16_t OffsetMR  = Channel * 16;
 		      uint16_t OffsetVFO = OffsetMR;
 
-		if (Channel > MR_CHANNEL_LAST)
+		if (!IS_MR_CHANNEL(Channel))
 		{	// it's a VFO, not a channel
 			OffsetVFO  = (VFO == 0) ? 0x0C80 : 0x0C90;
 			OffsetVFO += (Channel - FREQ_CHANNEL_FIRST) * 32;
 		}
 
-		if (Mode >= 2 || Channel > MR_CHANNEL_LAST)
+		if (Mode >= 2 || !IS_MR_CHANNEL(Channel))
 		{	// copy VFO to a channel
 
 			uint8_t State[8];
@@ -227,7 +227,7 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 
 			SETTINGS_UpdateChannel(Channel, pVFO, true);
 
-			if (Channel <= MR_CHANNEL_LAST)
+			if (IS_MR_CHANNEL(Channel))
 			{	// it's a memory channel
 		
 				#ifndef ENABLE_KEEP_MEM_NAME
@@ -265,7 +265,7 @@ void SETTINGS_SaveBatteryCalibration(const uint16_t * batteryCalibration)
 void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool keep)
 {
 	#ifdef ENABLE_NOAA
-		if (IS_NOT_NOAA_CHANNEL(Channel))
+		if (!IS_NOAA_CHANNEL(Channel))
 	#endif
 	{
 		uint8_t  State[8];
@@ -290,7 +290,7 @@ void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool keep)
 		gMR_ChannelAttributes[Channel] = Attributes;
 
 //		#ifndef ENABLE_KEEP_MEM_NAME
-			if (Channel <= MR_CHANNEL_LAST)
+			if (IS_MR_CHANNEL(Channel))
 			{	// it's a memory channel
 		
 				const uint16_t OffsetMR = Channel * 16;

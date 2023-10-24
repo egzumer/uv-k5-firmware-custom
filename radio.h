@@ -73,7 +73,14 @@ typedef struct VFO_Info_t
 {
 	FREQ_Config_t  freq_config_RX;
 	FREQ_Config_t  freq_config_TX;
+
+	// this is for a purpose of the FrequencyReverse function
+	// it points to freq_config_RX normally and to freq_config_TX if reverse function is active
+	//
 	FREQ_Config_t *pRX;
+
+	// this is for a purpose of the FrequencyReverse function
+	// it points to freq_config_TX normally and to freq_config_RX if reverse function is active
 	FREQ_Config_t *pTX;
 
 	uint32_t       TX_OFFSET_FREQUENCY;

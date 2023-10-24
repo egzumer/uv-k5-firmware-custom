@@ -389,7 +389,7 @@ void UI_DisplayMain(void)
 			}
 		}
 
-		if (gEeprom.ScreenChannel[vfo_num] <= MR_CHANNEL_LAST)
+		if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 		{	// channel mode
 			const unsigned int x = 2;
 			const bool inputting = (gInputBoxIndex == 0 || gEeprom.TX_VFO != vfo_num) ? false : true;
@@ -471,7 +471,7 @@ void UI_DisplayMain(void)
 					frequency = gEeprom.VfoInfo[vfo_num].pTX->Frequency;
 			}
 
-			if (gEeprom.ScreenChannel[vfo_num] <= MR_CHANNEL_LAST)
+			if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 			{	// it's a channel
 
 				// show the scan list assigment symbols

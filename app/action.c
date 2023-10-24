@@ -116,55 +116,53 @@ void ACTION_Monitor(void)
 
 void ACTION_Scan(bool bRestart)
 {
-	#ifdef ENABLE_FMRADIO
-		if (gFmRadioMode)
+#ifdef ENABLE_FMRADIO
+	if (gFmRadioMode)
+	{
+		if (gCurrentFunction != FUNCTION_RECEIVE &&
+			gCurrentFunction != FUNCTION_MONITOR &&
+			gCurrentFunction != FUNCTION_TRANSMIT)
 		{
-			if (gCurrentFunction != FUNCTION_RECEIVE &&
-			    gCurrentFunction != FUNCTION_MONITOR &&
-			    gCurrentFunction != FUNCTION_TRANSMIT)
+			GUI_SelectNextDisplay(DISPLAY_FM);
+
+			gMonitor = false;
+
+			if (gFM_ScanState != FM_SCAN_OFF)
 			{
-				GUI_SelectNextDisplay(DISPLAY_FM);
+				FM_PlayAndUpdate();
 
-				gMonitor = false;
+#ifdef ENABLE_VOICE
+				gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
+#endif
+			}
+			else
+			{
+				uint16_t Frequency;
 
-				if (gFM_ScanState != FM_SCAN_OFF)
+				if (bRestart)
 				{
-					FM_PlayAndUpdate();
-
-					#ifdef ENABLE_VOICE
-						gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
-					#endif
+					gFM_AutoScan        = true;
+					gFM_ChannelPosition = 0;
+					FM_EraseChannels();
+					Frequency           = gEeprom.FM_LowerLimit;
 				}
 				else
 				{
-					uint16_t Frequency;
-
-					if (bRestart)
-					{
-						gFM_AutoScan        = true;
-						gFM_ChannelPosition = 0;
-						FM_EraseChannels();
-						Frequency           = gEeprom.FM_LowerLimit;
-					}
-					else
-					{
-						gFM_AutoScan        = false;
-						gFM_ChannelPosition = 0;
-						Frequency           = gEeprom.FM_FrequencyPlaying;
-					}
-
-					BK1080_GetFrequencyDeviation(Frequency);
-					FM_Tune(Frequency, 1, bRestart);
-
-					#ifdef ENABLE_VOICE
-						gAnotherVoiceID = VOICE_ID_SCANNING_BEGIN;
-					#endif
+					gFM_AutoScan        = false;
+					gFM_ChannelPosition = 0;
+					Frequency           = gEeprom.FM_FrequencyPlaying;
 				}
-			}
 
-			return;
+				BK1080_GetFrequencyDeviation(Frequency);
+				FM_Tune(Frequency, 1, bRestart);
+#ifdef ENABLE_VOICE
+				gAnotherVoiceID = VOICE_ID_SCANNING_BEGIN;
+#endif
+			}
 		}
-	#endif
+		return;
+	}
+#endif
 
 	if (gScreenToDisplay != DISPLAY_SCANNER)
 	{	// not scanning
@@ -178,23 +176,23 @@ void ACTION_Scan(bool bRestart)
 
 		RADIO_SelectVfos();
 
-		#ifdef ENABLE_NOAA
-			if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
-		#endif
+#ifdef ENABLE_NOAA
+		if (!IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
+#endif
 		{
 			GUI_SelectNextDisplay(DISPLAY_MAIN);
 
 			if (gScanStateDir != SCAN_OFF)
 			{	// already scanning
 		
-				if (gNextMrChannel <= MR_CHANNEL_LAST)
+				if (IS_MR_CHANNEL(gNextMrChannel))
 				{	// channel mode
 
 					// keep scanning but toggle between scan lists
 					gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) % 3;
 
 					// jump to the next channel
-					SCANNER_NextChannel(false, gScanStateDir);
+					SCANNER_ScanChannels(false, gScanStateDir);
 					gScanPauseDelayIn_10ms = 1;
 					gScheduleScanListen    = false;
 
@@ -213,7 +211,7 @@ void ACTION_Scan(bool bRestart)
 			else
 			{	// start scanning
 	
-				SCANNER_NextChannel(true, SCAN_FWD);
+				SCANNER_ScanChannels(true, SCAN_FWD);
 
 				#ifdef ENABLE_VOICE
 					AUDIO_SetVoiceID(0, VOICE_ID_SCANNING_BEGIN);
@@ -231,12 +229,12 @@ void ACTION_Scan(bool bRestart)
 	}
 	else
 //	if (!bRestart)
-	if (!bRestart && gNextMrChannel <= MR_CHANNEL_LAST)
+	if (!bRestart && IS_MR_CHANNEL(gNextMrChannel))
 	{	// channel mode, keep scanning but toggle between scan lists
 		gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) % 3;
 
 		// jump to the next channel
-		SCANNER_NextChannel(false, gScanStateDir);
+		SCANNER_ScanChannels(false, gScanStateDir);
 		gScanPauseDelayIn_10ms = 1;
 		gScheduleScanListen    = false;
 

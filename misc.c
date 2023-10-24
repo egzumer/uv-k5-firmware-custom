@@ -201,9 +201,6 @@ uint16_t          gLowBatteryCountdown;
 uint8_t           gNextMrChannel;
 ReceptionMode_t   gRxReceptionMode;
 
-enum scan_next_chan_t  gCurrentScanList;
-uint32_t               gRestoreFrequency;
-
 bool              gRxVfoIsActive;
 #ifdef ENABLE_ALARM
 	uint8_t       gAlarmToneCounter;

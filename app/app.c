@@ -62,12 +62,6 @@
 #include "ui/status.h"
 #include "ui/ui.h"
 
-// original QS front end register settings
-const uint8_t orig_lna_short = 3;   //   0dB
-const uint8_t orig_lna       = 2;   // -14dB
-const uint8_t orig_mixer     = 3;   //   0dB
-const uint8_t orig_pga       = 6;   //  -3dB
-
 static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
 static void updateRSSI(const int vfo)
@@ -308,7 +302,7 @@ static void APP_HandleReceive(void)
 	if (g_SquelchLost)
 	{
 		#ifdef ENABLE_NOAA
-			if (!gEndOfRxDetectedMaybe && IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
+			if (!gEndOfRxDetectedMaybe && !IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
 		#else
 			if (!gEndOfRxDetectedMaybe)
 		#endif
@@ -482,7 +476,6 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	gVFO_RSSI_bar_level[(chan + 1) & 1u] = 0;
 
 	GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
-
 	gEnableSpeaker = true;
 
 	if (gSetting_backlight_on_tx_rx >= BACKLIGHT_ON_TR_RX)
@@ -508,7 +501,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 				break;
 		}
 
-		bScanKeepFrequency = true;
+		gScanKeepResult = true;
 	}
 
 	#ifdef ENABLE_NOAA
@@ -545,12 +538,11 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	}
 
 	{	// RF RX front end gain
-
-		// original setting
-		uint16_t lna_short = orig_lna_short;
-		uint16_t lna       = orig_lna;
-		uint16_t mixer     = orig_mixer;
-		uint16_t pga       = orig_pga;
+		// original QS front end register settings
+		const uint8_t orig_lna_short = 3;   //   0dB
+		const uint8_t orig_lna       = 2;   // -14dB
+		const uint8_t orig_mixer     = 3;   //   0dB
+		const uint8_t orig_pga       = 6;   //  -3dB
 
 		#ifdef ENABLE_AM_FIX
 			if (gRxVfo->AM_mode && gSetting_AM_fix)
@@ -561,10 +553,10 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 			}
 			else
 			{	// FM RX mode
-				BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
+				BK4819_WriteRegister(BK4819_REG_13, (orig_lna_short << 8) | (orig_lna << 5) | (orig_mixer << 3) | (orig_pga << 0));
 			}
 		#else
-			BK4819_WriteRegister(BK4819_REG_13, (lna_short << 8) | (lna << 5) | (mixer << 3) | (pga << 0));
+			BK4819_WriteRegister(BK4819_REG_13, (orig_lna_short << 8) | (orig_lna << 5) | (orig_mixer << 3) | (orig_pga << 0));
 		#endif
 	}
 
@@ -622,7 +614,7 @@ static void DUALWATCH_Alternate(void)
 	#ifdef ENABLE_NOAA
 		if (gIsNoaaMode)
 		{
-			if (IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) || IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1]))
+			if (!IS_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) || !IS_NOAA_CHANNEL(gEeprom.ScreenChannel[1]))
 				gEeprom.RX_VFO = (gEeprom.RX_VFO + 1) & 1;
 			else
 				gEeprom.RX_VFO = 0;
@@ -1038,7 +1030,7 @@ void APP_Update(void)
 		{
 			gBatterySaveCountdown_10ms   = battery_save_count_10ms;
 		}
-		else if ((IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
+		else if ((!IS_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && !IS_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
 		{
 			//if (gCurrentFunction != FUNCTION_POWER_SAVE)
 				FUNCTION_Select(FUNCTION_POWER_SAVE);

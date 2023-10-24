@@ -53,12 +53,12 @@ extern uint8_t           gScanProgressIndicator;
 extern uint8_t           gScanHitCount;
 extern bool              gScanUseCssResult;
 extern int8_t            gScanStateDir;
-extern bool              bScanKeepFrequency;
+extern bool              gScanKeepResult;
 
 void SCANNER_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 void SCANNER_Start(void);
 void SCANNER_Stop(void);
-void SCANNER_NextChannel(const bool storeBackupSettings, const int8_t scan_direction);
+void SCANNER_ScanChannels(const bool storeBackupSettings, const int8_t scan_direction);
 void SCANNER_ContinueScanning();
 
 #endif

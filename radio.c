@@ -51,7 +51,7 @@ bool RADIO_CheckValidChannel(uint16_t Channel, bool bCheckScanList, uint8_t VFO)
 	uint8_t PriorityCh1;
 	uint8_t PriorityCh2;
 
-	if (Channel > MR_CHANNEL_LAST)
+	if (!IS_MR_CHANNEL(Channel))
 		return false;
 
 	Attributes = gMR_ChannelAttributes[Channel];
@@ -97,12 +97,12 @@ uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScan
 {
 	unsigned int i;
 
-	for (i = 0; i <= MR_CHANNEL_LAST; i++)
+	for (i = 0; IS_MR_CHANNEL(i); i++)
 	{
 		if (Channel == 0xFF)
 			Channel = MR_CHANNEL_LAST;
 		else
-		if (Channel > MR_CHANNEL_LAST)
+		if (!IS_MR_CHANNEL(Channel))
 			Channel = MR_CHANNEL_FIRST;
 
 		if (RADIO_CheckValidChannel(Channel, bCheckScanList, VFO))
@@ -176,7 +176,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		}
 #endif
 
-		if (Channel <= MR_CHANNEL_LAST)
+		if (IS_MR_CHANNEL(Channel))
 		{
 			Channel = RADIO_FindNextChannel(Channel, RADIO_CHANNEL_UP, false, VFO);
 			if (Channel == 0xFF)
@@ -200,7 +200,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 		uint8_t Index;
 
-		if (Channel <= MR_CHANNEL_LAST)
+		if (IS_MR_CHANNEL(Channel))
 		{
 			Channel                    = gEeprom.FreqChannel[VFO];
 			gEeprom.ScreenChannel[VFO] = gEeprom.FreqChannel[VFO];
@@ -218,7 +218,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		Band = BAND6_400MHz;
 	}
 
-	if (Channel <= MR_CHANNEL_LAST)
+	if (IS_MR_CHANNEL(Channel))
 	{
 		gEeprom.VfoInfo[VFO].Band                    = Band;
 		gEeprom.VfoInfo[VFO].SCANLIST1_PARTICIPATION = !!(Attributes & MR_CH_SCANLIST1);
@@ -235,7 +235,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 	gEeprom.VfoInfo[VFO].SCANLIST2_PARTICIPATION = bParticipation2;
 	gEeprom.VfoInfo[VFO].CHANNEL_SAVE            = Channel;
 
-	if (Channel <= MR_CHANNEL_LAST)
+	if (IS_MR_CHANNEL(Channel))
 		Base = Channel * 16;
 	else
 		Base = 0x0C80 + ((Channel - FREQ_CHANNEL_FIRST) * 32) + (VFO * 16);
@@ -377,13 +377,13 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 	if (Frequency >= frequencyBandTable[BAND2_108MHz].upper && Frequency < frequencyBandTable[BAND2_108MHz].upper)
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY_DIRECTION = TX_OFFSET_FREQUENCY_DIRECTION_OFF;
-	else if (Channel > MR_CHANNEL_LAST)
+	else if (!IS_MR_CHANNEL(Channel))
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY = FREQUENCY_RoundToStep(gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY, gEeprom.VfoInfo[VFO].StepFrequency);
 
 	RADIO_ApplyOffset(pRadio);
 
 	memset(gEeprom.VfoInfo[VFO].Name, 0, sizeof(gEeprom.VfoInfo[VFO].Name));
-	if (Channel < MR_CHANNEL_LAST)
+	if (IS_MR_CHANNEL(Channel))
 	{	// 16 bytes allocated to the channel name but only 10 used, the rest are 0's
 		EEPROM_ReadBuffer(0x0F50 + (Channel * 16), gEeprom.VfoInfo[VFO].Name + 0, 8);
 		EEPROM_ReadBuffer(0x0F58 + (Channel * 16), gEeprom.VfoInfo[VFO].Name + 8, 2);
@@ -619,7 +619,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 	BK4819_WriteRegister(BK4819_REG_7D, 0xE940 | (gEeprom.MIC_SENSITIVITY_TUNING & 0x1f));
 
 	#ifdef ENABLE_NOAA
-		if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) || !gIsNoaaMode)
+		if (!IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) || !gIsNoaaMode)
 			Frequency = gRxVfo->pRX->Frequency;
 		else
 			Frequency = NoaaFrequencyTable[gNoaaChannel];
@@ -644,7 +644,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 	InterruptMask = BK4819_REG_3F_SQUELCH_FOUND | BK4819_REG_3F_SQUELCH_LOST;
 
 	#ifdef ENABLE_NOAA
-		if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
+		if (!IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
 	#endif
 	{
 		if (gRxVfo->AM_mode == 0)
@@ -723,9 +723,9 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 	#ifdef ENABLE_VOX
 		#ifdef ENABLE_NOAA
 			#ifdef ENABLE_FMRADIO
-				if (gEeprom.VOX_SWITCH && !gFmRadioMode && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
+				if (gEeprom.VOX_SWITCH && !gFmRadioMode && !IS_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
 			#else
-				if (gEeprom.VOX_SWITCH && IS_NOT_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
+				if (gEeprom.VOX_SWITCH && !IS_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
 			#endif
 		#else
 			#ifdef ENABLE_FMRADIO
@@ -788,9 +788,9 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 		{
 			if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
 			{
-				if (IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[0]))
+				if (!IS_NOAA_CHANNEL(gEeprom.ScreenChannel[0]))
 				{
-					if (IS_NOT_NOAA_CHANNEL(gEeprom.ScreenChannel[1]))
+					if (!IS_NOAA_CHANNEL(gEeprom.ScreenChannel[1]))
 					{
 						gIsNoaaMode = false;
 						return;

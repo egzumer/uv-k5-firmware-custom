@@ -88,7 +88,7 @@ void UI_DisplayStatus(const bool test_display)
 		// SCAN indicator
 		if (gScanStateDir != SCAN_OFF || gScreenToDisplay == DISPLAY_SCANNER || test_display)
 		{
-			if (gNextMrChannel <= MR_CHANNEL_LAST && gScreenToDisplay != DISPLAY_SCANNER)
+			if (IS_MR_CHANNEL(gNextMrChannel) && gScreenToDisplay != DISPLAY_SCANNER)
 			{	// channel mode
 				if (gEeprom.SCAN_LIST_DEFAULT == 0)
 					UI_PrintStringSmallBuffer("1", line + x);

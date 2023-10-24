@@ -207,7 +207,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			if(beep) {
 #ifdef ENABLE_NOAA
 
-				if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
+				if (!IS_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 				{
 					gEeprom.ScreenChannel[Vfo] = gEeprom.NoaaChannel[gEeprom.TX_VFO];
 				}
@@ -358,7 +358,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		}
 
 //		#ifdef ENABLE_NOAA
-//			if (IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
+//			if (!IS_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 //		#endif
 		if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
 		{	// user is entering a frequency
@@ -505,7 +505,7 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 			}
 			else
 			{
-				bScanKeepFrequency = false;
+				gScanKeepResult = false;
 				SCANNER_Stop();
 
 				#ifdef ENABLE_VOICE
@@ -564,7 +564,7 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 				gWasFKeyPressed = false;
 				gUpdateStatus   = true;
 
-			ACTION_Handle(KEY_MENU, bKeyPressed, bKeyHeld);
+				ACTION_Handle(KEY_MENU, bKeyPressed, bKeyHeld);
 			}
 		}
 
@@ -632,7 +632,7 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 	{	
 
 		#ifdef ENABLE_NOAA
-			if (gScanStateDir == SCAN_OFF && IS_NOT_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
+			if (gScanStateDir == SCAN_OFF && !IS_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 		#else
 			if (gScanStateDir == SCAN_OFF)
 		#endif
@@ -710,7 +710,7 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 	if (gScanStateDir == SCAN_OFF)
 	{
 		#ifdef ENABLE_NOAA
-			if (IS_NOT_NOAA_CHANNEL(Channel))
+			if (!IS_NOAA_CHANNEL(Channel))
 		#endif
 		{
 			uint8_t Next;
@@ -764,7 +764,7 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 	}
 
 	// jump to the next channel
-	SCANNER_NextChannel(false, Direction);
+	SCANNER_ScanChannels(false, Direction);
 	gScanPauseDelayIn_10ms = 1;
 	gScheduleScanListen    = false;
 

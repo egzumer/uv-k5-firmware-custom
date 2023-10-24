@@ -43,7 +43,7 @@ FUNCTION_Type_t gCurrentFunction;
 void FUNCTION_Init(void)
 {
 	#ifdef ENABLE_NOAA
-		if (IS_NOT_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
+		if (!IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
 	#endif
 	{
 		gCurrentCodeType = gSelectedCodeType;
