@@ -35,13 +35,13 @@ const freq_band_table_t frequencyBandTable[7] =
 		{.lower = 47000000,  .upper = 60000000}
 	#else
 		// extended range
-		{.lower =  1800000, .upper =  10800000},
+		{.lower =  BX4819_band1.lower, .upper =  10800000},
 		{.lower = 10800000, .upper =  13700000},
 		{.lower = 13700000, .upper =  17400000},
 		{.lower = 17400000, .upper =  35000000},
 		{.lower = 35000000, .upper =  40000000},
 		{.lower = 40000000, .upper =  47000000},
-		{.lower = 47000000, .upper = 130000000}
+		{.lower = 47000000, .upper = BX4819_band2.upper}
 	#endif
 };
 
