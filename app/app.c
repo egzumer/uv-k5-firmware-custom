@@ -482,27 +482,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		BACKLIGHT_TurnOn();
 
 	if (gScanStateDir != SCAN_OFF)
-	{
-		switch (gEeprom.SCAN_RESUME_MODE)
-		{
-			case SCAN_RESUME_TO:
-				if (!gScanPauseMode)
-				{
-					gScanPauseDelayIn_10ms = scan_pause_delay_in_1_10ms;
-					gScheduleScanListen    = false;
-					gScanPauseMode         = true;
-				}
-				break;
-
-			case SCAN_RESUME_CO:
-			case SCAN_RESUME_SE:
-				gScanPauseDelayIn_10ms = 0;
-				gScheduleScanListen    = false;
-				break;
-		}
-
-		gScanKeepResult = true;
-	}
+		SCANNER_Found();
 
 	#ifdef ENABLE_NOAA
 		if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gIsNoaaMode)
