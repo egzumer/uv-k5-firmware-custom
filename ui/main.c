@@ -118,30 +118,31 @@ void UI_DisplayAudioBar(void)
 #if defined(ENABLE_RSSI_BAR)
 void UI_DisplayRSSIBar(const int16_t rssi, const bool now)
 {
-//		const int16_t      s0_dBm       = -127;                  // S0 .. base level
 	const int16_t      s0_dBm       = -147;                  // S0 .. base level
-
-	const int16_t      s9_dBm       = s0_dBm + (6 * 9);      // S9 .. 6dB/S-Point
-	const int16_t      bar_max_dBm  = s9_dBm + 30;           // S9+30dB
-//		const int16_t      bar_min_dBm  = s0_dBm + (6 * 0);      // S0
-	const int16_t      bar_min_dBm  = s0_dBm + (6 * 4);      // S4
-
-	// ************
-
 	const unsigned int txt_width    = 7 * 8;                 // 8 text chars
 	const unsigned int bar_x        = 2 + txt_width + 4;     // X coord of bar graph
-	const unsigned int bar_width    = LCD_WIDTH - 1 - bar_x;
-
 	const int16_t      rssi_dBm     = (rssi / 2) - 160;
-	const int16_t      clamped_dBm  = (rssi_dBm <= bar_min_dBm) ? bar_min_dBm : (rssi_dBm >= bar_max_dBm) ? bar_max_dBm : rssi_dBm;
-	const unsigned int bar_range_dB = bar_max_dBm - bar_min_dBm;
-	const unsigned int len          = ((clamped_dBm - bar_min_dBm) * bar_width) / bar_range_dB;
 
 	const unsigned int line         = 3;
 	uint8_t           *p_line        = gFrameBuffer[line];
+	char               str[16];
 
-	char               s[16];
-	unsigned int       i;
+	const char plus[] = {
+		0b00011000,
+		0b00011000,
+		0b01111110,
+		0b01111110,
+		0b01111110,
+		0b00011000,
+		0b00011000,
+	};
+
+	const char hollowBar[] = {
+		0b01111111, 
+		0b01000001, 
+		0b01000001, 
+		0b01111111
+	};
 
 	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
 		return;     // display is in use
@@ -154,28 +155,27 @@ void UI_DisplayRSSIBar(const int16_t rssi, const bool now)
 	if (now)
 		memset(p_line, 0, LCD_WIDTH);
 
-	if (rssi_dBm >= (s9_dBm + 6))
-	{	// S9+XXdB, 1dB increment
-		const char *fmt[] = {"%3d 9+%u  ", "%3d 9+%2u "};
-		const unsigned int s9_dB = ((rssi_dBm - s9_dBm) <= 99) ? rssi_dBm - s9_dBm : 99;
-		sprintf(s, (s9_dB < 10) ? fmt[0] : fmt[1], rssi_dBm, s9_dB);
+	const uint8_t s_level = MIN(MAX((rssi_dBm - s0_dBm) / 6, 0), 9);
+	uint8_t overS9Bars = MAX(0, 73 + rssi_dBm)/10;
+	
+	if(overS9Bars == 0) {
+		sprintf(str, "% 4d S%d", rssi_dBm, s_level);
 	}
-	else
-	{	// S0 ~ S9, 6dB per S-point
-		const unsigned int s_level = (rssi_dBm >= s0_dBm) ? (rssi_dBm - s0_dBm) / 6 : 0;
-		sprintf(s, "%4d S%u ", rssi_dBm, s_level);
+	else {
+		sprintf(str, "% 4d  %d0", rssi_dBm, overS9Bars);
+		memcpy(p_line + 2 + 7*5, &plus, ARRAY_SIZE(plus));
 	}
-	UI_PrintStringSmall(s, 2, 0, line);
 
-	#if 1
-		// solid bar
-		for (i = 0; i < bar_width; i++)
-			p_line[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
-	#else
-		// knuled bar
-		for (i = 0; i < bar_width; i += 2)
-			p_line[bar_x + i] = (i <= len) ? 0x7f : 0x41;
-	#endif
+	UI_PrintStringSmall(str, 2, 0, line);
+
+	for(uint8_t i = 0; i < s_level; i++) { // S bars
+		for(uint8_t j = 0; j < 4; j++)
+			p_line[bar_x + i * 5 + j] = (~(0x7F >> (i+1))) & 0x7F;
+	}
+	overS9Bars = MIN(overS9Bars, 4);
+	for(uint8_t i = 0; i < overS9Bars; i++) { // +10 hollow bars
+		memcpy(p_line + (bar_x + (i + 9) * 5), &hollowBar, ARRAY_SIZE(hollowBar));
+	}
 
 	if (now)
 		ST7565_BlitFullScreen();
