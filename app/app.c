@@ -467,10 +467,10 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	if (gSetting_KILLED)
 		return;
 
-	#ifdef ENABLE_FMRADIO
-		if (gFmRadioMode)
-			BK1080_Init(0, false);
-	#endif
+#ifdef ENABLE_FMRADIO
+	if (gFmRadioMode)
+		BK1080_Init(0, false);
+#endif
 
 	// clear the other vfo's rssi level (to hide the antenna symbol)
 	gVFO_RSSI_bar_level[(chan + 1) & 1u] = 0;
@@ -484,18 +484,17 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	if (gScanStateDir != SCAN_OFF)
 		SCANNER_Found();
 
-	#ifdef ENABLE_NOAA
-		if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gIsNoaaMode)
-		{
-			gRxVfo->CHANNEL_SAVE        = gNoaaChannel + NOAA_CHANNEL_FIRST;
-			gRxVfo->pRX->Frequency      = NoaaFrequencyTable[gNoaaChannel];
-			gRxVfo->pTX->Frequency      = NoaaFrequencyTable[gNoaaChannel];
-			gEeprom.ScreenChannel[chan] = gRxVfo->CHANNEL_SAVE;
+#ifdef ENABLE_NOAA
+	if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gIsNoaaMode) {
+		gRxVfo->CHANNEL_SAVE        = gNoaaChannel + NOAA_CHANNEL_FIRST;
+		gRxVfo->pRX->Frequency      = NoaaFrequencyTable[gNoaaChannel];
+		gRxVfo->pTX->Frequency      = NoaaFrequencyTable[gNoaaChannel];
+		gEeprom.ScreenChannel[chan] = gRxVfo->CHANNEL_SAVE;
 
-			gNOAA_Countdown_10ms        = 500;   // 5 sec
-			gScheduleNOAA               = false;
-		}
-	#endif
+		gNOAA_Countdown_10ms        = 500;   // 5 sec
+		gScheduleNOAA               = false;
+	}
+#endif
 
 	if (gCssScanMode != CSS_SCAN_MODE_OFF)
 		gCssScanMode = CSS_SCAN_MODE_FOUND;
@@ -524,20 +523,18 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		const uint8_t orig_mixer     = 3;   //   0dB
 		const uint8_t orig_pga       = 6;   //  -3dB
 
-		#ifdef ENABLE_AM_FIX
-			if (gRxVfo->AM_mode && gSetting_AM_fix)
-			{	// AM RX mode
-				if (reset_am_fix)
-					AM_fix_reset(chan);      // TODO: only reset it when moving channel/frequency
-				AM_fix_10ms(chan);
-			}
-			else
-			{	// FM RX mode
-				BK4819_WriteRegister(BK4819_REG_13, (orig_lna_short << 8) | (orig_lna << 5) | (orig_mixer << 3) | (orig_pga << 0));
-			}
-		#else
+#ifdef ENABLE_AM_FIX
+		if (gRxVfo->AM_mode && gSetting_AM_fix) {	// AM RX mode
+			if (reset_am_fix)
+				AM_fix_reset(chan);      // TODO: only reset it when moving channel/frequency
+			AM_fix_10ms(chan);
+		}
+		else {	// FM RX mode
 			BK4819_WriteRegister(BK4819_REG_13, (orig_lna_short << 8) | (orig_lna << 5) | (orig_mixer << 3) | (orig_pga << 0));
-		#endif
+		}
+#else
+		BK4819_WriteRegister(BK4819_REG_13, (orig_lna_short << 8) | (orig_lna << 5) | (orig_mixer << 3) | (orig_pga << 0));
+#endif
 	}
 
 	// AF gain - original QS values
@@ -547,18 +544,18 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		(gEeprom.VOLUME_GAIN << 4) |     // AF Rx Gain-2
 		(gEeprom.DAC_GAIN    << 0));     // AF DAC Gain (after Gain-1 and Gain-2)
 
-	#ifdef ENABLE_VOICE
-		if (gVoiceWriteIndex == 0)       // AM/FM RX mode will be set when the voice has finished
-	#endif
-			BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_FM);  // no need, set it now
+#ifdef ENABLE_VOICE
+	if (gVoiceWriteIndex == 0)       // AM/FM RX mode will be set when the voice has finished
+#endif
+		BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_FM);  // no need, set it now
 
 	FUNCTION_Select(Function);
 
-	#ifdef ENABLE_FMRADIO
-		if (Function == FUNCTION_MONITOR || gFmRadioMode)
-	#else
-		if (Function == FUNCTION_MONITOR)
-	#endif
+#ifdef ENABLE_FMRADIO
+	if (Function == FUNCTION_MONITOR || gFmRadioMode)
+#else
+	if (Function == FUNCTION_MONITOR)
+#endif
 	{	// squelch is disabled
 		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
 			GUI_SelectNextDisplay(DISPLAY_MAIN);
