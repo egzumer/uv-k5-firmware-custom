@@ -145,7 +145,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			BK4819_DisableVox();			
 			BK4819_Sleep();
 
-			BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28, false);
+			BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_RX_ENABLE, false);
 
 			gUpdateStatus = true;
 

@@ -51,8 +51,8 @@ void BK4819_Init(void)
 	BK4819_WriteRegister(BK4819_REG_37, 0x1D0F);
 	BK4819_WriteRegister(BK4819_REG_36, 0x0022);
 
-	BK4819_SetAGC(0);
-//	BK4819_SetAGC(1);
+	BK4819_DisableAGC();
+//	BK4819_EnableAGC();
 
 	BK4819_WriteRegister(BK4819_REG_19, 0b0001000001000001);   // <15> MIC AGC  1 = disable  0 = enable
 
@@ -232,118 +232,159 @@ void BK4819_WriteU16(uint16_t Data)
 	}
 }
 
-void BK4819_SetAGC(uint8_t Value)
+void BK4819_DisableAGC()
 {
-	if (Value == 0)
-	{
-		// REG_10
-		//
-		// 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
-		//
-		// <15:10> ???
-		//
-		// <9:8>   LNA Gain Short
-		//         3 =   0dB  <<<
-		//         2 = -24dB       // was -11
-		//         1 = -30dB       // was -16
-		//         0 = -33dB       // was -19
-		//
-		// <7:5>   LNA Gain
-		//         7 =   0dB
-		//         6 =  -2dB
-		//         5 =  -4dB
-		//         4 =  -6dB
-		//         3 =  -9dB
-		//         2 = -14dB <<<
-		//         1 = -19dB
-		//         0 = -24dB
-		//
-		// <4:3>   MIXER Gain
-		//         3 =   0dB <<<
-		//         2 =  -3dB
-		//         1 =  -6dB
-		//         0 =  -8dB
-		//
-		// <2:0>   PGA Gain
-		//         7 =   0dB
-		//         6 =  -3dB <<<
-		//         5 =  -6dB
-		//         4 =  -9dB
-		//         3 = -15dB
-		//         2 = -21dB
-		//         1 = -27dB
-		//         0 = -33dB
-		//
-		BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (6u << 0));  // 000000 11 101 11 110
+	// REG_7E
+	//
+	// <15> 0 AGC Fix Mode.
+	// 1=Fix; 0=Auto.
+	//
+	// <14:12> 0b011 AGC Fix Index.
+	// 011=Max, then 010,001,000,111,110,101,100(min).
+	//
+	// <5:3> 0b101 DC Filter Band Width for Tx (MIC In).
+	// 000=Bypass DC filter;
+	//
+	// <2:0> 0b110 DC Filter Band Width for Rx (IF In).
+	// 000=Bypass DC filter;
+	//
+	BK4819_WriteRegister(0x7E,
+		(1u << 15) |      // 0  AGC fix mode
+		(3u << 12) |      // 3  AGC fix index
+		(5u <<  3) |      // 5  DC Filter band width for Tx (MIC In)
+		(6u <<  0));      // 6  DC Filter band width for Rx (I.F In)
 
-		BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
-		BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
-		BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
-		BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
+	// REG_10
+	//
+	// 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
+	//
+	// <15:10> ???
+	//
+	// <9:8>   LNA Gain Short
+	//         3 =   0dB  <<<
+	//         2 = -24dB       // was -11
+	//         1 = -30dB       // was -16
+	//         0 = -33dB       // was -19
+	//
+	// <7:5>   LNA Gain
+	//         7 =   0dB
+	//         6 =  -2dB
+	//         5 =  -4dB
+	//         4 =  -6dB
+	//         3 =  -9dB
+	//         2 = -14dB <<<
+	//         1 = -19dB
+	//         0 = -24dB
+	//
+	// <4:3>   MIXER Gain
+	//         3 =   0dB <<<
+	//         2 =  -3dB
+	//         1 =  -6dB
+	//         0 =  -8dB
+	//
+	// <2:0>   PGA Gain
+	//         7 =   0dB
+	//         6 =  -3dB <<<
+	//         5 =  -6dB
+	//         4 =  -9dB
+	//         3 = -15dB
+	//         2 = -21dB
+	//         1 = -27dB
+	//         0 = -33dB
+	//
+	BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (5u << 5) | (3u << 3) | (6u << 0));  // 000000 11 101 11 110
 
-		BK4819_WriteRegister(BK4819_REG_49, 0x2A38);
-		BK4819_WriteRegister(BK4819_REG_7B, 0x8420);
-	}
-	else
-	if (Value == 1)
-	{	// what does this do ???
+	BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
+	BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
+	BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
+	BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
 
-		unsigned int i;
+	BK4819_WriteRegister(BK4819_REG_49, 0x2A38);
+	BK4819_WriteRegister(BK4819_REG_7B, 0x8420);
+}
 
-		// REG_10
-		//
-		// 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
-		//
-		// (15:10> ???
-		//
-		// <9:8>   LNA Gain Short
-		//         3 =   0dB   << original
-		//         2 = -24dB       // was -11
-		//         1 = -30dB       // was -16
-		//         0 = -33dB       // was -19
-		//
-		// <7:5>   LNA Gain
-		//         7 =   0dB
-		//         6 =  -2dB
-		//         5 =  -4dB
-		//         4 =  -6dB
-		//         3 =  -9dB
-		//         2 = -14dB   << original
-		//         1 = -19dB
-		//         0 = -24dB
-		//
-		// <4:3>   MIXER Gain
-		//         3 =   0dB   << original
-		//         2 =  -3dB
-		//         1 =  -6dB
-		//         0 =  -8dB
-		//
-		// <2:0>   PGA Gain
-		//         7 =   0dB
-		//         6 =  -3dB   << original
-		//         5 =  -6dB
-		//         4 =  -9dB
-		//         3 = -15dB
-		//         2 = -21dB
-		//         1 = -27dB
-		//         0 = -33dB
-		//
-		BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (2u << 5) | (3u << 3) | (6u << 0));
+void BK4819_EnableAGC()
+{	
+	// TODO: See if this attenuates overloading
+	// signals as well as boosting weak ones
+	//
+	// REG_7E
+	//
+	// <15> 0 AGC Fix Mode.
+	// 1=Fix; 0=Auto.
+	//
+	// <14:12> 0b011 AGC Fix Index.
+	// 011=Max, then 010,001,000,111,110,101,100(min).
+	//
+	// <5:3> 0b101 DC Filter Band Width for Tx (MIC In).
+	// 000=Bypass DC filter;
+	//
+	// <2:0> 0b110 DC Filter Band Width for Rx (IF In).
+	// 000=Bypass DC filter;
 
-		BK4819_WriteRegister(BK4819_REG_12, 0x037C);  // 000000 11 011 11 100
-		BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
-		BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
-		BK4819_WriteRegister(BK4819_REG_14, 0x0018);  // 000000 00 000 11 000
+	// default fix index too strong, set to min (011->100)
+	//BK4819_WriteRegister(0x7E, (1u << 15) | (4u << 12) | (5u << 3) | (6u << 0));
 
-		BK4819_WriteRegister(BK4819_REG_49, 0x2A38);
-		BK4819_WriteRegister(BK4819_REG_7B, 0x318C);
+	BK4819_WriteRegister(0x7E,
+		(0u << 15) |      // 0  AGC fix mode
+		(3u << 12) |      // 3  AGC fix index
+		(5u <<  3) |      // 5  DC Filter band width for Tx (MIC In)
+		(6u <<  0));      // 6  DC Filter band width for Rx (I.F In)
 
-		BK4819_WriteRegister(BK4819_REG_7C, 0x595E);
-		BK4819_WriteRegister(BK4819_REG_20, 0x8DEF);
+	// REG_10
+	//
+	// 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
+	//
+	// (15:10> ???
+	//
+	// <9:8>   LNA Gain Short
+	//         3 =   0dB   << original
+	//         2 = -24dB       // was -11
+	//         1 = -30dB       // was -16
+	//         0 = -33dB       // was -19
+	//
+	// <7:5>   LNA Gain
+	//         7 =   0dB
+	//         6 =  -2dB
+	//         5 =  -4dB
+	//         4 =  -6dB
+	//         3 =  -9dB
+	//         2 = -14dB   << original
+	//         1 = -19dB
+	//         0 = -24dB
+	//
+	// <4:3>   MIXER Gain
+	//         3 =   0dB   << original
+	//         2 =  -3dB
+	//         1 =  -6dB
+	//         0 =  -8dB
+	//
+	// <2:0>   PGA Gain
+	//         7 =   0dB
+	//         6 =  -3dB   << original
+	//         5 =  -6dB
+	//         4 =  -9dB
+	//         3 = -15dB
+	//         2 = -21dB
+	//         1 = -27dB
+	//         0 = -33dB
+	//
+	BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (5u << 5) | (3u << 3) | (6u << 0));
 
-		for (i = 0; i < 8; i++)
-			// Bug? The bit 0x2000 below overwrites the (i << 13)
-			BK4819_WriteRegister(BK4819_REG_06, ((i << 13) | 0x2500u) + 0x036u);
+	BK4819_WriteRegister(BK4819_REG_12, 0x037C);  // 000000 11 011 11 100
+	BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
+	BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
+	BK4819_WriteRegister(BK4819_REG_14, 0x0018);  // 000000 00 000 11 000
+
+	BK4819_WriteRegister(BK4819_REG_49, 0x2A38);
+	BK4819_WriteRegister(BK4819_REG_7B, 0x318C);
+
+	BK4819_WriteRegister(BK4819_REG_7C, 0x595E);
+	BK4819_WriteRegister(BK4819_REG_20, 0x8DEF);
+
+	for (uint8_t i = 0; i < 8; i++) {
+		//BK4819_WriteRegister(BK4819_REG_06, ((i << 13) | 0x2500u) + 0x036u);
+		BK4819_WriteRegister(BK4819_REG_06, (i & 7) << 13 | 0x4A << 7 | 0x36);
 	}
 }
 
@@ -760,19 +801,13 @@ void BK4819_SetupSquelch(
 	//         0 ~ 255
 	//
 	BK4819_WriteRegister(BK4819_REG_4E,  // 01 101 11 1 00000000
-	#ifndef ENABLE_FASTER_CHANNEL_SCAN
+
 		// original (*)
-		(1u << 14) |                  //  1 ???
-		(3u << 11) |                  // *5  squelch = open  delay .. 0 ~ 7
-		(2u <<  9) |                  // *3  squelch = close delay .. 0 ~ 3
-		SquelchOpenGlitchThresh);     //  0 ~ 255
-	#else
-		// faster (but twitchier)
-		(1u << 14) |                  //  1 ???
-		(2u << 11) |                  // *5  squelch = open  delay .. 0 ~ 7
-		(1u <<  9) |                  // *3  squelch = close delay .. 0 ~ 3
-		SquelchOpenGlitchThresh);     //  0 ~ 255
-	#endif
+	(1u << 14) |                  //  1 ???
+	(5u << 11) |                  // *5  squelch = open  delay .. 0 ~ 7
+	(6u <<  9) |                  // *3  squelch = close delay .. 0 ~ 3
+	SquelchOpenGlitchThresh);     //  0 ~ 255
+
 
 	// REG_4F
 	//
@@ -804,7 +839,8 @@ void BK4819_SetAF(BK4819_AF_Type_t AF)
 	// AF Output Inverse Mode = Inverse
 	// Undocumented bits 0x2040
 	//
-	BK4819_WriteRegister(BK4819_REG_47, 0x6040 | (AF << 8));
+//	BK4819_WriteRegister(BK4819_REG_47, 0x6040 | (AF << 8));
+	BK4819_WriteRegister(BK4819_REG_47, (6u << 12) | (AF << 8) | (1u << 6));
 }
 
 void BK4819_RX_TurnOn(void)
@@ -843,20 +879,20 @@ void BK4819_RX_TurnOn(void)
 void BK4819_PickRXFilterPathBasedOnFrequency(uint32_t Frequency)
 {
 	if (Frequency < 28000000)
-	{
-		BK4819_ToggleGpioOut(BK4819_GPIO4_PIN32, true);
-		BK4819_ToggleGpioOut(BK4819_GPIO3_PIN31, false);
+	{	// VHF
+		BK4819_ToggleGpioOut(BK4819_GPIO4_PIN32_VHF_LNA, true);
+		BK4819_ToggleGpioOut(BK4819_GPIO3_PIN31_UHF_LNA, false);
 	}
 	else
 	if (Frequency == 0xFFFFFFFF)
-	{
-		BK4819_ToggleGpioOut(BK4819_GPIO4_PIN32, false);
-		BK4819_ToggleGpioOut(BK4819_GPIO3_PIN31, false);
+	{	// OFF
+		BK4819_ToggleGpioOut(BK4819_GPIO4_PIN32_VHF_LNA, false);
+		BK4819_ToggleGpioOut(BK4819_GPIO3_PIN31_UHF_LNA, false);
 	}
 	else
-	{
-		BK4819_ToggleGpioOut(BK4819_GPIO4_PIN32, false);
-		BK4819_ToggleGpioOut(BK4819_GPIO3_PIN31, true);
+	{	// UHF
+		BK4819_ToggleGpioOut(BK4819_GPIO4_PIN32_VHF_LNA, false);
+		BK4819_ToggleGpioOut(BK4819_GPIO3_PIN31_UHF_LNA, true);
 	}
 }
 
@@ -975,14 +1011,14 @@ void BK4819_EnableDTMF(void)
 	// <3:0>  14 Max symbol number for SelCall detection
 	//
 //	const uint16_t threshold = 24;    // default, but doesn't decode non-QS radios
-	const uint16_t threshold = 160;   // but 128 ~ 247 does
+	const uint16_t threshold = 130;   // but 128 ~ 247 does
 	BK4819_WriteRegister(BK4819_REG_24,                      // 1 00011000 1 1 1 1110
 		(1u        << BK4819_REG_24_SHIFT_UNKNOWN_15) |
 		(threshold << BK4819_REG_24_SHIFT_THRESHOLD)  |      // 0 ~ 255
 		(1u        << BK4819_REG_24_SHIFT_UNKNOWN_6)  |
 		              BK4819_REG_24_ENABLE            |
 		              BK4819_REG_24_SELECT_DTMF       |
-		(14u       << BK4819_REG_24_SHIFT_MAX_SYMBOLS));     // 0 ~ 15
+		(15u       << BK4819_REG_24_SHIFT_MAX_SYMBOLS));     // 0 ~ 15
 }
 
 void BK4819_PlayTone(uint16_t Frequency, bool bTuningGainSwitch)
@@ -1198,7 +1234,7 @@ void BK4819_Conditional_RX_TurnOn_and_GPIO6_Enable(void)
 {
 	if (gRxIdleMode)
 	{
-		BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28, true);
+		BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_RX_ENABLE, true);
 		BK4819_RX_TurnOn();
 	}
 }
@@ -1249,30 +1285,30 @@ void BK4819_PlayDTMF(char Code)
 	uint16_t tone1 = 0;
 	uint16_t tone2 = 0;
 
-	switch (Code)                                       //  Hz   Hz
-	{	                                                //
-		case '0': tone1 = 9715; tone2 = 13793; break;   //  941  1336
-		case '1': tone1 = 7196; tone2 = 12482; break;   //  679  1209
-		case '2': tone1 = 7196; tone2 = 13793; break;   //  697  1336
-		case '3': tone1 = 7196; tone2 = 15249; break;   //  679  1477
-		case '4': tone1 = 7950; tone2 = 12482; break;   //  770  1209
-		case '5': tone1 = 7950; tone2 = 13793; break;   //  770  1336
-		case '6': tone1 = 7950; tone2 = 15249; break;   //  770  1477
-		case '7': tone1 = 8796; tone2 = 12482; break;   //  852  1209
-		case '8': tone1 = 8796; tone2 = 13793; break;   //  852  1336
-		case '9': tone1 = 8796; tone2 = 15249; break;   //  852  1477
-		case 'A': tone1 = 7196; tone2 = 16860; break;   //  679  1633
-		case 'B': tone1 = 7950; tone2 = 16860; break;   //  770  1633
-		case 'C': tone1 = 8796; tone2 = 16860; break;   //  852  1633
-		case 'D': tone1 = 9715; tone2 = 16860; break;   //  941  1633
-		case '*': tone1 = 9715; tone2 = 12482; break;   //  941  1209
-		case '#': tone1 = 9715; tone2 = 15249; break;   //  941  1477
+	switch (Code)
+	{
+		case '0': tone1 = 941; tone2 = 1336; break;
+		case '1': tone1 = 679; tone2 = 1209; break;
+		case '2': tone1 = 697; tone2 = 1336; break;
+		case '3': tone1 = 679; tone2 = 1477; break;
+		case '4': tone1 = 770; tone2 = 1209; break;
+		case '5': tone1 = 770; tone2 = 1336; break;
+		case '6': tone1 = 770; tone2 = 1477; break;
+		case '7': tone1 = 852; tone2 = 1209; break;
+		case '8': tone1 = 852; tone2 = 1336; break;
+		case '9': tone1 = 852; tone2 = 1477; break;
+		case 'A': tone1 = 679; tone2 = 1633; break;
+		case 'B': tone1 = 770; tone2 = 1633; break;
+		case 'C': tone1 = 852; tone2 = 1633; break;
+		case 'D': tone1 = 941; tone2 = 1633; break;
+		case '*': tone1 = 941; tone2 = 1209; break;
+		case '#': tone1 = 941; tone2 = 1477; break;
 	}
 
 	if (tone1 > 0)
-		BK4819_WriteRegister(BK4819_REG_71, tone1);
+		BK4819_WriteRegister(BK4819_REG_71, (((uint32_t)tone1 * 103244) + 5000) / 10000);   // with rounding
 	if (tone2 > 0)
-		BK4819_WriteRegister(BK4819_REG_72, tone2);
+		BK4819_WriteRegister(BK4819_REG_72, (((uint32_t)tone2 * 103244) + 5000) / 10000);   // with rounding
 }
 
 void BK4819_PlayDTMFString(const char *pString, bool bDelayFirst, uint16_t FirstCodePersistTime, uint16_t HashCodePersistTime, uint16_t CodePersistTime, uint16_t CodeInternalTime)
@@ -1513,12 +1549,46 @@ BK4819_CssScanResult_t BK4819_GetCxCSSScanResult(uint32_t *pCdcssFreq, uint16_t 
 
 void BK4819_DisableFrequencyScan(void)
 {
-	BK4819_WriteRegister(BK4819_REG_32, 0x0244);
+	// REG_32
+	//
+	// <15:14> 0 frequency scan time
+	//         0 = 0.2 sec
+	//         1 = 0.4 sec
+	//         2 = 0.8 sec
+	//         3 = 1.6 sec
+	//
+	// <13:1>  ???
+	//
+	// <0>     0 frequency scan enable
+	//         1 = enable
+	//         0 = disable
+	//
+	BK4819_WriteRegister(BK4819_REG_32, // 0x0244);    // 00 0000100100010 0
+		(  0u << 14) |          // 0 frequency scan Time
+		(290u <<  1) |          // ???
+		(  0u <<  0));          // 0 frequency scan enable
 }
 
 void BK4819_EnableFrequencyScan(void)
 {
-	BK4819_WriteRegister(BK4819_REG_32, 0x0245);   // 00 0000100100010 1
+	// REG_32
+	//
+	// <15:14> 0 frequency scan time
+	//         0 = 0.2 sec
+	//         1 = 0.4 sec
+	//         2 = 0.8 sec
+	//         3 = 1.6 sec
+	//
+	// <13:1>  ???
+	//
+	// <0>     0 frequency scan enable
+	//         1 = enable
+	//         0 = disable
+	//
+	BK4819_WriteRegister(BK4819_REG_32, // 0x0245);   // 00 0000100100010 1
+		(  0u << 14) |          // 0 frequency scan time
+		(290u <<  1) |          // ???
+		(  1u <<  0));          // 1 frequency scan enable
 }
 
 void BK4819_SetScanFrequency(uint32_t Frequency)

@@ -1090,7 +1090,7 @@ void APP_Update(void)
 
 			BK4819_DisableVox();
 			BK4819_Sleep();
-			BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28, false);
+			BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_RX_ENABLE, false);
 
 			// Authentic device checked removed
 
@@ -1338,7 +1338,7 @@ void APP_TimeSlice10ms(void)
 
 						RADIO_EnableCxCSS();
 						BK4819_SetupPowerAmplifier(0, 0);
-						BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29, false);
+						BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_PA_ENABLE, false);
 						BK4819_Enable_AfDac_DiscMode_TxDsp();
 						BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
 
