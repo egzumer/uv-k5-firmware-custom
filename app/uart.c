@@ -27,6 +27,7 @@
 #include "bsp/dp32g030/dma.h"
 #include "bsp/dp32g030/gpio.h"
 #include "driver/aes.h"
+#include "driver/backlight.h"
 #include "driver/bk4819.h"
 #include "driver/crc.h"
 #include "driver/eeprom.h"
@@ -238,7 +239,7 @@ static void CMD_0514(const uint8_t *pBuffer)
 	gSerialConfigCountDown_500ms = 12; // 6 sec
 	
 	// turn the LCD backlight off
-	GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
+	BACKLIGHT_TurnOff();
 
 	SendVersion();
 }
@@ -413,7 +414,7 @@ static void CMD_052F(const uint8_t *pBuffer)
 	Timestamp = pCmd->Timestamp;
 
 	// turn the LCD backlight off
-	GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
+	BACKLIGHT_TurnOff();
 
 	SendVersion();
 }

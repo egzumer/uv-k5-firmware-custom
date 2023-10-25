@@ -18,10 +18,15 @@
 #define DRIVER_BACKLIGHT_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 extern uint16_t gBacklightCountdown;
+extern uint8_t gBacklightBrightness;
 
-void BACKLIGHT_TurnOn(void);
+void BACKLIGHT_TurnOn();
+void BACKLIGHT_TurnOff();
+bool BACKLIGHT_IsOn();
+void BACKLIGHT_SetBrightness(uint8_t brigtness);
 
 #endif
 

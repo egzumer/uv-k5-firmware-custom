@@ -160,7 +160,7 @@ typedef struct {
 	uint8_t               DUAL_WATCH;
 	uint8_t               CROSS_BAND_RX_TX;
 	uint8_t               BATTERY_SAVE;
-	uint8_t               BACKLIGHT;
+	uint8_t               BACKLIGHT_TIME;
 	uint8_t               SCAN_RESUME_MODE;
 	uint8_t               SCAN_LIST_DEFAULT;
 	bool                  SCAN_LIST_ENABLED[2];
@@ -228,6 +228,8 @@ typedef struct {
 	uint8_t               field79_0x97;
 
 	uint8_t 			  KEY_M_LONG_PRESS_ACTION;
+	uint8_t               BACKLIGHT_MIN;
+	uint8_t               BACKLIGHT_MAX;
 } EEPROM_Config_t;
 
 extern EEPROM_Config_t gEeprom;

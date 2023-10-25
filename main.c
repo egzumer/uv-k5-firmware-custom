@@ -61,7 +61,8 @@ void Main(void)
 		| SYSCON_DEV_CLK_GATE_SPI0_BITS_ENABLE
 		| SYSCON_DEV_CLK_GATE_SARADC_BITS_ENABLE
 		| SYSCON_DEV_CLK_GATE_CRC_BITS_ENABLE
-		| SYSCON_DEV_CLK_GATE_AES_BITS_ENABLE;
+		| SYSCON_DEV_CLK_GATE_AES_BITS_ENABLE
+		| SYSCON_DEV_CLK_GATE_PWM_PLUS0_BITS_ENABLE;
 
 	SYSTICK_Init();
 	BOARD_Init();
@@ -140,10 +141,10 @@ void Main(void)
 	{
 		FUNCTION_Select(FUNCTION_POWER_SAVE);
 
-		if (gEeprom.BACKLIGHT < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1))
-			GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
+		if (gEeprom.BACKLIGHT_TIME < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1)) // backlight is not set to be always on
+			BACKLIGHT_TurnOff();	// turn the backlight OFF
 		else
-			GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  	// turn the backlight ON
+			BACKLIGHT_TurnOn();  	// turn the backlight ON
 
 		gReducedService = true;
 	}

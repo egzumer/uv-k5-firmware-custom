@@ -1611,11 +1611,16 @@ void APP_TimeSlice500ms(void)
 		}
 	#endif
 
-	if (gBacklightCountdown > 0 && !gAskToSave && gCssScanMode == CSS_SCAN_MODE_OFF)
-		if (gScreenToDisplay != DISPLAY_MENU || GetCurrentMenuId() != MENU_ABR) // don't turn off backlight if user is in backlight menu option
-			if (--gBacklightCountdown == 0)
-				if (gEeprom.BACKLIGHT < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1))
-					GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);   // turn backlight off
+	if (gBacklightCountdown > 0 && 
+		!gAskToSave && 
+		gCssScanMode == CSS_SCAN_MODE_OFF &&
+		// don't turn off backlight if user is in backlight menu option
+		!(gScreenToDisplay == DISPLAY_MENU && (GetCurrentMenuId() == MENU_ABR || GetCurrentMenuId() == MENU_ABR_MAX)) 
+		) 
+	{	if (--gBacklightCountdown == 0)
+				if (gEeprom.BACKLIGHT_TIME < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1)) // backlight is not set to be always on
+					BACKLIGHT_TurnOff();   // turn backlight off
+	}
 
 	if (gSerialConfigCountDown_500ms > 0)
 	{
@@ -1687,10 +1692,9 @@ void APP_TimeSlice500ms(void)
 			{
 				gMenuCountdown = 0;
 
-				if (gEeprom.BACKLIGHT == 0)
+				if (gEeprom.BACKLIGHT_TIME == 0) // backlight always off
 				{
-					gBacklightCountdown = 0;
-					GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
+					BACKLIGHT_TurnOff();	// turn the backlight OFF
 				}
 
 				if (gInputBoxIndex > 0 || gDTMF_InputMode)
@@ -1807,8 +1811,8 @@ void APP_TimeSlice500ms(void)
 
 						ST7565_HardwareReset();
 
-						if (gEeprom.BACKLIGHT < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1))
-							GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  // turn the backlight off
+						if (gEeprom.BACKLIGHT_TIME < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1))
+							BACKLIGHT_TurnOff();  // turn the backlight off
 					}
 					#ifdef ENABLE_VOICE
 						else
@@ -1907,9 +1911,7 @@ void APP_TimeSlice500ms(void)
 
 static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
-	const bool backlight_was_on = GPIO_CheckBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
-
-	if (Key == KEY_EXIT && !backlight_was_on && gEeprom.BACKLIGHT > 0)
+	if (Key == KEY_EXIT && !BACKLIGHT_IsOn() && gEeprom.BACKLIGHT_TIME > 0)
 	{	// just turn the light on for now so the user can see what's what
 		BACKLIGHT_TurnOn();
 		gBeepToPlay = BEEP_NONE;
@@ -1959,9 +1961,16 @@ static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	}
 	else // key pressed or held
 	{
-		if (Key != KEY_PTT || gSetting_backlight_on_tx_rx == BACKLIGHT_ON_TR_TX 
-		                   || gSetting_backlight_on_tx_rx == BACKLIGHT_ON_TR_TXRX)
+		const uint8_t s = gSetting_backlight_on_tx_rx;
+		const int m = GetCurrentMenuId();
+		if 	(	//not when PTT and the backlight shouldn't turn on on TX
+				!(Key == KEY_PTT && s != BACKLIGHT_ON_TR_TX && s != BACKLIGHT_ON_TR_TXRX) 
+				// not in the backlight menu
+				&& !(gScreenToDisplay == DISPLAY_MENU && ( m == MENU_ABR || m == MENU_ABR_MAX || m == MENU_ABR_MIN))
+			) 
+		{
 			BACKLIGHT_TurnOn();
+		}
 
 		if (Key == KEY_EXIT && bKeyHeld)
 		{	// exit key held pressed

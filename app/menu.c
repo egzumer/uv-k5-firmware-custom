@@ -117,6 +117,16 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 			*pMax = ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1;
 			break;
 
+		case MENU_ABR_MIN:
+			*pMin = 0;
+			*pMax = 9;
+			break;				
+
+		case MENU_ABR_MAX:
+			*pMin = 1;
+			*pMax = 10;
+			break;	
+
 		case MENU_F_LOCK:
 			*pMin = 0;
 			*pMax = ARRAY_SIZE(gSubMenu_F_LOCK) - 1;
@@ -516,8 +526,18 @@ void MENU_AcceptSetting(void)
 		#endif
 
 		case MENU_ABR:
-			gEeprom.BACKLIGHT = gSubMenuSelection;
+			gEeprom.BACKLIGHT_TIME = gSubMenuSelection;
 			break;
+
+		case MENU_ABR_MIN:
+			gEeprom.BACKLIGHT_MIN = gSubMenuSelection;
+			gEeprom.BACKLIGHT_MAX = MAX(gSubMenuSelection + 1 , gEeprom.BACKLIGHT_MAX);
+			break;
+
+		case MENU_ABR_MAX:
+			gEeprom.BACKLIGHT_MAX = gSubMenuSelection;
+			gEeprom.BACKLIGHT_MIN = MIN(gSubMenuSelection - 1, gEeprom.BACKLIGHT_MIN);
+			break;			
 
 		case MENU_ABR_ON_TX_RX:
 			gSetting_backlight_on_tx_rx = gSubMenuSelection;
@@ -934,18 +954,23 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gEeprom.BATTERY_SAVE;
 			break;
 
-		#ifdef ENABLE_VOX
-			case MENU_VOX:
-				gSubMenuSelection = gEeprom.VOX_SWITCH ? gEeprom.VOX_LEVEL + 1 : 0;
-				break;
-		#endif
+#ifdef ENABLE_VOX
+		case MENU_VOX:
+			gSubMenuSelection = gEeprom.VOX_SWITCH ? gEeprom.VOX_LEVEL + 1 : 0;
+			break;
+#endif
 
 		case MENU_ABR:
-			gSubMenuSelection = gEeprom.BACKLIGHT;
-
-			gBacklightCountdown = 0;
-			GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);  	// turn the backlight ON while in backlight menu
+			gSubMenuSelection = gEeprom.BACKLIGHT_TIME;
 			break;
+
+		case MENU_ABR_MIN:
+			gSubMenuSelection = gEeprom.BACKLIGHT_MIN;
+			break;
+
+		case MENU_ABR_MAX:
+			gSubMenuSelection = gEeprom.BACKLIGHT_MAX;
+			break;		
 
 		case MENU_ABR_ON_TX_RX:
 			gSubMenuSelection = gSetting_backlight_on_tx_rx;
@@ -963,11 +988,11 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gEeprom.TX_TIMEOUT_TIMER;
 			break;
 
-		#ifdef ENABLE_VOICE
-			case MENU_VOICE:
-				gSubMenuSelection = gEeprom.VOICE_PROMPT;
-				break;
-		#endif
+#ifdef ENABLE_VOICE
+		case MENU_VOICE:
+			gSubMenuSelection = gEeprom.VOICE_PROMPT;
+			break;
+#endif
 
 		case MENU_SC_REV:
 			gSubMenuSelection = gEeprom.SCAN_RESUME_MODE;
@@ -1001,11 +1026,11 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gEeprom.MIC_SENSITIVITY;
 			break;
 
-		#ifdef ENABLE_AUDIO_BAR
-			case MENU_MIC_BAR:
-				gSubMenuSelection = gSetting_mic_bar;
-				break;
-		#endif
+#ifdef ENABLE_AUDIO_BAR
+		case MENU_MIC_BAR:
+			gSubMenuSelection = gSetting_mic_bar;
+			break;
+#endif
 
 		case MENU_COMPAND:
 			gSubMenuSelection = gTxVfo->Compander;
@@ -1081,11 +1106,11 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gTxVfo->AM_mode;
 			break;
 
-		#ifdef ENABLE_AM_FIX
-			case MENU_AM_FIX:
-				gSubMenuSelection = gSetting_AM_fix;
-				break;
-		#endif
+#ifdef ENABLE_AM_FIX
+		case MENU_AM_FIX:
+			gSubMenuSelection = gSetting_AM_fix;
+			break;
+#endif
 
 		#ifdef ENABLE_AM_FIX_TEST1
 			case MENU_AM_FIX_TEST1:
@@ -1377,10 +1402,9 @@ static void MENU_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 
 		gRequestDisplayScreen = DISPLAY_MAIN;
 
-		if (gEeprom.BACKLIGHT == 0)
+		if (gEeprom.BACKLIGHT_TIME == 0) // backlight set to always off
 		{
-			gBacklightCountdown = 0;
-			GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
+			BACKLIGHT_TurnOff();	// turn the backlight OFF
 		}
 	}
 	else
@@ -1658,10 +1682,9 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 
 		gRequestDisplayScreen = DISPLAY_MENU;
 
-		if (GetCurrentMenuId() != MENU_ABR && gEeprom.BACKLIGHT == 0)
+		if (GetCurrentMenuId() != MENU_ABR && gEeprom.BACKLIGHT_TIME == 0) // backlight always off and not in the backlight menu
 		{
-			gBacklightCountdown = 0;
-			GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);	// turn the backlight OFF
+			BACKLIGHT_TurnOff();
 		}
 
 		return;

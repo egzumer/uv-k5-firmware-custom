@@ -14,7 +14,8 @@
  *     limitations under the License.
  */
 
-#include "../app/spectrum.h"
+#include "app/spectrum.h"
+#include "driver/backlight.h"
 
 struct FrequencyBandInfo {
     uint32_t lower;
@@ -493,9 +494,9 @@ static void ToggleListeningBW() {
 static void ToggleBacklight() {
   settings.backlightState = !settings.backlightState;
   if (settings.backlightState) {
-    GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
+    BACKLIGHT_TurnOn();
   } else {
-    GPIO_ClearBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
+    BACKLIGHT_TurnOff();
   }
 }
 

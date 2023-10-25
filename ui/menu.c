@@ -83,6 +83,8 @@ const t_menu_item MenuList[] =
 	{"POnMsg", VOICE_ID_INVALID,                       MENU_PONMSG        },
 	{"BatTxt", VOICE_ID_INVALID,                       MENU_BAT_TXT       },	
 	{"BackLt", VOICE_ID_INVALID,                       MENU_ABR           }, // was "ABR"
+	{"BLMin",  VOICE_ID_INVALID,                       MENU_ABR_MIN       },
+	{"BLMax",  VOICE_ID_INVALID,                       MENU_ABR_MAX       },
 	{"BltTRX", VOICE_ID_INVALID,                       MENU_ABR_ON_TX_RX  },
 	{"Beep",   VOICE_ID_BEEP_PROMPT,                   MENU_BEEP          },
 #ifdef ENABLE_VOICE
@@ -590,7 +592,17 @@ void UI_DisplayMenu(void)
 
 		case MENU_ABR:
 			strcpy(String, gSubMenu_BACKLIGHT[gSubMenuSelection]);
+			BACKLIGHT_SetBrightness(-1);
 			break;
+
+		case MENU_ABR_MIN:
+		case MENU_ABR_MAX:
+			sprintf(String, "%d", gSubMenuSelection);
+			if(gIsInSubMenu)
+				BACKLIGHT_SetBrightness(gSubMenuSelection);
+			else
+				BACKLIGHT_SetBrightness(-1);
+			break;	
 
 		case MENU_AM:
 			strcpy(String, (gSubMenuSelection == 0) ? "FM" : "AM");

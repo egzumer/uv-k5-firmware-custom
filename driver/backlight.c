@@ -16,21 +16,25 @@
 
 #include "backlight.h"
 #include "bsp/dp32g030/gpio.h"
+#include "bsp/dp32g030/pwmplus.h"
 #include "driver/gpio.h"
 #include "settings.h"
 
 // this is decremented once every 500ms
 uint16_t gBacklightCountdown = 0;
+bool backlightOn;
 
 void BACKLIGHT_TurnOn(void)
 {
-	if (gEeprom.BACKLIGHT == 0)
+	if (gEeprom.BACKLIGHT_TIME == 0)
 		return;
 
+	backlightOn = true;
+
 	// turn the backlight ON
-	GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_BACKLIGHT);
+	BACKLIGHT_SetBrightness(gEeprom.BACKLIGHT_MAX);
 		
-	switch (gEeprom.BACKLIGHT)
+	switch (gEeprom.BACKLIGHT_TIME)
 	{
 		default:
 		case 1:	// 5 sec
@@ -57,4 +61,22 @@ void BACKLIGHT_TurnOn(void)
 	}
 
 	gBacklightCountdown *= 2;
+}
+
+void BACKLIGHT_TurnOff()
+{
+	BACKLIGHT_SetBrightness(gEeprom.BACKLIGHT_MIN);
+	gBacklightCountdown = 0;
+	backlightOn = false;
+}
+
+bool BACKLIGHT_IsOn()
+{
+	return backlightOn;
+}
+
+void BACKLIGHT_SetBrightness(uint8_t brigtness)
+{
+	PWM_PLUS0_CH0_COMP = (1 << brigtness) - 1;
+	//PWM_PLUS0_SWLOAD = 1;
 }

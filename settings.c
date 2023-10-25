@@ -96,12 +96,12 @@ void SETTINGS_SaveSettings(void)
 	State[7] = gEeprom.MIC_SENSITIVITY;
 	EEPROM_WriteBuffer(0x0E70, State);
 
-	State[0] = 0xFF;
+	State[0] = (gEeprom.BACKLIGHT_MIN << 4) + gEeprom.BACKLIGHT_MAX;
 	State[1] = gEeprom.CHANNEL_DISPLAY_MODE;
 	State[2] = gEeprom.CROSS_BAND_RX_TX;
 	State[3] = gEeprom.BATTERY_SAVE;
 	State[4] = gEeprom.DUAL_WATCH;
-	State[5] = gEeprom.BACKLIGHT;
+	State[5] = gEeprom.BACKLIGHT_TIME;
 	State[6] = gEeprom.TAIL_NOTE_ELIMINATION;
 	State[7] = gEeprom.VFO_OPEN;
 	EEPROM_WriteBuffer(0x0E78, State);
@@ -123,11 +123,11 @@ void SETTINGS_SaveSettings(void)
 	#endif
 	EEPROM_WriteBuffer(0x0E98, Password);
 
-	#ifdef ENABLE_VOICE
-		memset(State, 0xFF, sizeof(State));
-		State[0] = gEeprom.VOICE_PROMPT;
-		EEPROM_WriteBuffer(0x0EA0, State);
-	#endif
+	memset(State, 0xFF, sizeof(State));
+#ifdef ENABLE_VOICE
+	State[0] = gEeprom.VOICE_PROMPT;
+	EEPROM_WriteBuffer(0x0EA0, State);
+#endif
 
 	#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 		State[0] = gEeprom.ALARM_MODE;

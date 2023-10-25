@@ -23,6 +23,7 @@
 #include "board.h"
 #include "bsp/dp32g030/gpio.h"
 #include "bsp/dp32g030/portcon.h"
+#include "bsp/dp32g030/pwmplus.h"
 #include "bsp/dp32g030/saradc.h"
 #include "bsp/dp32g030/syscon.h"
 #include "driver/adc.h"
@@ -94,8 +95,6 @@ void BOARD_GPIO_Init(void)
 		| GPIO_DIR_6_MASK // INPUT
 		);
 	GPIOB->DIR |= 0
-		// Back light
-		| GPIO_DIR_6_BITS_OUTPUT
 		// ST7565
 		| GPIO_DIR_9_BITS_OUTPUT
 		// ST7565 + SWD IO
@@ -189,8 +188,8 @@ void BOARD_PORTCON_Init(void)
 		| PORTCON_PORTB_SEL0_B7_MASK
 		);
 	PORTCON_PORTB_SEL0 |= 0
-		// Back light
-		| PORTCON_PORTB_SEL0_B6_BITS_GPIOB6
+		// Back light PWM
+		| PORTCON_PORTB_SEL0_B6_BITS_PWMP0_CH0
 		// SPI0 SSN
 		| PORTCON_PORTB_SEL0_B7_BITS_SPI0_SSN
 		;
@@ -471,6 +470,23 @@ void BOARD_PORTCON_Init(void)
 		;
 }
 
+static void BacklightPWM_Init()
+{
+	// 48MHz / 94 / 1024 ~ 500Hz
+	PWM_PLUS0_CLKSRC |= ((94) << 16);
+	PWM_PLUS0_PERIOD = 1023;
+
+	PWM_PLUS0_GEN = 	
+		PWMPLUS_GEN_CH0_OE_BITS_ENABLE |
+		PWMPLUS_GEN_CH0_OUTINV_BITS_ENABLE |
+		0;
+
+	PWM_PLUS0_CFG =  	
+		PWMPLUS_CFG_CNT_REP_BITS_ENABLE |
+		PWMPLUS_CFG_COUNTER_EN_BITS_ENABLE |
+		0;
+}
+
 void BOARD_ADC_Init(void)
 {
 	ADC_Config_t Config;
@@ -508,6 +524,7 @@ void BOARD_Init(void)
 {
 	BOARD_PORTCON_Init();
 	BOARD_GPIO_Init();
+	BacklightPWM_Init();
 	BOARD_ADC_Init();
 	ST7565_Init(true);
 	#ifdef ENABLE_FMRADIO
@@ -540,11 +557,13 @@ void BOARD_EEPROM_Init(void)
 
 	// 0E78..0E7F
 	EEPROM_ReadBuffer(0x0E78, Data, 8);
+	gEeprom.BACKLIGHT_MAX 		  = (Data[0] & 0xF) <= 10 ? (Data[0] & 0xF) : 10;
+	gEeprom.BACKLIGHT_MIN 		  = (Data[0] >> 4) < gEeprom.BACKLIGHT_MAX ? (Data[0] >> 4) : 0;
 	gEeprom.CHANNEL_DISPLAY_MODE  = (Data[1] < 4) ? Data[1] : MDF_FREQUENCY;    // 4 instead of 3 - extra display mode
 	gEeprom.CROSS_BAND_RX_TX      = (Data[2] < 3) ? Data[2] : CROSS_BAND_OFF;
 	gEeprom.BATTERY_SAVE          = (Data[3] < 5) ? Data[3] : 4;
 	gEeprom.DUAL_WATCH            = (Data[4] < 3) ? Data[4] : DUAL_WATCH_CHAN_A;
-	gEeprom.BACKLIGHT             = (Data[5] < ARRAY_SIZE(gSubMenu_BACKLIGHT)) ? Data[5] : 3;
+	gEeprom.BACKLIGHT_TIME        = (Data[5] < ARRAY_SIZE(gSubMenu_BACKLIGHT)) ? Data[5] : 3;
 	gEeprom.TAIL_NOTE_ELIMINATION = (Data[6] < 2) ? Data[6] : false;
 	gEeprom.VFO_OPEN              = (Data[7] < 2) ? Data[7] : true;
 
