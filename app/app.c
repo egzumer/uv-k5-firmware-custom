@@ -518,8 +518,9 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 
 	{	// RF RX front end gain
 		// original QS front end register settings
+		// 0x03BE   00000 011 101 11 110
 		const uint8_t orig_lna_short = 3;   //   0dB
-		const uint8_t orig_lna       = 2;   // -14dB
+		const uint8_t orig_lna       = 5;   //  -4dB
 		const uint8_t orig_mixer     = 3;   //   0dB
 		const uint8_t orig_pga       = 6;   //  -3dB
 
@@ -538,11 +539,16 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	}
 
 	// AF gain - original QS values
+	if (gRxVfo->AM_mode){
+		BK4819_WriteRegister(0x48, 0xB3A8);
+	}
+	else {
 	BK4819_WriteRegister(BK4819_REG_48,
 		(11u << 12)                |     // ??? .. 0 to 15, doesn't seem to make any difference
 		( 0u << 10)                |     // AF Rx Gain-1
 		(gEeprom.VOLUME_GAIN << 4) |     // AF Rx Gain-2
 		(gEeprom.DAC_GAIN    << 0));     // AF DAC Gain (after Gain-1 and Gain-2)
+	}
 
 #ifdef ENABLE_VOICE
 	if (gVoiceWriteIndex == 0)       // AM/FM RX mode will be set when the voice has finished

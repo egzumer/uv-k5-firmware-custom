@@ -51,10 +51,10 @@
 	//   <7:5> = LNA Gain
 	//           7 =   0dB
 	//           6 =  -2dB
-	//           5 =  -4dB
+	//           5 =  -4dB   < original value
 	//           4 =  -6dB
 	//           3 =  -9dB
-	//           2 = -14dB   < original value
+	//           2 = -14dB
 	//           1 = -19dB
 	//           0 = -24dB
 	//
@@ -192,26 +192,26 @@
 		{0x03D3, -20},         //  77 .. 3 6 2 3 ..   0dB  -2dB -3dB -15dB .. -20dB
 		{0x03BB, -19},         //  78 .. 3 5 3 3 ..   0dB  -4dB  0dB -15dB .. -19dB
 		{0x037C, -18},         //  79 .. 3 3 3 4 ..   0dB  -9dB  0dB  -9dB .. -18dB
-		{0x035E, -17},         //  80 .. 3 2 3 6 ..   0dB -14dB  0dB  -3dB .. -17dB original
+		{0x03CC, -17},         //  80 .. 3 6 1 4 ..   0dB  -2dB -6dB  -9dB .. -17dB
 		{0x03C5, -16},         //  81 .. 3 6 0 5 ..   0dB  -2dB -8dB  -6dB .. -16dB
 		{0x03EC, -15},         //  82 .. 3 7 1 4 ..   0dB   0dB -6dB  -9dB .. -15dB
 		{0x035F, -14},         //  83 .. 3 2 3 7 ..   0dB -14dB  0dB   0dB .. -14dB
-		{0x03C6, -13},         //  84 .. 3 6 0 6 ..   0dB  -2dB -8dB  -3dB .. -13dB
-		{0x0377, -12},         //  85 .. 3 3 2 7 ..   0dB  -9dB -3dB   0dB .. -12dB
+		{0x03BC, -13},         //  84 .. 3 5 3 4 ..   0dB  -4dB  0dB  -9dB .. -13dB
+		{0x038F, -12},         //  85 .. 3 4 1 7 ..   0dB  -6dB -6dB   0dB .. -12dB
 		{0x03E6, -11},         //  86 .. 3 7 0 6 ..   0dB   0dB -8dB  -3dB .. -11dB
-		{0x03BD, -10},         //  87 .. 3 5 3 5 ..   0dB  -4dB  0dB  -6dB .. -10dB
-		{0x03F5,  -9},         //  88 .. 3 7 2 5 ..   0dB   0dB -3dB  -6dB ..  -9dB
-		{0x03DD,  -8},         //  89 .. 3 6 3 5 ..   0dB  -2dB  0dB  -6dB ..  -8dB
-		{0x03B7,  -7},         //  90 .. 3 5 2 7 ..   0dB  -4dB -3dB   0dB ..  -7dB
-		{0x03F6,  -6},         //  91 .. 3 7 2 6 ..   0dB   0dB -3dB  -3dB ..  -6dB
-		{0x03D7,  -5},         //  92 .. 3 6 2 7 ..   0dB  -2dB -3dB   0dB ..  -5dB
-		{0x03BF,  -4},         //  93 .. 3 5 3 7 ..   0dB  -4dB  0dB   0dB ..  -4dB
-		{0x03F7,  -3},         //  94 .. 3 7 2 7 ..   0dB   0dB -3dB   0dB ..  -3dB
-		{0x03DF,  -2},         //  95 .. 3 6 3 7 ..   0dB  -2dB  0dB   0dB ..  -2dB
-		{0x03FF,   0}          //  96 .. 3 7 3 7 ..   0dB   0dB  0dB   0dB ..   0dB
+		{0x03AF, -10},         //  87 .. 3 5 1 7 ..   0dB  -4dB -6dB   0dB .. -10dB
+		{0x03F5, -9 },         //  88 .. 3 7 2 5 ..   0dB   0dB -3dB  -6dB ..  -9dB
+		{0x03D6, -8 },         //  89 .. 3 6 2 6 ..   0dB  -2dB -3dB  -3dB ..  -8dB
+		{0x03BE, -7 },         //  90 .. 3 5 3 6 ..   0dB  -4dB  0dB  -3dB ..  -7dB original
+		{0x03F6, -6 },         //  91 .. 3 7 2 6 ..   0dB   0dB -3dB  -3dB ..  -6dB
+		{0x03DE, -5 },         //  92 .. 3 6 3 6 ..   0dB  -2dB  0dB  -3dB ..  -5dB
+		{0x03BF, -4 },         //  93 .. 3 5 3 7 ..   0dB  -4dB  0dB   0dB ..  -4dB
+		{0x03F7, -3 },         //  94 .. 3 7 2 7 ..   0dB   0dB -3dB   0dB ..  -3dB
+		{0x03DF, -2 },         //  95 .. 3 6 3 7 ..   0dB  -2dB  0dB   0dB ..  -2dB
+		{0x03FF, 0  },         //  96 .. 3 7 3 7 ..   0dB   0dB  0dB   0dB ..   0dB
 	};
 
-	static const unsigned int original_index = 80;
+	static const unsigned int original_index = 90;
 
 #endif
 
