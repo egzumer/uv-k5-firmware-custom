@@ -116,7 +116,7 @@ void UI_DisplayAudioBar(void)
 #endif
 
 #if defined(ENABLE_RSSI_BAR)
-void UI_DisplayRSSIBar(const int16_t rssi, const bool now)
+static void DisplayRSSIBar(const int16_t rssi, const bool now)
 {
 	const int16_t      s0_dBm       = -147;                  // S0 .. base level
 	const unsigned int txt_width    = 7 * 8;                 // 8 text chars
@@ -182,6 +182,44 @@ void UI_DisplayRSSIBar(const int16_t rssi, const bool now)
 }
 #endif
 
+static void RenderSmallSbar(uint8_t RssiLevel, uint8_t VFO)
+{
+	uint8_t *pLine;
+	uint8_t Line;
+
+	if (VFO == 0) {
+		pLine = gFrameBuffer[2];
+		Line = 3;
+	} else {
+		pLine = gFrameBuffer[6];
+		Line = 7;
+	}
+
+	memset(pLine, 0, 23);
+
+	memcpy(pLine, BITMAP_Antenna, 5);
+	if (RssiLevel >= 1) {
+		memcpy(pLine + 5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
+	}
+	if (RssiLevel >= 2) {
+		memcpy(pLine + 8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
+	}
+	if (RssiLevel >= 3) {
+		memcpy(pLine + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
+	}
+	if (RssiLevel >= 4) {
+		memcpy(pLine + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
+	}
+	if (RssiLevel >= 5) {
+		memcpy(pLine + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
+	}
+	if (RssiLevel >= 6) {
+		memcpy(pLine + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
+	}
+
+	ST7565_DrawLine(0, Line, 23 , pLine);
+}
+
 void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 {
 #ifdef ENABLE_RSSI_BAR
@@ -190,15 +228,32 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 	
 	// optional larger RSSI dBm, S-point and bar level
 
-	if (center_line != CENTER_LINE_RSSI)
-		return;
+
 
 	if (gCurrentFunction == FUNCTION_RECEIVE ||
 		gCurrentFunction == FUNCTION_MONITOR ||
 		gCurrentFunction == FUNCTION_INCOMING)
 	{
-		UI_DisplayRSSIBar(rssi, true);
+		if (center_line == CENTER_LINE_RSSI)
+			DisplayRSSIBar(rssi, true);
+		
+		uint8_t Level;
+
+		if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][3]) {
+			Level = 6;
+		} else if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][2]) {
+			Level = 4;
+		} else if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][1]) {
+			Level = 2;
+		} else if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][0]) {
+			Level = 1;
+		} else {
+			Level = 0;
+		}
+
+		RenderSmallSbar(Level, vfo);
 	}
+
 
 #else
 
@@ -688,7 +743,7 @@ void UI_DisplayMain(void)
 #ifdef ENABLE_RSSI_BAR
 		if (rx) {
 			center_line = CENTER_LINE_RSSI;
-			UI_DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_VFO], false);
+			DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_VFO], false);
 		}
 		else
 #endif
