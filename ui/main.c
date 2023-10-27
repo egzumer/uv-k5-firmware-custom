@@ -40,19 +40,16 @@ center_line_t center_line = CENTER_LINE_NONE;
 
 // ***************************************************************************
 
-void UI_drawBars(uint8_t *p, const unsigned int level)
+static void DrawBars(uint8_t *p, unsigned int level)
 {
-	switch (level)
-	{
-		default:
-		case 7: memmove(p + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6)); [[fallthrough]];
-		case 6: memmove(p + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5)); [[fallthrough]];
-		case 5: memmove(p + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4)); [[fallthrough]];
-		case 4: memmove(p + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3)); [[fallthrough]];
-		case 3: memmove(p +  8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2)); [[fallthrough]];
-		case 2: memmove(p +  5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1)); [[fallthrough]];
-		case 1: memmove(p +  0, BITMAP_Antenna,       sizeof(BITMAP_Antenna)); break;
-		case 0: memset( p +  0, 0,                    sizeof(BITMAP_Antenna)); break;
+	if(level>6)
+		level = 6;
+
+	memcpy(p, BITMAP_Antenna, ARRAY_SIZE(BITMAP_Antenna));
+
+	for(uint8_t i = 1; i <= level; i++) {
+		char bar = (0xff << (6-i)) & 0x7F;
+		memset(p + 2 + i*3, bar, 2);
 	}
 }
 
@@ -115,209 +112,112 @@ void UI_DisplayAudioBar(void)
 }
 #endif
 
-#if defined(ENABLE_RSSI_BAR)
 static void DisplayRSSIBar(const int16_t rssi, const bool now)
 {
-	const int16_t      s0_dBm       = -147;                  // S0 .. base level
-	const unsigned int txt_width    = 7 * 8;                 // 8 text chars
-	const unsigned int bar_x        = 2 + txt_width + 4;     // X coord of bar graph
-	const int16_t      rssi_dBm     = (rssi / 2) - 160;
+#if defined(ENABLE_RSSI_BAR)
 
-	const unsigned int line         = 3;
-	uint8_t           *p_line        = gFrameBuffer[line];
-	char               str[16];
+	if (center_line == CENTER_LINE_RSSI) {
+		const unsigned int txt_width    = 7 * 8;                 // 8 text chars
+		const unsigned int bar_x        = 2 + txt_width + 4;     // X coord of bar graph
 
-	const char plus[] = {
-		0b00011000,
-		0b00011000,
-		0b01111110,
-		0b01111110,
-		0b01111110,
-		0b00011000,
-		0b00011000,
-	};
+		const unsigned int line         = 3;
+		uint8_t           *p_line        = gFrameBuffer[line];
+		char               str[16];
 
-	const char hollowBar[] = {
-		0b01111111, 
-		0b01000001, 
-		0b01000001, 
-		0b01111111
-	};
+		const char plus[] = {
+			0b00011000,
+			0b00011000,
+			0b01111110,
+			0b01111110,
+			0b01111110,
+			0b00011000,
+			0b00011000,
+		};
 
-	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
-		return;     // display is in use
+		const char hollowBar[] = {
+			0b01111111, 
+			0b01000001, 
+			0b01000001, 
+			0b01111111
+		};
 
-	if (gCurrentFunction == FUNCTION_TRANSMIT ||
-		gScreenToDisplay != DISPLAY_MAIN ||
-		gDTMF_CallState != DTMF_CALL_STATE_NONE)
-		return;     // display is in use
+		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
+			return;     // display is in use
 
+		if (gCurrentFunction == FUNCTION_TRANSMIT ||
+			gScreenToDisplay != DISPLAY_MAIN ||
+			gDTMF_CallState != DTMF_CALL_STATE_NONE)
+			return;     // display is in use
+
+		if (now)
+			memset(p_line, 0, LCD_WIDTH);
+			
+		const int16_t      s0_dBm       = -147;                  // S0 .. base level
+		const int16_t      rssi_dBm     = (rssi / 2) - 160;
+
+		const uint8_t s_level = MIN(MAX((rssi_dBm - s0_dBm) / 6, 0), 9);
+		uint8_t overS9Bars = MAX(0, 73 + rssi_dBm)/10;
+		
+		if(overS9Bars == 0) {
+			sprintf(str, "% 4d S%d", rssi_dBm, s_level);
+		}
+		else {
+			sprintf(str, "% 4d  %d0", rssi_dBm, overS9Bars);
+			memcpy(p_line + 2 + 7*5, &plus, ARRAY_SIZE(plus));
+		}
+
+		UI_PrintStringSmall(str, 2, 0, line);
+
+		for(uint8_t i = 0; i < s_level; i++) { // S bars
+			for(uint8_t j = 0; j < 4; j++)
+				p_line[bar_x + i * 5 + j] = (~(0x7F >> (i+1))) & 0x7F;
+		}
+		overS9Bars = MIN(overS9Bars, 4);
+		for(uint8_t i = 0; i < overS9Bars; i++) { // +10 hollow bars
+			memcpy(p_line + (bar_x + (i + 9) * 5), &hollowBar, ARRAY_SIZE(hollowBar));
+		}
+	}
+#else
+
+	uint8_t Level;
+
+	if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][3]) {
+		Level = 6;
+	} else if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][2]) {
+		Level = 4;
+	} else if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][1]) {
+		Level = 2;
+	} else if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][0]) {
+		Level = 1;
+	} else {
+		Level = 0;
+	}
+
+	uint8_t *pLine = (gEeprom.RX_VFO == 0)? gFrameBuffer[2] : gFrameBuffer[6];
 	if (now)
-		memset(p_line, 0, LCD_WIDTH);
-
-	const uint8_t s_level = MIN(MAX((rssi_dBm - s0_dBm) / 6, 0), 9);
-	uint8_t overS9Bars = MAX(0, 73 + rssi_dBm)/10;
-	
-	if(overS9Bars == 0) {
-		sprintf(str, "% 4d S%d", rssi_dBm, s_level);
-	}
-	else {
-		sprintf(str, "% 4d  %d0", rssi_dBm, overS9Bars);
-		memcpy(p_line + 2 + 7*5, &plus, ARRAY_SIZE(plus));
-	}
-
-	UI_PrintStringSmall(str, 2, 0, line);
-
-	for(uint8_t i = 0; i < s_level; i++) { // S bars
-		for(uint8_t j = 0; j < 4; j++)
-			p_line[bar_x + i * 5 + j] = (~(0x7F >> (i+1))) & 0x7F;
-	}
-	overS9Bars = MIN(overS9Bars, 4);
-	for(uint8_t i = 0; i < overS9Bars; i++) { // +10 hollow bars
-		memcpy(p_line + (bar_x + (i + 9) * 5), &hollowBar, ARRAY_SIZE(hollowBar));
-	}
+		memset(pLine, 0, 23);
+	DrawBars(pLine, Level);
+#endif
 
 	if (now)
 		ST7565_BlitFullScreen();
 }
-#endif
 
-static void RenderSmallSbar(uint8_t RssiLevel, uint8_t VFO)
-{
-	uint8_t *pLine;
-	uint8_t Line;
-
-	if (VFO == 0) {
-		pLine = gFrameBuffer[2];
-		Line = 3;
-	} else {
-		pLine = gFrameBuffer[6];
-		Line = 7;
-	}
-
-	memset(pLine, 0, 23);
-
-	memcpy(pLine, BITMAP_Antenna, 5);
-	if (RssiLevel >= 1) {
-		memcpy(pLine + 5, BITMAP_AntennaLevel1, sizeof(BITMAP_AntennaLevel1));
-	}
-	if (RssiLevel >= 2) {
-		memcpy(pLine + 8, BITMAP_AntennaLevel2, sizeof(BITMAP_AntennaLevel2));
-	}
-	if (RssiLevel >= 3) {
-		memcpy(pLine + 11, BITMAP_AntennaLevel3, sizeof(BITMAP_AntennaLevel3));
-	}
-	if (RssiLevel >= 4) {
-		memcpy(pLine + 14, BITMAP_AntennaLevel4, sizeof(BITMAP_AntennaLevel4));
-	}
-	if (RssiLevel >= 5) {
-		memcpy(pLine + 17, BITMAP_AntennaLevel5, sizeof(BITMAP_AntennaLevel5));
-	}
-	if (RssiLevel >= 6) {
-		memcpy(pLine + 20, BITMAP_AntennaLevel6, sizeof(BITMAP_AntennaLevel6));
-	}
-
-	ST7565_DrawLine(0, Line, 23 , pLine);
-}
 
 void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 {
-#ifdef ENABLE_RSSI_BAR
-
 	(void)vfo;  // unused
 	
 	// optional larger RSSI dBm, S-point and bar level
-
-
 
 	if (gCurrentFunction == FUNCTION_RECEIVE ||
 		gCurrentFunction == FUNCTION_MONITOR ||
 		gCurrentFunction == FUNCTION_INCOMING)
 	{
-		if (center_line == CENTER_LINE_RSSI)
-			DisplayRSSIBar(rssi, true);
 		
-		uint8_t Level;
-
-		if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][3]) {
-			Level = 6;
-		} else if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][2]) {
-			Level = 4;
-		} else if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][1]) {
-			Level = 2;
-		} else if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][0]) {
-			Level = 1;
-		} else {
-			Level = 0;
-		}
-
-		RenderSmallSbar(Level, vfo);
+		DisplayRSSIBar(rssi, true);
 	}
 
-
-#else
-
-	// original little RS bars
-
-//		const int16_t dBm   = (rssi / 2) - 160;
-	const uint8_t Line  = (vfo == 0) ? 3 : 7;
-	uint8_t      *p_line = gFrameBuffer[Line - 1];
-
-
-	const unsigned int band = gRxVfo->Band;
-	const int16_t level0  = gEEPROM_RSSI_CALIB[band][0];
-	const int16_t level1  = gEEPROM_RSSI_CALIB[band][1];
-	const int16_t level2  = gEEPROM_RSSI_CALIB[band][2];
-	const int16_t level3  = gEEPROM_RSSI_CALIB[band][3];
-
-	const int16_t level01 = (level0 + level1) / 2;
-	const int16_t level12 = (level1 + level2) / 2;
-	const int16_t level23 = (level2 + level3) / 2;
-
-	gVFO_RSSI[vfo] = rssi;
-
-	uint8_t rssi_level = 0;
-
-	if (rssi >= level3)  rssi_level = 7;
-	else
-	if (rssi >= level23) rssi_level = 6;
-	else
-	if (rssi >= level2)  rssi_level = 5;
-	else
-	if (rssi >= level12) rssi_level = 4;
-	else
-	if (rssi >= level1)  rssi_level = 3;
-	else
-	if (rssi >= level01) rssi_level = 2;
-	else
-	if (rssi >= level0)  rssi_level = 1;
-
-	if (gVFO_RSSI_bar_level[vfo] == rssi_level)
-		return;
-
-	gVFO_RSSI_bar_level[vfo] = rssi_level;
-
-	// **********************************************************
-
-	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
-		return;    // display is in use
-
-	if (gCurrentFunction == FUNCTION_TRANSMIT || gScreenToDisplay != DISPLAY_MAIN)
-		return;    // display is in use
-
-	p_line = gFrameBuffer[Line - 1];
-
-	memset(p_line, 0, 23);
-
-	// untested !!!
-
-	if (rssi_level == 0)
-		p_line = NULL;
-	else
-		UI_drawBars(p_line, rssi_level);
-
-	ST7565_DrawLine(0, Line, 23, p_line);
-#endif
 }
 
 // ***************************************************************************
@@ -649,8 +549,8 @@ void UI_DisplayMain(void)
 						Level = gVFO_RSSI_bar_level[vfo_num];
 				#endif
 			}
-
-			UI_drawBars(p_line1 + LCD_WIDTH, Level);
+			if(Level)
+				DrawBars(p_line1 + LCD_WIDTH, Level);
 		}
 
 		// ************

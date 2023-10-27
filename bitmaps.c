@@ -270,48 +270,6 @@ const uint8_t BITMAP_Antenna[5] =
 	0b00000011
 };
 
-const uint8_t BITMAP_AntennaLevel1[3] =
-{
-	0b01100000,
-	0b01100000,
-	0b00000000
-};
-
-const uint8_t BITMAP_AntennaLevel2[3] =
-{
-	0b01110000,
-	0b01110000,
-	0b00000000
-};
-
-const uint8_t BITMAP_AntennaLevel3[3] =
-{
-	0b01111000,
-	0b01111000,
-	0b00000000
-};
-
-const uint8_t BITMAP_AntennaLevel4[3] =
-{
-	0b01111100,
-	0b01111100,
-	0b00000000
-};
-
-const uint8_t BITMAP_AntennaLevel5[3] =
-{
-	0b01111110,
-	0b01111110,
-	0b00000000
-};
-
-const uint8_t BITMAP_AntennaLevel6[3] =
-{
-	0b01111111,
-	0b01111111,
-	0b00000000
-};
-
 const uint8_t BITMAP_MARKER[8] =
 {
 	0b11111111,
