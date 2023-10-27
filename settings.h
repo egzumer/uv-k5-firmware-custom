@@ -155,7 +155,7 @@ typedef struct {
 	#endif
 	bool                  BEEP_CONTROL;
 	uint8_t               CHANNEL_DISPLAY_MODE;
-	bool                  TAIL_NOTE_ELIMINATION;
+	bool                  TAIL_TONE_ELIMINATION;
 	bool                  VFO_OPEN;
 	uint8_t               DUAL_WATCH;
 	uint8_t               CROSS_BAND_RX_TX;

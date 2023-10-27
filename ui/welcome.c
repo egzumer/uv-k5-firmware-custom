@@ -43,7 +43,6 @@ void UI_DisplayWelcome(void)
 {
 	char WelcomeString0[16];
 	char WelcomeString1[16];
-	char WelcomeString2[16];
 	
 	memset(gStatusLine,  0, sizeof(gStatusLine));
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
@@ -61,7 +60,6 @@ void UI_DisplayWelcome(void)
 	{
 		memset(WelcomeString0, 0, sizeof(WelcomeString0));
 		memset(WelcomeString1, 0, sizeof(WelcomeString1));
-		memset(WelcomeString2, 0, sizeof(WelcomeString2));
 
 		if (gEeprom.POWER_ON_DISPLAY_MODE == POWER_ON_DISPLAY_MODE_VOLTAGE)
 		{
@@ -70,10 +68,6 @@ void UI_DisplayWelcome(void)
 				gBatteryVoltageAverage / 100,
 				gBatteryVoltageAverage % 100,
 				BATTERY_VoltsToPercent(gBatteryVoltageAverage));
-
-			#if 0
-				sprintf(WelcomeString2, "Current %u", gBatteryCurrent);  // needs scaling into mA
-			#endif
 		}
 		else
 		{
@@ -83,17 +77,9 @@ void UI_DisplayWelcome(void)
 
 		UI_PrintString(WelcomeString0, 0, 127, 0, 10);
 		UI_PrintString(WelcomeString1, 0, 127, 2, 10);
-		#if 0
-			UI_PrintStringSmall(WelcomeString2, 0, 127, 4);
-		#endif
-			UI_PrintStringSmall(Version, 0, 0, 6);
+		UI_PrintStringSmall(Version, 0, 0, 6);
 
-		#if 1
-			ST7565_BlitStatusLine();  // blank status line
-		#else
-			UI_DisplayStatus(true);   // show all status line symbols (test)
-		#endif
-		
+		ST7565_BlitStatusLine();  // blank status line
 		ST7565_BlitFullScreen();
 	}
 }

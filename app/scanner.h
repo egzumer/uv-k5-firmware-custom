@@ -52,6 +52,9 @@ extern volatile uint16_t gScanPauseDelayIn_10ms;
 extern uint8_t           gScanProgressIndicator;
 extern uint8_t           gScanHitCount;
 extern bool              gScanUseCssResult;
+
+// scan direction, if not equal SCAN_OFF indicates 
+// that we are in a process of scanning channels/frequencies
 extern int8_t            gScanStateDir;
 extern bool              gScanKeepResult;
 

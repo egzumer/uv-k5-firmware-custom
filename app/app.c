@@ -62,9 +62,10 @@
 #include "ui/status.h"
 #include "ui/ui.h"
 
-static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
+static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
+static void FlashlightTimeSlice();
 
-static void updateRSSI(const int vfo)
+static void UpdateRSSI(const int vfo)
 {
 	int16_t rssi = BK4819_GetRSSI();
 
@@ -82,7 +83,7 @@ static void updateRSSI(const int vfo)
 	UI_UpdateRSSI(rssi, vfo);
 }
 
-static void APP_CheckForIncoming(void)
+static void CheckForIncoming(void)
 {
 	if (!g_SquelchLost)
 		return;          // squelch is closed
@@ -116,7 +117,7 @@ static void APP_CheckForIncoming(void)
 				FUNCTION_Select(FUNCTION_INCOMING);
 				//gUpdateDisplay = true;
 
-				updateRSSI(gEeprom.RX_VFO);
+				UpdateRSSI(gEeprom.RX_VFO);
 				gUpdateRSSI = true;
 			}
 
@@ -132,7 +133,7 @@ static void APP_CheckForIncoming(void)
 				FUNCTION_Select(FUNCTION_INCOMING);
 				//gUpdateDisplay = true;
 
-				updateRSSI(gEeprom.RX_VFO);
+				UpdateRSSI(gEeprom.RX_VFO);
 				gUpdateRSSI = true;
 			}
 			return;
@@ -154,7 +155,7 @@ static void APP_CheckForIncoming(void)
 				FUNCTION_Select(FUNCTION_INCOMING);
 				//gUpdateDisplay = true;
 
-				updateRSSI(gEeprom.RX_VFO);
+				UpdateRSSI(gEeprom.RX_VFO);
 				gUpdateRSSI = true;
 			}
 			return;
@@ -171,12 +172,12 @@ static void APP_CheckForIncoming(void)
 		FUNCTION_Select(FUNCTION_INCOMING);
 		//gUpdateDisplay = true;
 
-		updateRSSI(gEeprom.RX_VFO);
+		UpdateRSSI(gEeprom.RX_VFO);
 		gUpdateRSSI = true;
 	}
 }
 
-static void APP_HandleIncoming(void)
+static void HandleIncoming(void)
 {
 	bool bFlag;
 
@@ -248,7 +249,7 @@ static void APP_HandleIncoming(void)
 	APP_StartListening(gMonitor ? FUNCTION_MONITOR : FUNCTION_RECEIVE, false);
 }
 
-static void APP_HandleReceive(void)
+static void HandleReceive(void)
 {
 	#define END_OF_RX_MODE_SKIP 0
 	#define END_OF_RX_MODE_END  1
@@ -263,7 +264,7 @@ static void APP_HandleReceive(void)
 	}
 
 	if (gScanStateDir != SCAN_OFF && IS_FREQ_CHANNEL(gNextMrChannel))
-	{
+	{ // we are scanning in the frequency mode
 		if (g_SquelchLost)
 			return;
 
@@ -370,7 +371,7 @@ static void APP_HandleReceive(void)
 	if (!gEndOfRxDetectedMaybe         &&
 	     Mode == END_OF_RX_MODE_SKIP   &&
 	     gNextTimeslice40ms            &&
-	     gEeprom.TAIL_NOTE_ELIMINATION &&
+	     gEeprom.TAIL_TONE_ELIMINATION &&
 	    (gCurrentCodeType == CODE_TYPE_DIGITAL || gCurrentCodeType == CODE_TYPE_REVERSE_DIGITAL) &&
 	     BK4819_GetCTCType() == 1)
 		Mode = END_OF_RX_MODE_TTE;
@@ -414,7 +415,7 @@ Skip:
 			break;
 
 		case END_OF_RX_MODE_TTE:
-			if (gEeprom.TAIL_NOTE_ELIMINATION)
+			if (gEeprom.TAIL_TONE_ELIMINATION)
 			{
 				GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
 
@@ -427,12 +428,12 @@ Skip:
 	}
 }
 
-static void APP_HandleFunction(void)
+static void HandleFunction(void)
 {
 	switch (gCurrentFunction)
 	{
 		case FUNCTION_FOREGROUND:
-			APP_CheckForIncoming();
+			CheckForIncoming();
 			break;
 
 		case FUNCTION_TRANSMIT:
@@ -442,16 +443,16 @@ static void APP_HandleFunction(void)
 			break;
 
 		case FUNCTION_INCOMING:
-			APP_HandleIncoming();
+			HandleIncoming();
 			break;
 
 		case FUNCTION_RECEIVE:
-			APP_HandleReceive();
+			HandleReceive();
 			break;
 
 		case FUNCTION_POWER_SAVE:
 			if (!gRxIdleMode)
-				APP_CheckForIncoming();
+				CheckForIncoming();
 			break;
 
 		case FUNCTION_BAND_SCOPE:
@@ -592,7 +593,7 @@ uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t direction)
 	}
 #endif
 
-static void DUALWATCH_Alternate(void)
+static void DualwatchAlternate(void)
 {
 	#ifdef ENABLE_NOAA
 		if (gIsNoaaMode)
@@ -610,8 +611,8 @@ static void DUALWATCH_Alternate(void)
 		else
 	#endif
 	{	// toggle between VFO's
-		gEeprom.RX_VFO = (gEeprom.RX_VFO + 1) & 1;
-		gRxVfo             = &gEeprom.VfoInfo[gEeprom.RX_VFO];
+		gEeprom.RX_VFO = !gEeprom.RX_VFO;
+		gRxVfo         = &gEeprom.VfoInfo[gEeprom.RX_VFO];
 
 		if (!gDualWatchActive)
 		{	// let the user see DW is active
@@ -629,7 +630,7 @@ static void DUALWATCH_Alternate(void)
 	#endif
 }
 
-void APP_CheckRadioInterrupts(void)
+static void CheckRadioInterrupts(void)
 {
 	if (gScreenToDisplay == DISPLAY_SCANNER)
 		return;
@@ -779,7 +780,7 @@ void APP_EndTransmission(void)
 	{	// CTCSS/DCS is enabled
 
 		//if (gEeprom.TAIL_NOTE_ELIMINATION && gEeprom.REPEATER_TAIL_TONE_ELIMINATION > 0)
-		if (gEeprom.TAIL_NOTE_ELIMINATION)
+		if (gEeprom.TAIL_TONE_ELIMINATION)
 		{	// send the CTCSS/DCS tail tone - allows the receivers to mute the usual FM squelch tail/crash
 			RADIO_EnableCxCSS();
 		}
@@ -797,7 +798,7 @@ void APP_EndTransmission(void)
 }
 
 #ifdef ENABLE_VOX
-	static void APP_HandleVox(void)
+	static void HandleVox(void)
 	{
 		if (gSetting_KILLED)
 			return;
@@ -878,13 +879,12 @@ void APP_EndTransmission(void)
 
 void APP_Update(void)
 {
-	#ifdef ENABLE_VOICE
-		if (gFlagPlayQueuedVoice)
-		{
+#ifdef ENABLE_VOICE
+	if (gFlagPlayQueuedVoice) {
 			AUDIO_PlayQueuedVoice();
 			gFlagPlayQueuedVoice = false;
-		}
-	#endif
+	}
+#endif
 
 	if (gCurrentFunction == FUNCTION_TRANSMIT && (gTxTimeoutReached || gSerialConfigCountDown_500ms > 0))
 	{	// transmitter timed out or must de-key
@@ -904,7 +904,7 @@ void APP_Update(void)
 		return;
 
 	if (gCurrentFunction != FUNCTION_TRANSMIT)
-		APP_HandleFunction();
+		HandleFunction();
 
 #ifdef ENABLE_FMRADIO
 //	if (gFmRadioCountdown_500ms > 0)
@@ -965,7 +965,7 @@ void APP_Update(void)
 				    gDTMF_CallState == DTMF_CALL_STATE_NONE &&
 				    gCurrentFunction != FUNCTION_POWER_SAVE)
 				{
-					DUALWATCH_Alternate();    // toggle between the two VFO's
+					DualwatchAlternate();    // toggle between the two VFO's
 
 					if (gRxVfoIsActive && gScreenToDisplay == DISPLAY_MAIN)
 						GUI_SelectNextDisplay(DISPLAY_MAIN);
@@ -993,7 +993,7 @@ void APP_Update(void)
 
 #ifdef ENABLE_VOX
 	if (gEeprom.VOX_SWITCH)
-		APP_HandleVox();
+		HandleVox();
 #endif
 
 	if (gSchedulePowerSave)
@@ -1067,7 +1067,7 @@ void APP_Update(void)
 			    gScanStateDir == SCAN_OFF &&
 			    gCssScanMode == CSS_SCAN_MODE_OFF)
 			{	// dual watch mode, toggle between the two VFO's
-				DUALWATCH_Alternate();
+				DualwatchAlternate();
 
 				gUpdateRSSI = false;
 			}
@@ -1079,9 +1079,9 @@ void APP_Update(void)
 		}
 		else
 		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF || gScanStateDir != SCAN_OFF || gCssScanMode != CSS_SCAN_MODE_OFF || gUpdateRSSI)
-		{	// dual watch mode, go back to sleep
+		{	// dual watch mode off or scanning or rssi update request
 
-			updateRSSI(gEeprom.RX_VFO);
+			UpdateRSSI(gEeprom.RX_VFO);
 
 			// go back to sleep
 
@@ -1098,7 +1098,7 @@ void APP_Update(void)
 		else
 		{
 			// toggle between the two VFO's
-			DUALWATCH_Alternate();
+			DualwatchAlternate();
 
 			gUpdateRSSI       = true;
 			gPowerSave_10ms   = power_save1_10ms;
@@ -1109,7 +1109,7 @@ void APP_Update(void)
 }
 
 // called every 10ms
-void APP_CheckKeys(void)
+static void CheckKeys(void)
 {
 #ifdef ENABLE_AIRCOPY
 	if (gSetting_KILLED || (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState != AIRCOPY_READY))
@@ -1126,7 +1126,7 @@ void APP_CheckKeys(void)
 		{	// PTT released or serial comms config in progress
 			if (++gPttDebounceCounter >= 3 || gSerialConfigCountDown_500ms > 0)	    // 30ms
 			{	// stop transmitting
-				APP_ProcessKey(KEY_PTT, false, false);
+				ProcessKey(KEY_PTT, false, false);
 				gPttIsPressed = false;
 				if (gKeyReading1 != KEY_INVALID)
 					gPttWasReleased = true;
@@ -1142,7 +1142,7 @@ void APP_CheckKeys(void)
 			boot_counter_10ms   = 0;
 			gPttDebounceCounter = 0;
 			gPttIsPressed       = true;
-			APP_ProcessKey(KEY_PTT, true, false);
+			ProcessKey(KEY_PTT, true, false);
 		}
 	}
 	else
@@ -1160,7 +1160,7 @@ void APP_CheckKeys(void)
 	{	
 
 		if (gKeyReading0 != KEY_INVALID && Key != KEY_INVALID)
-			APP_ProcessKey(gKeyReading1, false, gKeyBeingHeld);  // key pressed without releasing previous key
+			ProcessKey(gKeyReading1, false, gKeyBeingHeld);  // key pressed without releasing previous key
 
 		gKeyReading0     = Key;
 		gDebounceCounter = 0;
@@ -1175,14 +1175,14 @@ void APP_CheckKeys(void)
 		{
 			if (gKeyReading1 != KEY_INVALID) // some button was pressed before
 			{
-				APP_ProcessKey(gKeyReading1, false, gKeyBeingHeld); // process last button released event
+				ProcessKey(gKeyReading1, false, gKeyBeingHeld); // process last button released event
 				gKeyReading1 = KEY_INVALID;
 			}
 		}
 		else // process new key pressed
 		{
 			gKeyReading1 = Key;
-			APP_ProcessKey(Key, true, false);
+			ProcessKey(Key, true, false);
 		}
 
 		gKeyBeingHeld = false;
@@ -1197,7 +1197,7 @@ void APP_CheckKeys(void)
 		if (Key != KEY_PTT)
 		{
 			gKeyBeingHeld = true;
-			APP_ProcessKey(Key, true, true); // key held event
+			ProcessKey(Key, true, true); // key held event
 		}
 	}
 	else //subsequent fast key repeats
@@ -1206,7 +1206,7 @@ void APP_CheckKeys(void)
 		{
 			gKeyBeingHeld = true;
 			if ((gDebounceCounter % key_repeat_10ms) == 0)
-				APP_ProcessKey(Key, true, true); // key held event
+				ProcessKey(Key, true, true); // key held event
 		}
 
 		if (gDebounceCounter < 0xFFFF)
@@ -1243,7 +1243,7 @@ void APP_TimeSlice10ms(void)
 		return;
 
 	if (gCurrentFunction != FUNCTION_POWER_SAVE || !gRxIdleMode)
-		APP_CheckRadioInterrupts();
+		CheckRadioInterrupts();
 
 	if (gCurrentFunction == FUNCTION_TRANSMIT)
 	{	// transmitting
@@ -1260,7 +1260,7 @@ void APP_TimeSlice10ms(void)
 	}
 
 	if (gUpdateStatus)
-		UI_DisplayStatus(false);
+		UI_DisplayStatus();
 
 	// Skipping authentic device checks
 
@@ -1269,37 +1269,7 @@ void APP_TimeSlice10ms(void)
 			return;
 	#endif
 
-	if (gFlashLightState == FLASHLIGHT_BLINK && (gFlashLightBlinkCounter & 15u) == 0)
-		GPIO_FlipBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);
-	else if(gFlashLightState == FLASHLIGHT_SOS) {
-		const uint16_t u = 15;
-		static uint8_t c;
-		static uint16_t next;
-
-		if(gFlashLightBlinkCounter - next > 7*u) {
-			c = 0;
-			next = gFlashLightBlinkCounter+1;
-		}
-		else if(gFlashLightBlinkCounter == next) {
-			if(c==0) {
-				GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);
-			}
-			else
-				GPIO_FlipBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);
-
-			if(c == 18) {
-				next += 7*u;
-				c = 0;
-			}
-			else if(c==7 || c==9 || c==11)
-			 	next += 3*u;
-			else
-				next += u;
-
-			c++;
-		}
-		
-	}
+	FlashlightTimeSlice();
 
 	#ifdef ENABLE_VOX
 		if (gVoxResumeCountdown > 0)
@@ -1399,14 +1369,14 @@ void APP_TimeSlice10ms(void)
 		{
 			if (--gScanDelay_10ms > 0)
 			{
-				APP_CheckKeys();
+				CheckKeys();
 				return;
 			}
 		}
 
 		if (gScannerEditState != 0)
 		{
-			APP_CheckKeys();
+			CheckKeys();
 			return;
 		}
 
@@ -1525,7 +1495,7 @@ void APP_TimeSlice10ms(void)
 		}
 	#endif
 
-	APP_CheckKeys();
+	CheckKeys();
 }
 
 void cancelUserInputModes(void)
@@ -1750,7 +1720,7 @@ void APP_TimeSlice500ms(void)
 	}
 
 	if (gCurrentFunction != FUNCTION_POWER_SAVE && gCurrentFunction != FUNCTION_TRANSMIT)
-		updateRSSI(gEeprom.RX_VFO);
+		UpdateRSSI(gEeprom.RX_VFO);
 
 	if (!gPttIsPressed && gVFOStateResumeCountdown_500ms > 0)
 	{
@@ -1909,7 +1879,7 @@ void APP_TimeSlice500ms(void)
 
 
 
-static void APP_ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
+static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
 	if (Key == KEY_EXIT && !BACKLIGHT_IsOn() && gEeprom.BACKLIGHT_TIME > 0)
 	{	// just turn the light on for now so the user can see what's what
@@ -2368,4 +2338,38 @@ Skip:
 	gRequestDisplayScreen = DISPLAY_INVALID;
 
 	gUpdateDisplay = true;
+}
+
+static void FlashlightTimeSlice()
+{
+		if (gFlashLightState == FLASHLIGHT_BLINK && (gFlashLightBlinkCounter & 15u) == 0)
+		GPIO_FlipBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);
+	else if(gFlashLightState == FLASHLIGHT_SOS) {
+		const uint16_t u = 15;
+		static uint8_t c;
+		static uint16_t next;
+
+		if(gFlashLightBlinkCounter - next > 7*u) {
+			c = 0;
+			next = gFlashLightBlinkCounter + 1;
+		}
+		else if(gFlashLightBlinkCounter == next) {
+			if(c==0) {
+				GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);
+			}
+			else
+				GPIO_FlipBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);
+
+			if(c >= 18) {
+				next = gFlashLightBlinkCounter + 7*u;
+				c = 0;
+			}
+			else if(c==7 || c==9 || c==11)
+			 	next = gFlashLightBlinkCounter + 3*u;
+			else
+				next = gFlashLightBlinkCounter + u;
+
+			c++;
+		}
+	}
 }

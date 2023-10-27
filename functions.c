@@ -93,7 +93,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 	{
 		BK4819_Conditional_RX_TurnOn_and_GPIO6_Enable();
 		gRxIdleMode = false;
-		UI_DisplayStatus(false);
+		UI_DisplayStatus();
 	}
 
 	switch (Function)

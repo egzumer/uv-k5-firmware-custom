@@ -570,7 +570,7 @@ void RADIO_SelectVfos(void)
 	RADIO_SelectCurrentVfo();
 }
 
-void RADIO_SetupRegisters(bool bSwitchToFunction0)
+void RADIO_SetupRegisters(bool switchToForeground)
 {
 	BK4819_FilterBandwidth_t Bandwidth = gRxVfo->CHANNEL_BANDWIDTH;
 	uint16_t                 InterruptMask;
@@ -773,7 +773,7 @@ void RADIO_SetupRegisters(bool bSwitchToFunction0)
 
 	FUNCTION_Init();
 
-	if (bSwitchToFunction0)
+	if (switchToForeground)
 		FUNCTION_Select(FUNCTION_FOREGROUND);
 }
 

@@ -594,7 +594,7 @@ void MENU_AcceptSetting(void)
 			return;
 
 		case MENU_STE:
-			gEeprom.TAIL_NOTE_ELIMINATION = gSubMenuSelection;
+			gEeprom.TAIL_TONE_ELIMINATION = gSubMenuSelection;
 			break;
 
 		case MENU_RP_STE:
@@ -1015,7 +1015,7 @@ void MENU_ShowCurrentSetting(void)
 			break;
 
 		case MENU_STE:
-			gSubMenuSelection = gEeprom.TAIL_NOTE_ELIMINATION;
+			gSubMenuSelection = gEeprom.TAIL_TONE_ELIMINATION;
 			break;
 
 		case MENU_RP_STE:

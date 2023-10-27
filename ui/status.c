@@ -33,7 +33,7 @@
 #include "ui/ui.h"
 #include "ui/status.h"
 
-void UI_DisplayStatus(const bool test_display)
+void UI_DisplayStatus()
 {
 	uint8_t     *line = gStatusLine;
 	unsigned int x    = 0;
@@ -60,7 +60,7 @@ void UI_DisplayStatus(const bool test_display)
 		x1 = x + sizeof(BITMAP_RX);
 	}
 	else
-	if (gCurrentFunction == FUNCTION_POWER_SAVE || test_display)
+	if (gCurrentFunction == FUNCTION_POWER_SAVE)
 	{
 		memmove(line + x, BITMAP_POWERSAVE, sizeof(BITMAP_POWERSAVE));
 		x1 = x + sizeof(BITMAP_POWERSAVE);
@@ -69,7 +69,7 @@ void UI_DisplayStatus(const bool test_display)
 
 	#ifdef ENABLE_NOAA
 		// NOASS SCAN indicator
-		if (gIsNoaaMode || test_display)
+		if (gIsNoaaMode)
 		{
 			memmove(line + x, BITMAP_NOAA, sizeof(BITMAP_NOAA));
 			x1 = x + sizeof(BITMAP_NOAA);
@@ -86,30 +86,29 @@ void UI_DisplayStatus(const bool test_display)
 	}
 	else
 		// SCAN indicator
-		if (gScanStateDir != SCAN_OFF || gScreenToDisplay == DISPLAY_SCANNER || test_display)
+		if (gScanStateDir != SCAN_OFF || gScreenToDisplay == DISPLAY_SCANNER)
 		{
+			char * s = "";
 			if (IS_MR_CHANNEL(gNextMrChannel) && gScreenToDisplay != DISPLAY_SCANNER)
 			{	// channel mode
-				if (gEeprom.SCAN_LIST_DEFAULT == 0)
-					UI_PrintStringSmallBuffer("1", line + x);
-				else
-				if (gEeprom.SCAN_LIST_DEFAULT == 1)
-					UI_PrintStringSmallBuffer("2", line + x);
-				else
-				if (gEeprom.SCAN_LIST_DEFAULT == 2)
-					UI_PrintStringSmallBuffer("*", line + x);
+				switch(gEeprom.SCAN_LIST_DEFAULT) {
+					case 0: s = "1"; break;
+					case 1: s = "2"; break;
+					case 2: s = "*"; break;
+				}
 			}
 			else
 			{	// frequency mode
-				UI_PrintStringSmallBuffer("S", line + x);
+				s = "S";
 			}
+			UI_PrintStringSmallBuffer(s, line + x);
 			x1 = x + 7;
 		}
 	x += 7;  // font character width
 
 	#ifdef ENABLE_VOICE
 		// VOICE indicator
-		if (gEeprom.VOICE_PROMPT != VOICE_PROMPT_OFF || test_display)
+		if (gEeprom.VOICE_PROMPT != VOICE_PROMPT_OFF)
 		{
 			memmove(line + x, BITMAP_VoicePrompt, sizeof(BITMAP_VoicePrompt));
 			x1 = x + sizeof(BITMAP_VoicePrompt);
@@ -122,8 +121,8 @@ void UI_DisplayStatus(const bool test_display)
 	x++;
 	if(gScreenToDisplay != DISPLAY_SCANNER) {
 		uint8_t dw = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF) + (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF) * 2;
-		if(dw == 1 || dw == 3 || test_display) { // DWR - dual watch + respond
-			if(gDualWatchActive || test_display) 
+		if(dw == 1 || dw == 3) { // DWR - dual watch + respond
+			if(gDualWatchActive) 
 				memmove(line + x, BITMAP_TDR1, sizeof(BITMAP_TDR1) - (dw==1?0:5));
 			else 
 				memmove(line + x + 3, BITMAP_TDR2, sizeof(BITMAP_TDR2));
@@ -136,7 +135,7 @@ void UI_DisplayStatus(const bool test_display)
 	
 	#ifdef ENABLE_VOX
 		// VOX indicator
-		if (gEeprom.VOX_SWITCH || test_display)
+		if (gEeprom.VOX_SWITCH)
 		{
 			memmove(line + x, BITMAP_VOX, sizeof(BITMAP_VOX));
 			x1 = x + sizeof(BITMAP_VOX);
@@ -148,7 +147,7 @@ void UI_DisplayStatus(const bool test_display)
 	x1 = x;
 
 	// KEY-LOCK indicator
-	if (gEeprom.KEY_LOCK || test_display)
+	if (gEeprom.KEY_LOCK)
 	{
 		memmove(line + x, BITMAP_KeyLock, sizeof(BITMAP_KeyLock));
 		x += sizeof(BITMAP_KeyLock);
@@ -204,7 +203,7 @@ void UI_DisplayStatus(const bool test_display)
 	x = LCD_WIDTH - sizeof(BITMAP_BatteryLevel1) - sizeof(BITMAP_USB_C);
 	
 	// USB-C charge indicator
-	if (gChargingWithTypeC || test_display)
+	if (gChargingWithTypeC)
 		memmove(line + x, BITMAP_USB_C, sizeof(BITMAP_USB_C));
 	x += sizeof(BITMAP_USB_C);
 

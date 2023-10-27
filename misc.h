@@ -225,8 +225,12 @@ extern bool                  gEndOfRxDetectedMaybe;
 extern int16_t               gVFO_RSSI[2];
 extern uint8_t               gVFO_RSSI_bar_level[2];
 
+// battery critical, limit functionality to minimum
 extern uint8_t               gReducedService;
 extern uint8_t               gBatteryVoltageIndex;
+
+// if not equal CSS_SCAN_MODE_OFF we are scanning CTCSS/DCS
+// this is a scanning inside RX ctcss/dcs menu
 extern CssScanMode_t         gCssScanMode;
 extern bool                  gUpdateRSSI;
 extern AlarmState_t          gAlarmState;
@@ -264,6 +268,8 @@ extern bool                  g_CxCSS_TAIL_Found;
 	extern uint16_t          gVoxResumeCountdown;
 	extern uint16_t          gVoxPauseCountdown;
 #endif
+
+// true means we are receiving signal
 extern bool                  g_SquelchLost;
 extern uint8_t               gFlashLightState;
 extern volatile uint16_t     gFlashLightBlinkCounter;
