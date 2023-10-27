@@ -156,13 +156,14 @@ static void DisplayRSSIBar(const int16_t rssi, const bool now)
 		const int16_t      rssi_dBm     = (rssi / 2) - 160;
 
 		const uint8_t s_level = MIN(MAX((rssi_dBm - s0_dBm) / 6, 0), 9);
-		uint8_t overS9Bars = MAX(0, 73 + rssi_dBm)/10;
+		uint8_t overS9dBm = MIN(MAX(73 + rssi_dBm, 0), 99);
+		uint8_t overS9Bars = MIN(overS9dBm/10, 4);
 		
 		if(overS9Bars == 0) {
 			sprintf(str, "% 4d S%d", rssi_dBm, s_level);
 		}
 		else {
-			sprintf(str, "% 4d  %d0", rssi_dBm, overS9Bars);
+			sprintf(str, "% 4d  %2d", rssi_dBm, overS9dBm);
 			memcpy(p_line + 2 + 7*5, &plus, ARRAY_SIZE(plus));
 		}
 
@@ -172,7 +173,6 @@ static void DisplayRSSIBar(const int16_t rssi, const bool now)
 			for(uint8_t j = 0; j < 4; j++)
 				p_line[bar_x + i * 5 + j] = (~(0x7F >> (i+1))) & 0x7F;
 		}
-		overS9Bars = MIN(overS9Bars, 4);
 		for(uint8_t i = 0; i < overS9Bars; i++) { // +10 hollow bars
 			memcpy(p_line + (bar_x + (i + 9) * 5), &hollowBar, ARRAY_SIZE(hollowBar));
 		}
