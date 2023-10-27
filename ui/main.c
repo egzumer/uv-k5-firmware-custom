@@ -118,10 +118,17 @@ void UI_DisplayAudioBar(void)
 #if defined(ENABLE_RSSI_BAR)
 static void DisplayRSSIBar(const int16_t rssi, const bool now)
 {
-	const int16_t      s0_dBm       = -147;                  // S0 .. base level
+
 	const unsigned int txt_width    = 7 * 8;                 // 8 text chars
 	const unsigned int bar_x        = 2 + txt_width + 4;     // X coord of bar graph
-	const int16_t      rssi_dBm     = (rssi / 2) - 160;
+
+	const int16_t  s1_dBm       = -121;                  // S1 .. base level
+	const uint16_t s1_rssi = gEEPROM_RSSI_CALIB[gRxVfo->Band][0];
+	const uint16_t s9_rssi = gEEPROM_RSSI_CALIB[gRxVfo->Band][3];
+	const uint16_t rssiPer1dBm = (s9_rssi - s1_rssi) / 8 / 6;
+
+
+	const int16_t      rssi_dBm     = s1_dBm + (rssi - s1_rssi) / rssiPer1dBm;//(rssi / 2) - 160;
 
 	const unsigned int line         = 3;
 	uint8_t           *p_line        = gFrameBuffer[line];
