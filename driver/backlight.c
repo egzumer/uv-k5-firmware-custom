@@ -26,13 +26,14 @@ bool backlightOn;
 
 void BACKLIGHT_TurnOn(void)
 {
-	if (gEeprom.BACKLIGHT_TIME == 0)
+	if (gEeprom.BACKLIGHT_TIME != 0) {
+		backlightOn = true;
+		BACKLIGHT_SetBrightness(gEeprom.BACKLIGHT_MAX);
+	}
+	else {
+		BACKLIGHT_TurnOff();
 		return;
-
-	backlightOn = true;
-
-	// turn the backlight ON
-	BACKLIGHT_SetBrightness(gEeprom.BACKLIGHT_MAX);
+	}
 		
 	switch (gEeprom.BACKLIGHT_TIME)
 	{
