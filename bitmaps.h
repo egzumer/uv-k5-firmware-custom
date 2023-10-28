@@ -34,6 +34,10 @@ extern const uint8_t BITMAP_TDR2[9];
 	extern const uint8_t BITMAP_VoicePrompt[9];
 #endif
 
+#ifdef ENABLE_FMRADIO
+	extern const uint8_t BITMAP_FM[12];
+#endif
+
 #ifdef ENABLE_NOAA
 	extern const uint8_t BITMAP_NOAA[11];
 #endif
