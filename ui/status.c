@@ -85,9 +85,20 @@ void UI_DisplayStatus(const bool test_display)
 		x1 = x + 10;
 	}
 	else
+	{
+	#ifdef ENABLE_FMRADIO
+		// FM indicator
+		if (g_fm_radio_mode || test_display)
+		{
+			memcpy(line + x, BITMAP_FM, sizeof(BITMAP_FM));
+			x1 = x + sizeof(BITMAP_FM);
+		}
+		else
+	#endif
+
 		// SCAN indicator
 		if (gScanStateDir != SCAN_OFF || gScreenToDisplay == DISPLAY_SCANNER || test_display)
-		{
+		
 			if (IS_MR_CHANNEL(gNextMrChannel) && gScreenToDisplay != DISPLAY_SCANNER)
 			{	// channel mode
 				if (gEeprom.SCAN_LIST_DEFAULT == 0)
