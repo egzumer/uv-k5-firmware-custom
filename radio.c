@@ -576,7 +576,7 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	uint16_t                 InterruptMask;
 	uint32_t                 Frequency;
 
-	GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+	AUDIO_AudioPathOff();
 
 	gEnableSpeaker = false;
 
@@ -826,7 +826,7 @@ void RADIO_SetTxParameters(void)
 {
 	BK4819_FilterBandwidth_t Bandwidth = gCurrentVfo->CHANNEL_BANDWIDTH;
 
-	GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+	AUDIO_AudioPathOff();
 
 	gEnableSpeaker = false;
 
@@ -1071,7 +1071,7 @@ void RADIO_SendEndOfTransmission(void)
 	{	// end-of-tx
 		if (gEeprom.DTMF_SIDE_TONE)
 		{
-			GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+			AUDIO_AudioPathOn();
 			gEnableSpeaker = true;
 			SYSTEM_DelayMs(60);
 		}
@@ -1086,7 +1086,7 @@ void RADIO_SendEndOfTransmission(void)
 				gEeprom.DTMF_CODE_PERSIST_TIME,
 				gEeprom.DTMF_CODE_INTERVAL_TIME);
 		
-		GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+		AUDIO_AudioPathOff();
 		gEnableSpeaker = false;
 	}
 

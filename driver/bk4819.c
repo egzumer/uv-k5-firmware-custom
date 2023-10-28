@@ -16,6 +16,7 @@
 
 #include <stdio.h>   // NULL
 
+#include "audio.h"
 #include "bk4819.h"
 #include "bsp/dp32g030/gpio.h"
 #include "bsp/dp32g030/portcon.h"
@@ -1000,7 +1001,7 @@ void BK4819_PlaySingleTone(const unsigned int tone_Hz, const unsigned int delay,
 	
 	if (play_speaker)
 	{
-		GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+		AUDIO_AudioPathOn();
 		BK4819_SetAF(BK4819_AF_BEEP);
 	}
 	else
@@ -1022,7 +1023,7 @@ void BK4819_PlaySingleTone(const unsigned int tone_Hz, const unsigned int delay,
 
 	if (play_speaker)
 	{
-		GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+		AUDIO_AudioPathOff();
 		BK4819_SetAF(BK4819_AF_MUTE);
 	}
 	

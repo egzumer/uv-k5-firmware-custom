@@ -417,7 +417,7 @@ Skip:
 		case END_OF_RX_MODE_TTE:
 			if (gEeprom.TAIL_TONE_ELIMINATION)
 			{
-				GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+				AUDIO_AudioPathOff();
 
 				gTailNoteEliminationCountdown_10ms = 20;
 				gFlagTailNoteEliminationComplete   = false;
@@ -476,7 +476,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	// clear the other vfo's rssi level (to hide the antenna symbol)
 	gVFO_RSSI_bar_level[(chan + 1) & 1u] = 0;
 
-	GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+	AUDIO_AudioPathOn();
 	gEnableSpeaker = true;
 
 	if (gSetting_backlight_on_tx_rx >= BACKLIGHT_ON_TR_RX)
@@ -1306,7 +1306,7 @@ void APP_TimeSlice10ms(void)
 						RADIO_SetTxParameters();
 						BK4819_TransmitTone(true, 500);
 						SYSTEM_DelayMs(2);
-						GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+						AUDIO_AudioPathOn();
 
 						gEnableSpeaker    = true;
 						gAlarmToneCounter = 0;
@@ -1837,7 +1837,7 @@ void APP_TimeSlice500ms(void)
 	{
 		gAlarmState = ALARM_STATE_OFF;
 
-		GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+		AUDIO_AudioPathOff();
 		gEnableSpeaker = false;
 
 		if (gEeprom.ALARM_MODE == ALARM_MODE_TONE)
@@ -2065,7 +2065,7 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				{
 					if (!bKeyPressed)
 					{
-						GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+						AUDIO_AudioPathOff();
 
 						gEnableSpeaker = false;
 
@@ -2081,7 +2081,7 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				{
 					if (gEeprom.DTMF_SIDE_TONE)
 					{	// user will here the DTMF tones in speaker
-						GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+						AUDIO_AudioPathOn();
 						gEnableSpeaker = true;
 					}
 

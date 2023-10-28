@@ -16,6 +16,7 @@
 
 #include "app/spectrum.h"
 #include "driver/backlight.h"
+#include "audio.h"
 
 struct FrequencyBandInfo {
     uint32_t lower;
@@ -304,9 +305,9 @@ static void ToggleAudio(bool on) {
   }
   audioState = on;
   if (on) {
-    GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+    AUDIO_AudioPathOn();
   } else {
-    GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+    AUDIO_AudioPathOff();
   }
 }
 

@@ -20,6 +20,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "bsp/dp32g030/gpio.h"
+#include "driver/gpio.h"
+
 enum BEEP_Type_t
 {
 	BEEP_NONE = 0,
@@ -130,6 +133,14 @@ enum VOICE_ID_t
 
 typedef enum VOICE_ID_t  VOICE_ID_t;
 	
+static inline void AUDIO_AudioPathOn(void) {
+	GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+}
+
+static inline void AUDIO_AudioPathOff(void) {
+	GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+}
+
 #ifdef ENABLE_VOICE
 	extern VOICE_ID_t        gVoiceID[8];
 	extern uint8_t           gVoiceReadIndex;

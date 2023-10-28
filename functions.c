@@ -179,13 +179,13 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 
 					GUI_DisplayScreen();
 
-					GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+					AUDIO_AudioPathOff();
 
 					SYSTEM_DelayMs(20);
 					BK4819_PlayTone(500, 0);
 					SYSTEM_DelayMs(2);
 
-					GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+					AUDIO_AudioPathOn();
 
 					gEnableSpeaker = true;
 
@@ -223,7 +223,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 							BK4819_TransmitTone(true, 500);
 					#endif
 					SYSTEM_DelayMs(2);
-					GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+					AUDIO_AudioPathOn();
 					#ifdef ENABLE_ALARM
 						gAlarmToneCounter = 0;
 					#endif

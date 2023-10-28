@@ -434,7 +434,7 @@ void DTMF_Reply(void)
 
 	if (gEeprom.DTMF_SIDE_TONE)
 	{	// the user will also hear the transmitted tones
-		GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+		AUDIO_AudioPathOn();
 		gEnableSpeaker = true;
 	}
 
@@ -450,7 +450,7 @@ void DTMF_Reply(void)
 		gEeprom.DTMF_CODE_PERSIST_TIME,
 		gEeprom.DTMF_CODE_INTERVAL_TIME);
 
-	GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_AUDIO_PATH);
+	AUDIO_AudioPathOff();
 
 	gEnableSpeaker = false;
 
