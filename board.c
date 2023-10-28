@@ -23,11 +23,10 @@
 #include "board.h"
 #include "bsp/dp32g030/gpio.h"
 #include "bsp/dp32g030/portcon.h"
-#include "bsp/dp32g030/pwmplus.h"
 #include "bsp/dp32g030/saradc.h"
 #include "bsp/dp32g030/syscon.h"
 #include "driver/adc.h"
-//#include "driver/backlight.h"
+#include "driver/backlight.h"
 #ifdef ENABLE_FMRADIO
 	#include "driver/bk1080.h"
 #endif
@@ -182,14 +181,10 @@ void BOARD_PORTCON_Init(void)
 	// PORT B pin selection
 
 	PORTCON_PORTB_SEL0 &= ~(0
-		// Back light
-		| PORTCON_PORTB_SEL0_B6_MASK
 		// SPI0 SSN
 		| PORTCON_PORTB_SEL0_B7_MASK
 		);
 	PORTCON_PORTB_SEL0 |= 0
-		// Back light PWM
-		| PORTCON_PORTB_SEL0_B6_BITS_PWMP0_CH0
 		// SPI0 SSN
 		| PORTCON_PORTB_SEL0_B7_BITS_SPI0_SSN
 		;
@@ -470,23 +465,6 @@ void BOARD_PORTCON_Init(void)
 		;
 }
 
-static void BacklightPWM_Init()
-{
-	// 48MHz / 94 / 1024 ~ 500Hz
-	PWM_PLUS0_CLKSRC |= ((94) << 16);
-	PWM_PLUS0_PERIOD = 1023;
-
-	PWM_PLUS0_GEN = 	
-		PWMPLUS_GEN_CH0_OE_BITS_ENABLE |
-		PWMPLUS_GEN_CH0_OUTINV_BITS_ENABLE |
-		0;
-
-	PWM_PLUS0_CFG =  	
-		PWMPLUS_CFG_CNT_REP_BITS_ENABLE |
-		PWMPLUS_CFG_COUNTER_EN_BITS_ENABLE |
-		0;
-}
-
 void BOARD_ADC_Init(void)
 {
 	ADC_Config_t Config;
@@ -524,7 +502,7 @@ void BOARD_Init(void)
 {
 	BOARD_PORTCON_Init();
 	BOARD_GPIO_Init();
-	BacklightPWM_Init();
+	BACKLIGHT_InitHardware();
 	BOARD_ADC_Init();
 	ST7565_Init(true);
 	#ifdef ENABLE_FMRADIO

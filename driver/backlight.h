@@ -23,6 +23,7 @@
 extern uint16_t gBacklightCountdown;
 extern uint8_t gBacklightBrightness;
 
+void BACKLIGHT_InitHardware();
 void BACKLIGHT_TurnOn();
 void BACKLIGHT_TurnOff();
 bool BACKLIGHT_IsOn();
