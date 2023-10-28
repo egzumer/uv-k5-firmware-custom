@@ -244,6 +244,23 @@ const uint8_t BITMAP_TDR2[9] =
 	};
 #endif
 
+#ifdef ENABLE_FMRADIO
+	const uint8_t BITMAP_FM[12] =
+	{	// "FM"
+		0b00000000,
+		0b01111111,
+		0b00001001,
+		0b00001001,
+		0b00001001,
+		0b00000001,
+		0b00000000,
+		0b01111111,
+		0b00000010,
+		0b00001100,
+		0b00000010,
+		0b01111111
+	};
+#endif
 #ifdef ENABLE_NOAA
 	const uint8_t BITMAP_NOAA[11] =
 	{	// "NS"
