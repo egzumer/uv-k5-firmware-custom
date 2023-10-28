@@ -773,27 +773,9 @@ static void CheckRadioInterrupts(void)
 
 void APP_EndTransmission(void)
 {	// back to RX mode
-
 	RADIO_SendEndOfTransmission();
-
-	if (gCurrentVfo->pTX->CodeType != CODE_TYPE_OFF)
-	{	// CTCSS/DCS is enabled
-
-		//if (gEeprom.TAIL_NOTE_ELIMINATION && gEeprom.REPEATER_TAIL_TONE_ELIMINATION > 0)
-		if (gEeprom.TAIL_TONE_ELIMINATION)
-		{	// send the CTCSS/DCS tail tone - allows the receivers to mute the usual FM squelch tail/crash
-			RADIO_EnableCxCSS();
-		}
-		#if 0
-			else
-			{	// TX a short blank carrier
-				// this gives the receivers time to mute RX audio before we drop carrier
-				BK4819_ExitSubAu();
-				SYSTEM_DelayMs(200);
-			}
-		#endif
-	}
-
+	// send the CTCSS/DCS tail tone - allows the receivers to mute the usual FM squelch tail/crash
+	RADIO_EnableCxCSS();
 	RADIO_SetupRegisters(false);
 }
 
