@@ -240,8 +240,8 @@ static void HandleIncoming(void)
 					gUpdateStatus    = true;
 
 					gUpdateDisplay = true;
-					return;
 				}
+				return;
 			}
 		}
 	}
