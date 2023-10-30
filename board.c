@@ -614,7 +614,8 @@ void BOARD_EEPROM_Init(void)
 	#endif
 	gEeprom.ROGER                          = (Data[1] <  3) ? Data[1] : ROGER_MODE_OFF;
 	gEeprom.REPEATER_TAIL_TONE_ELIMINATION = (Data[2] < 11) ? Data[2] : 0;
-	gEeprom.TX_VFO                     = (Data[3] <  2) ? Data[3] : 0;
+	gEeprom.TX_VFO                         = (Data[3] <  2) ? Data[3] : 0;
+	gEeprom.BATTERY_TYPE                   = (Data[4] < BATTERY_TYPE_UNKNOWN) ? Data[4] : BATTERY_TYPE_1600_MAH;
 
 	// 0ED0..0ED7
 	EEPROM_ReadBuffer(0x0ED0, Data, 8);

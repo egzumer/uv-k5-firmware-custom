@@ -331,8 +331,13 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 		#endif
 
 		case MENU_BATCAL:
-			*pMin = 1600;  // 0
-			*pMax = 2200;  // 2300
+			*pMin = 1600;
+			*pMax = 2200;
+			break;
+
+		case MENU_BATTYP:
+			*pMin = 0;
+			*pMax = 1;
 			break;
 
 		case MENU_F1SHRT:
@@ -772,16 +777,20 @@ void MENU_AcceptSetting(void)
 		#endif
 
 		case MENU_BATCAL:
-		{
+		{																 // voltages are averages between discharge curves of 1600 and 2200 mAh
 			gBatteryCalibration[0] = (520ul * gSubMenuSelection) / 760;  // 5.20V empty, blinking above this value, reduced functionality below
-			gBatteryCalibration[1] = (700ul * gSubMenuSelection) / 760;  // 7.00V,  ~5%, 1 bars above this value
-			gBatteryCalibration[2] = (745ul * gSubMenuSelection) / 760;  // 7.45V, ~17%, 2 bars above this value
+			gBatteryCalibration[1] = (689ul * gSubMenuSelection) / 760;  // 6.89V,  ~5%, 1 bars above this value
+			gBatteryCalibration[2] = (724ul * gSubMenuSelection) / 760;  // 7.24V, ~17%, 2 bars above this value
 			gBatteryCalibration[3] =          gSubMenuSelection;         // 7.6V,  ~29%, 3 bars above this value
-			gBatteryCalibration[4] = (788ul * gSubMenuSelection) / 760;  // 7.88V, ~65%, 4 bars above this value
+			gBatteryCalibration[4] = (771ul * gSubMenuSelection) / 760;  // 7.71V, ~65%, 4 bars above this value
 			gBatteryCalibration[5] = 2300;
 			SETTINGS_SaveBatteryCalibration(gBatteryCalibration);
 			return;
 		}
+
+		case MENU_BATTYP:
+			gEeprom.BATTERY_TYPE = gSubMenuSelection;
+			break;
 
 		case MENU_F1SHRT:
 		case MENU_F1LONG:
@@ -1169,6 +1178,10 @@ void MENU_ShowCurrentSetting(void)
 		case MENU_BATCAL:
 			gSubMenuSelection = gBatteryCalibration[3];
 			break;
+
+		case MENU_BATTYP:
+			gSubMenuSelection = gEeprom.BATTERY_TYPE;
+			break;			
 
 		case MENU_F1SHRT:
 		case MENU_F1LONG:

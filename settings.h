@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 #include "frequencies.h"
+#include <helper/battery.h>
 #include "radio.h"
 
 enum POWER_OnDisplayMode_t {
@@ -230,6 +231,7 @@ typedef struct {
 	uint8_t 			  KEY_M_LONG_PRESS_ACTION;
 	uint8_t               BACKLIGHT_MIN;
 	uint8_t               BACKLIGHT_MAX;
+	BATTERY_Type_t		  BATTERY_TYPE;
 } EEPROM_Config_t;
 
 extern EEPROM_Config_t gEeprom;

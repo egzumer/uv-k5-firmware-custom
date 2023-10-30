@@ -134,6 +134,7 @@ const t_menu_item MenuList[] =
 	{"FrCali", VOICE_ID_INVALID,                       MENU_F_CALI        }, // reference xtal calibration
 #endif
 	{"BatCal", VOICE_ID_INVALID,                       MENU_BATCAL        }, // battery voltage calibration
+	{"BatTyp", VOICE_ID_INVALID,                       MENU_BATTYP        }, // battery type 1600/2200mAh
 	{"Reset",  VOICE_ID_INITIALISATION,                MENU_RESET         }, // might be better to move this to the hidden menu items ?
 
 	{"",       VOICE_ID_INVALID,                       0xff               }  // end of list - DO NOT delete or move this this
@@ -314,6 +315,12 @@ const char gSubMenu_BAT_TXT[3][8] =
 	"NONE",
 	"VOLTAGE",
 	"PERCENT"
+};
+
+const char gSubMenu_BATTYP[2][9] =
+{
+	"1600mAh",
+	"2200mAh"
 };
 
 const char gSubMenu_SCRAMBLER[11][7] =
@@ -835,7 +842,11 @@ void UI_DisplayMenu(void)
 			sprintf(String, "%u.%02uV\n%u", vol / 100, vol % 100, gSubMenuSelection);
 			break;
 		}
-		
+
+		case MENU_BATTYP:
+			strcpy(String, gSubMenu_BATTYP[gSubMenuSelection]);
+			break;	
+
 		case MENU_F1SHRT:
 		case MENU_F1LONG:
 		case MENU_F2SHRT:

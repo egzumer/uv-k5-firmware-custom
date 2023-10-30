@@ -120,7 +120,8 @@ enum
 	MENU_F1LONG,
 	MENU_F2SHRT,
 	MENU_F2LONG,
-	MENU_MLONG
+	MENU_MLONG,
+	MENU_BATTYP
 };
 
 extern const uint8_t FIRST_HIDDEN_MENU_ITEM;
@@ -154,7 +155,7 @@ extern const char        gSubMenu_RX_TX[4][6];
 	extern const char    gSubMenu_AM_fix_test1[4][8];
 #endif
 extern const char        gSubMenu_BAT_TXT[3][8];
-
+extern const char 		 gSubMenu_BATTYP[2][9];
 extern const char        gSubMenu_SCRAMBLER[11][7];
 
 typedef struct {char* name; uint8_t id;} t_sidefunction;

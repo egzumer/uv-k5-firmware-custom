@@ -17,6 +17,7 @@
 #include "battery.h"
 #include "driver/backlight.h"
 #include "misc.h"
+#include "settings.h"
 #include "ui/battery.h"
 #include "ui/menu.h"
 #include "ui/ui.h"
@@ -34,48 +35,47 @@ uint16_t          gBatteryCheckCounter;
 
 volatile uint16_t gPowerSave_10ms;
 
-/*
-Based on real measurement
 
-Volts	Percent		Volts	Percent		Volts	Percent		Volts	Percent
-8.28	100			7.95099	73			7.7184	46			7.48116	19
-8.22	99          7.94188	72          7.71091	45          7.46364	18
-8.17	98          7.9338	71          7.70911	44          7.44789	17
-8.13632	97          7.92684	70          7.70098	43          7.43318	16
-8.12308	96          7.9178	69          7.69619	42          7.41864	15
-8.09688	95          7.90823	68          7.69018	41          7.40579	14
-8.08124	94          7.89858	67          7.68473	40          7.39289	13
-8.06912	93          7.88667	66          7.67911	39          7.37839	12
-8.05826	92          7.87673	65          7.67087	38          7.36017	11
-8.05008	91          7.86864	64          7.66601	37          7.33704	10
-8.04192	90          7.85802	63          7.6599	36          7.3079	9
-8.03866	89          7.84816	62          7.65418	35          7.26793	8
-8.03089	88          7.83744	61          7.64775	34          7.21291	7
-8.0284	87          7.82748	60          7.64065	33          7.13416	6
-8.02044	86          7.81983	59          7.63136	32          7.02785	5
-8.01832	85          7.80929	58          7.6244	31          6.89448	4
-8.01072	84          7.79955	57          7.61636	30          6.72912	3
-8.00965	83          7.79017	56          7.60738	29          6.5164	2
-8.00333	82          7.78107	55          7.597	28          6.19272	1
-7.99973	81          7.77167	54          7.5876	27          5.63138	0
-7.99218	80          7.76509	53          7.57732	26
-7.98999	79          7.75649	52          7.56563	25
-7.98234	78          7.74939	51          7.55356	24
-7.97892	77          7.7411	50          7.54088	23
-7.97043	76          7.73648	49          7.52683	22
-7.96478	75          7.72911	48          7.51285	21
-7.95983	74          7.72097	47          7.49832	20
-*/
 unsigned int BATTERY_VoltsToPercent(const unsigned int voltage_10mV)
 {
-	if (voltage_10mV > 814)
-		return 100;
-	if (voltage_10mV > 756)
-		return ((132ul * voltage_10mV) /  100) - 974u;
-	if (voltage_10mV > 729)
-		return  ((63ul * voltage_10mV) /  100) - 452u;
-	if (voltage_10mV > 600)
-		return  ((52ul * voltage_10mV) / 1000) - 31u;    	
+	const uint16_t crv1600[][2] = {
+		{814, 100},
+		{756, 24 },
+		{729, 7 },
+		{597, 0 },
+		{0,   0}
+	};
+
+	const uint16_t crv2200[][2] = {
+		{823, 100},
+		{740, 60},
+		{707, 21},
+		{680, 5},
+		{505, 0},
+		{0,   0}
+	};
+	
+	const BATTERY_Type_t type = gEeprom.BATTERY_TYPE;
+	const uint16_t(*crv)[2];
+	uint8_t size;
+	if (type == BATTERY_TYPE_2200_MAH) {
+		crv = crv2200;
+		size = ARRAY_SIZE(crv2200);
+	}	
+	else {
+		crv = crv1600;
+		size = ARRAY_SIZE(crv1600);
+	}
+
+	const int mulipl = 1000;
+	for (int i = 1; i < size; i++) {
+		if (voltage_10mV > crv[i][0]) {
+			int a = (crv[i - 1][1] - crv[i][1]) * mulipl / (crv[i - 1][0] - crv[i][0]);
+			int b = crv[i][1] - a * crv[i][0] / mulipl;
+			int p = a * voltage_10mV / mulipl + b;
+			return MIN(p, 100);
+		}
+	}
 	return 0;
 }
 
