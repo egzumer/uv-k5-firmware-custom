@@ -211,6 +211,7 @@ endif
 
 # catch any and all warnings
 CFLAGS += -Wextra
+#CFLAGS += -Wpedantic
 
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"

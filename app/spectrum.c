@@ -206,23 +206,23 @@ static void ToggleAFBit(bool on) {
 }
 
 static void BackupRegisters() {
-  R30 = BK4819_ReadRegister(0x30);
-  R37 = BK4819_ReadRegister(0x37);
+  R30 = BK4819_ReadRegister(BK4819_REG_30);
+  R37 = BK4819_ReadRegister(BK4819_REG_37);
   R3D = BK4819_ReadRegister(0x3D);
-  R43 = BK4819_ReadRegister(0x43);
-  R47 = BK4819_ReadRegister(0x47);
-  R48 = BK4819_ReadRegister(0x48);
-  R7E = BK4819_ReadRegister(0x7E);
+  R43 = BK4819_ReadRegister(BK4819_REG_43);
+  R47 = BK4819_ReadRegister(BK4819_REG_47);
+  R48 = BK4819_ReadRegister(BK4819_REG_48);
+  R7E = BK4819_ReadRegister(BK4819_REG_7E);
 }
 
 static void RestoreRegisters() {
-  BK4819_WriteRegister(0x30, R30);
-  BK4819_WriteRegister(0x37, R37);
+  BK4819_WriteRegister(BK4819_REG_30, R30);
+  BK4819_WriteRegister(BK4819_REG_37, R37);
   BK4819_WriteRegister(0x3D, R3D);
-  BK4819_WriteRegister(0x43, R43);
-  BK4819_WriteRegister(0x47, R47);
-  BK4819_WriteRegister(0x48, R48);
-  BK4819_WriteRegister(0x7E, R7E);
+  BK4819_WriteRegister(BK4819_REG_43, R43);
+  BK4819_WriteRegister(BK4819_REG_47, R47);
+  BK4819_WriteRegister(BK4819_REG_48, R48);
+  BK4819_WriteRegister(BK4819_REG_7E, R7E);
 }
 
 static void SetModulation(ModulationType type) {
@@ -233,7 +233,7 @@ static void SetModulation(ModulationType type) {
   if (type == MOD_USB) {
     BK4819_WriteRegister(0x3D, 0b0010101101000101);
     BK4819_WriteRegister(BK4819_REG_37, 0x160F);
-    BK4819_WriteRegister(0x48, 0b0000001110101000);
+    BK4819_WriteRegister(BK4819_REG_48, 0b0000001110101000);
   }
 }
 

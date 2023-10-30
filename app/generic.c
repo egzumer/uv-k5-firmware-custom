@@ -212,12 +212,12 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 		if (gDTMF_InputBox_Index < sizeof(gDTMF_InputBox))
 			gDTMF_InputBox[gDTMF_InputBox_Index] = 0;             // NULL term the string
 
-			// append our DTMF ID to the inputted DTMF code -
-			//  IF the user inputted code is exactly 3 digits long and D-DCD is enabled
-			if (gDTMF_InputBox_Index == 3 && gTxVfo->DTMF_DECODING_ENABLE > 0)
-				gDTMF_CallMode = DTMF_CheckGroupCall(gDTMF_InputBox, 3);
-			else
-				gDTMF_CallMode = DTMF_CALL_MODE_DTMF;
+		// append our DTMF ID to the inputted DTMF code -
+		//  IF the user inputted code is exactly 3 digits long and D-DCD is enabled
+		if (gDTMF_InputBox_Index == 3 && gTxVfo->DTMF_DECODING_ENABLE > 0)
+			gDTMF_CallMode = DTMF_CheckGroupCall(gDTMF_InputBox, 3);
+		else
+			gDTMF_CallMode = DTMF_CALL_MODE_DTMF;
 
 		// remember the DTMF string
 		gDTMF_PreviousIndex = gDTMF_InputBox_Index;
