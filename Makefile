@@ -35,8 +35,7 @@ ENABLE_RSSI_BAR               := 1
 ENABLE_AUDIO_BAR              := 1
 ENABLE_COPY_CHAN_TO_VFO       := 1
 ENABLE_SPECTRUM               := 1
-#ENABLE_SINGLE_VFO_CHAN        := 1
-#ENABLE_BAND_SCOPE             := 1
+ENABLE_REDUCE_LOW_MID_TX_POWER:= 0
 
 #############################################################
 
@@ -317,6 +316,9 @@ ifeq ($(ENABLE_SINGLE_VFO_CHAN),1)
 endif
 ifeq ($(ENABLE_BAND_SCOPE),1)
 	CFLAGS += -DENABLE_BAND_SCOPE
+endif
+ifeq ($(ENABLE_REDUCE_LOW_MID_TX_POWER),1)
+	CFLAGS  += -DENABLE_REDUCE_LOW_MID_TX_POWER
 endif
 
 LDFLAGS =
