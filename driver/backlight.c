@@ -28,7 +28,7 @@ bool backlightOn;
 void BACKLIGHT_InitHardware()
 {
 	// 48MHz / 94 / 1024 ~ 500Hz
-	const uint32_t PWM_FREQUENCY_HZ =  6000;
+	const uint32_t PWM_FREQUENCY_HZ =  1000;
 	PWM_PLUS0_CLKSRC |= ((48000000 / 1024 / PWM_FREQUENCY_HZ) << 16);
 	PWM_PLUS0_PERIOD = 1023;
 
