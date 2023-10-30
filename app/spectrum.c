@@ -79,10 +79,10 @@ uint16_t listenT = 0;
 
 RegisterSpec registerSpecs[] = {
     {},
-    {"LNAs", 0x13, 8, 0b11, 1},
-    {"LNA", 0x13, 5, 0b111, 1},
-    {"PGA", 0x13, 0, 0b111, 1},
-    {"IF", 0x3D, 0, 0xFFFF, 0x2aaa},
+    {"LNAs", BK4819_REG_13, 8, 0b11, 1},
+    {"LNA", BK4819_REG_13, 5, 0b111, 1},
+    {"PGA", BK4819_REG_13, 0, 0b111, 1},
+    {"IF", BK4819_REG_3D, 0, 0xFFFF, 0x2aaa},
     // {"MIX", 0x13, 3, 0b11, 1}, // TODO: hidden
 };
 
@@ -208,7 +208,7 @@ static void ToggleAFBit(bool on) {
 static void BackupRegisters() {
   R30 = BK4819_ReadRegister(BK4819_REG_30);
   R37 = BK4819_ReadRegister(BK4819_REG_37);
-  R3D = BK4819_ReadRegister(0x3D);
+  R3D = BK4819_ReadRegister(BK4819_REG_3D);
   R43 = BK4819_ReadRegister(BK4819_REG_43);
   R47 = BK4819_ReadRegister(BK4819_REG_47);
   R48 = BK4819_ReadRegister(BK4819_REG_48);
@@ -218,7 +218,7 @@ static void BackupRegisters() {
 static void RestoreRegisters() {
   BK4819_WriteRegister(BK4819_REG_30, R30);
   BK4819_WriteRegister(BK4819_REG_37, R37);
-  BK4819_WriteRegister(0x3D, R3D);
+  BK4819_WriteRegister(BK4819_REG_3D, R3D);
   BK4819_WriteRegister(BK4819_REG_43, R43);
   BK4819_WriteRegister(BK4819_REG_47, R47);
   BK4819_WriteRegister(BK4819_REG_48, R48);
@@ -231,7 +231,7 @@ static void SetModulation(ModulationType type) {
   reg &= ~(0b111 << 8);
   BK4819_WriteRegister(BK4819_REG_47, reg | (modTypeReg47Values[type] << 8));
   if (type == MOD_USB) {
-    BK4819_WriteRegister(0x3D, 0b0010101101000101);
+    BK4819_WriteRegister(BK4819_REG_3D, 0b0010101101000101);
     BK4819_WriteRegister(BK4819_REG_37, 0x160F);
     BK4819_WriteRegister(BK4819_REG_48, 0b0000001110101000);
   }

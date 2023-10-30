@@ -541,7 +541,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 
 	// AF gain - original QS values
 	if (gRxVfo->AM_mode){
-		BK4819_WriteRegister(0x48, 0xB3A8);
+		BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);
 	}
 	else {
 	BK4819_WriteRegister(BK4819_REG_48,
