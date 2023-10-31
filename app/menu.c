@@ -109,7 +109,7 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 
 		case MENU_STEP:
 			*pMin = 0;
-			*pMax = ARRAY_SIZE(StepFrequencyTable) - 1;
+			*pMax = ARRAY_SIZE(gStepFrequencyTable) - 1;
 			break;
 
 		case MENU_ABR:
@@ -381,7 +381,7 @@ void MENU_AcceptSetting(void)
 			break;
 
 		case MENU_STEP:
-			gTxVfo->STEP_SETTING = gSubMenuSelection;
+			gTxVfo->STEP_SETTING = FREQUENCY_GetStepIdxFromSortedIdx(gSubMenuSelection);
 			if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
 			{
 				gRequestSaveChannel = 1;
@@ -878,7 +878,7 @@ void MENU_ShowCurrentSetting(void)
 			break;
 
 		case MENU_STEP:
-			gSubMenuSelection = gTxVfo->STEP_SETTING;
+			gSubMenuSelection = FREQUENCY_GetSortedIdxFromStepIdx(gTxVfo->STEP_SETTING);
 			break;
 
 		case MENU_TXP:

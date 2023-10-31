@@ -19,8 +19,6 @@
 
 #include <stdint.h>
 
-#define ENABLE_12_5KHZ_STEP
-
 typedef struct {
 	const uint32_t lower;
 	const uint32_t upper;
@@ -31,7 +29,7 @@ extern const freq_band_table_t BX4819_band2;
 
 extern const freq_band_table_t frequencyBandTable[7];
 
-enum FREQUENCY_Band_t {
+typedef enum  {
 	BAND_NONE   = -1,
 	BAND1_50MHz =  0,
 	BAND2_108MHz,
@@ -40,35 +38,35 @@ enum FREQUENCY_Band_t {
 	BAND5_350MHz,
 	BAND6_400MHz,
 	BAND7_470MHz
-};
-typedef enum FREQUENCY_Band_t FREQUENCY_Band_t;
+} FREQUENCY_Band_t;
 
-#ifndef ENABLE_12_5KHZ_STEP
-	// QS steps
-	enum STEP_Setting_t {
-		STEP_2_5kHz = 0,
-		STEP_5_0kHz,
-		STEP_6_25kHz,
-		STEP_10_0kHz,
-		STEP_12_5kHz,
-		STEP_25_0kHz,
-		STEP_8_33kHz
-	};
-#else
-	// includes 1.25kHz step
-	enum STEP_Setting_t {
-		STEP_1_25kHz = 0,
-		STEP_2_5kHz,
-		STEP_6_25kHz,
-		STEP_10_0kHz,
-		STEP_12_5kHz,
-		STEP_25_0kHz,
-		STEP_8_33kHz
-	};
-#endif
-typedef enum STEP_Setting_t STEP_Setting_t;
 
-extern const uint16_t     StepFrequencyTable[7];
+typedef enum {
+	STEP_2_5kHz, 
+	STEP_5kHz, 
+	STEP_6_25kHz, 
+	STEP_10kHz, 
+	STEP_12_5kHz, 
+	STEP_25kHz, 
+	STEP_8_33kHz,
+	STEP_0_01kHz,	
+	STEP_0_05kHz,	
+	STEP_0_1kHz, 
+	STEP_0_25kHz, 
+	STEP_0_5kHz, 
+	STEP_1kHz, 
+	STEP_1_25kHz, 
+	STEP_15kHz,
+	STEP_30kHz, 
+	STEP_50kHz, 
+	STEP_100kHz, 
+	STEP_125kHz, 
+	STEP_250kHz, 
+	STEP_500kHz,
+} STEP_Setting_t;
+
+
+extern const uint16_t  	gStepFrequencyTable[21];
 
 #ifdef ENABLE_NOAA
 	extern const uint32_t NoaaFrequencyTable[10];
@@ -77,6 +75,9 @@ extern const uint16_t     StepFrequencyTable[7];
 FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency);
 uint8_t          FREQUENCY_CalculateOutputPower(uint8_t TxpLow, uint8_t TxpMid, uint8_t TxpHigh, int32_t LowerLimit, int32_t Middle, int32_t UpperLimit, int32_t Frequency);
 uint32_t 		 FREQUENCY_RoundToStep(uint32_t freq, uint16_t step);
+
+uint8_t          FREQUENCY_GetStepIdxFromSortedIdx(uint8_t sortedIdx);
+uint8_t 		 FREQUENCY_GetSortedIdxFromStepIdx(uint8_t step);
 
 int              TX_freq_check(const uint32_t Frequency);
 int              RX_freq_check(const uint32_t Frequency);

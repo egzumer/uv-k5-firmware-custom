@@ -122,7 +122,7 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t
 	pInfo->SCANLIST1_PARTICIPATION  = true;
 	pInfo->SCANLIST2_PARTICIPATION  = true;
 	pInfo->STEP_SETTING             = STEP_12_5kHz;
-	pInfo->StepFrequency            = StepFrequencyTable[pInfo->STEP_SETTING];
+	pInfo->StepFrequency            = gStepFrequencyTable[pInfo->STEP_SETTING];
 	pInfo->CHANNEL_SAVE             = ChannelSave;
 	pInfo->FrequencyReverse         = false;
 	pInfo->OUTPUT_POWER             = OUTPUT_POWER_LOW;
@@ -256,10 +256,10 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		gEeprom.VfoInfo[VFO].AM_mode = (Data[3] >> 4) & 1u;
 
 		Tmp = Data[6];
-		if (Tmp >= ARRAY_SIZE(StepFrequencyTable))
+		if (Tmp >= ARRAY_SIZE(gStepFrequencyTable))
 			Tmp = STEP_12_5kHz;
 		gEeprom.VfoInfo[VFO].STEP_SETTING  = Tmp;
-		gEeprom.VfoInfo[VFO].StepFrequency = StepFrequencyTable[Tmp];
+		gEeprom.VfoInfo[VFO].StepFrequency = gStepFrequencyTable[Tmp];
 
 		Tmp = Data[7];
 		if (Tmp > (ARRAY_SIZE(gSubMenu_SCRAMBLER) - 1))

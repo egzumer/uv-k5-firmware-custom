@@ -61,13 +61,29 @@ const freq_band_table_t frequencyBandTable[7] =
 	};
 #endif
 
-#ifndef ENABLE_12_5KHZ_STEP
-	// QS steps (*10 Hz)
-	const uint16_t StepFrequencyTable[7] = {250, 500, 625, 1000, 1250, 2500, 833};
-#else
-	// includes 1.25kHz step
-	const uint16_t StepFrequencyTable[7] = {125, 250, 625, 1000, 1250, 2500, 833};
-#endif
+
+const uint16_t gStepFrequencyTable[] = {
+	250, 500, 625, 1000, 1250, 2500, 833,
+	1, 5, 10, 25, 50, 100, 125, 1500, 3000, 5000, 10000, 12500, 25000, 50000
+	};
+
+
+const uint8_t StepSortedIndexes[] = {
+	STEP_0_01kHz, STEP_0_05kHz, STEP_0_1kHz, STEP_0_25kHz, STEP_0_5kHz, STEP_1kHz, STEP_1_25kHz, STEP_2_5kHz, STEP_5kHz, STEP_6_25kHz,
+	STEP_8_33kHz, STEP_10kHz, STEP_12_5kHz, STEP_15kHz, STEP_25kHz, STEP_30kHz, STEP_50kHz, STEP_100kHz,
+	STEP_125kHz, STEP_250kHz, STEP_500kHz
+};
+uint8_t FREQUENCY_GetStepIdxFromSortedIdx(uint8_t sortedIdx) 
+{
+	return StepSortedIndexes[sortedIdx];
+}
+uint8_t FREQUENCY_GetSortedIdxFromStepIdx(uint8_t stepIdx) 
+{
+	for(uint8_t i = 0; i < ARRAY_SIZE(gStepFrequencyTable); i++)
+		if(StepSortedIndexes[i] == stepIdx)
+			return i;
+	return 0;
+}
 
 FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency)
 {
@@ -102,6 +118,8 @@ uint8_t FREQUENCY_CalculateOutputPower(uint8_t TxpLow, uint8_t TxpMid, uint8_t T
 
 static int32_t rnd(int32_t freq, uint16_t step)
 {
+if(step == 1)
+	return freq;
 return (freq + (step + 1) / 2) / step * step;
 }
 
