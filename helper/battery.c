@@ -42,7 +42,7 @@ unsigned int BATTERY_VoltsToPercent(const unsigned int voltage_10mV)
 		{814, 100},
 		{756, 24 },
 		{729, 7 },
-		{597, 0 },
+		{620, 0 },
 		{0,   0}
 	};
 
@@ -51,7 +51,7 @@ unsigned int BATTERY_VoltsToPercent(const unsigned int voltage_10mV)
 		{740, 60},
 		{707, 21},
 		{680, 5},
-		{505, 0},
+		{620, 0},
 		{0,   0}
 	};
 	
@@ -84,16 +84,26 @@ void BATTERY_GetReadings(const bool bDisplayBatteryLevel)
 	const uint8_t  PreviousBatteryLevel = gBatteryDisplayLevel;
 	const uint16_t Voltage              = (gBatteryVoltages[0] + gBatteryVoltages[1] + gBatteryVoltages[2] + gBatteryVoltages[3]) / 4;
 
-	gBatteryDisplayLevel = 0;
-
-	for(uint8_t i = 6; i > 0; i--){
-		if (Voltage > gBatteryCalibration[i-1]) {
-			gBatteryDisplayLevel = i;
-			break;
-		}
-	}
+	
 
 	gBatteryVoltageAverage = (Voltage * 760) / gBatteryCalibration[3];
+
+	if(gBatteryVoltageAverage > 840)
+		gBatteryDisplayLevel = 6; // battery overvoltage
+	else if(gBatteryVoltageAverage < 620)
+		gBatteryDisplayLevel = 0; // battery critical
+	else {
+		gBatteryDisplayLevel = 1;
+		const uint8_t levels[] = {5,25,50,75};
+		uint8_t perc = BATTERY_VoltsToPercent(gBatteryVoltageAverage);
+		for(uint8_t i = 5; i >= 1; i--){
+			if (perc > levels[i-2]) {
+				gBatteryDisplayLevel = i;
+				break;
+			}
+		}	
+	}
+
 
 	if ((gScreenToDisplay == DISPLAY_MENU) && GetCurrentMenuId() == MENU_VOL)
 		gUpdateDisplay = true;
