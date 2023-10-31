@@ -28,12 +28,12 @@ enum BK4819_AF_Type_t
 	BK4819_AF_FM        =  1u,  // FM
 	BK4819_AF_ALAM      =  2u,  //
 	BK4819_AF_BEEP      =  3u,  //
-	BK4819_AF_BASEBAND1 =  4u,  // SSB
-	BK4819_AF_BASEBAND2 =  5u,  // SSB
+	BK4819_AF_BASEBAND1 =  4u,  // RAW
+	BK4819_AF_BASEBAND2 =  5u,  // USB
 	BK4819_AF_CTCO      =  6u,  // strange LF audio .. maybe the CTCSS LF line ?
 	BK4819_AF_AM        =  7u,  // AM
 	BK4819_AF_FSKO      =  8u,  // nothing
-	BK4819_AF_UNKNOWN3  =  9u,  // distorted
+	BK4819_AF_UNKNOWN3  =  9u,  // BYP
 	BK4819_AF_UNKNOWN4  = 10u,  // nothing at all
 	BK4819_AF_UNKNOWN5  = 11u,  // distorted
 	BK4819_AF_UNKNOWN6  = 12u,  // distorted
@@ -68,6 +68,7 @@ extern bool gRxIdleMode;
 void     BK4819_Init(void);
 uint16_t BK4819_ReadRegister(BK4819_REGISTER_t Register);
 void     BK4819_WriteRegister(BK4819_REGISTER_t Register, uint16_t Data);
+void     BK4819_SetRegValue(RegisterSpec s, uint16_t v);
 void     BK4819_WriteU8(uint8_t Data);
 void     BK4819_WriteU16(uint16_t Data);
 

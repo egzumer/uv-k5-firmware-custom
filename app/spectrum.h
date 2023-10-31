@@ -99,12 +99,6 @@ typedef enum StepsCount {
   STEPS_16,
 } StepsCount;
 
-typedef enum ModulationType {
-  MOD_FM,
-  MOD_AM,
-  MOD_USB,
-} ModulationType;
-
 typedef enum ScanStep {
   S_STEP_0_01kHz,
   S_STEP_0_1kHz,
@@ -131,7 +125,7 @@ typedef struct SpectrumSettings {
   BK4819_FilterBandwidth_t listenBw;
   int dbMin;
   int dbMax;  
-  ModulationType modulationType;
+  ModulationMode_t modulationType;
   bool backlightState;
 } SpectrumSettings;
 
@@ -148,14 +142,6 @@ typedef struct ScanInfo {
   uint16_t scanStep;
   uint8_t measurementsCount;
 } ScanInfo;
-
-typedef struct RegisterSpec {
-  char *name;
-  uint8_t num;
-  uint8_t offset;
-  uint16_t maxValue;
-  uint16_t inc;
-} RegisterSpec;
 
 typedef struct PeakInfo {
   uint16_t t;

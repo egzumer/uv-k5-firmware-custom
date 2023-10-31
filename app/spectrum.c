@@ -49,7 +49,6 @@ ScanInfo scanInfo;
 KeyboardState kbd = {KEY_INVALID, KEY_INVALID, 0};
 
 const char *bwOptions[] = {"  25k", "12.5k", "6.25k"};
-const char *modulationTypeOptions[] = {" FM", " AM", "USB"};
 const uint8_t modulationTypeTuneSteps[] = {100, 50, 10};
 const uint8_t modTypeReg47Values[] = {1, 7, 5};
 
@@ -103,7 +102,7 @@ static int Rssi2DBm(uint16_t rssi) { return (rssi >> 1) - 160; }
 
 static uint16_t GetRegMenuValue(uint8_t st) {
   RegisterSpec s = registerSpecs[st];
-  return (BK4819_ReadRegister(s.num) >> s.offset) & s.maxValue;
+  return (BK4819_ReadRegister(s.num) >> s.offset) & s.mask;
 }
 
 static void SetRegMenuValue(uint8_t st, bool add) {
@@ -111,14 +110,14 @@ static void SetRegMenuValue(uint8_t st, bool add) {
   RegisterSpec s = registerSpecs[st];
 
   uint16_t reg = BK4819_ReadRegister(s.num);
-  if (add && v <= s.maxValue - s.inc) {
+  if (add && v <= s.mask - s.inc) {
     v += s.inc;
   } else if (!add && v >= 0 + s.inc) {
     v -= s.inc;
   }
   // TODO: use max value for bits count in max value, or reset by additional
   // mask in spec
-  reg &= ~(s.maxValue << s.offset);
+  reg &= ~(s.mask << s.offset);
   BK4819_WriteRegister(s.num, reg | (v << s.offset));
   redrawScreen = true;
 }
@@ -223,18 +222,6 @@ static void RestoreRegisters() {
   BK4819_WriteRegister(BK4819_REG_47, R47);
   BK4819_WriteRegister(BK4819_REG_48, R48);
   BK4819_WriteRegister(BK4819_REG_7E, R7E);
-}
-
-static void SetModulation(ModulationType type) {
-  RestoreRegisters();
-  uint16_t reg = BK4819_ReadRegister(BK4819_REG_47);
-  reg &= ~(0b111 << 8);
-  BK4819_WriteRegister(BK4819_REG_47, reg | (modTypeReg47Values[type] << 8));
-  if (type == MOD_USB) {
-    BK4819_WriteRegister(BK4819_REG_3D, 0b0010101101000101);
-    BK4819_WriteRegister(BK4819_REG_37, 0x160F);
-    BK4819_WriteRegister(BK4819_REG_48, 0b0000001110101000);
-  }
 }
 
 static void ToggleAFDAC(bool on) {
@@ -489,12 +476,12 @@ static void UpdateFreqChangeStep(bool inc) {
 }
 
 static void ToggleModulation() {
-  if (settings.modulationType < MOD_USB) {
+  if (settings.modulationType < MODULATION_UKNOWN - 1) {
     settings.modulationType++;
   } else {
-    settings.modulationType = MOD_FM;
+    settings.modulationType = MODULATION_FM;
   }
-  SetModulation(settings.modulationType);
+  RADIO_SetModulation(settings.modulationType);
   redrawScreen = true;
 }
 
@@ -669,7 +656,7 @@ static void DrawF(uint32_t f) {
   sprintf(String, "%u.%05u", f / 100000, f % 100000);
   UI_PrintStringSmall(String, 8, 127, 0);
 
-  sprintf(String, "%s", modulationTypeOptions[settings.modulationType]);
+  sprintf(String, "%3s", gModulationStr[settings.modulationType]);
   GUI_DisplaySmallest(String, 116, 1, false, true);
   sprintf(String, "%s", bwOptions[settings.listenBw]);
   GUI_DisplaySmallest(String, 108, 7, false, true);
@@ -1175,7 +1162,7 @@ void APP_RunSpectrum() {
   newScanStart = true;
 
   ToggleRX(true), ToggleRX(false); // hack to prevent noise when squelch off
-  SetModulation(settings.modulationType = MOD_FM);
+  RADIO_SetModulation(settings.modulationType = MODULATION_FM);
   BK4819_SetFilterBandwidth(settings.listenBw = BK4819_FILTER_BW_WIDE, false);
 
   RelaunchScan();

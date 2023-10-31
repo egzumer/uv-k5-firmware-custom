@@ -289,7 +289,7 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 				if (gCurrentFunction == FUNCTION_RECEIVE ||
 				    gCurrentFunction == FUNCTION_MONITOR ||
 					gCurrentFunction == FUNCTION_INCOMING)	// 1of11
-					BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_FM);
+					RADIO_SetModulation(gRxVfo->Modulation);
 	
 				#ifdef ENABLE_FMRADIO
 					if (gFmRadioMode)
@@ -430,7 +430,7 @@ void AUDIO_PlayBeep(BEEP_Type_t Beep)
 		if (gCurrentFunction == FUNCTION_RECEIVE ||
 		    gCurrentFunction == FUNCTION_MONITOR ||
 		    gCurrentFunction == FUNCTION_INCOMING)    // 1of11
-			BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_FM);
+			RADIO_SetModulation(gRxVfo->Modulation);
 	
 		#ifdef ENABLE_FMRADIO
 			if (gFmRadioMode)

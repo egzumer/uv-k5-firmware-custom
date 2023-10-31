@@ -338,7 +338,6 @@ const char gSubMenu_SCRAMBLER[11][7] =
 	"3500Hz"
 };
 
-
 const t_sidefunction SIDEFUNCTIONS[] =
 {
 	{"NONE",			ACTION_OPT_NONE},
@@ -614,7 +613,7 @@ void UI_DisplayMenu(void)
 			break;	
 
 		case MENU_AM:
-			strcpy(String, (gSubMenuSelection == 0) ? "FM" : "AM");
+			strcpy(String, gModulationStr[gSubMenuSelection]);
 			break;
 
 		#ifdef ENABLE_AM_FIX_TEST1

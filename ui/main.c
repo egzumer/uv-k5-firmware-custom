@@ -562,19 +562,24 @@ void UI_DisplayMain(void)
 		// ************
 
 		String[0] = '\0';
-		if (gEeprom.VfoInfo[vfo_num].AM_mode)
-		{	// show the AM symbol
-			strcpy(String, "AM");
-		}
-		else
-		{	// or show the CTCSS/DCS symbol
-			const FREQ_Config_t *pConfig = (mode == 1) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
-			const unsigned int code_type = pConfig->CodeType;
-			const char *code_list[] = {"", "CT", "DCS", "DCR"};
-			if (code_type < ARRAY_SIZE(code_list))
-				strcpy(String, code_list[code_type]);
-		}
-		UI_PrintStringSmall(String, LCD_WIDTH + 24, 0, line + 1);
+
+		// show the modulation symbol
+		const char * s = "";
+		const ModulationMode_t mod = gEeprom.VfoInfo[vfo_num].Modulation;
+		switch (mod){
+			case MODULATION_FM: {
+				const FREQ_Config_t *pConfig = (mode == 1) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
+				const unsigned int code_type = pConfig->CodeType;
+				const char *code_list[] = {"", "CT", "DCS", "DCR"};
+				if (code_type < ARRAY_SIZE(code_list))
+					s = code_list[code_type];
+				break;
+			}
+			default:
+				s = gModulationStr[mod];
+			break;
+		}		
+		UI_PrintStringSmall(s, LCD_WIDTH + 24, 0, line + 1);
 
 		if (state == VFO_STATE_NORMAL || state == VFO_STATE_ALARM)
 		{	// show the TX power
@@ -633,7 +638,7 @@ void UI_DisplayMain(void)
 #endif
 
 #if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
-		if (rx && gEeprom.VfoInfo[gEeprom.RX_VFO].AM_mode && gSetting_AM_fix)
+		if (rx && gEeprom.VfoInfo[gEeprom.RX_VFO].Modulation != MODULATION_FM && gSetting_AM_fix)
 		{
 			if (gScreenToDisplay != DISPLAY_MAIN ||
 				gDTMF_CallState != DTMF_CALL_STATE_NONE)

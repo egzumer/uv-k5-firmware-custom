@@ -71,7 +71,7 @@ static void UpdateRSSI(const int vfo)
 
 	#ifdef ENABLE_AM_FIX
 		// add RF gain adjust compensation
-		if (gEeprom.VfoInfo[vfo].AM_mode && gSetting_AM_fix)
+		if (gEeprom.VfoInfo[vfo].Modulation != MODULATION_FM && gSetting_AM_fix)
 			rssi -= rssi_gain_diff[vfo];
 	#endif
 
@@ -526,7 +526,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		const uint8_t orig_pga       = 6;   //  -3dB
 
 #ifdef ENABLE_AM_FIX
-		if (gRxVfo->AM_mode && gSetting_AM_fix) {	// AM RX mode
+		if (gRxVfo->Modulation != MODULATION_FM && gSetting_AM_fix) {	// AM RX mode
 			if (reset_am_fix)
 				AM_fix_reset(chan);      // TODO: only reset it when moving channel/frequency
 			AM_fix_10ms(chan);
@@ -540,10 +540,11 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	}
 
 	// AF gain - original QS values
-	if (gRxVfo->AM_mode){
-		BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);
-	}
-	else {
+	// if (gRxVfo->Modulation != MODULATION_FM){
+	// 	BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);
+	// }
+	// else 
+	{
 	BK4819_WriteRegister(BK4819_REG_48,
 		(11u << 12)                |     // ??? .. 0 to 15, doesn't seem to make any difference
 		( 0u << 10)                |     // AF Rx Gain-1
@@ -554,7 +555,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 #ifdef ENABLE_VOICE
 	if (gVoiceWriteIndex == 0)       // AM/FM RX mode will be set when the voice has finished
 #endif
-		BK4819_SetAF(gRxVfo->AM_mode ? BK4819_AF_AM : BK4819_AF_FM);  // no need, set it now
+		RADIO_SetModulation(gRxVfo->Modulation);  // no need, set it now
 
 	FUNCTION_Select(Function);
 
@@ -1209,8 +1210,8 @@ void APP_TimeSlice10ms(void)
 	#endif
 
 	#ifdef ENABLE_AM_FIX
-//		if (gEeprom.VfoInfo[gEeprom.RX_VFO].AM_mode && gSetting_AM_fix)
-		if (gRxVfo->AM_mode && gSetting_AM_fix)
+//		if (gEeprom.VfoInfo[gEeprom.RX_VFO].Modulation != MODULATION_FM && gSetting_AM_fix)
+		if (gRxVfo->Modulation != MODULATION_FM && gSetting_AM_fix)
 			AM_fix_10ms(gEeprom.RX_VFO);
 	#endif
 

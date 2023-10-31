@@ -17,6 +17,19 @@
 #ifndef BK4819_REGS_H
 #define BK4819_REGS_H
 
+
+typedef struct {
+  const char *name;
+  uint8_t num;
+  uint8_t offset;
+  uint16_t mask;
+  uint16_t inc;
+} RegisterSpec;
+
+static const RegisterSpec afcDisableRegSpec = {"AFC Disable", 0x73, 4, 1, 1};
+static const RegisterSpec afOutRegSpec = {"AF Output Select", 0x47, 8, 0xF, 1};
+static const RegisterSpec afDacGainRegSpec = {"AF DAC Gain", 0x48, 0, 0xF, 1};
+
 enum BK4819_REGISTER_t {
 	BK4819_REG_00 = 0x00U,
 	BK4819_REG_02 = 0x02U,

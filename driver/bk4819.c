@@ -798,6 +798,12 @@ void BK4819_SetAF(BK4819_AF_Type_t AF)
 	BK4819_WriteRegister(BK4819_REG_47, (6u << 12) | (AF << 8) | (1u << 6));
 }
 
+void BK4819_SetRegValue(RegisterSpec s, uint16_t v) {
+  uint16_t reg = BK4819_ReadRegister(s.num);
+  reg &= ~(s.mask << s.offset);
+  BK4819_WriteRegister(s.num, reg | (v << s.offset));
+}
+
 void BK4819_RX_TurnOn(void)
 {
 	// DSP Voltage Setting = 1

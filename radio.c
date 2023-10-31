@@ -44,6 +44,15 @@ uint8_t        gSelectedCode;
 STEP_Setting_t gStepSetting;
 VfoState_t     VfoState[2];
 
+const char gModulationStr[][4] =
+{
+	"FM",
+	"AM",
+	"USB",
+	"BYP",
+	"RAW"
+};
+
 bool RADIO_CheckValidChannel(uint16_t Channel, bool bCheckScanList, uint8_t VFO)
 {	// return true if the channel appears valid
 
@@ -133,7 +142,7 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t
 	pInfo->Compander                = 0;  // off
 
 	if (ChannelSave == (FREQ_CHANNEL_FIRST + BAND2_108MHz))
-		pInfo->AM_mode = 1;
+		pInfo->Modulation = MODULATION_AM;
 
 	RADIO_ConfigureSquelchAndOutputPower(pInfo);
 }
@@ -253,7 +262,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		if (Tmp > TX_OFFSET_FREQUENCY_DIRECTION_SUB)
 			Tmp = 0;
 		gEeprom.VfoInfo[VFO].TX_OFFSET_FREQUENCY_DIRECTION = Tmp;
-		gEeprom.VfoInfo[VFO].AM_mode = (Data[3] >> 4) & 1u;
+		gEeprom.VfoInfo[VFO].Modulation = (Data[3] >> 4);
 
 		Tmp = Data[6];
 		if (Tmp >= ARRAY_SIZE(gStepFrequencyTable))
@@ -407,7 +416,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 			pConfig->Frequency = 43300000;
 	}
 
-	if (gEeprom.VfoInfo[VFO].AM_mode)
+	if (gEeprom.VfoInfo[VFO].Modulation != MODULATION_FM)
 	{	// freq/chan is in AM mode
 		gEeprom.VfoInfo[VFO].SCRAMBLING_TYPE         = 0;
 //		gEeprom.VfoInfo[VFO].DTMF_DECODING_ENABLE    = false;  // no reason to disable DTMF decoding, aircraft use it on SSB
@@ -605,7 +614,7 @@ void RADIO_SetupRegisters(bool switchToForeground)
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
 			#ifdef ENABLE_AM_FIX
-//				BK4819_SetFilterBandwidth(Bandwidth, gRxVfo->AM_mode && gSetting_AM_fix);
+//				BK4819_SetFilterBandwidth(Bandwidth, gRxVfo->Modulation == MODULATION_AM && gSetting_AM_fix);
 				BK4819_SetFilterBandwidth(Bandwidth, true);
 			#else
 				BK4819_SetFilterBandwidth(Bandwidth, false);
@@ -654,7 +663,13 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_RX_ENABLE, true);
 
 	// AF RX Gain and DAC
-	BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);  // 1011 00 111010 1000
+	//BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);  // 1011 00 111010 1000
+	BK4819_WriteRegister(BK4819_REG_48,
+		(11u << 12)                 |     // ??? .. 0 ~ 15, doesn't seem to make any difference
+		( 0u << 10)                 |     // AF Rx Gain-1
+		(gEeprom.VOLUME_GAIN << 4) |     // AF Rx Gain-2
+		(gEeprom.DAC_GAIN    << 0));     // AF DAC Gain (after Gain-1 and Gain-2)
+
 
 	InterruptMask = BK4819_REG_3F_SQUELCH_FOUND | BK4819_REG_3F_SQUELCH_LOST;
 
@@ -662,7 +677,7 @@ void RADIO_SetupRegisters(bool switchToForeground)
 		if (!IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
 	#endif
 	{
-		if (gRxVfo->AM_mode == 0)
+		if (gRxVfo->Modulation == MODULATION_FM)
 		{	// FM
 			uint8_t CodeType = gSelectedCodeType;
 			uint8_t Code     = gSelectedCode;
@@ -738,15 +753,15 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	#ifdef ENABLE_VOX
 		#ifdef ENABLE_NOAA
 			#ifdef ENABLE_FMRADIO
-				if (gEeprom.VOX_SWITCH && !gFmRadioMode && !IS_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
+				if (gEeprom.VOX_SWITCH && !gFmRadioMode && !IS_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->Modulation == MODULATION_FM)
 			#else
-				if (gEeprom.VOX_SWITCH && !IS_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->AM_mode == 0)
+				if (gEeprom.VOX_SWITCH && !IS_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->Modulation == MODULATION_FM)
 			#endif
 		#else
 			#ifdef ENABLE_FMRADIO
-				if (gEeprom.VOX_SWITCH && !gFmRadioMode && gCurrentVfo->AM_mode == 0)
+				if (gEeprom.VOX_SWITCH && !gFmRadioMode && gCurrentVfo->Modulation == MODULATION_FM)
 			#else
-				if (gEeprom.VOX_SWITCH && gCurrentVfo->AM_mode == 0)
+				if (gEeprom.VOX_SWITCH && gCurrentVfo->Modulation == MODULATION_FM)
 			#endif
 		#endif
 		{
@@ -758,7 +773,7 @@ void RADIO_SetupRegisters(bool switchToForeground)
 		BK4819_DisableVox();
 
 	// RX expander
-	BK4819_SetCompander((gRxVfo->AM_mode == 0 && gRxVfo->Compander >= 2) ? gRxVfo->Compander : 0);
+	BK4819_SetCompander((gRxVfo->Modulation == MODULATION_FM && gRxVfo->Compander >= 2) ? gRxVfo->Compander : 0);
 
 	#if 0
 		if (!gRxVfo->DTMF_DECODING_ENABLE && !gSetting_KILLED)
@@ -855,7 +870,7 @@ void RADIO_SetTxParameters(void)
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
 			#ifdef ENABLE_AM_FIX
-//				BK4819_SetFilterBandwidth(Bandwidth, gCurrentVfo->AM_mode && gSetting_AM_fix);
+//				BK4819_SetFilterBandwidth(Bandwidth, gCurrentVfo->Modulation == MODULATION_AM && gSetting_AM_fix);
 				BK4819_SetFilterBandwidth(Bandwidth, true);
 			#else
 				BK4819_SetFilterBandwidth(Bandwidth, false);
@@ -866,7 +881,7 @@ void RADIO_SetTxParameters(void)
 	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency);
 
 	// TX compressor
-	BK4819_SetCompander((gRxVfo->AM_mode == 0 && (gRxVfo->Compander == 1 || gRxVfo->Compander >= 3)) ? gRxVfo->Compander : 0);
+	BK4819_SetCompander((gRxVfo->Modulation == MODULATION_FM && (gRxVfo->Compander == 1 || gRxVfo->Compander >= 3)) ? gRxVfo->Compander : 0);
 
 	BK4819_PrepareTransmit();
 
@@ -898,6 +913,34 @@ void RADIO_SetTxParameters(void)
 			BK4819_SetCDCSSCodeWord(DCS_GetGolayCodeWord(gCurrentVfo->pTX->CodeType, gCurrentVfo->pTX->Code));
 			break;
 	}
+}
+
+void RADIO_SetModulation(ModulationMode_t modulation)
+{
+	BK4819_AF_Type_t mod;
+	switch(modulation) {
+		default:
+		case MODULATION_FM:
+			mod = BK4819_AF_FM;
+			break;
+		case MODULATION_AM:
+			mod = BK4819_AF_AM;
+			break;
+		case MODULATION_USB:
+			mod = BK4819_AF_BASEBAND2;
+			break;
+		case MODULATION_BYP:
+			mod = BK4819_AF_UNKNOWN3;
+			break;
+		case MODULATION_RAW:
+			mod = BK4819_AF_BASEBAND1;
+			break;
+	}
+
+	BK4819_SetAF(mod);
+	BK4819_SetRegValue(afDacGainRegSpec, 0xF);
+	BK4819_WriteRegister(BK4819_REG_3D, modulation == MODULATION_USB ? 0 : 0x2AAB);
+	BK4819_SetRegValue(afcDisableRegSpec, modulation != MODULATION_FM);
 }
 
 void RADIO_SetVfoState(VfoState_t State)
@@ -964,7 +1007,7 @@ void RADIO_PrepareTX(void)
 	#endif
 	{
 		#ifndef ENABLE_TX_WHEN_AM
-			if (gCurrentVfo->AM_mode)
+			if (gCurrentVfo->Modulation != MODULATION_FM)
 			{	// not allowed to TX if in AM mode
 				State = VFO_STATE_TX_DISABLE;
 			}

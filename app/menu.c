@@ -232,7 +232,6 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 		case MENU_D_ST:
 		case MENU_D_DCD:
 		case MENU_D_LIVE_DEC:
-		case MENU_AM:
 		#ifdef ENABLE_NOAA
 			case MENU_NOAA_S:
 		#endif
@@ -244,6 +243,11 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 		case MENU_TX_EN:
 			*pMin = 0;
 			*pMax = ARRAY_SIZE(gSubMenu_OFF_ON) - 1;
+			break;
+
+		case MENU_AM:
+			*pMin = 0;
+			*pMax = ARRAY_SIZE(gModulationStr) - 1;
 			break;
 
 		case MENU_SCR:
@@ -702,7 +706,7 @@ void MENU_AcceptSetting(void)
 			break;
 
 		case MENU_AM:
-			gTxVfo->AM_mode     = gSubMenuSelection;
+			gTxVfo->Modulation     = gSubMenuSelection;
 			gRequestSaveChannel = 1;
 			return;
 
@@ -1112,7 +1116,7 @@ void MENU_ShowCurrentSetting(void)
 			break;
 
 		case MENU_AM:
-			gSubMenuSelection = gTxVfo->AM_mode;
+			gSubMenuSelection = gTxVfo->Modulation;
 			break;
 
 #ifdef ENABLE_AM_FIX
@@ -1603,9 +1607,9 @@ static void MENU_Key_STAR(const bool bKeyPressed, const bool bKeyHeld)
 	RADIO_SelectVfos();
 
 	#ifdef ENABLE_NOAA
-		if (!IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gRxVfo->AM_mode == 0)
+		if (!IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gRxVfo->Modulation == MODULATION_FM)
 	#else
-		if (gRxVfo->AM_mode == 0)
+		if (gRxVfo->Modulation ==  MODULATION_FM)
 	#endif
 	{
 		if (GetCurrentMenuId() == MENU_R_CTCS || GetCurrentMenuId() == MENU_R_DCS)

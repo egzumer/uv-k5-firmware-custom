@@ -61,6 +61,17 @@ enum VfoState_t
 };
 typedef enum VfoState_t VfoState_t;
 
+typedef enum {
+	MODULATION_FM,
+	MODULATION_AM,
+	MODULATION_USB,
+	MODULATION_BYP,
+	MODULATION_RAW,
+	MODULATION_UKNOWN
+} ModulationMode_t;
+
+extern const char gModulationStr[5][4];
+
 typedef struct
 {
 	uint32_t       Frequency;
@@ -115,7 +126,7 @@ typedef struct VFO_Info_t
 
 	uint8_t        BUSY_CHANNEL_LOCK;
 
-	uint8_t        AM_mode;
+	ModulationMode_t    Modulation;
 
 	uint8_t        Compander;
 
@@ -154,11 +165,12 @@ void     RADIO_SetupRegisters(bool bSwitchToFunction0);
 	void RADIO_ConfigureNOAA(void);
 #endif
 void     RADIO_SetTxParameters(void);
-
+void     RADIO_SetModulation(ModulationMode_t modulation);
 void     RADIO_SetVfoState(VfoState_t State);
 void     RADIO_PrepareTX(void);
 void     RADIO_EnableCxCSS(void);
 void     RADIO_PrepareCssTX(void);
 void     RADIO_SendEndOfTransmission(void);
+
 
 #endif
