@@ -234,6 +234,12 @@ void UI_DisplayMain(void)
 	// clear the screen
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 
+	if(gLowBattery && !gLowBatteryConfirmed) {
+		UI_DisplayPopup("LOW BATTERY");
+		ST7565_BlitFullScreen();
+		return;
+	}
+
 	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
 	{	// tell user how to unlock the keyboard
 		UI_PrintString("Long press #", 0, LCD_WIDTH, 1, 8);

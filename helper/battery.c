@@ -32,10 +32,19 @@ uint16_t          gBatteryVoltageAverage;
 uint8_t           gBatteryDisplayLevel;
 bool              gChargingWithTypeC;
 bool              gLowBatteryBlink;
+bool              gLowBattery;
+bool              gLowBatteryConfirmed;
 uint16_t          gBatteryCheckCounter;
 
-bool              lowBattery;
+typedef enum {
+	BATTERY_LOW_INACTIVE,
+	BATTERY_LOW_ACTIVE,
+	BATTERY_LOW_CONFIRMED
+} BatteryLow_t;
+
+
 uint16_t          lowBatteryCountdown;
+const uint16_t 	  lowBatteryPeriod = 30;
 
 volatile uint16_t gPowerSave_10ms;
 
@@ -46,7 +55,7 @@ unsigned int BATTERY_VoltsToPercent(const unsigned int voltage_10mV)
 		{814, 100},
 		{756, 24 },
 		{729, 7 },
-		{620, 0 },
+		{630, 0 },
 		{0,   0}
 	};
 
@@ -55,7 +64,7 @@ unsigned int BATTERY_VoltsToPercent(const unsigned int voltage_10mV)
 		{740, 60},
 		{707, 21},
 		{680, 5},
-		{620, 0},
+		{630, 0},
 		{0,   0}
 	};
 	
@@ -94,7 +103,7 @@ void BATTERY_GetReadings(const bool bDisplayBatteryLevel)
 
 	if(gBatteryVoltageAverage > 840)
 		gBatteryDisplayLevel = 6; // battery overvoltage
-	else if(gBatteryVoltageAverage < 620)
+	else if(gBatteryVoltageAverage < 630)
 		gBatteryDisplayLevel = 0; // battery critical
 	else {
 		gBatteryDisplayLevel = 1;
@@ -136,17 +145,22 @@ void BATTERY_GetReadings(const bool bDisplayBatteryLevel)
 
 	if (PreviousBatteryLevel != gBatteryDisplayLevel)
 	{
-		if (gBatteryDisplayLevel < 2)
+		if(gBatteryDisplayLevel > 2)
+			gLowBatteryConfirmed = false;
+		else if (gBatteryDisplayLevel < 2)
 		{
-			lowBattery = true;
+			gLowBattery = true;
 		}
 		else
 		{
-			lowBattery = false;
+			gLowBattery = false;
 
 			if (bDisplayBatteryLevel)
 				UI_DisplayBattery(gBatteryDisplayLevel, gLowBatteryBlink);
 		}
+		
+		if(!gLowBatteryConfirmed)
+			gUpdateDisplay = true;
 
 		lowBatteryCountdown = 0;
 	}
@@ -154,7 +168,7 @@ void BATTERY_GetReadings(const bool bDisplayBatteryLevel)
 
 void BATTERY_TimeSlice500ms(void) 
 {
-	if (lowBattery)
+	if (gLowBattery)
 	{
 		gLowBatteryBlink = ++lowBatteryCountdown & 1;
 
@@ -163,9 +177,9 @@ void BATTERY_TimeSlice500ms(void)
 		if (gCurrentFunction != FUNCTION_TRANSMIT)
 		{	// not transmitting
 
-			if (lowBatteryCountdown < 30)
+			if (lowBatteryCountdown < lowBatteryPeriod)
 			{
-				if (lowBatteryCountdown == 29 && !gChargingWithTypeC)
+				if (lowBatteryCountdown == lowBatteryPeriod-1 && !gChargingWithTypeC && !gLowBatteryConfirmed)
 					AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP);
 			}
 			else
@@ -174,18 +188,17 @@ void BATTERY_TimeSlice500ms(void)
 
 				if (!gChargingWithTypeC)
 				{	// not on charge
-
-					AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP);
-
-					#ifdef ENABLE_VOICE
+					if(!gLowBatteryConfirmed) {
+						AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP);
+#ifdef ENABLE_VOICE
 						AUDIO_SetVoiceID(0, VOICE_ID_LOW_VOLTAGE);
-					#endif
-
+#endif
+					}
 					if (gBatteryDisplayLevel == 0)
 					{
-						#ifdef ENABLE_VOICE
-							AUDIO_PlaySingleVoice(true);
-						#endif
+#ifdef ENABLE_VOICE
+						AUDIO_PlaySingleVoice(true);
+#endif
 
 						gReducedService = true;
 
@@ -197,10 +210,10 @@ void BATTERY_TimeSlice500ms(void)
 						if (gEeprom.BACKLIGHT_TIME < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1))
 							BACKLIGHT_TurnOff();  // turn the backlight off
 					}
-					#ifdef ENABLE_VOICE
-						else
-							AUDIO_PlaySingleVoice(false);
-					#endif
+#ifdef ENABLE_VOICE
+					else
+						AUDIO_PlaySingleVoice(false);
+#endif
 				}
 			}
 		}

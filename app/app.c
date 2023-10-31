@@ -1906,8 +1906,18 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		}
 	}
 
-	if (gEeprom.KEY_LOCK && gCurrentFunction != FUNCTION_TRANSMIT && Key != KEY_PTT)
-	{	// keyboard is locked
+	bool lowBatPopup = gLowBattery && !gLowBatteryConfirmed &&  gScreenToDisplay == DISPLAY_MAIN;
+
+	if ((gEeprom.KEY_LOCK || lowBatPopup) && gCurrentFunction != FUNCTION_TRANSMIT && Key != KEY_PTT)
+	{	// keyboard is locked or low battery popup
+
+		// close low battery popup
+		if(Key == KEY_EXIT && bKeyPressed && lowBatPopup) {
+			gLowBatteryConfirmed = true;
+			gUpdateDisplay = true;
+			AUDIO_PlayBeep(BEEP_1KHZ_60MS_OPTIONAL);
+			return;
+		}		
 
 		if (Key == KEY_F)
 		{	// function/key-lock key
