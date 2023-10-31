@@ -16,6 +16,8 @@
 
 #include "battery.h"
 #include "driver/backlight.h"
+#include "driver/st7565.h"
+#include "functions.h"
 #include "misc.h"
 #include "settings.h"
 #include "ui/battery.h"
@@ -29,9 +31,11 @@ uint16_t          gBatteryVoltages[4];
 uint16_t          gBatteryVoltageAverage;
 uint8_t           gBatteryDisplayLevel;
 bool              gChargingWithTypeC;
-bool              gLowBattery;
 bool              gLowBatteryBlink;
 uint16_t          gBatteryCheckCounter;
+
+bool              lowBattery;
+uint16_t          lowBatteryCountdown;
 
 volatile uint16_t gPowerSave_10ms;
 
@@ -134,16 +138,71 @@ void BATTERY_GetReadings(const bool bDisplayBatteryLevel)
 	{
 		if (gBatteryDisplayLevel < 2)
 		{
-			gLowBattery = true;
+			lowBattery = true;
 		}
 		else
 		{
-			gLowBattery = false;
+			lowBattery = false;
 
 			if (bDisplayBatteryLevel)
 				UI_DisplayBattery(gBatteryDisplayLevel, gLowBatteryBlink);
 		}
 
-		gLowBatteryCountdown = 0;
+		lowBatteryCountdown = 0;
+	}
+}
+
+void BATTERY_TimeSlice500ms(void) 
+{
+	if (lowBattery)
+	{
+		gLowBatteryBlink = ++lowBatteryCountdown & 1;
+
+		UI_DisplayBattery(0, gLowBatteryBlink);
+
+		if (gCurrentFunction != FUNCTION_TRANSMIT)
+		{	// not transmitting
+
+			if (lowBatteryCountdown < 30)
+			{
+				if (lowBatteryCountdown == 29 && !gChargingWithTypeC)
+					AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP);
+			}
+			else
+			{
+				lowBatteryCountdown = 0;
+
+				if (!gChargingWithTypeC)
+				{	// not on charge
+
+					AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP);
+
+					#ifdef ENABLE_VOICE
+						AUDIO_SetVoiceID(0, VOICE_ID_LOW_VOLTAGE);
+					#endif
+
+					if (gBatteryDisplayLevel == 0)
+					{
+						#ifdef ENABLE_VOICE
+							AUDIO_PlaySingleVoice(true);
+						#endif
+
+						gReducedService = true;
+
+						//if (gCurrentFunction != FUNCTION_POWER_SAVE)
+							FUNCTION_Select(FUNCTION_POWER_SAVE);
+
+						ST7565_HardwareReset();
+
+						if (gEeprom.BACKLIGHT_TIME < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1))
+							BACKLIGHT_TurnOff();  // turn the backlight off
+					}
+					#ifdef ENABLE_VOICE
+						else
+							AUDIO_PlaySingleVoice(false);
+					#endif
+				}
+			}
+		}
 	}
 }

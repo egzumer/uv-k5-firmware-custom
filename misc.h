@@ -274,7 +274,6 @@ extern bool                  g_SquelchLost;
 extern uint8_t               gFlashLightState;
 extern volatile uint16_t     gFlashLightBlinkCounter;
 extern bool                  gFlagEndTransmission;
-extern uint16_t              gLowBatteryCountdown;
 extern uint8_t               gNextMrChannel;
 extern ReceptionMode_t       gRxReceptionMode;
 

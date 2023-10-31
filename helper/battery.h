@@ -27,7 +27,6 @@ extern uint16_t          gBatteryVoltages[4];
 extern uint16_t          gBatteryVoltageAverage;
 extern uint8_t           gBatteryDisplayLevel;
 extern bool              gChargingWithTypeC;
-extern bool              gLowBattery;
 extern bool              gLowBatteryBlink;
 extern uint16_t          gBatteryCheckCounter;
 
@@ -41,6 +40,7 @@ typedef enum {
 
 unsigned int BATTERY_VoltsToPercent(const unsigned int voltage_10mV);
 void BATTERY_GetReadings(const bool bDisplayBatteryLevel);
+void BATTERY_TimeSlice500ms(void);
 
 #endif
 

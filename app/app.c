@@ -1723,57 +1723,7 @@ void APP_TimeSlice500ms(void)
 	}
 
 
-	if (gLowBattery)
-	{
-		gLowBatteryBlink = ++gLowBatteryCountdown & 1;
-
-		UI_DisplayBattery(0, gLowBatteryBlink);
-
-		if (gCurrentFunction != FUNCTION_TRANSMIT)
-		{	// not transmitting
-
-			if (gLowBatteryCountdown < 30)
-			{
-				if (gLowBatteryCountdown == 29 && !gChargingWithTypeC)
-					AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP);
-			}
-			else
-			{
-				gLowBatteryCountdown = 0;
-
-				if (!gChargingWithTypeC)
-				{	// not on charge
-
-					AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP);
-
-					#ifdef ENABLE_VOICE
-						AUDIO_SetVoiceID(0, VOICE_ID_LOW_VOLTAGE);
-					#endif
-
-					if (gBatteryDisplayLevel == 0)
-					{
-						#ifdef ENABLE_VOICE
-							AUDIO_PlaySingleVoice(true);
-						#endif
-
-						gReducedService = true;
-
-						//if (gCurrentFunction != FUNCTION_POWER_SAVE)
-							FUNCTION_Select(FUNCTION_POWER_SAVE);
-
-						ST7565_HardwareReset();
-
-						if (gEeprom.BACKLIGHT_TIME < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1))
-							BACKLIGHT_TurnOff();  // turn the backlight off
-					}
-					#ifdef ENABLE_VOICE
-						else
-							AUDIO_PlaySingleVoice(false);
-					#endif
-				}
-			}
-		}
-	}
+	BATTERY_TimeSlice500ms();
 
 	if (gScreenToDisplay == DISPLAY_SCANNER && gScannerEditState == 0 && gScanCssState < SCAN_CSS_STATE_FOUND)
 	{
