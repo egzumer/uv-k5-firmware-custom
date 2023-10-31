@@ -21,6 +21,7 @@
 #include "font.h"
 #include "ui/helper.h"
 #include "ui/inputbox.h"
+#include "misc.h"
 
 #ifndef ARRAY_SIZE
 	#define ARRAY_SIZE(arr) (sizeof(arr)/sizeof((arr)[0]))
@@ -177,4 +178,71 @@ void UI_DisplayFrequency(const char *string, uint8_t X, uint8_t Y, bool center)
 		pFb0 += char_width;
 		pFb1 += char_width;
 	}
+}
+
+void UI_DrawPixel(uint8_t x, uint8_t y, bool black) 
+{
+	gFrameBuffer[y/8][x] &= ~(1 << (y%8));
+	gFrameBuffer[y/8][x] |= black << (y%8);
+}
+
+static void sort(int16_t *a, int16_t *b)
+{
+	if(*a > *b) {
+		int16_t t = *a;
+		*a = *b;
+		*b = t;
+	}
+}
+
+void UI_DrawLine(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black)
+{
+	if(x2==x1) {
+		sort(&y1, &y2);
+		for(int16_t i = y1; i <= y2; i++) {
+			UI_DrawPixel(x1, i, black);
+		}
+	} else {
+		const int multipl = 1000;
+		int a = (y2-y1)*multipl / (x2-x1);
+		int b = y1 - a * x1 / multipl;
+
+		sort(&x1, &x2);
+		for(int i = x1; i<= x2; i++)
+		{
+			UI_DrawPixel(i, i*a/multipl +b, black);
+		}
+	}
+}
+
+void UI_DrawRectangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black)
+{
+	UI_DrawLine(x1,y1, x1,y2, black);
+	UI_DrawLine(x1,y1, x2,y1, black);
+	UI_DrawLine(x2,y1, x2,y2, black);
+	UI_DrawLine(x1,y2, x2,y2, black);
+}
+
+void UI_DisplayPopup(const char *string) 
+{
+	for(uint8_t i = 0; i < 7; i++) {
+		memset(gFrameBuffer[i], 0x00, 128);
+	}
+
+	// for(uint8_t i = 1; i < 5; i++) {
+	// 	memset(gFrameBuffer[i]+8, 0x00, 111);
+	// }
+
+	// for(uint8_t x = 10; x < 118; x++) {
+	// 	UI_DrawPixel(x, 10, true);
+	// 	UI_DrawPixel(x, 46-9, true);
+	// }
+
+	// for(uint8_t y = 11; y < 37; y++) {
+	// 	UI_DrawPixel(10, y, true);
+	// 	UI_DrawPixel(117, y, true);
+	// }
+	// DrawRectangle(9,9, 118,38, true);
+	UI_PrintString(string, 9, 118, 2, 8);
+	UI_PrintStringSmall("Press EXIT", 9, 118, 6);
 }
