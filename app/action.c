@@ -270,6 +270,7 @@ void ACTION_Scan(bool bRestart)
 #if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 	static void ACTION_AlarmOr1750(const bool b1750)
 	{
+		(void)b1750;
 		gInputBoxIndex = 0;
 
 		#if defined(ENABLE_ALARM) && defined(ENABLE_TX1750)
