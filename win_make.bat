@@ -18,15 +18,6 @@
 
 
 
-
-
-:: Delete any left over files from previous compile
-::
-del /S /Q *.o >nul 2>nul
-del /S /Q *.d >nul 2>nul
-del /Q firmware >nul 2>nul
-del /Q *.bin >nul 2>nul
-
 :: You may need to edit/change these three paths to suit your setup
 ::
 :: Temporarily add the compiler and make program directories to the system PATH ..
@@ -39,14 +30,6 @@ del /Q *.bin >nul 2>nul
 ::
 make clean
 make
-
-:: Delete the spent files
-::
-del /S /Q *.o >nul 2>nul
-del /S /Q *.d >nul 2>nul
-del /Q firmware >nul 2>nul
-
-
 
 
 :: If you have python installed, you can create a 'packed' .bin from the compiled firmware.bin file.
