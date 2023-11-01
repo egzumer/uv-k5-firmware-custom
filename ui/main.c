@@ -156,7 +156,7 @@ static void DisplayRSSIBar(const int16_t rssi, const bool now)
 		const int16_t      rssi_dBm     = (rssi / 2) - 160;
 
 		const uint8_t s_level = MIN(MAX((rssi_dBm - s0_dBm) / 6, 0), 9); // S0 - S9
-		uint8_t overS9dBm = MIN(MAX(73 + rssi_dBm, 0), 99);
+		uint8_t overS9dBm = MIN(MAX(rssi_dBm - (s0_dBm + 9*6), 0), 99);
 		uint8_t overS9Bars = MIN(overS9dBm/10, 4);
 		
 		if(overS9Bars == 0) {
