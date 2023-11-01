@@ -52,20 +52,22 @@ volatile uint16_t gPowerSave_10ms;
 unsigned int BATTERY_VoltsToPercent(const unsigned int voltage_10mV)
 {
 	const uint16_t crv1600[][2] = {
-		{814, 100},
-		{756, 24 },
-		{729, 7 },
-		{630, 0 },
-		{0,   0}
+		{828, 100},
+		{814, 97 },
+		{760, 25 },
+		{729, 6  },
+		{630, 0  },
+		{0,   0  }
 	};
 
 	const uint16_t crv2200[][2] = {
-		{823, 100},
-		{740, 60},
-		{707, 21},
-		{680, 5},
-		{630, 0},
-		{0,   0}
+		{832, 100},
+		{813, 95 },
+		{740, 60 },
+		{707, 21 },
+		{682, 5  },
+		{630, 0  },
+		{0,   0  }
 	};
 	
 	const BATTERY_Type_t type = gEeprom.BATTERY_TYPE;
