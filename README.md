@@ -1,21 +1,21 @@
 # Main features:
  - many of OneOfEleven mods, including AM fix
  - fagci spectrum analyzer (**F+5** to turn on)
- - some other smaller mods introduced by me
+ - some other mods introduced by me
 
- Go to [Wiki](https://github.com/egzumer/uv-k5-firmware-custom/wiki) to learn more.
+ # Manual
+
+* [Radio operation](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Radio-operation)
+
+* [Menu](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Menu)
+
+* [Button functions](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Button-functions)
+
+* [Spectrum analyzer](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Spectrum-analyzer)
+
+* [Flashing the firmware](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Flashing-the-firmware)
 
 <img src="images/main.jpg" width=300 /><img src="images/spectrum.jpg" width=300 /><img src="images/audiobar.jpg" width=300 /><img src="images/rssibar.jpg" width=300 />
-
-❗❗❗You can now calibrate the battery voltage reading in the radio menu. 
-
-<img src="images/batcal.jpg" width=300 />
-
-To enter the calibration:
-
-1. turn the radio on while holding PTT and the first side button 
-2. go to BATCAL option and adjust the voltage with UP/DOWN buttons
-3. confirm the setting, calibration will be saved to EEPROM
 
 
 # Open reimplementation of the Quan Sheng UV-K5 v2.1.27 firmware
