@@ -103,7 +103,7 @@ void BATTERY_GetReadings(const bool bDisplayBatteryLevel)
 
 	gBatteryVoltageAverage = (Voltage * 760) / gBatteryCalibration[3];
 
-	if(gBatteryVoltageAverage > 840)
+	if(gBatteryVoltageAverage > 890)
 		gBatteryDisplayLevel = 7; // battery overvoltage
 	else if(gBatteryVoltageAverage < 630)
 		gBatteryDisplayLevel = 0; // battery critical
