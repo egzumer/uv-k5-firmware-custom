@@ -30,10 +30,10 @@ void UI_DrawBattery(uint8_t* bitmap, uint8_t level, uint8_t blink)
 	else 
 	{
 		memmove(bitmap, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
-		if (level > 1)
+		if (level > 2)
 		{
 			unsigned int i;
-			uint8_t bars = level - 1;
+			uint8_t bars = level - 2;
 			if (bars > 4)
 				bars = 4;
 			for (i = 0; i < bars; i++)

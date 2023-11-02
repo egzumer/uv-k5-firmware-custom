@@ -104,14 +104,14 @@ void BATTERY_GetReadings(const bool bDisplayBatteryLevel)
 	gBatteryVoltageAverage = (Voltage * 760) / gBatteryCalibration[3];
 
 	if(gBatteryVoltageAverage > 840)
-		gBatteryDisplayLevel = 6; // battery overvoltage
+		gBatteryDisplayLevel = 7; // battery overvoltage
 	else if(gBatteryVoltageAverage < 630)
 		gBatteryDisplayLevel = 0; // battery critical
 	else {
 		gBatteryDisplayLevel = 1;
-		const uint8_t levels[] = {5,25,50,75};
+		const uint8_t levels[] = {5,17,41,65,88};
 		uint8_t perc = BATTERY_VoltsToPercent(gBatteryVoltageAverage);
-		for(uint8_t i = 5; i >= 1; i--){
+		for(uint8_t i = 6; i >= 1; i--){
 			if (perc > levels[i-2]) {
 				gBatteryDisplayLevel = i;
 				break;

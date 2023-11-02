@@ -983,7 +983,7 @@ void RADIO_PrepareTX(void)
 			if (gBatteryDisplayLevel == 0)
 				State = VFO_STATE_BAT_LOW;       // charge your battery !
 			else
-			if (gBatteryDisplayLevel >= 6)
+			if (gBatteryDisplayLevel > 6)
 				State = VFO_STATE_VOLTAGE_HIGH;  // over voltage .. this is being a pain
 		}
 		else
