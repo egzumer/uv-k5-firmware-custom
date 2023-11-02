@@ -32,6 +32,7 @@ void ACTION_Scan(bool bRestart);
 #ifdef ENABLE_FMRADIO
 	void ACTION_FM(void);
 #endif
+void ACTION_SwitchDemodul(void);
 
 void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
