@@ -401,11 +401,24 @@ static void Measure() { rssiHistory[scanInfo.i] = scanInfo.rssi = GetRssi(); }
 
 // Update things by keypress
 
+static uint16_t dbm2rssi(int dBm)
+{
+  return (dBm + 160)*2;
+}
+
+static void ClampRssiTriggerLevel()
+{
+  settings.rssiTriggerLevel = clamp(settings.rssiTriggerLevel, dbm2rssi(settings.dbMin), dbm2rssi(settings.dbMax));
+}
+
 static void UpdateRssiTriggerLevel(bool inc) {
   if (inc)
-    settings.rssiTriggerLevel += 2;
+      settings.rssiTriggerLevel += 2;
   else
-    settings.rssiTriggerLevel -= 2;
+      settings.rssiTriggerLevel -= 2;
+
+  ClampRssiTriggerLevel();
+
   redrawScreen = true;
   redrawStatus = true;
 }
@@ -418,6 +431,8 @@ static void UpdateDBMax(bool inc) {
   } else {
     return;
   }
+
+  ClampRssiTriggerLevel();
   redrawStatus = true;
   redrawScreen = true;
   SYSTEM_DelayMs(20);
