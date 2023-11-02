@@ -165,7 +165,7 @@ void UI_DisplayStatus()
 		char         s[8];
 		unsigned int space_needed;
 		
-		unsigned int x2 = LCD_WIDTH - sizeof(BITMAP_BatteryLevel5) - 3;
+		unsigned int x2 = LCD_WIDTH - sizeof(BITMAP_BatteryLevel1) - 3;
 
 		if (gChargingWithTypeC)
 			x2 -= sizeof(BITMAP_USB_C);  // the radio is on charge
