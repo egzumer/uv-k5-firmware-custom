@@ -140,63 +140,114 @@ void ST7565_FillScreen(uint8_t Value)
 	SPI_ToggleMasterMode(&SPI0->CR, true);
 }
 
+// Software reset
+const uint8_t ST7565_CMD_SOFTWARE_RESET = 0xE2;
+// Bias Select
+// 1 0 1 0 0 0 1 BS
+// Select bias setting 0=1/9; 1=1/7 (at 1/65 duty)
+const uint8_t ST7565_CMD_BIAS_SELECT = 0xA2;
+// COM Direction
+// 1 1 0 0 MY - - -
+// Set output direction of COM
+// MY=1, reverse direction
+// MY=0, normal direction
+const uint8_t ST7565_CMD_COM_DIRECTION = 0xC0;
+// SEG Direction
+// 1 0 1 0 0 0 0 MX
+// Set scan direction of SEG
+// MX=1, reverse direction
+// MX=0, normal direction
+const uint8_t ST7565_CMD_SEG_DIRECTION = 0xA0;
+// Inverse Display
+// 1 0 1 0 0 1 1 INV
+// INV =1, inverse display
+// INV =0, normal display
+const uint8_t ST7565_CMD_INVERSE_DISPLAY = 0xA6;
+// All Pixel ON
+// 1 0 1 0 0 1 0 AP
+// AP=1, set all pixel ON
+// AP=0, normal display
+const uint8_t ST7565_CMD_ALL_PIXEL_ON = 0xA4;
+// Regulation Ratio
+// 0 0 1 0 0 RR2 RR1 RR0
+// This instruction controls the regulation ratio of the built-in regulator
+const uint8_t ST7565_CMD_REGULATION_RATIO = 0x20;
+// Double command!! Set electronic volume (EV) level
+// Send next: 0 0 EV5 EV4 EV3 EV2 EV1 EV0  contrast 0-63
+const uint8_t ST7565_CMD_SET_EV = 0x81;
+// Control built-in power circuit ON/OFF - 0 0 1 0 1 VB VR VF
+// VB: Built-in Booster
+// VR: Built-in Regulator
+// VF: Built-in Follower
+const uint8_t ST7565_CMD_POWER_CIRCUIT = 0x28;
+// Set display start line 0-63
+// 0 0 0 1 S5 S4 S3 S2 S1 S0 
+const uint8_t ST7565_CMD_SET_START_LINE = 0x40;
+// Display ON/OFF 
+// 0 0 1 0 1 0 1 1 1 D 
+// D=1, display ON
+// D=0, display OFF
+const uint8_t ST7565_CMD_DISPLAY_ON_OFF = 0xAE;
+
+uint8_t cmds[] = {
+	ST7565_CMD_BIAS_SELECT | 0, 			// Select bias setting: 1/9
+	ST7565_CMD_COM_DIRECTION  | (0 << 3), 	// Set output direction of COM: normal
+	ST7565_CMD_SEG_DIRECTION | 1, 			// Set scan direction of SEG: reverse
+	ST7565_CMD_INVERSE_DISPLAY | 0, 		// Inverse Display: false
+	ST7565_CMD_ALL_PIXEL_ON | 0, 			// All Pixel ON: false - normal display
+	ST7565_CMD_REGULATION_RATIO | (4 << 0), // Regulation Ratio 5.0
+
+	ST7565_CMD_SET_EV,						// Set contrast
+	31,
+
+	ST7565_CMD_POWER_CIRCUIT | 0b111,		// Built-in power circuit ON/OFF: VB=1 VR=1 VF=1 
+	ST7565_CMD_SET_START_LINE | 0,			// Set Start Line: 0
+	ST7565_CMD_DISPLAY_ON_OFF | 1,			// Display ON/OFF: ON
+};
+
 void ST7565_Init(const bool full)
 {
-	if (full)
-	{
+	if (full) {
 		SPI0_Init();
-	
 		ST7565_HardwareReset();
-	
 		SPI_ToggleMasterMode(&SPI0->CR, false);
-	
-		ST7565_WriteByte(0xE2);   // internal reset
-	
+		ST7565_WriteByte(ST7565_CMD_SOFTWARE_RESET);   // software reset
 		SYSTEM_DelayMs(120);
 	}
 	else
 		SPI_ToggleMasterMode(&SPI0->CR, false);
-	
-	ST7565_WriteByte(0xA2);   // bias 9
-	ST7565_WriteByte(0xC0);   // com normal
-	ST7565_WriteByte(0xA1);   // reverse ?
-	
-	ST7565_WriteByte(0xA6);   // normal screen ?
-//	ST7565_WriteByte(0xA7);   // inverse screen ?
 
-	ST7565_WriteByte(0xA4);   // all points normal
-	ST7565_WriteByte(0x24);   //
-	ST7565_WriteByte(0x81);   // volume first ?
+	for(uint8_t i = 0; i < 8; i++)
+		ST7565_WriteByte(cmds[i]);
 
-	ST7565_WriteByte(0x1f);   // contrast ?
-
-	if (full)
-	{
-		ST7565_WriteByte(0x2B);   // power control ?
-	
+	if (full) {
+		ST7565_WriteByte(ST7565_CMD_POWER_CIRCUIT | 0b011);   // VB=0 VR=1 VF=1
+		SYSTEM_DelayMs(1);
+		ST7565_WriteByte(ST7565_CMD_POWER_CIRCUIT | 0b110);   // VB=1 VR=1 VF=0
 		SYSTEM_DelayMs(1);
 	
-		ST7565_WriteByte(0x2E);   // power control ?
-	
-		SYSTEM_DelayMs(1);
-	
-		ST7565_WriteByte(0x2F);   //
-		ST7565_WriteByte(0x2F);   //
-		ST7565_WriteByte(0x2F);   //
-		ST7565_WriteByte(0x2F);   //
-	
+		for(uint8_t i = 0; i < 4; i++) // why 4 times?
+			ST7565_WriteByte(ST7565_CMD_POWER_CIRCUIT | 0b111);   // VB=1 VR=1 VF=1
+
 		SYSTEM_DelayMs(40);
 	}
-	
-	ST7565_WriteByte(0x40);   // start line ?
-	ST7565_WriteByte(0xAF);   // display on ?
-	
-	SPI_WaitForUndocumentedTxFifoStatusBit();
 
+	ST7565_WriteByte(ST7565_CMD_SET_START_LINE | 0);   // line 0
+	ST7565_WriteByte(ST7565_CMD_DISPLAY_ON_OFF | 1);   // D=1
+	SPI_WaitForUndocumentedTxFifoStatusBit();
 	SPI_ToggleMasterMode(&SPI0->CR, true);
 
 	if (full)
 		ST7565_FillScreen(0x00);
+}
+
+void ST7565_FixInterfGlitch(void)
+{
+	SPI_ToggleMasterMode(&SPI0->CR, false);
+	for(uint8_t i = 0; i < ARRAY_SIZE(cmds); i++)
+		ST7565_WriteByte(cmds[i]);
+	SPI_WaitForUndocumentedTxFifoStatusBit();
+	SPI_ToggleMasterMode(&SPI0->CR, true);
 }
 
 void ST7565_HardwareReset(void)

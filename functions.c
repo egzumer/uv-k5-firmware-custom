@@ -30,6 +30,7 @@
 #include "driver/bk4819.h"
 #include "driver/gpio.h"
 #include "driver/system.h"
+#include "driver/st7565.h"
 #include "frequencies.h"
 #include "functions.h"
 #include "helper/battery.h"
@@ -105,6 +106,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 
 			if (PreviousFunction == FUNCTION_TRANSMIT)
 			{
+				ST7565_FixInterfGlitch();
 				gVFO_RSSI_bar_level[0] = 0;
 				gVFO_RSSI_bar_level[1] = 0;
 			}
