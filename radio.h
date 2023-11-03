@@ -65,12 +65,16 @@ typedef enum {
 	MODULATION_FM,
 	MODULATION_AM,
 	MODULATION_USB,
+
+#ifdef ENABLE_BYP_RAW_DEMODULATORS
 	MODULATION_BYP,
 	MODULATION_RAW,
+#endif
+
 	MODULATION_UKNOWN
 } ModulationMode_t;
 
-extern const char gModulationStr[5][4];
+extern const char gModulationStr[MODULATION_UKNOWN][4];
 
 typedef struct
 {

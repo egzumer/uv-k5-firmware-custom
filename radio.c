@@ -49,8 +49,11 @@ const char gModulationStr[][4] =
 	"FM",
 	"AM",
 	"USB",
+	
+#ifdef ENABLE_BYP_RAW_DEMODULATORS
 	"BYP",
 	"RAW"
+#endif
 };
 
 bool RADIO_CheckValidChannel(uint16_t Channel, bool bCheckScanList, uint8_t VFO)
@@ -929,12 +932,15 @@ void RADIO_SetModulation(ModulationMode_t modulation)
 		case MODULATION_USB:
 			mod = BK4819_AF_BASEBAND2;
 			break;
+
+#ifdef ENABLE_BYP_RAW_DEMODULATORS
 		case MODULATION_BYP:
 			mod = BK4819_AF_UNKNOWN3;
 			break;
 		case MODULATION_RAW:
 			mod = BK4819_AF_BASEBAND1;
 			break;
+#endif
 	}
 
 	BK4819_SetAF(mod);

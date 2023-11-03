@@ -36,6 +36,7 @@ ENABLE_AUDIO_BAR              := 1
 ENABLE_COPY_CHAN_TO_VFO       := 1
 ENABLE_SPECTRUM               := 1
 ENABLE_REDUCE_LOW_MID_TX_POWER:= 0
+ENABLE_BYP_RAW_DEMODULATORS   := 0
 
 #############################################################
 
@@ -319,6 +320,9 @@ ifeq ($(ENABLE_BAND_SCOPE),1)
 endif
 ifeq ($(ENABLE_REDUCE_LOW_MID_TX_POWER),1)
 	CFLAGS  += -DENABLE_REDUCE_LOW_MID_TX_POWER
+endif
+ifeq ($(ENABLE_BYP_RAW_DEMODULATORS),1)
+	CFLAGS  += -DENABLE_BYP_RAW_DEMODULATORS
 endif
 
 LDFLAGS =
