@@ -537,6 +537,7 @@ void BOARD_EEPROM_Init(void)
 	EEPROM_ReadBuffer(0x0E78, Data, 8);
 	gEeprom.BACKLIGHT_MAX 		  = (Data[0] & 0xF) <= 10 ? (Data[0] & 0xF) : 10;
 	gEeprom.BACKLIGHT_MIN 		  = (Data[0] >> 4) < gEeprom.BACKLIGHT_MAX ? (Data[0] >> 4) : 0;
+	gEeprom.BACKLIGHT_MIN_STAT	  = BLMIN_STAT_ON;
 	gEeprom.CHANNEL_DISPLAY_MODE  = (Data[1] < 4) ? Data[1] : MDF_FREQUENCY;    // 4 instead of 3 - extra display mode
 	gEeprom.CROSS_BAND_RX_TX      = (Data[2] < 3) ? Data[2] : CROSS_BAND_OFF;
 	gEeprom.BATTERY_SAVE          = (Data[3] < 5) ? Data[3] : 4;

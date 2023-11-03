@@ -33,6 +33,7 @@ void ACTION_Scan(bool bRestart);
 	void ACTION_FM(void);
 #endif
 void ACTION_SwitchDemodul(void);
+void ACTION_BlminTmpOff(void);
 
 void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
