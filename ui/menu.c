@@ -509,8 +509,7 @@ void UI_DisplayMenu(void)
 		case MENU_T_DCS:
 			if (gSubMenuSelection == 0)
 				strcpy(String, "OFF");
-			else
-			if (gSubMenuSelection < 105)
+			else if (gSubMenuSelection < 105)
 				sprintf(String, "D%03oN", DCS_Options[gSubMenuSelection -   1]);
 			else
 				sprintf(String, "D%03oI", DCS_Options[gSubMenuSelection - 105]);
@@ -519,38 +518,10 @@ void UI_DisplayMenu(void)
 		case MENU_R_CTCS:
 		case MENU_T_CTCS:
 		{
-			#if 1
-				unsigned int Code;
-				FREQ_Config_t *pConfig = (GetCurrentMenuId() == MENU_R_CTCS) ? &gTxVfo->freq_config_RX : &gTxVfo->freq_config_TX;
-				if (gSubMenuSelection == 0)
-				{
-					strcpy(String, "OFF");
-
-					if (pConfig->CodeType != CODE_TYPE_CONTINUOUS_TONE)
-						break;
-					Code = 0;
-					pConfig->CodeType = CODE_TYPE_OFF;
-					pConfig->Code = Code;
-
-					BK4819_ExitSubAu();
-				}
-				else
-				{
-					sprintf(String, "%u.%uHz", CTCSS_Options[gSubMenuSelection - 1] / 10, CTCSS_Options[gSubMenuSelection - 1] % 10);
-
-					pConfig->CodeType = CODE_TYPE_CONTINUOUS_TONE;
-					Code = gSubMenuSelection - 1;
-					pConfig->Code = Code;
-
-					BK4819_SetCTCSSFrequency(CTCSS_Options[Code]);
-				}
-			#else
-				if (gSubMenuSelection == 0)
-					strcpy(String, "OFF");
-				else
-					sprintf(String, "%u.%uHz", CTCSS_Options[gSubMenuSelection - 1] / 10, CTCSS_Options[gSubMenuSelection - 1] % 10);
-			#endif
-
+			if (gSubMenuSelection == 0)
+				strcpy(String, "OFF");
+			else
+				sprintf(String, "%u.%uHz", CTCSS_Options[gSubMenuSelection - 1] / 10, CTCSS_Options[gSubMenuSelection - 1] % 10);
 			break;
 		}
 
