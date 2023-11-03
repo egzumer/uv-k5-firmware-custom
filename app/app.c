@@ -71,7 +71,7 @@ static void UpdateRSSI(const int vfo)
 
 	#ifdef ENABLE_AM_FIX
 		// add RF gain adjust compensation
-		if (gEeprom.VfoInfo[vfo].Modulation != MODULATION_FM && gSetting_AM_fix)
+		if (gEeprom.VfoInfo[vfo].Modulation == MODULATION_AM && gSetting_AM_fix)
 			rssi -= rssi_gain_diff[vfo];
 	#endif
 
@@ -526,7 +526,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		const uint8_t orig_pga       = 6;   //  -3dB
 
 #ifdef ENABLE_AM_FIX
-		if (gRxVfo->Modulation != MODULATION_FM && gSetting_AM_fix) {	// AM RX mode
+		if (gRxVfo->Modulation == MODULATION_AM && gSetting_AM_fix) {	// AM RX mode
 			if (reset_am_fix)
 				AM_fix_reset(chan);      // TODO: only reset it when moving channel/frequency
 			AM_fix_10ms(chan);
@@ -1211,7 +1211,7 @@ void APP_TimeSlice10ms(void)
 
 	#ifdef ENABLE_AM_FIX
 //		if (gEeprom.VfoInfo[gEeprom.RX_VFO].Modulation != MODULATION_FM && gSetting_AM_fix)
-		if (gRxVfo->Modulation != MODULATION_FM && gSetting_AM_fix)
+		if (gRxVfo->Modulation == MODULATION_AM && gSetting_AM_fix)
 			AM_fix_10ms(gEeprom.RX_VFO);
 	#endif
 

@@ -638,7 +638,7 @@ void UI_DisplayMain(void)
 #endif
 
 #if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
-		if (rx && gEeprom.VfoInfo[gEeprom.RX_VFO].Modulation != MODULATION_FM && gSetting_AM_fix)
+		if (rx && gEeprom.VfoInfo[gEeprom.RX_VFO].Modulation == MODULATION_AM && gSetting_AM_fix)
 		{
 			if (gScreenToDisplay != DISPLAY_MAIN ||
 				gDTMF_CallState != DTMF_CALL_STATE_NONE)
