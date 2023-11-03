@@ -14,6 +14,7 @@
  *     limitations under the License.
  */
 
+#include "app/chFrScanner.h"
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif

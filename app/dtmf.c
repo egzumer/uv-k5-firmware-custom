@@ -17,6 +17,7 @@
 #include <string.h>
 #include <stdio.h>   // NULL
 
+#include "app/chFrScanner.h"
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif

@@ -155,6 +155,10 @@ uint8_t           gVFO_RSSI_bar_level[2];
 uint8_t           gReducedService;
 uint8_t           gBatteryVoltageIndex;
 CssScanMode_t     gCssScanMode;
+
+volatile bool     gScheduleScanListen = true;
+volatile uint16_t gScanPauseDelayIn_10ms;
+
 bool              gUpdateRSSI;
 #if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 	AlarmState_t  gAlarmState;

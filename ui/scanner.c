@@ -50,7 +50,7 @@ void UI_DisplayScanner(void)
 	UI_PrintString(String, 2, 0, 3, 8);
 
 	memset(String, 0, sizeof(String));
-	if (gScannerEditState == 2)
+	if (gScannerSaveState == SCAN_SAVE_CHANNEL)
 	{
 		strcpy(String, "SAVE?");
 
@@ -59,19 +59,15 @@ void UI_DisplayScanner(void)
 	}
 	else
 	{
-		if (gScannerEditState == 1)
-		{
+		if (gScannerSaveState == SCAN_SAVE_CHAN_SEL) {
 			strcpy(String, "SAVE:");
 			UI_GenerateChannelStringEx(String + 5, gShowChPrefix, gScanChannel);
 		}
-		else
-		if (gScanCssState < SCAN_CSS_STATE_FOUND)
-		{
+		else if (gScanCssState < SCAN_CSS_STATE_FOUND) {
 			strcpy(String, "SCAN");
 			memset(String + 4, '.', (gScanProgressIndicator & 7) + 1);
 		}
-		else
-		if (gScanCssState == SCAN_CSS_STATE_FOUND)
+		else if (gScanCssState == SCAN_CSS_STATE_FOUND)
 			strcpy(String, "SCAN CMP.");
 		else
 			strcpy(String, "SCAN FAIL.");

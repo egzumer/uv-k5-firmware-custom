@@ -16,11 +16,11 @@
 
 #include <string.h>
 
+#include "app/chFrScanner.h"
 #include "app/dtmf.h"
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
-#include "app/scanner.h"
 #include "driver/keyboard.h"
 #include "misc.h"
 #ifdef ENABLE_AIRCOPY

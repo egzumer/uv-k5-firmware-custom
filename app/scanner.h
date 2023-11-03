@@ -20,50 +20,37 @@
 #include "dcs.h"
 #include "driver/keyboard.h"
 
-enum SCAN_CssState_t
+typedef enum 
 {
-	SCAN_CSS_STATE_OFF = 0,
+	SCAN_CSS_STATE_OFF,
 	SCAN_CSS_STATE_SCANNING,
 	SCAN_CSS_STATE_FOUND,
 	SCAN_CSS_STATE_FAILED
-};
+} SCAN_CssState_t;
 
-typedef enum SCAN_CssState_t SCAN_CssState_t;
-
-enum
+typedef enum 
 {
-	SCAN_REV = -1,
-	SCAN_OFF =  0,
-	SCAN_FWD = +1
-};
+	SCAN_SAVE_NO_PROMPT, // saving process not initiated
+	SCAN_SAVE_CHAN_SEL,  // "SAVE: ", channel select prompt, actives only in channel mode
+	SCAN_SAVE_CHANNEL,   // "SAVE?" prompt, waits for confirmation to save settings to channel, or current VFO 
+} SCAN_SaveState_t;
+
 
 extern DCS_CodeType_t    gScanCssResultType;
 extern uint8_t           gScanCssResultCode;
-extern bool              gFlagStartScan;
 extern bool              gFlagStopScan;
 extern bool              gScanSingleFrequency;
-extern uint8_t           gScannerEditState;
+extern SCAN_SaveState_t  gScannerSaveState;
 extern uint8_t           gScanChannel;
 extern uint32_t          gScanFrequency;
-extern bool              gScanPauseMode;
 extern SCAN_CssState_t   gScanCssState;
-extern volatile bool     gScheduleScanListen;
-extern volatile uint16_t gScanPauseDelayIn_10ms;
 extern uint8_t           gScanProgressIndicator;
-extern uint8_t           gScanHitCount;
 extern bool              gScanUseCssResult;
 
-// scan direction, if not equal SCAN_OFF indicates 
-// that we are in a process of scanning channels/frequencies
-extern int8_t            gScanStateDir;
-extern bool              gScanKeepResult;
-
 void SCANNER_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
-void SCANNER_Start(void);
-void SCANNER_Found();
-void SCANNER_Stop(void);
-void SCANNER_ScanChannels(const bool storeBackupSettings, const int8_t scan_direction);
-void SCANNER_ContinueScanning();
+void SCANNER_Start(bool singleFreq);
+void SCANNER_TimeSlice10ms(void);
+void SCANNER_TimeSlice500ms(void);
 
 #endif
 

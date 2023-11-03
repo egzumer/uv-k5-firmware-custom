@@ -153,8 +153,6 @@ extern DCS_CodeType_t gSelectedCodeType;
 extern DCS_CodeType_t gCurrentCodeType;
 extern uint8_t        gSelectedCode;
 
-extern STEP_Setting_t gStepSetting;
-
 extern VfoState_t     VfoState[2];
 
 bool     RADIO_CheckValidChannel(uint16_t ChNum, bool bCheckScanList, uint8_t RadioNum);

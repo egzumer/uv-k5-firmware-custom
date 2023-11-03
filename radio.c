@@ -41,7 +41,6 @@ VFO_Info_t    *gCurrentVfo;
 DCS_CodeType_t gSelectedCodeType;
 DCS_CodeType_t gCurrentCodeType;
 uint8_t        gSelectedCode;
-STEP_Setting_t gStepSetting;
 VfoState_t     VfoState[2];
 
 const char gModulationStr[][4] =

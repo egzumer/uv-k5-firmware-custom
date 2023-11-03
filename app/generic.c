@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include "app/app.h"
+#include "app/chFrScanner.h"
 #include "app/common.h"
 
 #ifdef ENABLE_FMRADIO
@@ -157,7 +158,7 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 		else
 		if (gScanStateDir != SCAN_OFF)
 		{	// frequency/channel scanning . .stop
-			SCANNER_Stop();
+			CHFRSCANNER_Stop();
 		}
 		else
 		if (gCssScanMode != CSS_SCAN_MODE_OFF)

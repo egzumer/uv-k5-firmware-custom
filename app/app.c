@@ -21,6 +21,7 @@
 	#include "app/aircopy.h"
 #endif
 #include "app/app.h"
+#include "app/chFrScanner.h"
 #include "app/dtmf.h"
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
@@ -407,7 +408,7 @@ Skip:
 						break;
 
 					case SCAN_RESUME_SE:
-						SCANNER_Stop();
+						CHFRSCANNER_Stop();
 						break;
 				}
 			}
@@ -483,7 +484,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		BACKLIGHT_TurnOn();
 
 	if (gScanStateDir != SCAN_OFF)
-		SCANNER_Found();
+		CHFRSCANNER_Found();
 
 #ifdef ENABLE_NOAA
 	if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gIsNoaaMode) {
@@ -901,7 +902,7 @@ void APP_Update(void)
 	if (gScreenToDisplay != DISPLAY_SCANNER && gScanStateDir != SCAN_OFF && gScheduleScanListen && !gPttIsPressed)
 #endif
 	{	// scanning
-		SCANNER_ContinueScanning();
+		CHFRSCANNER_ContinueScanning();
 	}
 
 #ifdef ENABLE_VOICE
@@ -1330,153 +1331,33 @@ void APP_TimeSlice10ms(void)
 		}
 	}
 
-	#ifdef ENABLE_FMRADIO
-		if (gFmRadioMode && gFM_RestoreCountdown_10ms > 0)
-		{
-			if (--gFM_RestoreCountdown_10ms == 0)
-			{	// switch back to FM radio mode
-				FM_Start();
-				GUI_SelectNextDisplay(DISPLAY_FM);
-			}
-		}
-	#endif
-
-	if (gScreenToDisplay == DISPLAY_SCANNER)
+#ifdef ENABLE_FMRADIO
+	if (gFmRadioMode && gFM_RestoreCountdown_10ms > 0)
 	{
-		uint32_t               Result;
-		int32_t                Delta;
-		BK4819_CssScanResult_t ScanResult;
-		uint16_t               CtcssFreq;
-
-		if (gScanDelay_10ms > 0)
-		{
-			if (--gScanDelay_10ms > 0)
-			{
-				CheckKeys();
-				return;
-			}
-		}
-
-		if (gScannerEditState != 0)
-		{
-			CheckKeys();
-			return;
-		}
-
-		switch (gScanCssState)
-		{
-			case SCAN_CSS_STATE_OFF:
-
-				// must be RF frequency scanning if we're here ?
-
-				if (!BK4819_GetFrequencyScanResult(&Result))
-					break;
-
-				Delta          = Result - gScanFrequency;
-				gScanFrequency = Result;
-
-				if (Delta < 0)
-					Delta = -Delta;
-				if (Delta < 100)
-					gScanHitCount++;
-				else
-					gScanHitCount = 0;
-
-				BK4819_DisableFrequencyScan();
-
-				if (gScanHitCount < 3)
-				{
-					BK4819_EnableFrequencyScan();
-				}
-				else
-				{
-					BK4819_SetScanFrequency(gScanFrequency);
-					gScanCssResultCode     = 0xFF;
-					gScanCssResultType     = 0xFF;
-					gScanHitCount          = 0;
-					gScanUseCssResult      = false;
-					gScanProgressIndicator = 0;
-					gScanCssState          = SCAN_CSS_STATE_SCANNING;
-
-					GUI_SelectNextDisplay(DISPLAY_SCANNER);
-
-					gUpdateStatus          = true;
-				}
-
-				gScanDelay_10ms = scan_delay_10ms;
-				//gScanDelay_10ms = 1;   // 10ms
-				break;
-
-			case SCAN_CSS_STATE_SCANNING:
-				ScanResult = BK4819_GetCxCSSScanResult(&Result, &CtcssFreq);
-				if (ScanResult == BK4819_CSS_RESULT_NOT_FOUND)
-					break;
-
-				BK4819_Disable();
-
-				if (ScanResult == BK4819_CSS_RESULT_CDCSS)
-				{
-					const uint8_t Code = DCS_GetCdcssCode(Result);
-					if (Code != 0xFF)
-					{
-						gScanCssResultCode = Code;
-						gScanCssResultType = CODE_TYPE_DIGITAL;
-						gScanCssState      = SCAN_CSS_STATE_FOUND;
-						gScanUseCssResult  = true;
-						gUpdateStatus      = true;
-					}
-				}
-				else
-				if (ScanResult == BK4819_CSS_RESULT_CTCSS)
-				{
-					const uint8_t Code = DCS_GetCtcssCode(CtcssFreq);
-					if (Code != 0xFF)
-					{
-						if (Code == gScanCssResultCode && gScanCssResultType == CODE_TYPE_CONTINUOUS_TONE)
-						{
-							if (++gScanHitCount >= 2)
-							{
-								gScanCssState     = SCAN_CSS_STATE_FOUND;
-								gScanUseCssResult = true;
-								gUpdateStatus     = true;
-							}
-						}
-						else
-							gScanHitCount = 0;
-
-						gScanCssResultType = CODE_TYPE_CONTINUOUS_TONE;
-						gScanCssResultCode = Code;
-					}
-				}
-
-				if (gScanCssState < SCAN_CSS_STATE_FOUND)
-				{
-					BK4819_SetScanFrequency(gScanFrequency);
-					gScanDelay_10ms = scan_delay_10ms;
-					break;
-				}
-
-				GUI_SelectNextDisplay(DISPLAY_SCANNER);
-				break;
-
-			default:
-				break;
+		if (--gFM_RestoreCountdown_10ms == 0)
+		{	// switch back to FM radio mode
+			FM_Start();
+			GUI_SelectNextDisplay(DISPLAY_FM);
 		}
 	}
+#endif
 
-	#ifdef ENABLE_AIRCOPY
-		if (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState == AIRCOPY_TRANSFER && gAirCopyIsSendMode == 1)
+	
+	SCANNER_TimeSlice10ms();
+	
+#ifdef ENABLE_AIRCOPY
+	if (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState == AIRCOPY_TRANSFER && gAirCopyIsSendMode == 1)
+	{
+		if (gAircopySendCountdown > 0)
 		{
-			if (gAircopySendCountdown > 0)
+			if (--gAircopySendCountdown == 0)
 			{
-				if (--gAircopySendCountdown == 0)
-				{
-					AIRCOPY_SendMessage();
-					GUI_DisplayScreen();
-				}
+				AIRCOPY_SendMessage();
+				GUI_DisplayScreen();
 			}
 		}
-	#endif
+	}
+#endif
 
 	CheckKeys();
 }
@@ -1723,27 +1604,8 @@ void APP_TimeSlice500ms(void)
 		}
 	}
 
-
 	BATTERY_TimeSlice500ms();
-
-	if (gScreenToDisplay == DISPLAY_SCANNER && gScannerEditState == 0 && gScanCssState < SCAN_CSS_STATE_FOUND)
-	{
-		gScanProgressIndicator++;
-
-		#ifdef ENABLE_CODE_SCAN_TIMEOUT
-			if (gScanProgressIndicator > 32)
-			{
-				if (gScanCssState == SCAN_CSS_STATE_SCANNING && !gScanSingleFrequency)
-					gScanCssState = SCAN_CSS_STATE_FOUND;
-				else
-					gScanCssState = SCAN_CSS_STATE_FAILED;
-
-				gUpdateStatus = true;
-			}
-		#endif
-
-		gUpdateDisplay = true;
-	}
+	SCANNER_TimeSlice500ms();
 
 	if (gCurrentFunction != FUNCTION_TRANSMIT)
 	{
@@ -2243,22 +2105,6 @@ Skip:
 		gMenuCountdown      = menu_timeout_500ms;
 
 		MENU_ShowCurrentSetting();
-	}
-
-	if (gFlagStartScan)
-	{
-		gFlagStartScan = false;
-
-		gMonitor = false;
-
-		#ifdef ENABLE_VOICE
-			AUDIO_SetVoiceID(0, VOICE_ID_SCANNING_BEGIN);
-			AUDIO_PlaySingleVoice(true);
-		#endif
-
-		SCANNER_Start();
-
-		gRequestDisplayScreen = DISPLAY_SCANNER;
 	}
 
 	if (gFlagPrepareTX)

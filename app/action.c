@@ -18,12 +18,12 @@
 
 #include "app/action.h"
 #include "app/app.h"
+#include "app/chFrScanner.h"
 #include "app/common.h"
 #include "app/dtmf.h"
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
-#include "app/scanner.h"
 #include "audio.h"
 #include "bsp/dp32g030/gpio.h"
 #ifdef ENABLE_FMRADIO
@@ -192,7 +192,7 @@ void ACTION_Scan(bool bRestart)
 					gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) % 3;
 
 					// jump to the next channel
-					SCANNER_ScanChannels(false, gScanStateDir);
+					CHFRSCANNER_Start(false, gScanStateDir);
 					gScanPauseDelayIn_10ms = 1;
 					gScheduleScanListen    = false;
 
@@ -201,7 +201,7 @@ void ACTION_Scan(bool bRestart)
 				else
 				{	// stop scanning
 			
-					SCANNER_Stop();
+					CHFRSCANNER_Stop();
 
 					#ifdef ENABLE_VOICE
 						gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
@@ -211,7 +211,7 @@ void ACTION_Scan(bool bRestart)
 			else
 			{	// start scanning
 	
-				SCANNER_ScanChannels(true, SCAN_FWD);
+				CHFRSCANNER_Start(true, SCAN_FWD);
 
 				#ifdef ENABLE_VOICE
 					AUDIO_SetVoiceID(0, VOICE_ID_SCANNING_BEGIN);
@@ -226,31 +226,6 @@ void ACTION_Scan(bool bRestart)
 				gUpdateStatus    = true;
 			}
 		}
-	}
-	else
-//	if (!bRestart)
-	if (!bRestart && IS_MR_CHANNEL(gNextMrChannel))
-	{	// channel mode, keep scanning but toggle between scan lists
-		gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) % 3;
-
-		// jump to the next channel
-		SCANNER_ScanChannels(false, gScanStateDir);
-		gScanPauseDelayIn_10ms = 1;
-		gScheduleScanListen    = false;
-
-		gUpdateStatus = true;
-	}
-	else
-	{	// stop scanning
-		gMonitor = false;
-	
-		SCANNER_Stop();
-	
-		#ifdef ENABLE_VOICE
-			gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
-		#endif
-	
-		gRequestDisplayScreen = DISPLAY_MAIN;
 	}
 }
 

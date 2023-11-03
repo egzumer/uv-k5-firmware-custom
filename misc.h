@@ -232,6 +232,18 @@ extern uint8_t               gBatteryVoltageIndex;
 // if not equal CSS_SCAN_MODE_OFF we are scanning CTCSS/DCS
 // this is a scanning inside RX ctcss/dcs menu
 extern CssScanMode_t         gCssScanMode;
+
+
+enum
+{
+	SCAN_REV = -1,
+	SCAN_OFF =  0,
+	SCAN_FWD = +1
+};
+
+extern volatile bool     gScheduleScanListen;
+extern volatile uint16_t gScanPauseDelayIn_10ms;
+
 extern bool                  gUpdateRSSI;
 extern AlarmState_t          gAlarmState;
 extern uint16_t              gMenuCountdown;

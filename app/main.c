@@ -18,6 +18,7 @@
 
 #include "app/action.h"
 #include "app/app.h"
+#include "app/chFrScanner.h"
 #include "app/common.h"
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
@@ -192,15 +193,15 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 		case KEY_4:
 			gWasFKeyPressed          = false;
-			gFlagStartScan           = true;
-			gScanSingleFrequency     = false;
+
 			gBackup_CROSS_BAND_RX_TX  = gEeprom.CROSS_BAND_RX_TX;
 			gEeprom.CROSS_BAND_RX_TX = CROSS_BAND_OFF;
-			gUpdateStatus            = true;
-
+			gUpdateStatus            = true;		
 			if (beep)
 				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 
+			SCANNER_Start(false);
+			gRequestDisplayScreen = DISPLAY_SCANNER;
 			break;
 
 		case KEY_5:
@@ -506,7 +507,7 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 			else
 			{
 				gScanKeepResult = false;
-				SCANNER_Stop();
+				CHFRSCANNER_Stop();
 
 				#ifdef ENABLE_VOICE
 					gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
@@ -579,7 +580,7 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		if (bFlag)
 		{
 			if (gScanStateDir != SCAN_OFF) {
-				SCANNER_Stop();
+				CHFRSCANNER_Stop();
 				return;
 			}
 
@@ -651,19 +652,19 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 	{	// with the F-key
 		gWasFKeyPressed = false;
 
-		#ifdef ENABLE_NOAA
-			if (IS_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
-			{
-				gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
-				return;
-			}				
-		#endif
+#ifdef ENABLE_NOAA
+		if (IS_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE)) {
+			gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+			return;
+		}				
+#endif
 
 		// scan the CTCSS/DCS code
-		gFlagStartScan           = true;
-		gScanSingleFrequency     = true;
 		gBackup_CROSS_BAND_RX_TX  = gEeprom.CROSS_BAND_RX_TX;
 		gEeprom.CROSS_BAND_RX_TX = CROSS_BAND_OFF;
+		SCANNER_Start(true);
+		gRequestDisplayScreen = DISPLAY_SCANNER;
+
 	}
 	
 	gPttWasReleased = true;
@@ -764,7 +765,7 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 	}
 
 	// jump to the next channel
-	SCANNER_ScanChannels(false, Direction);
+	CHFRSCANNER_Start(false, Direction);
 	gScanPauseDelayIn_10ms = 1;
 	gScheduleScanListen    = false;
 

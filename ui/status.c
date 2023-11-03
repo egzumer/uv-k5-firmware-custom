@@ -16,7 +16,7 @@
 
 #include <string.h>
 
-#include "app/scanner.h"
+#include "app/chFrScanner.h"
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
