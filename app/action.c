@@ -333,6 +333,7 @@ void ACTION_SwitchDemodul(void)
 	gRequestSaveChannel = 1;
 }
 
+#ifdef ENABLE_BLMIN_TMP_OFF
 void ACTION_BlminTmpOff(void)
 {
 	if(++gEeprom.BACKLIGHT_MIN_STAT == BLMIN_STAT_UNKNOWN)
@@ -344,6 +345,7 @@ void ACTION_BlminTmpOff(void)
 		BACKLIGHT_SetBrightness(0);
 	}
 }
+#endif
 
 void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
@@ -463,8 +465,10 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		case ACTION_OPT_SWITCH_DEMODUL:
 			ACTION_SwitchDemodul();
 			break;
+#ifdef ENABLE_BLMIN_TMP_OFF
 		case ACTION_OPT_BLMIN_TMP_OFF:
 			ACTION_BlminTmpOff();
 			break;
+#endif
 	}
 }
