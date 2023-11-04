@@ -243,9 +243,9 @@ const char gSubMenu_D_RSP[4][11] =
 const char* gSubMenu_PTT_ID[5] =
 {
 	"OFF",
-	"KEY\nUP",
-	"KEY\nDOWN",
-	"KEY\nUP+DOWN",
+	"UP CODE",
+	"DOWN CODE",
+	"UP+DOWN\nCODE",
 	"APOLLO\nQUINDAR"
 };
 
@@ -257,11 +257,11 @@ const char gSubMenu_PONMSG[4][8] =
 	"NONE"
 };
 
-const char* gSubMenu_ROGER[3] =
+const char gSubMenu_ROGER[][6] =
 {
 	"OFF",
 	"ROGER",
-	"MDC\n1200"
+	"MDC"
 };
 
 const char gSubMenu_RESET[2][4] =
