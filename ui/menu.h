@@ -165,8 +165,7 @@ extern const t_sidefunction* gSubMenu_SIDEFUNCTIONS;
 extern bool              gIsInSubMenu;
 				         
 extern uint8_t           gMenuCursor;
-int GetCurrentMenuId();
-extern int8_t            gMenuScrollDirection;
+
 extern int32_t           gSubMenuSelection;
 				         
 extern char              edit_original[17];
@@ -174,5 +173,7 @@ extern char              edit[17];
 extern int               edit_index;
 
 void UI_DisplayMenu(void);
+int UI_MENU_GetCurrentMenuId();
+uint8_t UI_MENU_GetMenuIdx(uint8_t id);
 
 #endif

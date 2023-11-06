@@ -44,18 +44,16 @@ FUNCTION_Type_t gCurrentFunction;
 
 void FUNCTION_Init(void)
 {
-	#ifdef ENABLE_NOAA
-		if (!IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
-	#endif
+#ifdef ENABLE_NOAA
+	if (!IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
+#endif
 	{
-		gCurrentCodeType = gSelectedCodeType;
-		if (gCssScanMode == CSS_SCAN_MODE_OFF)
-			gCurrentCodeType = (gRxVfo->Modulation != MODULATION_FM) ? CODE_TYPE_OFF : gRxVfo->pRX->CodeType;
+		gCurrentCodeType = (gRxVfo->Modulation != MODULATION_FM) ? CODE_TYPE_OFF : gRxVfo->pRX->CodeType;
 	}
-	#ifdef ENABLE_NOAA
-		else
-			gCurrentCodeType = CODE_TYPE_CONTINUOUS_TONE;
-	#endif
+#ifdef ENABLE_NOAA
+	else
+		gCurrentCodeType = CODE_TYPE_CONTINUOUS_TONE;
+#endif
 
 	DTMF_clear_RX();
 

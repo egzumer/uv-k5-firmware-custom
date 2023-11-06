@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include "app/app.h"
+#include "app/chFrScanner.h"
 #include "app/common.h"
 
 #ifdef ENABLE_FMRADIO
@@ -142,35 +143,20 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 
 	// PTT pressed
 
-	if (gScanStateDir != SCAN_OFF ||             // frequency/channel scanning
-	    gScreenToDisplay == DISPLAY_SCANNER ||   // CTCSS/CDCSS scanning
-	    gCssScanMode != CSS_SCAN_MODE_OFF)       //   "     "
-	{	// we're scanning .. stop
 
-		if (gScreenToDisplay == DISPLAY_SCANNER)
-		{	// CTCSS/CDCSS scanning .. stop
-			gEeprom.CROSS_BAND_RX_TX = gBackup_CROSS_BAND_RX_TX;
-			gFlagStopScan            = true;
-			gVfoConfigureMode        = VFO_CONFIGURE_RELOAD;
-			gFlagResetVfos           = true;
-		}
-		else
-		if (gScanStateDir != SCAN_OFF)
-		{	// frequency/channel scanning . .stop
-			SCANNER_Stop();
-		}
-		else
-		if (gCssScanMode != CSS_SCAN_MODE_OFF)
-		{	// CTCSS/CDCSS scanning .. stop
-			MENU_StopCssScan();
-
-			#ifdef ENABLE_VOICE
-				gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
-			#endif
-		}
-
+	if (SCANNER_IsScanning())
+	{	// CTCSS/CDCSS scanning .. stop
+		SCANNER_Stop();
 		goto cancel_tx;
 	}
+
+	if (gScanStateDir != SCAN_OFF)
+	{	// frequency/channel scanning . .stop
+		CHFRSCANNER_Stop();
+		goto cancel_tx;
+	}
+
+
 
 #ifdef ENABLE_FMRADIO
 	if (gFM_ScanState != FM_SCAN_OFF)

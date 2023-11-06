@@ -16,11 +16,11 @@
 
 #include <string.h>
 
+#include "app/chFrScanner.h"
 #include "app/dtmf.h"
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
-#include "app/scanner.h"
 #include "driver/keyboard.h"
 #include "misc.h"
 #ifdef ENABLE_AIRCOPY
@@ -86,7 +86,7 @@ void GUI_SelectNextDisplay(GUI_DisplayType_t Display)
 
 		gInputBoxIndex       = 0;
 		gIsInSubMenu         = false;
-		gCssScanMode         = CSS_SCAN_MODE_OFF;
+		gCssBackgroundScan         = false;
 		gScanStateDir        = SCAN_OFF;
 		#ifdef ENABLE_FMRADIO
 			gFM_ScanState    = FM_SCAN_OFF;
