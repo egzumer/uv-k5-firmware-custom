@@ -17,6 +17,7 @@
 #include "app/app.h"
 #include "app/dtmf.h"
 #include "app/generic.h"
+#include "app/menu.h"
 #include "app/scanner.h"
 #include "audio.h"
 #include "driver/bk4819.h"
@@ -29,7 +30,6 @@
 
 DCS_CodeType_t    gScanCssResultType;
 uint8_t           gScanCssResultCode;
-bool              gFlagStopScan;
 bool              gScanSingleFrequency; // scan CTCSS/DCS codes for current frequency
 SCAN_SaveState_t  gScannerSaveState;
 uint8_t           gScanChannel;
@@ -84,16 +84,8 @@ static void SCANNER_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 
 		switch (gScannerSaveState) {
 			case SCAN_SAVE_NO_PROMPT:
+				SCANNER_Stop();
 				gRequestDisplayScreen    = DISPLAY_MAIN;
-				
-				gEeprom.CROSS_BAND_RX_TX = gBackup_CROSS_BAND_RX_TX;
-				gUpdateStatus            = true;
-				gFlagStopScan            = true;
-				gVfoConfigureMode        = VFO_CONFIGURE_RELOAD;
-				gFlagResetVfos           = true;
-#ifdef ENABLE_VOICE
-				gAnotherVoiceID      = VOICE_ID_CANCEL;
-#endif
 				break;
 
 			case SCAN_SAVE_CHAN_SEL:
@@ -374,9 +366,25 @@ void SCANNER_Start(bool singleFreq)
 	gScanProgressIndicator = 0;
 }
 
+void SCANNER_Stop(void)
+{
+	if(SCANNER_IsScanning()) {
+		gEeprom.CROSS_BAND_RX_TX = gBackup_CROSS_BAND_RX_TX;
+		gVfoConfigureMode        = VFO_CONFIGURE_RELOAD;
+		gFlagResetVfos           = true;
+		gUpdateStatus            = true;
+		gCssBackgroundScan 			 = false;
+		gScanUseCssResult = false;
+#ifdef ENABLE_VOICE
+		gAnotherVoiceID          = VOICE_ID_CANCEL;
+#endif
+		BK4819_StopScan();
+	}
+}
+
 void SCANNER_TimeSlice10ms(void)
 {
-	if (gScreenToDisplay != DISPLAY_SCANNER)
+	if (!SCANNER_IsScanning())
 		return;
 
 	if (gScanDelay_10ms > 0) {
@@ -419,7 +427,8 @@ void SCANNER_TimeSlice10ms(void)
 				gScanProgressIndicator = 0;
 				gScanCssState          = SCAN_CSS_STATE_SCANNING;
 
-				GUI_SelectNextDisplay(DISPLAY_SCANNER);
+				if(!gCssBackgroundScan)
+					GUI_SelectNextDisplay(DISPLAY_SCANNER);
 
 				gUpdateStatus          = true;
 			}
@@ -466,23 +475,33 @@ void SCANNER_TimeSlice10ms(void)
 				}
 			}
 
-			if (gScanCssState < SCAN_CSS_STATE_FOUND) {
+			if (gScanCssState < SCAN_CSS_STATE_FOUND) { // scanning or off
 				BK4819_SetScanFrequency(gScanFrequency);
 				gScanDelay_10ms = scan_delay_10ms;
 				break;
 			}
 
-			GUI_SelectNextDisplay(DISPLAY_SCANNER);
+			if(gCssBackgroundScan) {
+				gCssBackgroundScan = false;
+				if(gScanUseCssResult)
+					MENU_CssScanFound();
+			}
+			else
+				GUI_SelectNextDisplay(DISPLAY_SCANNER);
+
+
 			break;
 		}
 		default:
+			gCssBackgroundScan = false;
 			break;
 	}
+
 }
 
 void SCANNER_TimeSlice500ms(void)
 {
-	if (gScreenToDisplay == DISPLAY_SCANNER && gScannerSaveState == SCAN_SAVE_NO_PROMPT && gScanCssState < SCAN_CSS_STATE_FOUND) {
+	if (SCANNER_IsScanning() && gScannerSaveState == SCAN_SAVE_NO_PROMPT && gScanCssState < SCAN_CSS_STATE_FOUND) {
 		gScanProgressIndicator++;
 #ifdef ENABLE_CODE_SCAN_TIMEOUT
 		if (gScanProgressIndicator > 32) {
@@ -496,4 +515,12 @@ void SCANNER_TimeSlice500ms(void)
 #endif
 		gUpdateDisplay = true;
 	}
+	else if(gCssBackgroundScan) {
+		gUpdateDisplay = true;
+	}
+}
+
+bool SCANNER_IsScanning(void)
+{
+	return gCssBackgroundScan || (gScreenToDisplay == DISPLAY_SCANNER);
 }

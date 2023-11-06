@@ -154,7 +154,7 @@ uint8_t           gVFO_RSSI_bar_level[2];
 
 uint8_t           gReducedService;
 uint8_t           gBatteryVoltageIndex;
-CssScanMode_t     gCssScanMode;
+bool     		  gCssBackgroundScan;
 
 volatile bool     gScheduleScanListen = true;
 volatile uint16_t gScanPauseDelayIn_10ms;

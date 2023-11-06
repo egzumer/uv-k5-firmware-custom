@@ -149,9 +149,7 @@ extern VFO_Info_t    *gRxVfo;
 // Equal to gTxVfo unless dual watch changes it on incomming transmition (this can only happen when XB off and DW on)
 extern VFO_Info_t    *gCurrentVfo;
 
-extern DCS_CodeType_t gSelectedCodeType;
 extern DCS_CodeType_t gCurrentCodeType;
-extern uint8_t        gSelectedCode;
 
 extern VfoState_t     VfoState[2];
 

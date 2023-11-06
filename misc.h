@@ -75,14 +75,6 @@ enum ReceptionMode_t {
 };
 typedef enum ReceptionMode_t ReceptionMode_t;
 
-enum CssScanMode_t
-{
-	CSS_SCAN_MODE_OFF = 0,
-	CSS_SCAN_MODE_SCANNING,
-	CSS_SCAN_MODE_FOUND,
-};
-typedef enum CssScanMode_t   CssScanMode_t;
-
 enum BacklightOnRxTx_t {
 	BACKLIGHT_ON_TR_OFF,
 	BACKLIGHT_ON_TR_TX,
@@ -229,9 +221,8 @@ extern uint8_t               gVFO_RSSI_bar_level[2];
 extern uint8_t               gReducedService;
 extern uint8_t               gBatteryVoltageIndex;
 
-// if not equal CSS_SCAN_MODE_OFF we are scanning CTCSS/DCS
-// this is a scanning inside RX ctcss/dcs menu
-extern CssScanMode_t         gCssScanMode;
+// we are searching CTCSS/DCS inside RX ctcss/dcs menu
+extern bool         gCssBackgroundScan;
 
 
 enum

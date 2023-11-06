@@ -38,9 +38,7 @@
 VFO_Info_t    *gTxVfo;
 VFO_Info_t    *gRxVfo;
 VFO_Info_t    *gCurrentVfo;
-DCS_CodeType_t gSelectedCodeType;
 DCS_CodeType_t gCurrentCodeType;
-uint8_t        gSelectedCode;
 VfoState_t     VfoState[2];
 
 const char gModulationStr[][4] =
@@ -681,13 +679,8 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	{
 		if (gRxVfo->Modulation == MODULATION_FM)
 		{	// FM
-			uint8_t CodeType = gSelectedCodeType;
-			uint8_t Code     = gSelectedCode;
-			if (gCssScanMode == CSS_SCAN_MODE_OFF)
-			{
-				CodeType = gRxVfo->pRX->CodeType;
-				Code     = gRxVfo->pRX->Code;
-			}
+			uint8_t CodeType = gRxVfo->pRX->CodeType;
+			uint8_t Code     = gRxVfo->pRX->Code;
 
 			switch (CodeType)
 			{

@@ -367,13 +367,21 @@ const uint8_t gSubMenu_SIDEFUNCTIONS_size = ARRAY_SIZE(SIDEFUNCTIONS);
 
 bool    gIsInSubMenu;
 uint8_t gMenuCursor;
-int GetCurrentMenuId() {
+int UI_MENU_GetCurrentMenuId() {
 	if(gMenuCursor < ARRAY_SIZE(MenuList))
 		return MenuList[gMenuCursor].menu_id;
 	else
 		return MenuList[ARRAY_SIZE(MenuList)-1].menu_id;
 }
-int8_t  gMenuScrollDirection;
+
+uint8_t UI_MENU_GetMenuIdx(uint8_t id)
+{
+	for(uint8_t i = 0; i < ARRAY_SIZE(MenuList); i++)
+		if(MenuList[i].menu_id == id)
+			return i;
+	return 0;
+}
+
 int32_t gSubMenuSelection;
 
 // edit box
@@ -476,7 +484,7 @@ void UI_DisplayMenu(void)
 
 	bool already_printed = false;
 
-	switch (GetCurrentMenuId())
+	switch (UI_MENU_GetCurrentMenuId())
 	{
 		case MENU_SQL:
 			sprintf(String, "%d", gSubMenuSelection);
@@ -884,9 +892,9 @@ void UI_DisplayMenu(void)
 		}
 	}
 
-	if (GetCurrentMenuId() == MENU_SLIST1 || GetCurrentMenuId() == MENU_SLIST2)
+	if (UI_MENU_GetCurrentMenuId() == MENU_SLIST1 || UI_MENU_GetCurrentMenuId() == MENU_SLIST2)
 	{
-		i = (GetCurrentMenuId() == MENU_SLIST1) ? 0 : 1;
+		i = (UI_MENU_GetCurrentMenuId() == MENU_SLIST1) ? 0 : 1;
 
 //		if (gSubMenuSelection == 0xFF)
 		if (gSubMenuSelection < 0)
@@ -931,9 +939,9 @@ void UI_DisplayMenu(void)
 		}
 	}
 
-	if (GetCurrentMenuId() == MENU_MEM_CH   ||
-	    GetCurrentMenuId() == MENU_DEL_CH   ||
-	    GetCurrentMenuId() == MENU_1_CALL)
+	if (UI_MENU_GetCurrentMenuId() == MENU_MEM_CH   ||
+	    UI_MENU_GetCurrentMenuId() == MENU_DEL_CH   ||
+	    UI_MENU_GetCurrentMenuId() == MENU_1_CALL)
 	{	// display the channel name
 		char s[11];
 		BOARD_fetchChannelName(s, gSubMenuSelection);
@@ -942,18 +950,19 @@ void UI_DisplayMenu(void)
 		UI_PrintString(s, menu_item_x1, menu_item_x2, 2, 8);
 	}
 
-	if ((GetCurrentMenuId() == MENU_R_CTCS || GetCurrentMenuId() == MENU_R_DCS) && gCssScanMode != CSS_SCAN_MODE_OFF)
+	if ((UI_MENU_GetCurrentMenuId() == MENU_R_CTCS || UI_MENU_GetCurrentMenuId() == MENU_R_DCS) && gCssBackgroundScan)
 		UI_PrintString("SCAN", menu_item_x1, menu_item_x2, 4, 8);
+		
 
-	if (GetCurrentMenuId() == MENU_UPCODE)
+	if (UI_MENU_GetCurrentMenuId() == MENU_UPCODE)
 		if (strlen(gEeprom.DTMF_UP_CODE) > 8)
 			UI_PrintString(gEeprom.DTMF_UP_CODE + 8, menu_item_x1, menu_item_x2, 4, 8);
 
-	if (GetCurrentMenuId() == MENU_DWCODE)
+	if (UI_MENU_GetCurrentMenuId() == MENU_DWCODE)
 		if (strlen(gEeprom.DTMF_DOWN_CODE) > 8)
 			UI_PrintString(gEeprom.DTMF_DOWN_CODE + 8, menu_item_x1, menu_item_x2, 4, 8);
 
-	if (GetCurrentMenuId() == MENU_D_LIST && gIsDtmfContactValid)
+	if (UI_MENU_GetCurrentMenuId() == MENU_D_LIST && gIsDtmfContactValid)
 	{
 		Contact[11] = 0;
 		memmove(&gDTMF_ID, Contact + 8, 4);
@@ -961,20 +970,20 @@ void UI_DisplayMenu(void)
 		UI_PrintString(String, menu_item_x1, menu_item_x2, 4, 8);
 	}
 
-	if (GetCurrentMenuId() == MENU_R_CTCS ||
-	    GetCurrentMenuId() == MENU_T_CTCS ||
-	    GetCurrentMenuId() == MENU_R_DCS  ||
-	    GetCurrentMenuId() == MENU_T_DCS  ||
-	    GetCurrentMenuId() == MENU_D_LIST)
+	if (UI_MENU_GetCurrentMenuId() == MENU_R_CTCS ||
+	    UI_MENU_GetCurrentMenuId() == MENU_T_CTCS ||
+	    UI_MENU_GetCurrentMenuId() == MENU_R_DCS  ||
+	    UI_MENU_GetCurrentMenuId() == MENU_T_DCS  ||
+	    UI_MENU_GetCurrentMenuId() == MENU_D_LIST)
 	{
 		sprintf(String, "%2d", gSubMenuSelection);
 		UI_PrintStringSmall(String, 105, 0, 0);
 	}
 
-	if ((GetCurrentMenuId() == MENU_RESET    ||
-	     GetCurrentMenuId() == MENU_MEM_CH   ||
-	     GetCurrentMenuId() == MENU_MEM_NAME ||
-	     GetCurrentMenuId() == MENU_DEL_CH) && gAskForConfirmation)
+	if ((UI_MENU_GetCurrentMenuId() == MENU_RESET    ||
+	     UI_MENU_GetCurrentMenuId() == MENU_MEM_CH   ||
+	     UI_MENU_GetCurrentMenuId() == MENU_MEM_NAME ||
+	     UI_MENU_GetCurrentMenuId() == MENU_DEL_CH) && gAskForConfirmation)
 	{	// display confirmation
 		strcpy(String, (gAskForConfirmation == 1) ? "SURE?" : "WAIT!");
 		UI_PrintString(String, menu_item_x1, menu_item_x2, 5, 8);

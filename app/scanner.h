@@ -38,7 +38,6 @@ typedef enum
 
 extern DCS_CodeType_t    gScanCssResultType;
 extern uint8_t           gScanCssResultCode;
-extern bool              gFlagStopScan;
 extern bool              gScanSingleFrequency;
 extern SCAN_SaveState_t  gScannerSaveState;
 extern uint8_t           gScanChannel;
@@ -49,8 +48,10 @@ extern bool              gScanUseCssResult;
 
 void SCANNER_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 void SCANNER_Start(bool singleFreq);
+void SCANNER_Stop(void);
 void SCANNER_TimeSlice10ms(void);
 void SCANNER_TimeSlice500ms(void);
+bool SCANNER_IsScanning(void);
 
 #endif
 

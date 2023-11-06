@@ -120,7 +120,7 @@ void BATTERY_GetReadings(const bool bDisplayBatteryLevel)
 	}
 
 
-	if ((gScreenToDisplay == DISPLAY_MENU) && GetCurrentMenuId() == MENU_VOL)
+	if ((gScreenToDisplay == DISPLAY_MENU) && UI_MENU_GetCurrentMenuId() == MENU_VOL)
 		gUpdateDisplay = true;
 
 	if (gBatteryCurrent < 501)

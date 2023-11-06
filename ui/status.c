@@ -20,6 +20,7 @@
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
+#include "app/scanner.h"
 #include "bitmaps.h"
 #include "driver/keyboard.h"
 #include "driver/st7565.h"
@@ -86,10 +87,10 @@ void UI_DisplayStatus()
 	}
 	else
 		// SCAN indicator
-		if (gScanStateDir != SCAN_OFF || gScreenToDisplay == DISPLAY_SCANNER)
+		if (gScanStateDir != SCAN_OFF || SCANNER_IsScanning())
 		{
 			char * s = "";
-			if (IS_MR_CHANNEL(gNextMrChannel) && gScreenToDisplay != DISPLAY_SCANNER)
+			if (IS_MR_CHANNEL(gNextMrChannel) && !SCANNER_IsScanning())
 			{	// channel mode
 				switch(gEeprom.SCAN_LIST_DEFAULT) {
 					case 0: s = "1"; break;
@@ -119,7 +120,7 @@ void UI_DisplayStatus()
 	#endif
 
 	x++;
-	if(gScreenToDisplay != DISPLAY_SCANNER) {
+	if(!SCANNER_IsScanning()) {
 		uint8_t dw = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF) + (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF) * 2;
 		if(dw == 1 || dw == 3) { // DWR - dual watch + respond
 			if(gDualWatchActive) 

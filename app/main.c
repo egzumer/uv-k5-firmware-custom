@@ -46,7 +46,7 @@
 void toggle_chan_scanlist(void)
 {	// toggle the selected channels scanlist setting
 
-	if (gScreenToDisplay == DISPLAY_SCANNER || !IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
+	if ( SCANNER_IsScanning() || !IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
 		return;
 
 	if (gTxVfo->SCANLIST1_PARTICIPATION)
@@ -106,7 +106,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				gBeepToPlay     = BEEP_1KHZ_60MS_OPTIONAL;
 
 #ifdef ENABLE_COPY_CHAN_TO_VFO
-				if (gEeprom.VFO_OPEN && gCssScanMode == CSS_SCAN_MODE_OFF)
+				if (gEeprom.VFO_OPEN && !gCssBackgroundScan)
 				{
 
 					if (gScanStateDir != SCAN_OFF)
@@ -664,7 +664,6 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 		gEeprom.CROSS_BAND_RX_TX = CROSS_BAND_OFF;
 		SCANNER_Start(true);
 		gRequestDisplayScreen = DISPLAY_SCANNER;
-
 	}
 	
 	gPttWasReleased = true;

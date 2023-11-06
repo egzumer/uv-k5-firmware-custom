@@ -24,6 +24,7 @@
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
+#include "app/scanner.h"
 #include "audio.h"
 #include "bsp/dp32g030/gpio.h"
 #ifdef ENABLE_FMRADIO
@@ -164,7 +165,7 @@ void ACTION_Scan(bool bRestart)
 	}
 #endif
 
-	if (gScreenToDisplay != DISPLAY_SCANNER)
+	if (!SCANNER_IsScanning())
 	{	// not scanning
 
 		gMonitor = false;

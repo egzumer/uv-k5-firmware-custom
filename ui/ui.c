@@ -86,7 +86,7 @@ void GUI_SelectNextDisplay(GUI_DisplayType_t Display)
 
 		gInputBoxIndex       = 0;
 		gIsInSubMenu         = false;
-		gCssScanMode         = CSS_SCAN_MODE_OFF;
+		gCssBackgroundScan         = false;
 		gScanStateDir        = SCAN_OFF;
 		#ifdef ENABLE_FMRADIO
 			gFM_ScanState    = FM_SCAN_OFF;
