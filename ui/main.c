@@ -52,6 +52,31 @@ static void DrawSmallAntennaAndBars(uint8_t *p, unsigned int level)
 		memset(p + 2 + i*3, bar, 2);
 	}
 }
+#if defined ENABLE_AUDIO_BAR || defined ENABLE_RSSI_BAR
+
+static void DrawLevelBar(uint8_t xpos, uint8_t line, uint8_t level)
+{
+	const char hollowBar[] = {
+		0b01111111,
+		0b01000001,
+		0b01000001,
+		0b01111111
+	};
+
+	uint8_t *p_line = gFrameBuffer[line];
+	level = MIN(level, 13);
+
+	for(uint8_t i = 0; i < level; i++) {
+		if(i < 9) {
+			for(uint8_t j = 0; j < 4; j++)
+				p_line[xpos + i * 5 + j] = (~(0x7F >> (i+1))) & 0x7F;
+		}
+		else {
+			memcpy(p_line + (xpos + i * 5), &hollowBar, ARRAY_SIZE(hollowBar));
+		}
+	}
+}
+#endif
 
 #ifdef ENABLE_AUDIO_BAR
 
@@ -80,9 +105,6 @@ void UI_DisplayAudioBar(void)
 			return;
 
 		const unsigned int line      = 3;
-		const unsigned int bar_x     = 2;
-		const unsigned int bar_width = LCD_WIDTH - 2 - bar_x;
-		unsigned int       i;
 
 		if (gCurrentFunction != FUNCTION_TRANSMIT ||
 			gScreenToDisplay != DISPLAY_MAIN      ||
@@ -98,22 +120,21 @@ void UI_DisplayAudioBar(void)
 		const unsigned int voice_amp  = BK4819_GetVoiceAmplitudeOut();  // 15:0
 
 		// make non-linear to make more sensitive at low values
-		const unsigned int level      = voice_amp * 8;
-		const unsigned int sqrt_level = sqrt16((level < 65535) ? level : 65535);
-		const unsigned int len        = (sqrt_level <= bar_width) ? sqrt_level : bar_width;
+		const unsigned int level      = MIN(voice_amp * 8, 65535u);
+		const unsigned int sqrt_level = MIN(sqrt16(level), 124u);
+		uint8_t bars = 13 * sqrt_level / 124;
 
 		uint8_t *p_line = gFrameBuffer[line];
-
 		memset(p_line, 0, LCD_WIDTH);
 
-		for (i = 0; i < bar_width; i++)
-			p_line[bar_x + i] = (i > len) ? ((i & 1) == 0) ? 0x41 : 0x00 : ((i & 1) == 0) ? 0x7f : 0x3e;
+		DrawLevelBar(62, line, bars);
 
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
 			ST7565_BlitFullScreen();
 	}
 }
 #endif
+
 
 static void DisplayRSSIBar(const int16_t rssi, const bool now)
 {
@@ -135,13 +156,6 @@ static void DisplayRSSIBar(const int16_t rssi, const bool now)
 			0b01111110,
 			0b00011000,
 			0b00011000,
-		};
-
-		const char hollowBar[] = {
-			0b01111111, 
-			0b01000001, 
-			0b01000001, 
-			0b01111111
 		};
 
 		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
@@ -172,13 +186,7 @@ static void DisplayRSSIBar(const int16_t rssi, const bool now)
 
 		UI_PrintStringSmall(str, 2, 0, line);
 
-		for(uint8_t i = 0; i < s_level; i++) { // S bars
-			for(uint8_t j = 0; j < 4; j++)
-				p_line[bar_x + i * 5 + j] = (~(0x7F >> (i+1))) & 0x7F;
-		}
-		for(uint8_t i = 0; i < overS9Bars; i++) { // +10 hollow bars
-			memcpy(p_line + (bar_x + (i + 9) * 5), &hollowBar, ARRAY_SIZE(hollowBar));
-		}
+		DrawLevelBar(bar_x, line, s_level + overS9Bars);
 	}
 #else
 
