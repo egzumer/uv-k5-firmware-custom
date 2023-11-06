@@ -361,6 +361,9 @@ const t_sidefunction SIDEFUNCTIONS[] =
 	{"SWITCH\nVFO",		ACTION_OPT_A_B},
 	{"VFO/MR",			ACTION_OPT_VFO_MR},
 	{"SWITCH\nDEMODUL",	ACTION_OPT_SWITCH_DEMODUL},
+#ifdef ENABLE_BLMIN_TMP_OFF
+	{"BLMIN\nTMP OFF",  ACTION_OPT_BLMIN_TMP_OFF}, 		//BackLight Minimum Temporay OFF
+#endif
 };
 const t_sidefunction* gSubMenu_SIDEFUNCTIONS = SIDEFUNCTIONS;
 const uint8_t gSubMenu_SIDEFUNCTIONS_size = ARRAY_SIZE(SIDEFUNCTIONS);

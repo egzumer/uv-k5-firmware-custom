@@ -88,6 +88,7 @@ ENABLE_AUDIO_BAR              := 0       experimental, display an audo bar level
 ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO. Long press Menu key ('M')
 #ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible
 #ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter
+ENABLE_BLMIN_TMP_OFF		  := 0       additional function for configurable buttons that toggles `BLMin` on and off wihout saving it to the EEPROM
 ```
 
 # New/modified function keys

@@ -32,6 +32,7 @@
 #endif
 #include "driver/bk4819.h"
 #include "driver/gpio.h"
+#include "driver/backlight.h"
 #include "functions.h"
 #include "misc.h"
 #include "settings.h"
@@ -308,6 +309,20 @@ void ACTION_SwitchDemodul(void)
 	gRequestSaveChannel = 1;
 }
 
+#ifdef ENABLE_BLMIN_TMP_OFF
+void ACTION_BlminTmpOff(void)
+{
+	if(++gEeprom.BACKLIGHT_MIN_STAT == BLMIN_STAT_UNKNOWN)
+	{
+		gEeprom.BACKLIGHT_MIN_STAT = BLMIN_STAT_ON;
+		BACKLIGHT_SetBrightness(gEeprom.BACKLIGHT_MIN);
+	} else
+	{
+		BACKLIGHT_SetBrightness(0);
+	}
+}
+#endif
+
 void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
 	if (gScreenToDisplay == DISPLAY_MAIN && gDTMF_InputMode) // entering DTMF code
@@ -425,6 +440,11 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			break;
 		case ACTION_OPT_SWITCH_DEMODUL:
 			ACTION_SwitchDemodul();
-			break;	
+			break;
+#ifdef ENABLE_BLMIN_TMP_OFF
+		case ACTION_OPT_BLMIN_TMP_OFF:
+			ACTION_BlminTmpOff();
+			break;
+#endif
 	}
 }

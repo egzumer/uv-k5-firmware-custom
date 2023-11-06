@@ -34,6 +34,10 @@ void ACTION_Scan(bool bRestart);
 #endif
 void ACTION_SwitchDemodul(void);
 
+#ifdef ENABLE_BLMIN_TMP_OFF
+void ACTION_BlminTmpOff(void);
+#endif
+
 void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
 #endif

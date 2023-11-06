@@ -23,6 +23,14 @@
 extern uint16_t gBacklightCountdown;
 extern uint8_t gBacklightBrightness;
 
+#ifdef ENABLE_BLMIN_TMP_OFF
+typedef enum {
+    BLMIN_STAT_ON,
+    BLMIN_STAT_OFF,
+    BLMIN_STAT_UNKNOWN
+} BLMIN_STAT_t;
+#endif
+
 void BACKLIGHT_InitHardware();
 void BACKLIGHT_TurnOn();
 void BACKLIGHT_TurnOff();
