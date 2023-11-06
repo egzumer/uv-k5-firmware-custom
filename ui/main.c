@@ -76,6 +76,9 @@ void UI_DisplayAudioBar(void)
 {
 	if (gSetting_mic_bar)
 	{
+		if(gLowBattery && !gLowBatteryConfirmed)
+			return;
+
 		const unsigned int line      = 3;
 		const unsigned int bar_x     = 2;
 		const unsigned int bar_width = LCD_WIDTH - 2 - bar_x;
