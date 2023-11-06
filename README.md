@@ -1,7 +1,32 @@
 # Main features:
- - many of OneOfEleven mods, including AM fix
- - fagci spectrum analyzer (**F+5** to turn on)
- - some other mods introduced by me
+* many of OneOfEleven mods:
+   * AM fix, huge improovement in reception quality
+   * longpress buttons functions replicating F+ action
+   * fast scanning
+   * channel name editing in the menu
+   * channel name + frequency display option
+   * shortcut for scannlist assignment (longpress `5 NOAA`)
+   * scannlist toggle (longpress `* SCANN` while scanning)
+   * configurable button function selectable from menu
+   * battery percantage/voltage on status bar, selectable from menu
+   * longer backlight times
+   * mic bar
+   * RSSI s-meter
+   * more frequency steps
+   * squelch more sensitive
+* fagci spectrum analyzer (**F+5** to turn on)
+* some other mods introduced by me:
+   * SSB demodulation (adopted from fagci)
+   * backlight dimming
+   * battery voltage callibration from menu
+   * better battery percantage calculation, selectable for 1600mAh or 2200mAh
+   * more configurable button functions
+   * longpress MENU as another cofigurable button
+   * better DCS/CTCSS scanning in the menu (`* SCAN` while in RX DCS/CTCSS menu item)
+   * Piotr022 s-meter style
+   * restore initial freq/channel when scanning stopped with EXIT, remember last found transmission with MENU button
+   * reordered and renamed menu entries
+   * LCD interference crash fix
 
  # Manual
 
@@ -84,35 +109,14 @@ ENABLE_AM_FIX_SHOW_DATA       := 1       show debug data for the AM fix (still t
 ENABLE_SQUELCH_MORE_SENSITIVE := 0       make squelch levels a little bit more sensitive - I plan to let user adjust the values themselves
 ENABLE_FASTER_CHANNEL_SCAN    := 0       increases the channel scan speed, but the squelch is also made more twitchy
 ENABLE_RSSI_BAR               := 1       enable a dBm/Sn RSSI bar graph level inplace of the little antenna symbols
-ENABLE_AUDIO_BAR              := 0       experimental, display an audo bar level when TX'ing
-ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO. Long press Menu key ('M')
-#ENABLE_SINGLE_VFO_CHAN       := 1       not yet implemented - single VFO on display when possible
-#ENABLE_BAND_SCOPE            := 1       not yet implemented - spectrum/pan-adapter
+ENABLE_AUDIO_BAR              := 0       experimental, display an audio bar level when TX'ing
+ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO. Long press `1 BAND` when in channel mode
+ENABLE_SPECTRUM               := 1       fagci spectrum analizer, activated with `F` + `5 NOAA`
+ENABLE_REDUCE_LOW_MID_TX_POWER:= 0       makes medium and low power settings even lower
+ENABLE_BYP_RAW_DEMODULATORS   := 0       additional BYP (bypass?) and RAW demodulation options, prooved not to be very usefull, but it is there if you want to experiment
 ENABLE_BLMIN_TMP_OFF		  := 0       additional function for configurable buttons that toggles `BLMin` on and off wihout saving it to the EEPROM
 ```
 
-# New/modified function keys
-
-* Long-press 'M' .. Copy selected channel into same VFO, then switch VFO to frequency mode
-*
-* Long-press '7' .. Toggle selected channel scanlist setting .. if VOX  is disabled in Makefile
-* or
-* Long-press '5' .. Toggle selected channel scanlist setting .. if NOAA is disabled in Makefile
-*
-* Long-press '*' .. Start scanning, then toggles the scanning between scanlists 1, 2 or ALL channels
-
-# Some changes made from the Quansheng firmware
-
-* Various Quansheng firmware bugs fixed
-* Added new bugs
-* Mic menu includes max gain possible
-* AM RX everywhere (left the TX as is)
-* An attempt to improve the AM RX audio (demodulator getting saturated/overloaded in Quansheng firmware)
-* keypad-5/NOAA button now toggles scanlist-1 on/off for current channel when held down - IF NOAA not used
-* Better backlight times (inc always on)
-* Live DTMF decoder option, though the decoder needs some coeff tuning changes to decode other radios it seems
-* Various menu re-wordings (trying to reduce 'WTH does that mean ?')
-* ..
 
 # Compiler
 
