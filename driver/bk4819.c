@@ -1035,6 +1035,7 @@ void BK4819_PlaySingleTone(const unsigned int tone_Hz, const unsigned int delay,
 	
 	BK4819_WriteRegister(BK4819_REG_70, 0x0000);
 	BK4819_WriteRegister(BK4819_REG_30, 0xC1FE);
+	BK4819_ExitTxMute();
 }
 
 void BK4819_EnterTxMute(void)
