@@ -118,6 +118,7 @@ void ACTION_Monitor(void)
 
 void ACTION_Scan(bool bRestart)
 {
+	(void)bRestart;
 #ifdef ENABLE_FMRADIO
 	if (gFmRadioMode)
 	{
