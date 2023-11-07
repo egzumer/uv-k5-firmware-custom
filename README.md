@@ -6,7 +6,7 @@
    * channel name editing in the menu
    * channel name + frequency display option
    * shortcut for scannlist assignment (longpress `5 NOAA`)
-   * scannlist toggle (longpress `* SCANN` while scanning)
+   * scannlist toggle (longpress `* Scan` while scanning)
    * configurable button function selectable from menu
    * battery percentage/voltage on status bar, selectable from menu
    * longer backlight times
@@ -19,7 +19,7 @@
    * SSB demodulation (adopted from fagci)
    * backlight dimming
    * battery voltage callibration from menu
-   * better battery percantage calculation, selectable for 1600mAh or 2200mAh
+   * better battery percentage calculation, selectable for 1600mAh or 2200mAh
    * more configurable button functions
    * longpress MENU as another cofigurable button
    * better DCS/CTCSS scanning in the menu (`* SCAN` while in RX DCS/CTCSS menu item)
@@ -114,7 +114,7 @@ ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO
 ENABLE_SPECTRUM               := 1       fagci spectrum analizer, activated with `F` + `5 NOAA`
 ENABLE_REDUCE_LOW_MID_TX_POWER:= 0       makes medium and low power settings even lower
 ENABLE_BYP_RAW_DEMODULATORS   := 0       additional BYP (bypass?) and RAW demodulation options, prooved not to be very usefull, but it is there if you want to experiment
-ENABLE_BLMIN_TMP_OFF		  := 0       additional function for configurable buttons that toggles `BLMin` on and off wihout saving it to the EEPROM
+ENABLE_BLMIN_TMP_OFF          := 0       additional function for configurable buttons that toggles `BLMin` on and off wihout saving it to the EEPROM
 ```
 
 
