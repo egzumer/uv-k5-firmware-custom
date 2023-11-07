@@ -1,6 +1,6 @@
 # Main features:
 * many of OneOfEleven mods:
-   * AM fix, huge improovement in reception quality
+   * AM fix, huge improvement in reception quality
    * longpress buttons functions replicating F+ action
    * fast scanning
    * channel name editing in the menu
