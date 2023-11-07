@@ -1,0 +1,40 @@
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: arm-none-eabi-gcc
+      uses: carlosperate/arm-none-eabi-gcc-action@v1
+      with:
+        release: '10.3-2021.10'
+
+    - name: Install Python dependencies
+      run: python3 -m pip install --upgrade pip crcmod
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Submodules
+      run: git submodule update --init --recursive --depth 1
+
+    - name: Make
+      run:  make
+
+    - name: size
+      run:  arm-none-eabi-size firmware
+
+    - name: 'Upload Artifact'
+      uses: actions/upload-artifact@v3
+      with:
+        name: firmware
+        path: firmware*.bin
+
+    - name: 'Create Release'
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "firmware*.bin"
