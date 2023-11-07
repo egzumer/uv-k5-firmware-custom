@@ -8,7 +8,7 @@
    * shortcut for scannlist assignment (longpress `5 NOAA`)
    * scannlist toggle (longpress `* SCANN` while scanning)
    * configurable button function selectable from menu
-   * battery percantage/voltage on status bar, selectable from menu
+   * battery percentage/voltage on status bar, selectable from menu
    * longer backlight times
    * mic bar
    * RSSI s-meter
