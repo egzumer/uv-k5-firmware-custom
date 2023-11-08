@@ -1,7 +1,7 @@
 on:
   push:
     tags:
-      - '*'
+      - 'v*'
 
 jobs:
   build:
@@ -34,7 +34,12 @@ jobs:
         name: firmware
         path: firmware*.bin
 
-    - name: 'Create Release'
-      uses: ncipollo/release-action@v1
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
       with:
-        artifacts: "firmware*.bin"
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: firmware.packed.bin
+        asset_name: egzumer_$tag.packed.bin
+        tag: ${{ github.ref }}
+        overwrite: true
+        release_name: release ${{ github.ref_name }}
