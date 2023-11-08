@@ -142,33 +142,33 @@ const t_menu_item MenuList[] =
 
 const uint8_t FIRST_HIDDEN_MENU_ITEM = MENU_F_LOCK;
 
-const char gSubMenu_TXP[3][5] =
+const char gSubMenu_TXP[][5] =
 {
 	"LOW",
 	"MID",
 	"HIGH"
 };
 
-const char gSubMenu_SFT_D[3][4] =
+const char gSubMenu_SFT_D[][4] =
 {
 	"OFF",
 	"+",
 	"-"
 };
 
-const char gSubMenu_W_N[2][7] =
+const char gSubMenu_W_N[][7] =
 {
 	"WIDE",
 	"NARROW"
 };
 
-const char gSubMenu_OFF_ON[2][4] =
+const char gSubMenu_OFF_ON[][4] =
 {
 	"OFF",
 	"ON"
 };
 
-const char gSubMenu_SAVE[5][4] =
+const char gSubMenu_SAVE[][4] =
 {
 	"OFF",
 	"1:1",
@@ -177,7 +177,7 @@ const char gSubMenu_SAVE[5][4] =
 	"1:4"
 };
 
-const char gSubMenu_TOT[11][7] =
+const char gSubMenu_TOT[][7] =
 {
 	"30 sec",
 	"1 min",
@@ -192,7 +192,7 @@ const char gSubMenu_TOT[11][7] =
 	"15 min"
 };
 
-const char* gSubMenu_RXMode[4] =
+const char* gSubMenu_RXMode[] =
 {
 	"MAIN\nONLY", 		// TX and RX on main only
 	"DUAL RX\nRESPOND", // Watch both and respond
@@ -201,7 +201,7 @@ const char* gSubMenu_RXMode[4] =
 };
 
 #ifdef ENABLE_VOICE
-	const char gSubMenu_VOICE[3][4] =
+	const char gSubMenu_VOICE[][4] =
 	{
 		"OFF",
 		"CHI",
@@ -209,14 +209,14 @@ const char* gSubMenu_RXMode[4] =
 	};
 #endif
 
-const char gSubMenu_SC_REV[3][8] =
+const char gSubMenu_SC_REV[][8] =
 {
 	"TIMEOUT",
 	"CARRIER",
 	"STOP"
 };
 
-const char* gSubMenu_MDF[4] =
+const char* gSubMenu_MDF[] =
 {
 	"FREQ",
 	"CHANNEL\nNUMBER",
@@ -225,14 +225,14 @@ const char* gSubMenu_MDF[4] =
 };
 
 #ifdef ENABLE_ALARM
-	const char gSubMenu_AL_MOD[2][5] =
+	const char gSubMenu_AL_MOD[][5] =
 	{
 		"SITE",
 		"TONE"
 	};
 #endif
 
-const char gSubMenu_D_RSP[4][11] =
+const char gSubMenu_D_RSP[][11] =
 {
 	"DO\nNOTHING",
 	"RING",
@@ -240,7 +240,7 @@ const char gSubMenu_D_RSP[4][11] =
 	"BOTH"
 };
 
-const char* gSubMenu_PTT_ID[5] =
+const char* gSubMenu_PTT_ID[] =
 {
 	"OFF",
 	"UP CODE",
@@ -249,7 +249,7 @@ const char* gSubMenu_PTT_ID[5] =
 	"APOLLO\nQUINDAR"
 };
 
-const char gSubMenu_PONMSG[4][8] =
+const char gSubMenu_PONMSG[][8] =
 {
 	"FULL",
 	"MESSAGE",
@@ -264,13 +264,13 @@ const char gSubMenu_ROGER[][6] =
 	"MDC"
 };
 
-const char gSubMenu_RESET[2][4] =
+const char gSubMenu_RESET[][4] =
 {
 	"VFO",
 	"ALL"
 };
 
-const char gSubMenu_F_LOCK[6][4] =
+const char gSubMenu_F_LOCK[][4] =
 {
 	"OFF",
 	"FCC",
@@ -280,7 +280,7 @@ const char gSubMenu_F_LOCK[6][4] =
 	"438"
 };
 
-const char gSubMenu_BACKLIGHT[8][7] =
+const char gSubMenu_BACKLIGHT[][7] =
 {
 	"OFF",
 	"5 sec",
@@ -292,7 +292,7 @@ const char gSubMenu_BACKLIGHT[8][7] =
 	"ON"
 };
 
-const char gSubMenu_RX_TX[4][6] =
+const char gSubMenu_RX_TX[][6] =
 {
 	"OFF",
 	"TX",
@@ -301,7 +301,7 @@ const char gSubMenu_RX_TX[4][6] =
 };
 
 #ifdef ENABLE_AM_FIX_TEST1
-	const char gSubMenu_AM_fix_test1[4][8] =
+	const char gSubMenu_AM_fix_test1[][8] =
 	{
 		"LNA-S 0",
 		"LNA-S 1",
@@ -310,20 +310,20 @@ const char gSubMenu_RX_TX[4][6] =
 	};
 #endif
 
-const char gSubMenu_BAT_TXT[3][8] =
+const char gSubMenu_BAT_TXT[][8] =
 {
 	"NONE",
 	"VOLTAGE",
 	"PERCENT"
 };
 
-const char gSubMenu_BATTYP[2][9] =
+const char gSubMenu_BATTYP[][9] =
 {
 	"1600mAh",
 	"2200mAh"
 };
 
-const char gSubMenu_SCRAMBLER[11][7] =
+const char gSubMenu_SCRAMBLER[][7] =
 {
 	"OFF",
 	"2600Hz",
