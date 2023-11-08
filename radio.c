@@ -1011,7 +1011,7 @@ void RADIO_PrepareTX(void)
 			}
 			else
 		#endif
-		if (!gSetting_TX_EN || gSerialConfigCountDown_500ms > 0)
+		if (gSerialConfigCountDown_500ms > 0)
 		{	// TX is disabled or config upload/download in progress
 			State = VFO_STATE_TX_DISABLE;
 		}

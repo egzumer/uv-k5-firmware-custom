@@ -129,7 +129,6 @@ const t_menu_item MenuList[] =
 	{"Tx 500", VOICE_ID_INVALID,                       MENU_500TX         }, // was "500TX"
 	{"350 En", VOICE_ID_INVALID,                       MENU_350EN         }, // was "350EN"
 	{"ScraEn", VOICE_ID_INVALID,                       MENU_SCREN         }, // was "SCREN"
-	{"TxEnab", VOICE_ID_INVALID,                       MENU_TX_EN         }, // enable TX
 #ifdef ENABLE_F_CAL_MENU
 	{"FrCali", VOICE_ID_INVALID,                       MENU_F_CALI        }, // reference xtal calibration
 #endif
@@ -270,14 +269,16 @@ const char gSubMenu_RESET[][4] =
 	"ALL"
 };
 
-const char gSubMenu_F_LOCK[][4] =
+const char * gSubMenu_F_LOCK[] =
 {
-	"OFF",
-	"FCC",
-	"CE",
-	"GB",
-	"430",
-	"438"
+	"DEFAULT+\n137-174\n400-470",
+	"FCC HAM\n144-148\n420-450",
+	"CE HAM\n144-146\n430-440",
+	"GB HAM\n144-148\n430-440",
+	"137-174\n400-430",
+	"137-174\n400-438",
+	"DISABLE\nALL",
+	"UNLOCK\nALL",
 };
 
 const char gSubMenu_BACKLIGHT[][7] =
@@ -634,7 +635,6 @@ void UI_DisplayMenu(void)
 		case MENU_500TX:
 		case MENU_350EN:
 		case MENU_SCREN:
-		case MENU_TX_EN:
 			strcpy(String, gSubMenu_OFF_ON[gSubMenuSelection]);
 			break;
 

@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 #include "audio.h"     // VOICE_ID_t
+#include "settings.h"
 
 typedef struct {
 	const char  name[7];    // menu display area only has room for 6 characters
@@ -110,8 +111,6 @@ enum
 	MENU_500TX,
 	MENU_350EN,
 	MENU_SCREN,
-
-	MENU_TX_EN,   // enable TX
 #ifdef ENABLE_F_CAL_MENU
 	MENU_F_CALI,  // reference xtal calibration
 #endif
@@ -148,7 +147,7 @@ extern const char*       gSubMenu_PTT_ID[5];
 extern const char        gSubMenu_PONMSG[4][8];
 extern const char        gSubMenu_ROGER[3][6];
 extern const char        gSubMenu_RESET[2][4];
-extern const char        gSubMenu_F_LOCK[6][4];
+extern const char*       gSubMenu_F_LOCK[F_LOCK_LEN];
 extern const char        gSubMenu_BACKLIGHT[8][7];
 extern const char        gSubMenu_RX_TX[4][6];
 #ifdef ENABLE_AM_FIX_TEST1

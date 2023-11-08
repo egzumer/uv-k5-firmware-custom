@@ -252,7 +252,6 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 		case MENU_500TX:
 		case MENU_350EN:
 		case MENU_SCREN:
-		case MENU_TX_EN:
 			*pMin = 0;
 			*pMax = ARRAY_SIZE(gSubMenu_OFF_ON) - 1;
 			break;
@@ -759,10 +758,19 @@ void MENU_AcceptSetting(void)
 			gSetting_350TX = gSubMenuSelection;
 			break;
 
-		case MENU_F_LOCK:
+		case MENU_F_LOCK: {
+			static uint8_t cnt;
+			if(gSubMenuSelection == F_LOCK_NONE) { // select 10 times to enable
+				cnt++;
+				if(cnt < 10)
+					return;
+			}
+			else
+				cnt = 0;
+
 			gSetting_F_LOCK = gSubMenuSelection;
 			break;
-
+		}
 		case MENU_200TX:
 			gSetting_200TX = gSubMenuSelection;
 			break;
@@ -780,10 +788,6 @@ void MENU_AcceptSetting(void)
 		case MENU_SCREN:
 			gSetting_ScrambleEnable = gSubMenuSelection;
 			gFlagReconfigureVfos    = true;
-			break;
-
-		case MENU_TX_EN:
-			gSetting_TX_EN = gSubMenuSelection;
 			break;
 
 		#ifdef ENABLE_F_CAL_MENU
@@ -1151,10 +1155,6 @@ void MENU_ShowCurrentSetting(void)
 
 		case MENU_SCREN:
 			gSubMenuSelection = gSetting_ScrambleEnable;
-			break;
-
-		case MENU_TX_EN:
-			gSubMenuSelection = gSetting_TX_EN;
 			break;
 
 		#ifdef ENABLE_F_CAL_MENU
