@@ -347,9 +347,9 @@ static void ResetBlacklist() {
 }
 
 static void RelaunchScan() {
+  ToggleRX(false);
   InitScan();
   ResetPeak();
-  ToggleRX(false);
 #ifdef SPECTRUM_AUTOMATIC_SQUELCH
   settings.rssiTriggerLevel = RSSI_MAX_VALUE;
 #endif
@@ -708,6 +708,26 @@ for(uint8_t i = 5; i > 0; i--) {
   gStatusLine[116] = 0b00011000;
 }
 
+static void ShowChannelName(uint32_t f) {
+
+  unsigned int i;
+  memset(String, 0, sizeof(String));
+
+  if ( isListening ) { 
+    for (i = 0; IS_MR_CHANNEL(i); i++) {
+        if (RADIO_CheckValidChannel(i, false, 0)) {
+          if (BOARD_fetchChannelFrequency(i) == f) {
+            BOARD_fetchChannelName(String, i);
+            break;
+          }
+        }
+    }
+  }
+	if (String[0] == 0)
+	  strcpy(String, "-----");
+  UI_PrintStringSmallBold(String, 34, 0, 1);
+}
+
 static void DrawF(uint32_t f) {
   sprintf(String, "%u.%05u", f / 100000, f % 100000);
   UI_PrintStringSmall(String, 8, 127, 0);
@@ -716,6 +736,9 @@ static void DrawF(uint32_t f) {
   GUI_DisplaySmallest(String, 116, 1, false, true);
   sprintf(String, "%s", bwOptions[settings.listenBw]);
   GUI_DisplaySmallest(String, 108, 7, false, true);
+
+  ShowChannelName(f);
+  
 }
 
 static void DrawNums() {
