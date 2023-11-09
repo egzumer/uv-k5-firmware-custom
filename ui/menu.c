@@ -802,7 +802,10 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_F_LOCK:
-			strcpy(String, gSubMenu_F_LOCK[gSubMenuSelection]);
+			if(!gIsInSubMenu && gUnlockAllTxConfCnt>0 && gUnlockAllTxConfCnt<10)
+				strcpy(String, "READ\nMANUAL");
+			else
+				strcpy(String, gSubMenu_F_LOCK[gSubMenuSelection]);
 			break;
 
 		#ifdef ENABLE_F_CAL_MENU
