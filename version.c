@@ -1,11 +1,14 @@
 
 #define ONE_OF_ELEVEN_VER
 
+/*
 #ifdef GIT_HASH
 	#define VER     GIT_HASH
 #else
 	#define VER     "231004"
-#endif
+#endif*/
+
+#define VER     "JP2023"
 
 #ifndef ONE_OF_ELEVEN_VER
 	const char Version[]      = "OEFW-"VER;

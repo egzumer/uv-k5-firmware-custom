@@ -251,7 +251,7 @@ static void ResetPeak() {
   peak.rssi = 0;
 }
 
-bool IsCenterMode() { return settings.scanStepIndex < S_STEP_2_5kHz; }
+bool IsCenterMode() { return settings.scanStepIndex < S_STEP_1_0kHz; }
 uint8_t GetStepsCount() { return 128 >> settings.stepsCount; }
 uint16_t GetScanStep() { return scanStepValues[settings.scanStepIndex]; }
 uint32_t GetBW() { return GetStepsCount() * GetScanStep(); }
@@ -273,8 +273,14 @@ static void DeInitSpectrum() {
   isInitialized = false;
 }
 
-uint8_t GetBWRegValueForScan() {
+/*uint8_t GetBWRegValueForScan() {
   return scanStepBWRegValues[settings.scanStepIndex];
+}*/
+
+uint16_t GetBWRegValueForScan() { return 0b0000000110111100; }
+
+uint16_t GetBWRegValueForListen() {
+  return listenBWRegValues[settings.listenBw];
 }
 
 uint16_t GetRssi() {
@@ -309,7 +315,7 @@ static void ToggleRX(bool on) {
 
   if (on) {
     listenT = 1000;
-    BK4819_WriteRegister(0x43, listenBWRegValues[settings.listenBw]);
+    BK4819_WriteRegister(0x43, GetBWRegValueForListen());
   } else {
     BK4819_WriteRegister(0x43, GetBWRegValueForScan());
   }
@@ -410,6 +416,45 @@ static void UpdateRssiTriggerLevel(bool inc) {
   redrawStatus = true;
 }
 
+
+static void ApplyPreset(FreqPreset p) {
+  //currentFreq = GetTuneF(p.fStart);
+  currentFreq = p.fStart;
+  settings.scanStepIndex = p.stepSizeIndex;
+  settings.listenBw = p.listenBW;
+  settings.modulationType = p.modulationType;
+  settings.stepsCount = p.stepsCountIndex;
+  RADIO_SetModulation(settings.modulationType);
+  RelaunchScan();
+  ResetBlacklist();
+  redrawScreen = true;
+  settings.frequencyChangeStep = GetBW();
+}
+
+static void SelectNearestPreset(bool inc) {
+  FreqPreset p;
+  //uint32_t f = GetScreenF(currentFreq);
+  const uint8_t SZ = ARRAY_SIZE(freqPresets);
+  if (inc) {
+    for (uint8_t i = 0; i < SZ; ++i) {
+      p = freqPresets[i];
+      if (currentFreq < p.fStart) {
+        ApplyPreset(p);
+        return;
+      }
+    }
+  } else {
+    for (int i = SZ - 1; i >= 0; --i) {
+      p = freqPresets[i];
+      if (currentFreq > p.fEnd) {
+        ApplyPreset(p);
+        return;
+      }
+    }
+  }
+  ApplyPreset(p);
+}
+
 static void UpdateDBMax(bool inc) {
   if (inc && settings.dbMax < 10) {
     settings.dbMax += 1;
@@ -427,9 +472,9 @@ static void UpdateDBMax(bool inc) {
 
 static void UpdateScanStep(bool inc) {
   if (inc && settings.scanStepIndex < S_STEP_100_0kHz) {
-    settings.scanStepIndex++;
+    ++settings.scanStepIndex;
   } else if (!inc && settings.scanStepIndex > 0) {
-    settings.scanStepIndex--;
+    --settings.scanStepIndex;
   } else {
     return;
   }
@@ -439,7 +484,7 @@ static void UpdateScanStep(bool inc) {
   redrawScreen = true;
 }
 
-static void UpdateCurrentFreq(bool inc) {
+/*static void UpdateCurrentFreq(bool inc) {
   if (inc && currentFreq < F_MAX) {
     currentFreq += settings.frequencyChangeStep;
   } else if (!inc && currentFreq > F_MIN) {
@@ -450,7 +495,7 @@ static void UpdateCurrentFreq(bool inc) {
   RelaunchScan();
   ResetBlacklist();
   redrawScreen = true;
-}
+}*/
 
 static void UpdateCurrentFreqStill(bool inc) {
   uint8_t offset = modulationTypeTuneSteps[settings.modulationType];
@@ -620,6 +665,17 @@ static void DrawStatus() {
 #endif
   GUI_DisplaySmallest(String, 0, 1, true, true);
 
+  const FreqPreset *p = NULL;
+  //uint32_t f = GetScreenF(currentFreq);
+  for (uint8_t i = 0; i < ARRAY_SIZE(freqPresets); ++i) {
+    if (currentFreq >= freqPresets[i].fStart && currentFreq < freqPresets[i].fEnd) {
+      p = &freqPresets[i];
+    }
+  }
+  if (p != NULL) {
+    GUI_DisplaySmallest(p->name, 40, 1, true, true);
+  }
+
   for (int i = 0; i < 4; i++) {
     BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[i], &gBatteryCurrent);
   }
@@ -759,10 +815,12 @@ static void OnKeyDown(uint8_t key) {
     UpdateFreqChangeStep(false);
     break;
   case KEY_UP:
-    UpdateCurrentFreq(true);
+    //UpdateCurrentFreq(true);
+    SelectNearestPreset(true);
     break;
   case KEY_DOWN:
-    UpdateCurrentFreq(false);
+    //UpdateCurrentFreq(false);
+    SelectNearestPreset(false);
     break;
   case KEY_SIDE1:
     Blacklist();
@@ -1104,7 +1162,7 @@ static void UpdateListening() {
   if (currentState == SPECTRUM) {
     BK4819_WriteRegister(0x43, GetBWRegValueForScan());
     Measure();
-    BK4819_WriteRegister(0x43, listenBWRegValues[settings.listenBw]);
+    BK4819_WriteRegister(0x43, GetBWRegValueForListen());
   } else {
     Measure();
   }
@@ -1149,12 +1207,34 @@ static void Tick() {
   }
 }
 
+static void AutomaticPresetChoose(uint32_t f) {
+  //f = GetScreenF(f);
+  for (uint8_t i = 0; i < ARRAY_SIZE(freqPresets); ++i) {
+    const FreqPreset *p = &freqPresets[i];
+    if (f >= p->fStart && f <= p->fEnd) {
+      ApplyPreset(*p);
+    }
+  }
+}
+
 void APP_RunSpectrum() {
   // TX here coz it always? set to active VFO
-  currentFreq = initialFreq =
-      gEeprom.VfoInfo[gEeprom.TX_VFO].pRX->Frequency;
+  /*currentFreq = initialFreq =
+      gEeprom.VfoInfo[gEeprom.TX_VFO].pRX->Frequency;*/
 
   BackupRegisters();
+
+  VFO_Info_t vfo = gEeprom.VfoInfo[gEeprom.TX_VFO];
+
+  initialFreq = vfo.pRX->Frequency;
+  currentFreq = initialFreq;
+  settings.scanStepIndex = gStepSettingToIndex[vfo.STEP_SETTING];
+  settings.listenBw = vfo.CHANNEL_BANDWIDTH == BK4819_FILTER_BW_WIDE
+                          ? BK4819_FILTER_BW_WIDE
+                          : BK4819_FILTER_BW_NARROW;
+  settings.modulationType = vfo.Modulation;
+
+  AutomaticPresetChoose(currentFreq);
 
   isListening = true; // to turn off RX later
   redrawStatus = true;
@@ -1162,14 +1242,15 @@ void APP_RunSpectrum() {
   newScanStart = true;
 
   ToggleRX(true), ToggleRX(false); // hack to prevent noise when squelch off
-  RADIO_SetModulation(settings.modulationType = MODULATION_FM);
-  BK4819_SetFilterBandwidth(settings.listenBw = BK4819_FILTER_BW_WIDE, false);
+  RADIO_SetModulation(settings.modulationType);
+  BK4819_SetFilterBandwidth(settings.listenBw, false);
 
   RelaunchScan();
 
-  for (int i = 0; i < 128; ++i) {
+  /*for (int i = 0; i < 128; ++i) {
     rssiHistory[i] = 0;
-  }
+  }*/
+  memset(rssiHistory, 0, 128);
 
   isInitialized = true;
 
