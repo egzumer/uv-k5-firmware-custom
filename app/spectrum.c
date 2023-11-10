@@ -725,12 +725,12 @@ static void ShowChannelName(uint32_t f) {
   }
 	if (String[0] == 0)
 	  strcpy(String, "-----");
-  UI_PrintStringSmallBold(String, 34, 0, 1);
+  UI_PrintStringSmall(String, 34, 0, 1);
 }
 
 static void DrawF(uint32_t f) {
   sprintf(String, "%u.%05u", f / 100000, f % 100000);
-  UI_PrintStringSmall(String, 8, 127, 0);
+  UI_PrintStringSmallBold(String, 8, 127, 0);
 
   sprintf(String, "%3s", gModulationStr[settings.modulationType]);
   GUI_DisplaySmallest(String, 116, 1, false, true);
