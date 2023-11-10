@@ -29,7 +29,13 @@ struct FrequencyBandInfo {
 
 const uint16_t RSSI_MAX_VALUE = 65535;
 
-static uint16_t R30, R37, R3D, R43, R47, R48, R7E;
+//static uint16_t R30, R37, R3D, R43, R47, R48, R7E;
+
+static uint16_t registersBackup[11];
+static const uint8_t registersToBackup[] = {
+	BK4819_REG_13, BK4819_REG_30, BK4819_REG_31, BK4819_REG_37, BK4819_REG_3D, BK4819_REG_40, BK4819_REG_43, BK4819_REG_47, BK4819_REG_48, BK4819_REG_7D, BK4819_REG_7E,
+};
+
 static uint32_t initialFreq;
 static char String[32];
 
@@ -78,10 +84,16 @@ uint16_t listenT = 0;
 
 RegisterSpec registerSpecs[] = {
     {},
-    {"LNAs", BK4819_REG_13, 8, 0b11, 1},
-    {"LNA", BK4819_REG_13, 5, 0b111, 1},
-    {"PGA", BK4819_REG_13, 0, 0b111, 1},
-    {"IF", BK4819_REG_3D, 0, 0xFFFF, 0x2aaa},
+    {"LNAs",  BK4819_REG_13, 8, 0b11,   1},
+    {"LNA",   BK4819_REG_13, 5, 0b111,  1},
+    {"PGA",   BK4819_REG_13, 0, 0b111,  1},
+    {"IF",    BK4819_REG_3D, 0, 0xFFFF, 0x2aaa},
+
+    {"MIX",   BK4819_REG_13, 3, 0b11,   1},
+    {"DEV",   BK4819_REG_40, 0, 0xFFF,  10},
+    {"CMP",   BK4819_REG_31, 3, 1,      1},
+    {"MIC",   BK4819_REG_7D, 0, 0xF,    1},
+
     // {"MIX", 0x13, 3, 0b11, 1}, // TODO: hidden
 };
 
@@ -205,23 +217,32 @@ static void ToggleAFBit(bool on) {
 }
 
 static void BackupRegisters() {
-  R30 = BK4819_ReadRegister(BK4819_REG_30);
+  /*R30 = BK4819_ReadRegister(BK4819_REG_30);
   R37 = BK4819_ReadRegister(BK4819_REG_37);
   R3D = BK4819_ReadRegister(BK4819_REG_3D);
   R43 = BK4819_ReadRegister(BK4819_REG_43);
   R47 = BK4819_ReadRegister(BK4819_REG_47);
   R48 = BK4819_ReadRegister(BK4819_REG_48);
-  R7E = BK4819_ReadRegister(BK4819_REG_7E);
+  R7E = BK4819_ReadRegister(BK4819_REG_7E);*/
+
+  for (uint8_t i = 0; i < ARRAY_SIZE(registersToBackup); ++i) {
+		uint8_t regNum = registersToBackup[i];
+		registersBackup[regNum] = BK4819_ReadRegister(regNum);
+	}
 }
 
 static void RestoreRegisters() {
-  BK4819_WriteRegister(BK4819_REG_30, R30);
+  /*BK4819_WriteRegister(BK4819_REG_30, R30);
   BK4819_WriteRegister(BK4819_REG_37, R37);
   BK4819_WriteRegister(BK4819_REG_3D, R3D);
   BK4819_WriteRegister(BK4819_REG_43, R43);
   BK4819_WriteRegister(BK4819_REG_47, R47);
   BK4819_WriteRegister(BK4819_REG_48, R48);
-  BK4819_WriteRegister(BK4819_REG_7E, R7E);
+  BK4819_WriteRegister(BK4819_REG_7E, R7E);*/
+  for (uint8_t i = 0; i < ARRAY_SIZE(registersToBackup); ++i) {
+		uint8_t regNum = registersToBackup[i];
+		BK4819_WriteRegister(regNum, registersBackup[regNum]);
+	}
 }
 
 static void ToggleAFDAC(bool on) {
@@ -273,22 +294,37 @@ static void DeInitSpectrum() {
   isInitialized = false;
 }
 
-/*uint8_t GetBWRegValueForScan() {
+uint8_t GetBWRegValueForScan() {
   return scanStepBWRegValues[settings.scanStepIndex];
-}*/
+}
 
-uint16_t GetBWRegValueForScan() { return 0b0000000110111100; }
+//uint16_t GetBWRegValueForScan() { return 0b0000000110111100; }
 
 uint16_t GetBWRegValueForListen() {
   return listenBWRegValues[settings.listenBw];
 }
 
+// Needed to cleanup RSSI if we're hurry (< 10ms)
+/*static void ResetRSSI() {
+  uint32_t Reg = BK4819_ReadRegister(BK4819_REG_30);
+  Reg &= ~1;
+  BK4819_WriteRegister(BK4819_REG_30, Reg);
+  Reg |= 1;
+  BK4819_WriteRegister(BK4819_REG_30, Reg);
+}*/
+
 uint16_t GetRssi() {
   // SYSTICK_DelayUs(800);
   // testing autodelay based on Glitch value
   while ((BK4819_ReadRegister(0x63) & 0b11111111) >= 255) {
-    SYSTICK_DelayUs(100);
+    SYSTICK_DelayUs(50);
   }
+
+  /*if (currentState == SPECTRUM) {
+    ResetRSSI();
+    SYSTICK_DelayUs(600);
+  }*/
+
   return BK4819_GetRSSI();
 }
 
@@ -305,6 +341,11 @@ static void ToggleAudio(bool on) {
 }
 
 static void ToggleRX(bool on) {
+
+  if (isListening == on) {
+    return;
+  }
+
   isListening = on;
 
   BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, on);
@@ -314,7 +355,7 @@ static void ToggleRX(bool on) {
   ToggleAFBit(on);
 
   if (on) {
-    listenT = 1000;
+    listenT = 500;
     BK4819_WriteRegister(0x43, GetBWRegValueForListen());
   } else {
     BK4819_WriteRegister(0x43, GetBWRegValueForScan());
@@ -711,21 +752,30 @@ for(uint8_t i = 5; i > 0; i--) {
 static void ShowChannelName(uint32_t f) {
 
   unsigned int i;
+  char s[12];
   memset(String, 0, sizeof(String));
 
   if ( isListening ) { 
     for (i = 0; IS_MR_CHANNEL(i); i++) {
         if (RADIO_CheckValidChannel(i, false, 0)) {
           if (BOARD_fetchChannelFrequency(i) == f) {
-            BOARD_fetchChannelName(String, i);
-            break;
+            memset(s, 0, sizeof(s));
+            BOARD_fetchChannelName(s, i);
+            if (s[0] != 0) {
+              if ( strlen(String) != 0 )
+                strcat(String, "/");   // Add a space to result
+              strcat(String, s);
+            }
           }
         }
     }
   }
-	if (String[0] == 0)
-	  strcpy(String, "-----");
-  UI_PrintStringSmall(String, 34, 0, 1);
+	if (String[0] != 0) {
+    if ( strlen(String) > 19 ) {
+      String[19] = 0;
+    }
+    GUI_DisplaySmallest(String, 34, 8, false, true);
+  }
 }
 
 static void DrawF(uint32_t f) {
@@ -1040,10 +1090,14 @@ static void RenderStill() {
 
   int dbm = Rssi2DBm(scanInfo.rssi);
   uint8_t s = DBm2S(dbm);
-  sprintf(String, "S: %u", s);
-  GUI_DisplaySmallest(String, 4, 25, false, true);
+  if (s < 10) {
+    sprintf(String, "S%u", s);
+  } else {
+    sprintf(String, "S9+%u0", s - 9);
+  }
+  GUI_DisplaySmallest(String, 4, 1, false, true);
   sprintf(String, "%d dBm", dbm);
-  GUI_DisplaySmallest(String, 28, 25, false, true);
+  GUI_DisplaySmallest(String, 4, 8, false, true);
 
   if (!monitorMode) {
     uint8_t x = Rssi2PX(settings.rssiTriggerLevel, 0, 121);
@@ -1053,9 +1107,9 @@ static void RenderStill() {
   const uint8_t PAD_LEFT = 4;
   const uint8_t CELL_WIDTH = 30;
   uint8_t offset = PAD_LEFT;
-  uint8_t row = 4;
+  uint8_t row = 3;
 
-  for (int i = 0, idx = 1; idx <= 4; ++i, ++idx) {
+  for (uint8_t i = 0, idx = 1; idx < ARRAY_SIZE(registerSpecs); ++i, ++idx) {
     if (idx == 5) {
       row += 2;
       i = 0;
@@ -1194,7 +1248,7 @@ static void UpdateListening() {
   redrawScreen = true;
 
   if (IsPeakOverLevel() || monitorMode) {
-    listenT = 1000;
+    listenT = 500;
     return;
   }
 
