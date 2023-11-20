@@ -433,7 +433,7 @@ void UI_DisplayMain(void)
 				UI_PrintString(String, 32, 0, line, 8);
 			}
 
-			break;
+			continue;
 		}
 		else
 		{
