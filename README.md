@@ -21,7 +21,7 @@
    * battery voltage callibration from menu
    * better battery percentage calculation, selectable for 1600mAh or 2200mAh
    * more configurable button functions
-   * longpress MENU as another cofigurable button
+   * longpress MENU as another configurable button
    * better DCS/CTCSS scanning in the menu (`* SCAN` while in RX DCS/CTCSS menu item)
    * Piotr022 s-meter style
    * restore initial freq/channel when scanning stopped with EXIT, remember last found transmission with MENU button

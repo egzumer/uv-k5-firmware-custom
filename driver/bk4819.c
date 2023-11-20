@@ -30,6 +30,9 @@
 
 static const uint16_t FSK_RogerTable[7] = {0xF1A2, 0x7446, 0x61A4, 0x6544, 0x4E8A, 0xE044, 0xEA84};
 
+static const uint8_t DTMF_TONE1_GAIN = 55;
+static const uint8_t DTMF_TONE2_GAIN = 83;
+
 static uint16_t gBK4819_GpioOutState;
 
 bool gRxIdleMode;
@@ -1209,9 +1212,9 @@ void BK4819_EnterDTMF_TX(bool bLocalLoopback)
 
 	BK4819_WriteRegister(BK4819_REG_70,
 		BK4819_REG_70_MASK_ENABLE_TONE1                |
-		(83u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN) |
+		(DTMF_TONE1_GAIN << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN) |
 		BK4819_REG_70_MASK_ENABLE_TONE2                |
-		(83u << BK4819_REG_70_SHIFT_TONE2_TUNING_GAIN));
+		(DTMF_TONE2_GAIN << BK4819_REG_70_SHIFT_TONE2_TUNING_GAIN));
 
 	BK4819_EnableTXLink();
 }
@@ -1250,16 +1253,16 @@ void BK4819_PlayDTMF(char Code)
 	switch (Code)
 	{
 		case '0': tone1 = 941; tone2 = 1336; break;
-		case '1': tone1 = 679; tone2 = 1209; break;
+		case '1': tone1 = 697; tone2 = 1209; break;
 		case '2': tone1 = 697; tone2 = 1336; break;
-		case '3': tone1 = 679; tone2 = 1477; break;
+		case '3': tone1 = 697; tone2 = 1477; break;
 		case '4': tone1 = 770; tone2 = 1209; break;
 		case '5': tone1 = 770; tone2 = 1336; break;
 		case '6': tone1 = 770; tone2 = 1477; break;
 		case '7': tone1 = 852; tone2 = 1209; break;
 		case '8': tone1 = 852; tone2 = 1336; break;
 		case '9': tone1 = 852; tone2 = 1477; break;
-		case 'A': tone1 = 679; tone2 = 1633; break;
+		case 'A': tone1 = 697; tone2 = 1633; break;
 		case 'B': tone1 = 770; tone2 = 1633; break;
 		case 'C': tone1 = 852; tone2 = 1633; break;
 		case 'D': tone1 = 941; tone2 = 1633; break;
@@ -1782,7 +1785,12 @@ void BK4819_PlayDTMFEx(bool bLocalLoopback, char Code)
 	BK4819_EnterTxMute();
 
 	BK4819_SetAF(bLocalLoopback ? BK4819_AF_BEEP : BK4819_AF_MUTE);
-	BK4819_WriteRegister(BK4819_REG_70, 0xD3D3);
+
+	BK4819_WriteRegister(BK4819_REG_70,
+		BK4819_REG_70_MASK_ENABLE_TONE1                |
+		(DTMF_TONE1_GAIN << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN) |
+		BK4819_REG_70_MASK_ENABLE_TONE2                |
+		(DTMF_TONE2_GAIN << BK4819_REG_70_SHIFT_TONE2_TUNING_GAIN));
 
 	BK4819_EnableTXLink();
 
