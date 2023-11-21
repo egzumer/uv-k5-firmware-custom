@@ -100,6 +100,7 @@ ENABLE_WIDE_RX                := 1       full 18MHz to 1300MHz RX (though front-
 ENABLE_TX_WHEN_AM             := 0       allow TX (always FM) when RX is set to AM
 ENABLE_F_CAL_MENU             := 0       enable the radios hidden frequency calibration menu
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 1       standard CTCSS tail phase shift rather than QS's own 55Hz tone method
+ENABLE_CONTRAST               := 0       add contrast menu
 ENABLE_BOOT_BEEPS             := 0       gives user audio feedback on volume knob position at boot-up
 ENABLE_SHOW_CHARGE_LEVEL      := 0       show the charge level when the radio is on charge
 ENABLE_REVERSE_BAT_SYMBOL     := 1       mirror the battery symbol on the status bar (+ pole on the right)

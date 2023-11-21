@@ -32,6 +32,7 @@
 #include "driver/system.h"
 #include "driver/systick.h"
 #include "driver/uart.h"
+#include "driver/st7565.h"
 #include "helper/battery.h"
 #include "helper/boot.h"
 #include "misc.h"
@@ -84,6 +85,10 @@ void Main(void)
 	BOARD_ADC_GetBatteryInfo(&gBatteryCurrentVoltage, &gBatteryCurrent);
 
 	BOARD_EEPROM_Init();
+
+	#ifdef ENABLE_CONTRAST
+		ST7565_SetContrast(gEeprom.LCD_CONTRAST);
+	#endif
 
 	BOARD_EEPROM_LoadCalibration();
 

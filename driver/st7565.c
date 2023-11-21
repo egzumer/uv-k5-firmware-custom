@@ -28,6 +28,10 @@
 uint8_t gStatusLine[128];
 uint8_t gFrameBuffer[7][128];
 
+#ifdef ENABLE_CONTRAST
+	uint8_t contrast = 31;  // 0 ~ 63
+#endif
+
 void ST7565_DrawLine(const unsigned int Column, const unsigned int Line, const unsigned int Size, const uint8_t *pBitmap)
 {
 	unsigned int i;
@@ -63,6 +67,10 @@ void ST7565_DrawLine(const unsigned int Column, const unsigned int Line, const u
 void ST7565_BlitFullScreen(void)
 {
 	unsigned int Line;
+
+	// reset some of the displays settings to try and overcome the
+	// radios hardware problem - RF corrupting the display
+	ST7565_Init(false);
 
 	SPI_ToggleMasterMode(&SPI0->CR, false);
 
@@ -220,6 +228,13 @@ void ST7565_Init(const bool full)
 	for(uint8_t i = 0; i < 8; i++)
 		ST7565_WriteByte(cmds[i]);
 
+	ST7565_WriteByte(ST7565_CMD_SET_EV);          //
+	#ifdef ENABLE_CONTRAST
+		ST7565_WriteByte(contrast);  // brightness 0 ~ 63
+	#else
+		ST7565_WriteByte(31);        // brightness 0 ~ 63
+	#endif
+
 	if (full) {
 		ST7565_WriteByte(ST7565_CMD_POWER_CIRCUIT | 0b011);   // VB=0 VR=1 VF=1
 		SYSTEM_DelayMs(1);
@@ -278,3 +293,15 @@ void ST7565_WriteByte(uint8_t Value)
 	while ((SPI0->FIFOST & SPI_FIFOST_TFF_MASK) != SPI_FIFOST_TFF_BITS_NOT_FULL) {}
 	SPI0->WDR = Value;
 }
+
+#ifdef ENABLE_CONTRAST
+	void ST7565_SetContrast(const uint8_t value)
+	{
+		contrast = (value > 45) ? 45 : (value < 26) ? 26 : value;
+	}
+
+	uint8_t ST7565_GetContrast(void)
+	{
+		return contrast;
+	}
+#endif

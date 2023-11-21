@@ -545,8 +545,14 @@ void BOARD_EEPROM_Init(void)
 	gEeprom.BATTERY_SAVE          = (Data[3] < 5) ? Data[3] : 4;
 	gEeprom.DUAL_WATCH            = (Data[4] < 3) ? Data[4] : DUAL_WATCH_CHAN_A;
 	gEeprom.BACKLIGHT_TIME        = (Data[5] < ARRAY_SIZE(gSubMenu_BACKLIGHT)) ? Data[5] : 3;
-	gEeprom.TAIL_TONE_ELIMINATION = (Data[6] < 2) ? Data[6] : false;
+	//gEeprom.TAIL_TONE_ELIMINATION = (Data[6] < 2) ? Data[6] : false;
 	gEeprom.VFO_OPEN              = (Data[7] < 2) ? Data[7] : true;
+
+	gEeprom.TAIL_TONE_ELIMINATION              = (Data[6] >> 7) & 1;
+		
+#ifdef ENABLE_CONTRAST
+	gEeprom.LCD_CONTRAST		  = Data[6] & 0x7F;
+#endif
 
 	// 0E80..0E87
 	EEPROM_ReadBuffer(0x0E80, Data, 8);

@@ -31,6 +31,7 @@
 #include "driver/eeprom.h"
 #include "driver/gpio.h"
 #include "driver/keyboard.h"
+#include "driver/st7565.h"
 #include "frequencies.h"
 #include "helper/battery.h"
 #include "misc.h"
@@ -139,8 +140,13 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 		case MENU_ABR_MAX:
 			*pMin = 1;
 			*pMax = 10;
+			break;
+#ifdef ENABLE_CONTRAST	
+		case MENU_CONTRAST:
+			*pMin = 1;
+			*pMax = 63;
 			break;	
-
+#endif
 		case MENU_F_LOCK:
 			*pMin = 0;
 			*pMax = ARRAY_SIZE(gSubMenu_F_LOCK) - 1;
@@ -560,7 +566,12 @@ void MENU_AcceptSetting(void)
 			gEeprom.BACKLIGHT_MAX = gSubMenuSelection;
 			gEeprom.BACKLIGHT_MIN = MIN(gSubMenuSelection - 1, gEeprom.BACKLIGHT_MIN);
 			break;			
-
+#ifdef ENABLE_CONTRAST
+		case MENU_CONTRAST:
+			gEeprom.LCD_CONTRAST = gSubMenuSelection;
+			ST7565_SetContrast(gEeprom.LCD_CONTRAST);
+			break;
+#endif
 		case MENU_ABR_ON_TX_RX:
 			gSetting_backlight_on_tx_rx = gSubMenuSelection;
 			break;
@@ -972,8 +983,12 @@ void MENU_ShowCurrentSetting(void)
 
 		case MENU_ABR_MAX:
 			gSubMenuSelection = gEeprom.BACKLIGHT_MAX;
+			break;
+#ifdef ENABLE_CONTRAST
+		case MENU_CONTRAST:
+			gSubMenuSelection = gEeprom.LCD_CONTRAST;
 			break;		
-
+#endif
 		case MENU_ABR_ON_TX_RX:
 			gSubMenuSelection = gSetting_backlight_on_tx_rx;
 			break;

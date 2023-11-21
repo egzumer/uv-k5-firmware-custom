@@ -35,6 +35,9 @@ void ST7565_FixInterfGlitch(void);
 void ST7565_HardwareReset(void);
 void ST7565_SelectColumnAndLine(uint8_t Column, uint8_t Line);
 void ST7565_WriteByte(uint8_t Value);
-
+#ifdef ENABLE_CONTRAST
+	void    ST7565_SetContrast(const uint8_t value);
+	uint8_t ST7565_GetContrast(void);
+#endif
 #endif
 

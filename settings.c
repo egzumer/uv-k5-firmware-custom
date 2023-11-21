@@ -102,8 +102,15 @@ void SETTINGS_SaveSettings(void)
 	State[3] = gEeprom.BATTERY_SAVE;
 	State[4] = gEeprom.DUAL_WATCH;
 	State[5] = gEeprom.BACKLIGHT_TIME;
-	State[6] = gEeprom.TAIL_TONE_ELIMINATION;
+	//State[6] = gEeprom.TAIL_TONE_ELIMINATION;
 	State[7] = gEeprom.VFO_OPEN;
+
+#ifdef ENABLE_CONTRAST
+	State[6] = (gEeprom.LCD_CONTRAST & 0x7F) | (gEeprom.TAIL_TONE_ELIMINATION << 7);
+#else 
+	State[6] = (gEeprom.TAIL_TONE_ELIMINATION << 7);
+#endif
+
 	EEPROM_WriteBuffer(0x0E78, State);
 
 	State[0] = gEeprom.BEEP_CONTROL;

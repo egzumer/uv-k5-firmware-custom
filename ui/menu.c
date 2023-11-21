@@ -85,6 +85,9 @@ const t_menu_item MenuList[] =
 	{"BackLt", VOICE_ID_INVALID,                       MENU_ABR           }, // was "ABR"
 	{"BLMin",  VOICE_ID_INVALID,                       MENU_ABR_MIN       },
 	{"BLMax",  VOICE_ID_INVALID,                       MENU_ABR_MAX       },
+#ifdef ENABLE_CONTRAST
+	{"LCDCtr", VOICE_ID_INVALID,                       MENU_CONTRAST      },
+#endif		
 	{"BltTRX", VOICE_ID_INVALID,                       MENU_ABR_ON_TX_RX  },
 	{"Beep",   VOICE_ID_BEEP_PROMPT,                   MENU_BEEP          },
 #ifdef ENABLE_VOICE
@@ -595,6 +598,16 @@ void UI_DisplayMenu(void)
 			else
 				BACKLIGHT_SetBrightness(-1);
 			break;	
+		
+		#ifdef ENABLE_CONTRAST
+			case MENU_CONTRAST:				
+				sprintf(String, "%d", gSubMenuSelection);				
+				ST7565_SetContrast(gSubMenuSelection);
+				//else
+				//	ST7565_SetContrast(0);
+				//g_update_display = true;
+				break;
+		#endif
 
 		case MENU_AM:
 			strcpy(String, gModulationStr[gSubMenuSelection]);
@@ -841,7 +854,6 @@ void UI_DisplayMenu(void)
 		case MENU_MLONG:
 			strcpy(String, gSubMenu_SIDEFUNCTIONS[gSubMenuSelection].name);
 			break;
-
 	}
 
 	if (!already_printed)
