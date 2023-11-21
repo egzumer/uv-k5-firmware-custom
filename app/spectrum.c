@@ -87,9 +87,9 @@ RegisterSpec registerSpecs[] = {
     {"LNAs",  BK4819_REG_13, 8, 0b11,   1},
     {"LNA",   BK4819_REG_13, 5, 0b111,  1},
     {"PGA",   BK4819_REG_13, 0, 0b111,  1},
-    {"IF",    BK4819_REG_3D, 0, 0xFFFF, 0x2aaa},
-
     {"MIX",   BK4819_REG_13, 3, 0b11,   1},
+
+    {"IF",    BK4819_REG_3D, 0, 0xFFFF, 0x2aaa},
     {"DEV",   BK4819_REG_40, 0, 0xFFF,  10},
     {"CMP",   BK4819_REG_31, 3, 1,      1},
     {"MIC",   BK4819_REG_7D, 0, 0xF,    1},
