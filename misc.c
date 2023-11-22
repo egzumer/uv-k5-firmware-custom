@@ -111,7 +111,7 @@ uint16_t          gEEPROM_RSSI_CALIB[7][4];
 uint16_t          gEEPROM_1F8A;
 uint16_t          gEEPROM_1F8C;
 
-uint8_t           gMR_ChannelAttributes[FREQ_CHANNEL_LAST + 1];
+ChannelAttributes_t gMR_ChannelAttributes[FREQ_CHANNEL_LAST + 1];
 
 volatile uint16_t gBatterySaveCountdown_10ms = battery_save_count_10ms;
 

@@ -127,9 +127,9 @@ enum CHANNEL_DisplayMode_t {
 typedef enum CHANNEL_DisplayMode_t CHANNEL_DisplayMode_t;
 
 typedef struct {
-	uint8_t               ScreenChannel[2];
-	uint8_t               FreqChannel[2];
-	uint8_t               MrChannel[2];
+	uint8_t               ScreenChannel[2]; // current channels set in the radio (memory or frequency channels)
+	uint8_t               FreqChannel[2]; // last frequency channels used
+	uint8_t               MrChannel[2]; // last memory channels used
 	#ifdef ENABLE_NOAA
 		uint8_t           NoaaChannel[2];
 	#endif
@@ -254,6 +254,6 @@ void SETTINGS_SaveVfoIndices(void);
 void SETTINGS_SaveSettings(void);
 void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, uint8_t Mode);
 void SETTINGS_SaveBatteryCalibration(const uint16_t * batteryCalibration);
-void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool keep);
+void SETTINGS_UpdateChannel(uint8_t channel, const VFO_Info_t *pVFO, bool keep);
 
 #endif

@@ -263,55 +263,45 @@ void SETTINGS_SaveBatteryCalibration(const uint16_t * batteryCalibration)
 	EEPROM_WriteBuffer(0x1F48, buf);
 }
 
-void SETTINGS_UpdateChannel(uint8_t Channel, const VFO_Info_t *pVFO, bool keep)
+void SETTINGS_UpdateChannel(uint8_t channel, const VFO_Info_t *pVFO, bool keep)
 {
-	#ifdef ENABLE_NOAA
-		if (!IS_NOAA_CHANNEL(Channel))
-	#endif
+#ifdef ENABLE_NOAA
+	if (!IS_NOAA_CHANNEL(channel))
+#endif
 	{
-		uint8_t  State[8];
-		uint8_t  Attributes = 0xFF;        // default attributes
-		uint16_t Offset = 0x0D60 + (Channel & ~7u);
-		
-		Attributes &= (uint8_t)(~MR_CH_COMPAND);  // default to '0' = compander disabled
+		uint8_t  state[8];
+		ChannelAttributes_t  att = {
+			.band = 0xf,
+			.compander = 0,
+			.scanlist1 = 0,
+			.scanlist2 = 0,
+			};        // default attributes
 
-		EEPROM_ReadBuffer(Offset, State, sizeof(State));
+		uint16_t offset = 0x0D60 + (channel & ~7u);
+		EEPROM_ReadBuffer(offset, state, sizeof(state));
 
-		if (keep)
-		{
-			Attributes = (pVFO->SCANLIST1_PARTICIPATION << 7) | (pVFO->SCANLIST2_PARTICIPATION << 6) | (pVFO->Compander << 4) | (pVFO->Band << 0);
-			if (State[Channel & 7u] == Attributes)
+		if (keep) {
+			att.band = pVFO->Band;
+			att.scanlist1 = pVFO->SCANLIST1_PARTICIPATION;
+			att.scanlist2 = pVFO->SCANLIST2_PARTICIPATION;
+			att.compander = pVFO->Compander;
+			if (state[channel & 7u] == att.__val)
 				return; // no change in the attributes
 		}
 
-		State[Channel & 7u] = Attributes;
+		state[channel & 7u] = att.__val;
+		EEPROM_WriteBuffer(offset, state);
 
-		EEPROM_WriteBuffer(Offset, State);
+		gMR_ChannelAttributes[channel] = att;
 
-		gMR_ChannelAttributes[Channel] = Attributes;
-
-//		#ifndef ENABLE_KEEP_MEM_NAME
-			if (IS_MR_CHANNEL(Channel))
-			{	// it's a memory channel
-		
-				const uint16_t OffsetMR = Channel * 16;
-				if (!keep)
-				{	// clear/reset the channel name
-					//memset(&State, 0xFF, sizeof(State));
-					memset(&State, 0x00, sizeof(State));   // follow the QS way
-					EEPROM_WriteBuffer(0x0F50 + OffsetMR, State);
-					EEPROM_WriteBuffer(0x0F58 + OffsetMR, State);
-				}
-//				else
-//				{	// update the channel name
-//					memmove(State, pVFO->Name + 0, 8);
-//					EEPROM_WriteBuffer(0x0F50 + OffsetMR, State);
-//					//memset(State, 0xFF, sizeof(State));
-//					memset(State, 0x00, sizeof(State));  // follow the QS way
-//					memmove(State, pVFO->Name + 8, 2);
-//					EEPROM_WriteBuffer(0x0F58 + OffsetMR, State);
-//				}
+		if (IS_MR_CHANNEL(channel)) {	// it's a memory channel
+			const uint16_t OffsetMR = channel * 16;
+			if (!keep) {
+				// clear/reset the channel name
+				memset(&state, 0x00, sizeof(state));
+				EEPROM_WriteBuffer(0x0F50 + OffsetMR, state);
+				EEPROM_WriteBuffer(0x0F58 + OffsetMR, state);
 			}
-//		#endif
+		}
 	}
 }

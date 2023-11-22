@@ -24,13 +24,6 @@
 #include "frequencies.h"
 
 enum {
-	MR_CH_BAND_MASK   = 0x0F << 0,
-	MR_CH_COMPAND     =   3u << 4,  // new
-	MR_CH_SCANLIST2   =   1u << 6,
-	MR_CH_SCANLIST1   =   1u << 7
-};
-
-enum {
 	RADIO_CHANNEL_UP   = 0x01u,
 	RADIO_CHANNEL_DOWN = 0xFFu,
 };
