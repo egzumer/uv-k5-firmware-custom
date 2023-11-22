@@ -33,7 +33,7 @@ void UI_DisplayFrequency(const char *string, uint8_t X, uint8_t Y, bool center);
 
 void UI_DisplayPopup(const char *string);
 
-void UI_DrawPixel(uint8_t x, uint8_t y, bool black);
-void UI_DrawLine(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black);
-void UI_DrawRectangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black);
+void UI_DrawPixelBuffer(uint8_t (*buffer)[128], uint8_t x, uint8_t y, bool black);
+void UI_DrawLineBuffer(uint8_t (*buffer)[128], int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black);
+void UI_DrawRectangleBuffer(uint8_t (*buffer)[128], int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black);
 
