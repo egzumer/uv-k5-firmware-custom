@@ -141,7 +141,9 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t
 
 	if (ChannelSave == (FREQ_CHANNEL_FIRST + BAND2_108MHz))
 		pInfo->Modulation = MODULATION_AM;
-
+	else
+		pInfo->Modulation = MODULATION_FM;
+		
 	RADIO_ConfigureSquelchAndOutputPower(pInfo);
 }
 
@@ -243,7 +245,10 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		if (tmp > TX_OFFSET_FREQUENCY_DIRECTION_SUB)
 			tmp = 0;
 		pVfo->TX_OFFSET_FREQUENCY_DIRECTION = tmp;
-		pVfo->Modulation = (data[3] >> 4);
+		tmp = data[3] >> 4;
+		if (tmp >= MODULATION_UKNOWN)
+			tmp = MODULATION_FM;		
+		pVfo->Modulation = tmp;
 
 		tmp = data[6];
 		if (tmp >= ARRAY_SIZE(gStepFrequencyTable))
@@ -337,8 +342,10 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 			uint32_t Offset;
 		} __attribute__((packed)) info;
 		EEPROM_ReadBuffer(base, &info, sizeof(info));
-
-		pVfo->freq_config_RX.Frequency = info.Frequency;
+		if(info.Frequency==0xFFFFFFFF)
+			pVfo->freq_config_RX.Frequency = frequencyBandTable[band].lower;
+		else
+			pVfo->freq_config_RX.Frequency = info.Frequency;
 
 		if (info.Offset >= 100000000)
 			info.Offset = 1000000;

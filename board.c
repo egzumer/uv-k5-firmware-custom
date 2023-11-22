@@ -727,6 +727,13 @@ void BOARD_EEPROM_Init(void)
 
 	// 0D60..0E27
 	EEPROM_ReadBuffer(0x0D60, gMR_ChannelAttributes, sizeof(gMR_ChannelAttributes));
+	for(uint16_t i = 0; i < sizeof(gMR_ChannelAttributes); i++) {
+		ChannelAttributes_t *att = &gMR_ChannelAttributes[i];
+		if(att->__val == 0xff){
+			att->__val = 0;
+			att->band = 0xf;
+		}	
+	}
 
 	// 0F30..0F3F
 	EEPROM_ReadBuffer(0x0F30, gCustomAesKey, sizeof(gCustomAesKey));
