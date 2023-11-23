@@ -173,14 +173,11 @@ static void HandleIncoming(void)
 {
 	bool bFlag;
 
-	if (!g_SquelchLost)
-	{	// squelch is closed
-
+	if (!g_SquelchLost) {	// squelch is closed
 		if (gDTMF_RX_index > 0)
 			DTMF_clear_RX();
 
-		if (gCurrentFunction != FUNCTION_FOREGROUND)
-		{
+		if (gCurrentFunction != FUNCTION_FOREGROUND) {
 			FUNCTION_Select(FUNCTION_FOREGROUND);
 			gUpdateDisplay = true;
 		}
@@ -189,39 +186,31 @@ static void HandleIncoming(void)
 
 	bFlag = (gScanStateDir == SCAN_OFF && gCurrentCodeType == CODE_TYPE_OFF);
 
-	#ifdef ENABLE_NOAA
-		if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gNOAACountdown_10ms > 0)
-		{
-			gNOAACountdown_10ms = 0;
-			bFlag               = true;
-		}
-	#endif
+#ifdef ENABLE_NOAA
+	if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gNOAACountdown_10ms > 0) {
+		gNOAACountdown_10ms = 0;
+		bFlag               = true;
+	}
+#endif
 
-	if (g_CTCSS_Lost && gCurrentCodeType == CODE_TYPE_CONTINUOUS_TONE)
-	{
+	if (g_CTCSS_Lost && gCurrentCodeType == CODE_TYPE_CONTINUOUS_TONE) {
 		bFlag       = true;
 		gFoundCTCSS = false;
 	}
 
-	if (g_CDCSS_Lost && gCDCSSCodeType == CDCSS_POSITIVE_CODE && (gCurrentCodeType == CODE_TYPE_DIGITAL || gCurrentCodeType == CODE_TYPE_REVERSE_DIGITAL))
-	{
+	if (g_CDCSS_Lost && gCDCSSCodeType == CDCSS_POSITIVE_CODE && (gCurrentCodeType == CODE_TYPE_DIGITAL || gCurrentCodeType == CODE_TYPE_REVERSE_DIGITAL)) {
 		gFoundCDCSS = false;
 	}
-	else
-	if (!bFlag)
+	else if (!bFlag)
 		return;
 
-	if (gScanStateDir == SCAN_OFF)
-	{	// not scanning
-		if (gRxVfo->DTMF_DECODING_ENABLE || gSetting_KILLED)
-		{	// DTMF DCD is enabled
+	if (gScanStateDir == SCAN_OFF) { // not scanning
+		if (gRxVfo->DTMF_DECODING_ENABLE || gSetting_KILLED) { // DTMF DCD is enabled
 
 			DTMF_HandleRequest();
 
-			if (gDTMF_CallState == DTMF_CALL_STATE_NONE)
-			{
-				if (gRxReceptionMode == RX_MODE_DETECTED)
-				{
+			if (gDTMF_CallState == DTMF_CALL_STATE_NONE) {
+				if (gRxReceptionMode == RX_MODE_DETECTED) {
 					gDualWatchCountdown_10ms = dual_watch_count_after_1_10ms;
 					gScheduleDualWatch       = false;
 
@@ -2049,9 +2038,9 @@ Skip:
 	{
 		RADIO_SelectVfos();
 
-		#ifdef ENABLE_NOAA
-			RADIO_ConfigureNOAA();
-		#endif
+#ifdef ENABLE_NOAA
+		RADIO_ConfigureNOAA();
+#endif
 
 		RADIO_SetupRegisters(true);
 
