@@ -755,6 +755,9 @@ void APP_EndTransmission(void)
 	// send the CTCSS/DCS tail tone - allows the receivers to mute the usual FM squelch tail/crash
 	RADIO_EnableCxCSS();
 	RADIO_SetupRegisters(false);
+
+	if (gMonitor)
+		gFlagReconfigureVfos = true; //turn the monitor back on
 }
 
 #ifdef ENABLE_VOX
@@ -1715,6 +1718,9 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			// cancel user input
 			cancelUserInputModes();
+			
+			if (gMonitor)
+				ACTION_Monitor(); //turn off the monitor
 		}
 
 		if (gScreenToDisplay == DISPLAY_MENU)       // 1of11
