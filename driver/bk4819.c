@@ -30,8 +30,8 @@
 
 static const uint16_t FSK_RogerTable[7] = {0xF1A2, 0x7446, 0x61A4, 0x6544, 0x4E8A, 0xE044, 0xEA84};
 
-static const uint8_t DTMF_TONE1_GAIN = 55;
-static const uint8_t DTMF_TONE2_GAIN = 83;
+static const uint8_t DTMF_TONE1_GAIN = 65;
+static const uint8_t DTMF_TONE2_GAIN = 93;
 
 static uint16_t gBK4819_GpioOutState;
 
@@ -987,15 +987,15 @@ void BK4819_EnableDTMF(void)
 
 void BK4819_PlayTone(uint16_t Frequency, bool bTuningGainSwitch)
 {
-	uint16_t ToneConfig;
+	uint16_t ToneConfig = BK4819_REG_70_ENABLE_TONE1;
 
 	BK4819_EnterTxMute();
 	BK4819_SetAF(BK4819_AF_BEEP);
 
 	if (bTuningGainSwitch == 0)
-		ToneConfig = BK4819_REG_70_ENABLE_TONE1 | (96u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN);
+		ToneConfig |=  96u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN;
 	else
-		ToneConfig = BK4819_REG_70_ENABLE_TONE1 | (28u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN);
+		ToneConfig |= 28u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN;
 	BK4819_WriteRegister(BK4819_REG_70, ToneConfig);
 
 	BK4819_WriteRegister(BK4819_REG_30, 0);
@@ -1004,6 +1004,7 @@ void BK4819_PlayTone(uint16_t Frequency, bool bTuningGainSwitch)
 	BK4819_WriteRegister(BK4819_REG_71, scale_freq(Frequency));
 }
 
+// level 0 ~ 127
 void BK4819_PlaySingleTone(const unsigned int tone_Hz, const unsigned int delay, const unsigned int level, const bool play_speaker)
 {
 	BK4819_EnterTxMute();
@@ -1016,9 +1017,7 @@ void BK4819_PlaySingleTone(const unsigned int tone_Hz, const unsigned int delay,
 	else
 		BK4819_SetAF(BK4819_AF_MUTE);
 
-	// level 0 ~ 127
-//	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (96u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
-//	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (28u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+	
 	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | ((level & 0x7f) << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
 
 	BK4819_EnableTXLink();
@@ -1323,8 +1322,7 @@ void BK4819_TransmitTone(bool bLocalLoopback, uint32_t Frequency)
 	//
 	// set the tone amplitude
 	//
-//	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_MASK_ENABLE_TONE1 | (96u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
-	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_MASK_ENABLE_TONE1 | (28u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_MASK_ENABLE_TONE1 | (66u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
 
 	BK4819_WriteRegister(BK4819_REG_71, scale_freq(Frequency));
 
@@ -1703,8 +1701,7 @@ void BK4819_PlayRoger(void)
 	BK4819_EnterTxMute();
 	BK4819_SetAF(BK4819_AF_MUTE);
 
-//	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (96u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
-	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (28u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
+	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (66u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
 
 	BK4819_EnableTXLink();
 	SYSTEM_DelayMs(50);
