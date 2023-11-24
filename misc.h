@@ -176,7 +176,18 @@ extern uint16_t              gEEPROM_RSSI_CALIB[7][4];
 extern uint16_t              gEEPROM_1F8A;
 extern uint16_t              gEEPROM_1F8C;
 
-extern uint8_t               gMR_ChannelAttributes[207];
+typedef union { 
+    struct {
+        uint8_t
+            band : 4,
+            compander : 2,
+            scanlist2 : 1,
+            scanlist1 : 1;
+    };
+    uint8_t __val;
+} ChannelAttributes_t;
+
+extern ChannelAttributes_t   gMR_ChannelAttributes[207];
 
 extern volatile uint16_t     gBatterySaveCountdown_10ms;
 

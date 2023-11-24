@@ -168,9 +168,19 @@ static void DisplayRSSIBar(const int16_t rssi, const bool now)
 
 		if (now)
 			memset(p_line, 0, LCD_WIDTH);
-			
+		
+		const int8_t dBmCorrTable[7] = {
+			-15, // band 1
+			-15, // band 2
+			-25, // band 3
+			-20, // band 4
+			-20, // band 5
+			-20, // band 6
+			 -7  // band 7
+		};
+
 		const int16_t      s0_dBm       = -147;                  // S0 .. base level
-		const int16_t      rssi_dBm     = (rssi / 2) - 160;
+		const int16_t      rssi_dBm     = (rssi / 2) - 160 + dBmCorrTable[gRxVfo->Band];
 
 		const uint8_t s_level = MIN(MAX((rssi_dBm - s0_dBm) / 6, 0), 9); // S0 - S9
 		uint8_t overS9dBm = MIN(MAX(rssi_dBm - (s0_dBm + 9*6), 0), 99);
@@ -447,15 +457,15 @@ void UI_DisplayMain(void)
 			{	// it's a channel
 
 				// show the scan list assigment symbols
-				const uint8_t attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
-				if (attributes & MR_CH_SCANLIST1)
+				const ChannelAttributes_t att = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
+				if (att.scanlist1)
 					memmove(p_line0 + 113, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
-				if (attributes & MR_CH_SCANLIST2)
+				if (att.scanlist2)
 					memmove(p_line0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
 
 				// compander symbol
 #ifndef ENABLE_BIG_FREQ
-				if ((attributes & MR_CH_COMPAND) > 0)
+				if (att.compander)
 					memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
 #else
 				// TODO:  // find somewhere else to put the symbol
@@ -533,8 +543,8 @@ void UI_DisplayMain(void)
 				}
 
 				// show the channel symbols
-				const uint8_t attributes = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
-				if ((attributes & MR_CH_COMPAND) > 0)
+				const ChannelAttributes_t att = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
+				if (att.compander)
 #ifdef ENABLE_BIG_FREQ
 					memmove(p_line0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
 #else

@@ -63,24 +63,22 @@ void ACTION_Power(void)
 		gTxVfo->OUTPUT_POWER = OUTPUT_POWER_LOW;
 
 	gRequestSaveChannel = 1;
-	//gRequestSaveChannel = 2;   // auto save the channel
 
-	#ifdef ENABLE_VOICE
-		gAnotherVoiceID   = VOICE_ID_POWER;
-	#endif
+#ifdef ENABLE_VOICE
+	gAnotherVoiceID   = VOICE_ID_POWER;
+#endif
 
 	gRequestDisplayScreen = gScreenToDisplay;
 }
 
 void ACTION_Monitor(void)
 {
-	if (gCurrentFunction != FUNCTION_MONITOR)
-	{	// enable the monitor
+	if (gCurrentFunction != FUNCTION_MONITOR) { // enable the monitor
 		RADIO_SelectVfos();
-		#ifdef ENABLE_NOAA
-			if (gRxVfo->CHANNEL_SAVE >= NOAA_CHANNEL_FIRST && gIsNoaaMode)
-				gNoaaChannel = gRxVfo->CHANNEL_SAVE - NOAA_CHANNEL_FIRST;
-		#endif
+#ifdef ENABLE_NOAA
+		if (gRxVfo->CHANNEL_SAVE >= NOAA_CHANNEL_FIRST && gIsNoaaMode)
+			gNoaaChannel = gRxVfo->CHANNEL_SAVE - NOAA_CHANNEL_FIRST;
+#endif
 		RADIO_SetupRegisters(true);
 		APP_StartListening(FUNCTION_MONITOR, false);
 		return;
@@ -88,32 +86,29 @@ void ACTION_Monitor(void)
 
 	gMonitor = false;
 	
-	if (gScanStateDir != SCAN_OFF)
-	{
+	if (gScanStateDir != SCAN_OFF) {
 		gScanPauseDelayIn_10ms = scan_pause_delay_in_1_10ms;
 		gScheduleScanListen    = false;
 		gScanPauseMode         = true;
 	}
 
-	#ifdef ENABLE_NOAA
-		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gIsNoaaMode)
-		{
-			gNOAA_Countdown_10ms = NOAA_countdown_10ms;
-			gScheduleNOAA        = false;
-		}
-	#endif
+#ifdef ENABLE_NOAA
+	if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF && gIsNoaaMode) {
+		gNOAA_Countdown_10ms = NOAA_countdown_10ms;
+		gScheduleNOAA        = false;
+	}
+#endif
 
 	RADIO_SetupRegisters(true);
 
-	#ifdef ENABLE_FMRADIO
-		if (gFmRadioMode)
-		{
-			FM_Start();
-			gRequestDisplayScreen = DISPLAY_FM;
-		}
-		else
-	#endif
-			gRequestDisplayScreen = gScreenToDisplay;
+#ifdef ENABLE_FMRADIO
+	if (gFmRadioMode) {
+		FM_Start();
+		gRequestDisplayScreen = DISPLAY_FM;
+	}
+	else
+#endif
+	gRequestDisplayScreen = gScreenToDisplay;
 }
 
 void ACTION_Scan(bool bRestart)
