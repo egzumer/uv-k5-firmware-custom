@@ -17,6 +17,7 @@
 #include "app/spectrum.h"
 #include "driver/backlight.h"
 #include "audio.h"
+#include "ui/helper.h"
 
 struct FrequencyBandInfo {
     uint32_t lower;
@@ -137,21 +138,13 @@ static void SetRegMenuValue(uint8_t st, bool add) {
 // GUI functions
 
 static void PutPixel(uint8_t x, uint8_t y, bool fill) {
-  if (fill) {
-    gFrameBuffer[y >> 3][x] |= 1 << (y & 7);
-  } else {
-    gFrameBuffer[y >> 3][x] &= ~(1 << (y & 7));
-  }
+  UI_DrawPixelBuffer(gFrameBuffer, x, y, fill);
 }
 static void PutPixelStatus(uint8_t x, uint8_t y, bool fill) {
-  if (fill) {
-    gStatusLine[x] |= 1 << y;
-  } else {
-    gStatusLine[x] &= ~(1 << y);
-  }
+  UI_DrawPixelBuffer(&gStatusLine, x, y, fill);
 }
 
-static void DrawHLine(int sy, int ey, int nx, bool fill) {
+static void DrawVLine(int sy, int ey, int nx, bool fill) {
   for (int i = sy; i <= ey; i++) {
     if (i < 56 && nx < 128) {
       PutPixel(nx, i, fill);
@@ -692,7 +685,7 @@ static void DrawSpectrum() {
   for (uint8_t x = 0; x < 128; ++x) {
     uint16_t rssi = rssiHistory[x >> settings.stepsCount];
     if (rssi != RSSI_MAX_VALUE) {
-      DrawHLine(Rssi2Y(rssi), DrawingEndY, x, true);
+      DrawVLine(Rssi2Y(rssi), DrawingEndY, x, true);
     }
   }
 }
@@ -717,36 +710,69 @@ static void DrawStatus() {
     GUI_DisplaySmallest(p->name, 40, 1, true, true);
   }
 
-  for (int i = 0; i < 4; i++) {
-    BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[i], &gBatteryCurrent);
-  }
-
-  uint16_t Voltage;
-  uint8_t v = 0;
-
-  Voltage = (gBatteryVoltages[0] + gBatteryVoltages[1] + gBatteryVoltages[2] +
-             gBatteryVoltages[3]) /
-            4;
-
-for(uint8_t i = 5; i > 0; i--) {
-  if(Voltage > gBatteryCalibration[i - 1]) {
-    v = i;
-    break;
-  }
-}
-
-  gStatusLine[127] = 0b01111110;
-  for (int i = 126; i >= 116; i--) {
-    gStatusLine[i] = 0b01000010;
-  }
-  v <<= 1;
-  for (int i = 125; i >= 116; i--) {
-    if (126 - i <= v) {
-      gStatusLine[i + 2] = 0b01111110;
+  const FreqPreset *p = NULL;
+  //uint32_t f = GetScreenF(currentFreq);
+  for (uint8_t i = 0; i < ARRAY_SIZE(freqPresets); ++i) {
+    if (currentFreq >= freqPresets[i].fStart && currentFreq < freqPresets[i].fEnd) {
+      p = &freqPresets[i];
     }
   }
-  gStatusLine[117] = 0b01111110;
-  gStatusLine[116] = 0b00011000;
+  if (p != NULL) {
+    GUI_DisplaySmallest(p->name, 40, 1, true, true);
+  }
+
+  BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[gBatteryCheckCounter++ % 4], &gBatteryCurrent);
+
+  uint16_t voltage = (gBatteryVoltages[0] + gBatteryVoltages[1] + gBatteryVoltages[2] +
+             gBatteryVoltages[3]) /
+            4 * 760 / gBatteryCalibration[3];
+
+  unsigned perc = BATTERY_VoltsToPercent(voltage);
+
+  // sprintf(String, "%d %d", voltage, perc);
+  // GUI_DisplaySmallest(String, 48, 1, true, true);
+
+  gStatusLine[116] = 0b00011100;
+  gStatusLine[117] = 0b00111110;
+  for (int i = 118; i <= 126; i++) {
+    gStatusLine[i] = 0b00100010;
+  }
+  
+  for (unsigned i = 127; i >= 118; i--) {
+    if (127 - i <= (perc+5)*9/100) {
+      gStatusLine[i] = 0b00111110;
+    }
+  }
+
+}
+
+static void ShowChannelName(uint32_t f) {
+
+  unsigned int i;
+  char s[12];
+  memset(String, 0, sizeof(String));
+
+  if ( isListening ) { 
+    for (i = 0; IS_MR_CHANNEL(i); i++) {
+        if (RADIO_CheckValidChannel(i, false, 0)) {
+          if (BOARD_fetchChannelFrequency(i) == f) {
+            memset(s, 0, sizeof(s));
+            BOARD_fetchChannelName(s, i);
+            if (s[0] != 0) {
+              if ( strlen(String) != 0 )
+                strcat(String, "/");   // Add a space to result
+              strcat(String, s);
+            }
+          }
+        }
+    }
+  }
+	if (String[0] != 0) {
+    if ( strlen(String) > 19 ) {
+      String[19] = 0;
+    }
+    GUI_DisplaySmallest(String, 34, 8, false, true);
+  }
 }
 
 static void ShowChannelName(uint32_t f) {
@@ -841,19 +867,13 @@ static void DrawTicks() {
 
   // center
   if (IsCenterMode()) {
-    gFrameBuffer[5][62] = 0x80;
-    gFrameBuffer[5][63] = 0x80;
+    memset(gFrameBuffer[5] + 62, 0x80, 5);
     gFrameBuffer[5][64] = 0xff;
-    gFrameBuffer[5][65] = 0x80;
-    gFrameBuffer[5][66] = 0x80;
   } else {
+    memset(gFrameBuffer[5] + 1, 0x80, 3);
+    memset(gFrameBuffer[5] + 124, 0x80, 3);
+
     gFrameBuffer[5][0] = 0xff;
-    gFrameBuffer[5][1] = 0x80;
-    gFrameBuffer[5][2] = 0x80;
-    gFrameBuffer[5][3] = 0x80;
-    gFrameBuffer[5][124] = 0x80;
-    gFrameBuffer[5][125] = 0x80;
-    gFrameBuffer[5][126] = 0x80;
     gFrameBuffer[5][127] = 0xff;
   }
 }

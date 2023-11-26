@@ -180,10 +180,12 @@ void UI_DisplayFrequency(const char *string, uint8_t X, uint8_t Y, bool center)
 	}
 }
 
-void UI_DrawPixel(uint8_t x, uint8_t y, bool black) 
+void UI_DrawPixelBuffer(uint8_t (*buffer)[128], uint8_t x, uint8_t y, bool black) 
 {
-	gFrameBuffer[y/8][x] &= ~(1 << (y%8));
-	gFrameBuffer[y/8][x] |= black << (y%8);
+	if(black)
+		buffer[y/8][x] |= 1 << (y%8);
+	else
+		buffer[y/8][x] &= ~(1 << (y%8));
 }
 
 static void sort(int16_t *a, int16_t *b)
@@ -195,12 +197,12 @@ static void sort(int16_t *a, int16_t *b)
 	}
 }
 
-void UI_DrawLine(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black)
+void UI_DrawLineBuffer(uint8_t (*buffer)[128], int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black)
 {
 	if(x2==x1) {
 		sort(&y1, &y2);
 		for(int16_t i = y1; i <= y2; i++) {
-			UI_DrawPixel(x1, i, black);
+			UI_DrawPixelBuffer(buffer, x1, i, black);
 		}
 	} else {
 		const int multipl = 1000;
@@ -210,17 +212,17 @@ void UI_DrawLine(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black)
 		sort(&x1, &x2);
 		for(int i = x1; i<= x2; i++)
 		{
-			UI_DrawPixel(i, i*a/multipl +b, black);
+			UI_DrawPixelBuffer(buffer, i, i*a/multipl +b, black);
 		}
 	}
 }
 
-void UI_DrawRectangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black)
+void UI_DrawRectangleBuffer(uint8_t (*buffer)[128], int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black)
 {
-	UI_DrawLine(x1,y1, x1,y2, black);
-	UI_DrawLine(x1,y1, x2,y1, black);
-	UI_DrawLine(x2,y1, x2,y2, black);
-	UI_DrawLine(x1,y2, x2,y2, black);
+	UI_DrawLineBuffer(buffer, x1,y1, x1,y2, black);
+	UI_DrawLineBuffer(buffer, x1,y1, x2,y1, black);
+	UI_DrawLineBuffer(buffer, x2,y1, x2,y2, black);
+	UI_DrawLineBuffer(buffer, x1,y2, x2,y2, black);
 }
 
 void UI_DisplayPopup(const char *string) 
@@ -234,13 +236,13 @@ void UI_DisplayPopup(const char *string)
 	// }
 
 	// for(uint8_t x = 10; x < 118; x++) {
-	// 	UI_DrawPixel(x, 10, true);
-	// 	UI_DrawPixel(x, 46-9, true);
+	// 	UI_DrawPixelBuffer(x, 10, true);
+	// 	UI_DrawPixelBuffer(x, 46-9, true);
 	// }
 
 	// for(uint8_t y = 11; y < 37; y++) {
-	// 	UI_DrawPixel(10, y, true);
-	// 	UI_DrawPixel(117, y, true);
+	// 	UI_DrawPixelBuffer(10, y, true);
+	// 	UI_DrawPixelBuffer(117, y, true);
 	// }
 	// DrawRectangle(9,9, 118,38, true);
 	UI_PrintString(string, 9, 118, 2, 8);
