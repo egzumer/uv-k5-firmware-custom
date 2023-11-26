@@ -710,17 +710,6 @@ static void DrawStatus() {
     GUI_DisplaySmallest(p->name, 40, 1, true, true);
   }
 
-  const FreqPreset *p = NULL;
-  //uint32_t f = GetScreenF(currentFreq);
-  for (uint8_t i = 0; i < ARRAY_SIZE(freqPresets); ++i) {
-    if (currentFreq >= freqPresets[i].fStart && currentFreq < freqPresets[i].fEnd) {
-      p = &freqPresets[i];
-    }
-  }
-  if (p != NULL) {
-    GUI_DisplaySmallest(p->name, 40, 1, true, true);
-  }
-
   BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[gBatteryCheckCounter++ % 4], &gBatteryCurrent);
 
   uint16_t voltage = (gBatteryVoltages[0] + gBatteryVoltages[1] + gBatteryVoltages[2] +
@@ -744,35 +733,6 @@ static void DrawStatus() {
     }
   }
 
-}
-
-static void ShowChannelName(uint32_t f) {
-
-  unsigned int i;
-  char s[12];
-  memset(String, 0, sizeof(String));
-
-  if ( isListening ) { 
-    for (i = 0; IS_MR_CHANNEL(i); i++) {
-        if (RADIO_CheckValidChannel(i, false, 0)) {
-          if (BOARD_fetchChannelFrequency(i) == f) {
-            memset(s, 0, sizeof(s));
-            BOARD_fetchChannelName(s, i);
-            if (s[0] != 0) {
-              if ( strlen(String) != 0 )
-                strcat(String, "/");   // Add a space to result
-              strcat(String, s);
-            }
-          }
-        }
-    }
-  }
-	if (String[0] != 0) {
-    if ( strlen(String) > 19 ) {
-      String[19] = 0;
-    }
-    GUI_DisplaySmallest(String, 34, 8, false, true);
-  }
 }
 
 static void ShowChannelName(uint32_t f) {
