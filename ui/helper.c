@@ -88,11 +88,13 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 	const size_t Length = strlen(pString);
 	size_t       i;
 
-	if (End > Start)
-		Start += (((End - Start) - (Length * 8)) + 1) / 2;
-
 	const unsigned int char_width   = ARRAY_SIZE(gFontSmall[0]);
 	const unsigned int char_spacing = char_width + 1;
+
+	if (End > Start)
+		Start += (((End - Start) - (Length * char_spacing)) + 1) / 2;
+
+
 	uint8_t            *pFb         = gFrameBuffer[Line] + Start;
 	for (i = 0; i < Length; i++)
 	{

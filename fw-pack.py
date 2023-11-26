@@ -21,11 +21,10 @@ def obfuscate(fw):
     return bytes([a^b for a, b in zip(fw, cycle(OBFUSCATION))])
 
 plain = open(sys.argv[1], 'rb').read()
-if len(sys.argv[2]) > 10:
-    print('Version suffix is too big!')
-    sys.exit(1)
 
-version = b'*OEFW-' + bytes(sys.argv[2], 'ascii')
+version = b'*' + bytes(sys.argv[2], 'ascii') + b' ' + bytes(sys.argv[3], 'ascii')
+version = version[0:16]
+
 if len(version) < 16:
     version += b'\x00' * (16 - len(version))
 
@@ -36,5 +35,5 @@ crc.update(packed)
 digest = crc.digest()
 digest = bytes([digest[1], digest[0]])
 
-open(sys.argv[3], 'wb').write(packed + digest)
+open(sys.argv[4], 'wb').write(packed + digest)
 

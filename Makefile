@@ -158,6 +158,20 @@ else
 	TOP := $(shell pwd)
 endif
 
+ifdef OS # windows
+   RM = del /Q
+   FixPath = $(subst /,\,$1)
+   WHERE = where
+   NULL_OUTPUT = nul
+else # unix
+   ifeq ($(shell uname), Linux)
+      RM = rm -f
+      FixPath = $1
+	  WHERE = which
+	  NULL_OUTPUT = /dev/null
+   endif
+endif
+
 AS = arm-none-eabi-gcc
 
 CC =
@@ -177,12 +191,17 @@ endif
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
 
+AUTHOR_STRING := EGZUMER
 # the user might not have/want git installed
 # can set own version string here (max 7 chars)
-GIT_HASH := $(shell git rev-parse --short HEAD)
-#GIT_HASH := 230930b
+ifneq (, $(shell $(WHERE) git))
+	VERSION_STRING := $(shell git describe --tags --exact-match 2>$(NULL_OUTPUT))
+	ifeq (, $(VERSION_STRING))
+    	VERSION_STRING := $(shell git rev-parse --short HEAD)
+	endif
+endif
+#VERSION_STRING := 230930b
 
-$(info GIT_HASH = $(GIT_HASH))
 
 ASFLAGS = -c -mcpu=cortex-m0
 ifeq ($(ENABLE_OVERLAY),1)
@@ -215,7 +234,7 @@ CFLAGS += -Wextra
 #CFLAGS += -Wpedantic
 
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
-CFLAGS += -DGIT_HASH=\"$(GIT_HASH)\"
+CFLAGS += -DAUTHOR_STRING=\"$(AUTHOR_STRING)\" -DVERSION_STRING=\"$(VERSION_STRING)\"
 
 ifeq ($(ENABLE_SPECTRUM),1)
 CFLAGS += -DENABLE_SPECTRUM
@@ -360,17 +379,7 @@ LIBS =
 
 DEPS = $(OBJS:.o=.d)
 
-ifdef OS
-   RM = del /Q
-   FixPath = $(subst /,\,$1)
-   WHERE = where
-else
-   ifeq ($(shell uname), Linux)
-      RM = rm -f
-      FixPath = $1
-	  WHERE = which
-   endif
-endif
+
 
 ifneq (, $(shell $(WHERE) python))
     MY_PYTHON := python
@@ -395,7 +404,7 @@ else ifneq (,$(HAS_CRCMOD))
 	$(info !!!!!!!! run: pip install crcmod)
 	$(info )
 else
-	-$(MY_PYTHON) fw-pack.py $<.bin $(GIT_HASH) $<.packed.bin
+	-$(MY_PYTHON) fw-pack.py $<.bin $(AUTHOR_STRING) $(VERSION_STRING) $<.packed.bin
 endif
 
 	$(SIZE) $<

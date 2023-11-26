@@ -77,7 +77,7 @@ void UI_DisplayWelcome(void)
 
 		UI_PrintString(WelcomeString0, 0, 127, 0, 10);
 		UI_PrintString(WelcomeString1, 0, 127, 2, 10);
-		UI_PrintStringSmall(Version, 0, 0, 6);
+		UI_PrintStringSmall(Version, 0, 128, 6);
 
 		ST7565_BlitStatusLine();  // blank status line
 		ST7565_BlitFullScreen();
