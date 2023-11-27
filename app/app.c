@@ -1906,22 +1906,16 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				}
 #endif
 		}
-		else if (Key != KEY_SIDE1 && Key != KEY_SIDE2)
-		{
-			switch (gScreenToDisplay)
-			{
+		else if (Key != KEY_SIDE1 && Key != KEY_SIDE2) {
+			switch (gScreenToDisplay) {
 				case DISPLAY_MAIN:
-				
 					MAIN_ProcessKeys(Key, bKeyPressed, bKeyHeld);
-//					bKeyHeld = false;	// allow the channel setting to be saved
 					break;
-
-				#ifdef ENABLE_FMRADIO
-					case DISPLAY_FM:
-						FM_ProcessKeys(Key, bKeyPressed, bKeyHeld);
-						break;
-				#endif
-
+#ifdef ENABLE_FMRADIO
+				case DISPLAY_FM:
+					FM_ProcessKeys(Key, bKeyPressed, bKeyHeld);
+					break;
+#endif
 				case DISPLAY_MENU:
 					MENU_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 					break;
@@ -1930,12 +1924,11 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					SCANNER_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 					break;
 
-				#ifdef ENABLE_AIRCOPY
-					case DISPLAY_AIRCOPY:
-						AIRCOPY_ProcessKeys(Key, bKeyPressed, bKeyHeld);
-						break;
-				#endif
-
+#ifdef ENABLE_AIRCOPY
+				case DISPLAY_AIRCOPY:
+					AIRCOPY_ProcessKeys(Key, bKeyPressed, bKeyHeld);
+					break;
+#endif
 				case DISPLAY_INVALID:
 				default:
 					break;
