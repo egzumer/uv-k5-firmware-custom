@@ -131,7 +131,7 @@ typedef struct VFO_Info_t
 } VFO_Info_t;
 
 // Settings of the main VFO that is selected by the user
-// The pointer follows gEeprom.RX_VFO index
+// The pointer follows gEeprom.TX_VFO index
 extern VFO_Info_t    *gTxVfo;
 
 // Settings of the actual VFO that is now used for RX,
