@@ -24,7 +24,7 @@ ENABLE_TX_WHEN_AM             := 0
 ENABLE_F_CAL_MENU             := 0
 ENABLE_CTCSS_TAIL_PHASE_SHIFT := 0
 ENABLE_BOOT_BEEPS             := 0
-ENABLE_SHOW_CHARGE_LEVEL      := 1
+ENABLE_SHOW_CHARGE_LEVEL      := 0
 ENABLE_REVERSE_BAT_SYMBOL     := 0
 ENABLE_NO_CODE_SCAN_TIMEOUT   := 1
 ENABLE_AM_FIX                 := 1
@@ -37,7 +37,8 @@ ENABLE_COPY_CHAN_TO_VFO       := 1
 ENABLE_SPECTRUM               := 1
 ENABLE_REDUCE_LOW_MID_TX_POWER:= 0
 ENABLE_BYP_RAW_DEMODULATORS   := 0
-ENABLE_BLMIN_TMP_OFF		  := 0
+ENABLE_BLMIN_TMP_OFF          := 0
+ENABLE_SCAN_RANGES            := 1
 #############################################################
 
 TARGET = firmware
@@ -346,6 +347,9 @@ ifeq ($(ENABLE_BYP_RAW_DEMODULATORS),1)
 endif
 ifeq ($(ENABLE_BLMIN_TMP_OFF),1)
 	CFLAGS  += -DENABLE_BLMIN_TMP_OFF
+endif
+ifeq ($(ENABLE_SCAN_RANGES),1)
+	CFLAGS  += -DENABLE_SCAN_RANGES
 endif
 
 LDFLAGS =

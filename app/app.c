@@ -551,16 +551,21 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	gUpdateStatus = true;
 }
 
-uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t direction)
+uint32_t APP_SetFreqByStepAndLimits(VFO_Info_t *pInfo, int8_t direction, uint32_t lower, uint32_t upper)
 {
 	uint32_t Frequency = FREQUENCY_RoundToStep(pInfo->freq_config_RX.Frequency + (direction * pInfo->StepFrequency), pInfo->StepFrequency);
 
-	if (Frequency >= frequencyBandTable[pInfo->Band].upper)
-		Frequency =  frequencyBandTable[pInfo->Band].lower;
-	else if (Frequency < frequencyBandTable[pInfo->Band].lower)
-		Frequency = FREQUENCY_RoundToStep(frequencyBandTable[pInfo->Band].upper - pInfo->StepFrequency, pInfo->StepFrequency);
+	if (Frequency >= upper)
+		Frequency =  lower;
+	else if (Frequency < lower)
+		Frequency = FREQUENCY_RoundToStep(upper - pInfo->StepFrequency, pInfo->StepFrequency);
 
 	return Frequency;
+}
+
+uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t direction)
+{
+	return APP_SetFreqByStepAndLimits(pInfo, direction, frequencyBandTable[pInfo->Band].lower, frequencyBandTable[pInfo->Band].upper);
 }
 
 #ifdef ENABLE_NOAA
@@ -1721,6 +1726,9 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			
 			if (gMonitor)
 				ACTION_Monitor(); //turn off the monitor
+#ifdef ENABLE_SCAN_RANGES
+			gScanRangeStart = 0;
+#endif
 		}
 
 		if (gScreenToDisplay == DISPLAY_MENU)       // 1of11

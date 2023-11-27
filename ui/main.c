@@ -17,6 +17,7 @@
 #include <string.h>
 #include <stdlib.h>  // abs()
 
+#include "app/chFrScanner.h"
 #include "app/dtmf.h"
 #ifdef ENABLE_AM_FIX_SHOW_DATA
 	#include "am_fix.h"
@@ -281,6 +282,17 @@ void UI_DisplayMain(void)
 
 		if (activeTxVFO != vfo_num) // this is not active TX VFO
 		{
+#ifdef ENABLE_SCAN_RANGES
+			if(gScanRangeStart) {
+					UI_PrintString("ScnRng", 5, 0, line, 8);
+					sprintf(String, "%3u.%05u", gScanRangeStart / 100000, gScanRangeStart % 100000);
+					UI_PrintStringSmall(String, 56, 0, line);
+					uint32_t frq = gEeprom.VfoInfo[vfo_num].pRX->Frequency;
+					sprintf(String, "%3u.%05u", frq / 100000, frq % 100000);
+					UI_PrintStringSmall(String, 56, 0, line + 1);
+				continue;
+			}
+#endif
 			if (gDTMF_CallState != DTMF_CALL_STATE_NONE || gDTMF_IsTx || gDTMF_InputMode)
 			{	// show DTMF stuff
 

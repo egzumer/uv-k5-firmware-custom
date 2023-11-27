@@ -9,6 +9,10 @@ int8_t            gScanStateDir;
 bool              gScanKeepResult;
 bool              gScanPauseMode;
 
+#ifdef ENABLE_SCAN_RANGES
+uint32_t          gScanRangeStart;
+#endif
+
 typedef enum {
 	SCAN_NEXT_CHAN_SCANLIST1 = 0,
 	SCAN_NEXT_CHAN_SCANLIST2,
@@ -151,7 +155,15 @@ void CHFRSCANNER_Stop(void)
 
 static void NextFreqChannel(void)
 {
-	gRxVfo->freq_config_RX.Frequency = APP_SetFrequencyByStep(gRxVfo, gScanStateDir);
+#ifdef ENABLE_SCAN_RANGES
+	if(gScanRangeStart) {
+		uint32_t start = gScanRangeStart;
+		uint32_t end = gEeprom.VfoInfo[(gEeprom.TX_VFO+1)%2].freq_config_RX.Frequency;
+		gRxVfo->freq_config_RX.Frequency = APP_SetFreqByStepAndLimits(gRxVfo, gScanStateDir, MIN(start, end), MAX(start, end));
+	}
+	else
+#endif
+		gRxVfo->freq_config_RX.Frequency = APP_SetFrequencyByStep(gRxVfo, gScanStateDir);
 
 	RADIO_ApplyOffset(gRxVfo);
 	RADIO_ConfigureSquelchAndOutputPower(gRxVfo);

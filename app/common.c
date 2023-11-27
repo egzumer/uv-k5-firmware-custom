@@ -1,3 +1,4 @@
+#include "app/chFrScanner.h"
 #include "audio.h"
 #include "functions.h"
 #include "misc.h"
@@ -23,6 +24,9 @@ void COMMON_KeypadLockToggle()
 
 void COMMON_SwitchVFOs()
 {
+#ifdef ENABLE_SCAN_RANGES    
+    gScanRangeStart = 0;
+#endif
     gEeprom.TX_VFO ^= 1;
 
     if (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF)

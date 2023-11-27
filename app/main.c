@@ -46,8 +46,15 @@
 void toggle_chan_scanlist(void)
 {	// toggle the selected channels scanlist setting
 
-	if ( SCANNER_IsScanning() || !IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
+	if ( SCANNER_IsScanning())
 		return;
+
+	if(!IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE)) {
+#ifdef ENABLE_SCAN_RANGES
+		gScanRangeStart = gScanRangeStart ? 0 : gTxVfo->pRX->Frequency;
+#endif
+		return;
+	}
 
 	if (gTxVfo->SCANLIST1_PARTICIPATION)
 	{
