@@ -227,7 +227,7 @@ static void FM_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
 	enum { STATE_FREQ_MODE, STATE_MR_MODE, STATE_SAVE };
 
-	if (!bKeyHeld && bKeyPressed) {
+	if (!bKeyHeld && !bKeyPressed) {
 		if (!gWasFKeyPressed) {
 			uint8_t State;
 
