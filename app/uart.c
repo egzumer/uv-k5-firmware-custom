@@ -400,7 +400,9 @@ static void CMD_052F(const uint8_t *pBuffer)
 	gEeprom.VfoInfo[0].pTX                           = &gEeprom.VfoInfo[0].freq_config_TX;
 	gEeprom.VfoInfo[0].TX_OFFSET_FREQUENCY_DIRECTION = TX_OFFSET_FREQUENCY_DIRECTION_OFF;
 	gEeprom.VfoInfo[0].DTMF_PTT_ID_TX_MODE           = PTT_ID_OFF;
+#ifdef ENABLE_DTMF_CALLING
 	gEeprom.VfoInfo[0].DTMF_DECODING_ENABLE          = false;
+#endif
 
 	#ifdef ENABLE_NOAA
 		gIsNoaaMode = false;

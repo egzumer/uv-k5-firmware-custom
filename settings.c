@@ -141,10 +141,12 @@ void SETTINGS_SaveSettings(void)
 	EEPROM_WriteBuffer(0x0EA8, State);
 
 	State[0] = gEeprom.DTMF_SIDE_TONE;
+#ifdef ENABLE_DTMF_CALLING
 	State[1] = gEeprom.DTMF_SEPARATE_CODE;
 	State[2] = gEeprom.DTMF_GROUP_CALL_CODE;
 	State[3] = gEeprom.DTMF_DECODE_RESPONSE;
 	State[4] = gEeprom.DTMF_auto_reset_time;
+#endif	
 	State[5] = gEeprom.DTMF_PRELOAD_TIME / 10U;
 	State[6] = gEeprom.DTMF_FIRST_CODE_PERSIST_TIME / 10U;
 	State[7] = gEeprom.DTMF_HASH_CODE_PERSIST_TIME / 10U;
@@ -153,7 +155,9 @@ void SETTINGS_SaveSettings(void)
 	memset(State, 0xFF, sizeof(State));
 	State[0] = gEeprom.DTMF_CODE_PERSIST_TIME / 10U;
 	State[1] = gEeprom.DTMF_CODE_INTERVAL_TIME / 10U;
+#ifdef ENABLE_DTMF_CALLING
 	State[2] = gEeprom.PERMIT_REMOTE_KILL;
+#endif
 	EEPROM_WriteBuffer(0x0ED8, State);
 
 	State[0] = gEeprom.SCAN_LIST_DEFAULT;
@@ -169,7 +173,9 @@ void SETTINGS_SaveSettings(void)
 	memset(State, 0xFF, sizeof(State));
 	State[0]  = gSetting_F_LOCK;
 	State[1]  = gSetting_350TX;
+#ifdef ENABLE_DTMF_CALLING
 	State[2]  = gSetting_KILLED;
+#endif
 	State[3]  = gSetting_200TX;
 	State[4]  = gSetting_500TX;
 	State[5]  = gSetting_350EN;
@@ -221,7 +227,11 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 				| (pVFO->OUTPUT_POWER      << 2)
 				| (pVFO->CHANNEL_BANDWIDTH << 1)
 				| (pVFO->FrequencyReverse  << 0);
-			State[5] = ((pVFO->DTMF_PTT_ID_TX_MODE & 7u) << 1) | ((pVFO->DTMF_DECODING_ENABLE & 1u) << 0);
+			State[5] = ((pVFO->DTMF_PTT_ID_TX_MODE & 7u) << 1) 
+#ifdef ENABLE_DTMF_CALLING
+				| ((pVFO->DTMF_DECODING_ENABLE & 1u) << 0)
+#endif
+			;
 			State[6] =  pVFO->STEP_SETTING;
 			State[7] =  pVFO->SCRAMBLING_TYPE;
 			EEPROM_WriteBuffer(OffsetVFO + 8, State);

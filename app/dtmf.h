@@ -75,13 +75,14 @@ extern uint8_t           gDTMF_InputBox_Index;
 extern bool              gDTMF_InputMode;
 extern uint8_t           gDTMF_PreviousIndex;
 
+extern char              gDTMF_RX_live[20];
+extern uint8_t           gDTMF_RX_live_timeout;
+
+#ifdef ENABLE_DTMF_CALLING
 extern char              gDTMF_RX[17];
 extern uint8_t           gDTMF_RX_index;
 extern uint8_t           gDTMF_RX_timeout;
 extern bool              gDTMF_RX_pending;
-
-extern char              gDTMF_RX_live[20];
-extern uint8_t           gDTMF_RX_live_timeout;
 
 extern bool              gIsDtmfContactValid;
 extern char              gDTMF_ID[4];
@@ -92,21 +93,25 @@ extern uint8_t           gDTMF_DecodeRingCountdown_500ms;
 extern uint8_t           gDTMF_chosen_contact;
 extern uint8_t           gDTMF_auto_reset_time_500ms;
 extern DTMF_CallState_t  gDTMF_CallState;
-extern DTMF_ReplyState_t gDTMF_ReplyState;
+
 extern DTMF_CallMode_t   gDTMF_CallMode;
 extern bool              gDTMF_IsTx;
 extern uint8_t           gDTMF_TxStopCountdown_500ms;
+#endif
+extern DTMF_ReplyState_t gDTMF_ReplyState;
 
-void DTMF_clear_RX(void);
 bool DTMF_ValidateCodes(char *pCode, const unsigned int size);
-bool DTMF_GetContact(const int Index, char *pContact);
-bool DTMF_FindContact(const char *pContact, char *pResult);
 char DTMF_GetCharacter(const unsigned int code);
-bool DTMF_CompareMessage(const char *pDTMF, const char *pTemplate, const unsigned int size, const bool bFlag);
-DTMF_CallMode_t DTMF_CheckGroupCall(const char *pDTMF, const unsigned int size);
 void DTMF_clear_input_box(void);
 void DTMF_Append(const char vode);
-void DTMF_HandleRequest(void);
 void DTMF_Reply(void);
+
+#ifdef ENABLE_DTMF_CALLING
+void DTMF_clear_RX(void);
+DTMF_CallMode_t DTMF_CheckGroupCall(const char *pDTMF, const unsigned int size);
+bool DTMF_GetContact(const int Index, char *pContact);
+bool DTMF_FindContact(const char *pContact, char *pResult);
+void DTMF_HandleRequest(void);
+#endif
 
 #endif

@@ -41,13 +41,14 @@ uint8_t           gDTMF_InputBox_Index = 0;
 bool              gDTMF_InputMode      = false;
 uint8_t           gDTMF_PreviousIndex  = 0;
 
+char              gDTMF_RX_live[20];
+uint8_t           gDTMF_RX_live_timeout = 0;
+
+#ifdef ENABLE_DTMF_CALLING
 char              gDTMF_RX[17];
 uint8_t           gDTMF_RX_index   = 0;
 uint8_t           gDTMF_RX_timeout = 0;
 bool              gDTMF_RX_pending = false;
-
-char              gDTMF_RX_live[20];
-uint8_t           gDTMF_RX_live_timeout = 0;
 
 bool              gIsDtmfContactValid;
 char              gDTMF_ID[4];
@@ -58,12 +59,16 @@ uint8_t           gDTMF_DecodeRingCountdown_500ms;
 uint8_t           gDTMF_chosen_contact;
 uint8_t           gDTMF_auto_reset_time_500ms;
 DTMF_CallState_t  gDTMF_CallState;
-DTMF_ReplyState_t gDTMF_ReplyState;
 DTMF_CallMode_t   gDTMF_CallMode;
+
 bool              gDTMF_IsTx;
+
 uint8_t           gDTMF_TxStopCountdown_500ms;
 bool              gDTMF_IsGroupCall;
+#endif
+DTMF_ReplyState_t gDTMF_ReplyState;
 
+#ifdef ENABLE_DTMF_CALLING
 void DTMF_clear_RX(void)
 {
 	gDTMF_RX_timeout = 0;
@@ -71,6 +76,7 @@ void DTMF_clear_RX(void)
 	gDTMF_RX_pending = false;
 	memset(gDTMF_RX, 0, sizeof(gDTMF_RX));
 }
+#endif
 
 bool DTMF_ValidateCodes(char *pCode, const unsigned int size)
 {
@@ -94,6 +100,7 @@ bool DTMF_ValidateCodes(char *pCode, const unsigned int size)
 	return true;
 }
 
+#ifdef ENABLE_DTMF_CALLING
 bool DTMF_GetContact(const int Index, char *pContact)
 {
 	int i = -1;
@@ -132,6 +139,8 @@ bool DTMF_FindContact(const char *pContact, char *pResult)
 	return false;
 }
 
+#endif
+
 char DTMF_GetCharacter(const unsigned int code)
 {
 	switch (code)
@@ -155,8 +164,8 @@ char DTMF_GetCharacter(const unsigned int code)
 		default:       return 0xff;
 	}
 }
-
-bool DTMF_CompareMessage(const char *pMsg, const char *pTemplate, const unsigned int size, const bool bCheckGroup)
+#ifdef ENABLE_DTMF_CALLING
+static bool CompareMessage(const char *pMsg, const char *pTemplate, const unsigned int size, const bool bCheckGroup)
 {
 	unsigned int i;
 	for (i = 0; i < size; i++)
@@ -181,6 +190,7 @@ DTMF_CallMode_t DTMF_CheckGroupCall(const char *pMsg, const unsigned int size)
 
 	return (i < size) ? DTMF_CALL_MODE_GROUP : DTMF_CALL_MODE_NOT_GROUP;
 }
+#endif
 
 void DTMF_clear_input_box(void)
 {
@@ -201,6 +211,7 @@ void DTMF_Append(const char code)
 		gDTMF_InputBox[gDTMF_InputBox_Index++] = code;
 }
 
+#ifdef ENABLE_DTMF_CALLING
 void DTMF_HandleRequest(void)
 {	// proccess the RX'ed DTMF characters
 
@@ -231,7 +242,7 @@ void DTMF_HandleRequest(void)
 
 		Offset = gDTMF_RX_index - strlen(String);
 
-		if (DTMF_CompareMessage(gDTMF_RX + Offset, String, strlen(String), true))
+		if (CompareMessage(gDTMF_RX + Offset, String, strlen(String), true))
 		{	// bugger
 
 			if (gEeprom.PERMIT_REMOTE_KILL)
@@ -272,7 +283,7 @@ void DTMF_HandleRequest(void)
 
 		Offset = gDTMF_RX_index - strlen(String);
 
-		if (DTMF_CompareMessage(gDTMF_RX + Offset, String, strlen(String), true))
+		if (CompareMessage(gDTMF_RX + Offset, String, strlen(String), true))
 		{	// shit, we're back !
 
 			gSetting_KILLED  = false;
@@ -297,7 +308,7 @@ void DTMF_HandleRequest(void)
 
 		Offset = gDTMF_RX_index - strlen(String);
 
-		if (DTMF_CompareMessage(gDTMF_RX + Offset, String, strlen(String), true))
+		if (CompareMessage(gDTMF_RX + Offset, String, strlen(String), true))
 		{	// ends with "AB"
 
 			if (gDTMF_ReplyState != DTMF_REPLY_NONE)          // 1of11
@@ -321,7 +332,7 @@ void DTMF_HandleRequest(void)
 
 		Offset = gDTMF_RX_index - strlen(String);
 
-		if (DTMF_CompareMessage(gDTMF_RX + Offset, String, strlen(String), false))
+		if (CompareMessage(gDTMF_RX + Offset, String, strlen(String), false))
 		{	// we got a response
 			gDTMF_State    = DTMF_STATE_CALL_OUT_RSP;
 			DTMF_clear_RX();
@@ -343,7 +354,7 @@ void DTMF_HandleRequest(void)
 
 		Offset = gDTMF_RX_index - strlen(String) - 3;
 
-		if (DTMF_CompareMessage(gDTMF_RX + Offset, String, strlen(String), true))
+		if (CompareMessage(gDTMF_RX + Offset, String, strlen(String), true))
 		{	// it's for us !
 
 			gDTMF_CallState = DTMF_CALL_STATE_RECEIVED;
@@ -380,27 +391,33 @@ void DTMF_HandleRequest(void)
 		}
 	}
 }
+#endif
 
 void DTMF_Reply(void)
 {
 	uint16_t    Delay;
+#ifdef ENABLE_DTMF_CALLING
 	char        String[23];
+#endif
 	const char *pString = NULL;
 
 	switch (gDTMF_ReplyState)
 	{
 		case DTMF_REPLY_ANI:
-			if (gDTMF_CallMode == DTMF_CALL_MODE_DTMF)
-			{
-				pString = gDTMF_String;
-			}
-			else
+#ifdef ENABLE_DTMF_CALLING
+			if (gDTMF_CallMode != DTMF_CALL_MODE_DTMF)
 			{	// append our ID code onto the end of the DTMF code to send
 				sprintf(String, "%s%c%s", gDTMF_String, gEeprom.DTMF_SEPARATE_CODE, gEeprom.ANI_DTMF_ID);
 				pString = String;
 			}
-			break;
+			else 
+#endif
+			{
+				pString = gDTMF_String;
+			}
 
+			break;
+#ifdef ENABLE_DTMF_CALLING
 		case DTMF_REPLY_AB:
 			pString = "AB";
 			break;
@@ -409,10 +426,13 @@ void DTMF_Reply(void)
 			sprintf(String, "%s%c%s", gEeprom.ANI_DTMF_ID, gEeprom.DTMF_SEPARATE_CODE, "AAAAA");
 			pString = String;
 			break;
-
+#endif
 		default:
 		case DTMF_REPLY_NONE:
-			if (gDTMF_CallState != DTMF_CALL_STATE_NONE           ||
+			if (
+#ifdef ENABLE_DTMF_CALLING
+				gDTMF_CallState != DTMF_CALL_STATE_NONE           ||
+#endif
 			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_APOLLO ||
 			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_OFF    ||
 			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN)

@@ -487,12 +487,14 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 
 		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 
+#ifdef ENABLE_DTMF_CALLING
 		if (gDTMF_CallState != DTMF_CALL_STATE_NONE && gCurrentFunction != FUNCTION_TRANSMIT)
 		{	// clear CALL mode being displayed
 			gDTMF_CallState = DTMF_CALL_STATE_NONE;
 			gUpdateDisplay  = true;
 			return;
 		}
+#endif
 
 		#ifdef ENABLE_FMRADIO
 			if (!gFmRadioMode)

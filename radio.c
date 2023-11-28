@@ -326,12 +326,16 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 		if (data[5] == 0xFF)
 		{
+#ifdef ENABLE_DTMF_CALLING
 			pVfo->DTMF_DECODING_ENABLE = false;
+#endif
 			pVfo->DTMF_PTT_ID_TX_MODE  = PTT_ID_OFF;
 		}
 		else
 		{
+#ifdef ENABLE_DTMF_CALLING
 			pVfo->DTMF_DECODING_ENABLE = ((data[5] >> 0) & 1u) ? true : false;
+#endif
 			pVfo->DTMF_PTT_ID_TX_MODE  = ((data[5] >> 1) & 7u);
 		}
 
@@ -1023,14 +1027,16 @@ void RADIO_PrepareTX(void)
 			gAlarmState = ALARM_STATE_OFF;
 		#endif
 
+#ifdef ENABLE_DTMF_CALLING
 		gDTMF_ReplyState = DTMF_REPLY_NONE;
-
+#endif
 		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 		return;
 	}
 
 	// TX is allowed
 
+#ifdef ENABLE_DTMF_CALLING
 	if (gDTMF_ReplyState == DTMF_REPLY_ANI)
 	{
 		if (gDTMF_CallMode == DTMF_CALL_MODE_DTMF)
@@ -1045,6 +1051,7 @@ void RADIO_PrepareTX(void)
 			gDTMF_IsTx      = false;
 		}
 	}
+#endif
 
 	FUNCTION_Select(FUNCTION_TRANSMIT);
 
@@ -1066,7 +1073,10 @@ void RADIO_PrepareTX(void)
 
 	gFlagEndTransmission = false;
 	gRTTECountdown       = 0;
+
+#ifdef ENABLE_DTMF_CALLING
 	gDTMF_ReplyState     = DTMF_REPLY_NONE;
+#endif
 }
 
 void RADIO_EnableCxCSS(void)
@@ -1105,7 +1115,10 @@ void RADIO_SendEndOfTransmission(void)
 	if (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_APOLLO)
 		BK4819_PlaySingleTone(2475, 250, 28, gEeprom.DTMF_SIDE_TONE);
 
-	if (gDTMF_CallState == DTMF_CALL_STATE_NONE &&
+	if (
+#ifdef ENABLE_DTMF_CALLING
+		gDTMF_CallState == DTMF_CALL_STATE_NONE &&
+#endif
 	   (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN ||
 	    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH))
 	{	// end-of-tx

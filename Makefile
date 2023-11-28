@@ -39,6 +39,7 @@ ENABLE_REDUCE_LOW_MID_TX_POWER:= 0
 ENABLE_BYP_RAW_DEMODULATORS   := 0
 ENABLE_BLMIN_TMP_OFF          := 0
 ENABLE_SCAN_RANGES            := 1
+ENABLE_DTMF_CALLING           := 1
 #############################################################
 
 TARGET = firmware
@@ -350,6 +351,9 @@ ifeq ($(ENABLE_BLMIN_TMP_OFF),1)
 endif
 ifeq ($(ENABLE_SCAN_RANGES),1)
 	CFLAGS  += -DENABLE_SCAN_RANGES
+endif
+ifeq ($(ENABLE_DTMF_CALLING),1)
+	CFLAGS  += -DENABLE_DTMF_CALLING
 endif
 
 LDFLAGS =

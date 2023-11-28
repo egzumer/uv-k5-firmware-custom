@@ -55,7 +55,9 @@ void FUNCTION_Init(void)
 		gCurrentCodeType = CODE_TYPE_CONTINUOUS_TONE;
 #endif
 
+#ifdef ENABLE_DTMF_CALLING
 	DTMF_clear_RX();
+#endif
 
 	g_CxCSS_TAIL_Found = false;
 	g_CDCSS_Lost       = false;
@@ -99,9 +101,10 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 	switch (Function)
 	{
 		case FUNCTION_FOREGROUND:
+#ifdef ENABLE_DTMF_CALLING
 			if (gDTMF_ReplyState != DTMF_REPLY_NONE)
 				RADIO_PrepareCssTX();
-
+#endif
 			if (PreviousFunction == FUNCTION_TRANSMIT)
 			{
 				ST7565_FixInterfGlitch();
@@ -116,14 +119,15 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 				if (gFmRadioMode)
 					gFM_RestoreCountdown_10ms = fm_restore_countdown_10ms;
 			#endif
-
+			
+#ifdef ENABLE_DTMF_CALLING
 			if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT ||
 			    gDTMF_CallState == DTMF_CALL_STATE_RECEIVED ||
 				gDTMF_CallState == DTMF_CALL_STATE_RECEIVED_STAY)
 			{
 				gDTMF_auto_reset_time_500ms = gEeprom.DTMF_auto_reset_time * 2;
 			}
-
+#endif
 			gUpdateStatus = true;
 			return;
 
@@ -160,8 +164,10 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			// if DTMF is enabled when TX'ing, it changes the TX audio filtering !! .. 1of11
 			BK4819_DisableDTMF();
 
+#ifdef ENABLE_DTMF_CALLING
 			// clear the DTMF RX buffer
 			DTMF_clear_RX();
+#endif
 
 			// clear the DTMF RX live decoder buffer
 			gDTMF_RX_live_timeout = 0;

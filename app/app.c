@@ -174,9 +174,10 @@ static void HandleIncoming(void)
 	bool bFlag;
 
 	if (!g_SquelchLost) {	// squelch is closed
+#ifdef ENABLE_DTMF_CALLING
 		if (gDTMF_RX_index > 0)
 			DTMF_clear_RX();
-
+#endif
 		if (gCurrentFunction != FUNCTION_FOREGROUND) {
 			FUNCTION_Select(FUNCTION_FOREGROUND);
 			gUpdateDisplay = true;
@@ -204,6 +205,7 @@ static void HandleIncoming(void)
 	else if (!bFlag)
 		return;
 
+#ifdef ENABLE_DTMF_CALLING
 	if (gScanStateDir == SCAN_OFF) { // not scanning
 		if (gRxVfo->DTMF_DECODING_ENABLE || gSetting_KILLED) { // DTMF DCD is enabled
 
@@ -226,6 +228,7 @@ static void HandleIncoming(void)
 			}
 		}
 	}
+#endif
 
 	APP_StartListening(gMonitor ? FUNCTION_MONITOR : FUNCTION_RECEIVE, false);
 }
@@ -446,8 +449,10 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 	const unsigned int chan = gEeprom.RX_VFO;
 //	const unsigned int chan = gRxVfo->CHANNEL_SAVE;
 
+#ifdef ENABLE_DTMF_CALLING
 	if (gSetting_KILLED)
 		return;
+#endif
 
 #ifdef ENABLE_FMRADIO
 	if (gFmRadioMode)
@@ -658,6 +663,7 @@ static void CheckRadioInterrupts(void)
 						gUpdateDisplay        = true;
 					}
 
+#ifdef ENABLE_DTMF_CALLING
 					if (gRxVfo->DTMF_DECODING_ENABLE || gSetting_KILLED)
 					{
 						if (gDTMF_RX_index >= (sizeof(gDTMF_RX) - 1))
@@ -672,6 +678,7 @@ static void CheckRadioInterrupts(void)
 
 						DTMF_HandleRequest();
 					}
+#endif
 				}
 			}
 		}
@@ -768,9 +775,11 @@ void APP_EndTransmission(void)
 #ifdef ENABLE_VOX
 	static void HandleVox(void)
 	{
+#ifdef ENABLE_DTMF_CALLING
 		if (gSetting_KILLED)
 			return;
-	
+#endif
+
 		if (gVoxResumeCountdown == 0)
 		{
 			if (gVoxPauseCountdown)
@@ -837,7 +846,9 @@ void APP_EndTransmission(void)
 	
 			if (gCurrentFunction != FUNCTION_TRANSMIT && gSerialConfigCountDown_500ms == 0)
 			{
+#ifdef ENABLE_DTMF_CALLING
 				gDTMF_ReplyState = DTMF_REPLY_NONE;
+#endif
 				RADIO_PrepareTX();
 				gUpdateDisplay = true;
 			}
@@ -919,7 +930,9 @@ void APP_Update(void)
 #ifdef ENABLE_FMRADIO
 					!gFmRadioMode &&
 #endif
+#ifdef ENABLE_DTMF_CALLING
 				    gDTMF_CallState == DTMF_CALL_STATE_NONE &&
+#endif
 				    gCurrentFunction != FUNCTION_POWER_SAVE)
 				{
 					DualwatchAlternate();    // toggle between the two VFO's
@@ -955,7 +968,6 @@ void APP_Update(void)
 
 	if (gSchedulePowerSave)
 	{
-#ifdef ENABLE_NOAA
 		if (
 #ifdef ENABLE_FMRADIO
 			gFmRadioMode                  ||
@@ -965,41 +977,28 @@ void APP_Update(void)
 			gEeprom.BATTERY_SAVE == 0         ||
 		    gScanStateDir != SCAN_OFF         ||
 		    gCssBackgroundScan                      ||
-		    gScreenToDisplay != DISPLAY_MAIN  ||
-		    gDTMF_CallState != DTMF_CALL_STATE_NONE)
+		    gScreenToDisplay != DISPLAY_MAIN  
+#ifdef ENABLE_DTMF_CALLING			
+			|| gDTMF_CallState != DTMF_CALL_STATE_NONE
+#endif
+			)
 		{
 			gBatterySaveCountdown_10ms   = battery_save_count_10ms;
 		}
-		else if ((!IS_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && !IS_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
+		else 
+#ifdef ENABLE_NOAA
+		if ((!IS_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && !IS_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
+#endif
 		{
 			//if (gCurrentFunction != FUNCTION_POWER_SAVE)
 				FUNCTION_Select(FUNCTION_POWER_SAVE);
 		}
+#ifdef ENABLE_NOAA
 		else
 		{
 			gBatterySaveCountdown_10ms = battery_save_count_10ms;
 		}
 #else
-		if (
-#ifdef ENABLE_FMRADIO
-				gFmRadioMode                  ||
-#endif
-			gPttIsPressed                     ||
-		    gKeyBeingHeld                     ||
-			gEeprom.BATTERY_SAVE == 0         ||
-		    gScanStateDir != SCAN_OFF         ||
-		    gCssBackgroundScan                      ||
-		    gScreenToDisplay != DISPLAY_MAIN  ||
-		    gDTMF_CallState != DTMF_CALL_STATE_NONE)
-		{
-			gBatterySaveCountdown_10ms = battery_save_count_10ms;
-		}
-		else
-		{
-			//if (gCurrentFunction != FUNCTION_POWER_SAVE)
-				FUNCTION_Select(FUNCTION_POWER_SAVE);
-		}
-
 		gSchedulePowerSave = false;
 #endif
 	}
@@ -1068,13 +1067,17 @@ void APP_Update(void)
 // called every 10ms
 static void CheckKeys(void)
 {
-#ifdef ENABLE_AIRCOPY
-	if (gSetting_KILLED || (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState != AIRCOPY_READY))
+
+	if (0 
+#ifdef ENABLE_DTMF_CALLING
+	|| gSetting_KILLED 
+#endif	
+#ifdef ENABLE_AIRCOPY	
+	|| (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState != AIRCOPY_READY)
+#endif	
+	)
 		return;
-#else
-	if (gSetting_KILLED)
-		return;
-#endif
+
 
 // -------------------- PTT ------------------------
 	if (gPttIsPressed)
@@ -1403,9 +1406,11 @@ void APP_TimeSlice500ms(void)
 		if (--gMenuCountdown == 0)
 			exit_menu = (gScreenToDisplay == DISPLAY_MENU);	// exit menu mode
 
+#ifdef ENABLE_DTMF_CALLING
 	if (gDTMF_RX_timeout > 0)
 		if (--gDTMF_RX_timeout == 0)
 			DTMF_clear_RX();
+#endif
 
 	// Skipped authentic device check
 
@@ -1580,6 +1585,7 @@ void APP_TimeSlice500ms(void)
 	BATTERY_TimeSlice500ms();
 	SCANNER_TimeSlice500ms();
 
+#ifdef ENABLE_DTMF_CALLING
 	if (gCurrentFunction != FUNCTION_TRANSMIT)
 	{
 		if (gDTMF_DecodeRingCountdown_500ms > 0)
@@ -1616,6 +1622,7 @@ void APP_TimeSlice500ms(void)
 			gUpdateDisplay = true;
 		}
 	}
+#endif
 }
 
 #if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
@@ -1734,6 +1741,7 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		if (gScreenToDisplay == DISPLAY_MENU)       // 1of11
 			gMenuCountdown = menu_timeout_500ms;
 
+#ifdef ENABLE_DTMF_CALLING
 		if (gDTMF_DecodeRingCountdown_500ms > 0)
 		{	// cancel the ringing
 			gDTMF_DecodeRingCountdown_500ms = 0;
@@ -1746,6 +1754,7 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				return;
 			}
 		}
+#endif
 	}
 
 	bool lowBatPopup = gLowBattery && !gLowBatteryConfirmed &&  gScreenToDisplay == DISPLAY_MAIN;
@@ -2051,10 +2060,12 @@ Skip:
 
 		RADIO_SetupRegisters(true);
 
+#ifdef ENABLE_DTMF_CALLING
 		gDTMF_auto_reset_time_500ms = 0;
 		gDTMF_CallState             = DTMF_CALL_STATE_NONE;
 		gDTMF_TxStopCountdown_500ms = 0;
 		gDTMF_IsTx                  = false;
+#endif
 
 		gVFO_RSSI_bar_level[0]      = 0;
 		gVFO_RSSI_bar_level[1]      = 0;
