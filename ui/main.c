@@ -178,15 +178,15 @@ static void DisplayRSSIBar(const int16_t rssi, const bool now)
 		
 		const int8_t dBmCorrTable[7] = {
 			-15, // band 1
-			-15, // band 2
-			-25, // band 3
-			-20, // band 4
-			-20, // band 5
-			-20, // band 6
-			 -7  // band 7
+			-25, // band 2
+			-20, // band 3
+			-4, // band 4
+			-7, // band 5
+			-6, // band 6
+			 -1  // band 7
 		};
 
-		const int16_t      s0_dBm       = -147;                  // S0 .. base level
+		const int16_t      s0_dBm       = -130;                  // S0 .. base level
 		const int16_t      rssi_dBm     = (rssi / 2) - 160 + dBmCorrTable[gRxVfo->Band];
 
 		const uint8_t s_level = MIN(MAX((rssi_dBm - s0_dBm) / 6, 0), 9); // S0 - S9
