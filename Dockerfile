@@ -1,4 +1,4 @@
-FROM archlinux:latest
+FROM --platform=amd64 archlinux:latest
 RUN pacman -Syyu base-devel --noconfirm
 RUN pacman -Syyu arm-none-eabi-gcc --noconfirm
 RUN pacman -Syyu arm-none-eabi-newlib --noconfirm
