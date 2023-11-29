@@ -2,11 +2,14 @@
 # compile options (see README.md for descriptions)
 # 0 = disable
 # 1 = enable
-#
+
+# ---- COMPILER/LINKER OPTIONS ----
 ENABLE_CLANG                  := 0
 ENABLE_SWD                    := 0
 ENABLE_OVERLAY                := 0
 ENABLE_LTO                    := 1
+
+# ---- STOCK QUANSHENG FERATURES ----
 ENABLE_UART                   := 1
 ENABLE_AIRCOPY                := 0
 ENABLE_FMRADIO                := 1
@@ -16,6 +19,9 @@ ENABLE_VOX                    := 1
 ENABLE_ALARM                  := 0
 ENABLE_TX1750                 := 0
 ENABLE_PWRON_PASSWORD         := 0
+ENABLE_DTMF_CALLING           := 1
+
+# ---- CUSTOM MODS ----
 ENABLE_BIG_FREQ               := 1
 ENABLE_SMALL_BOLD             := 1
 ENABLE_KEEP_MEM_NAME          := 1
@@ -39,7 +45,7 @@ ENABLE_REDUCE_LOW_MID_TX_POWER:= 0
 ENABLE_BYP_RAW_DEMODULATORS   := 0
 ENABLE_BLMIN_TMP_OFF          := 0
 ENABLE_SCAN_RANGES            := 1
-ENABLE_DTMF_CALLING           := 1
+
 #############################################################
 
 TARGET = firmware

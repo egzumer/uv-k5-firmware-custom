@@ -93,6 +93,7 @@ ENABLE_CLANG                  := 0     **experimental, builds with clang instead
 ENABLE_SWD                    := 0       only needed if using CPU's SWD port (debugging/programming)
 ENABLE_OVERLAY                := 0       cpu FLASH stuff, not needed
 ENABLE_LTO                    := 1     **experimental, reduces size of compiled firmware but might break EEPROM reads (OVERLAY will be disabled if you enable this)
+
 ENABLE_UART                   := 1       without this you can't configure radio via PC !
 ENABLE_AIRCOPY                := 0       easier to just enter frequency with butts
 ENABLE_FMRADIO                := 1       WBFM VHF broadcast band receiver
@@ -102,6 +103,8 @@ ENABLE_VOX                    := 1
 ENABLE_ALARM                  := 0       TX alarms
 ENABLE_TX1750                 := 0       side key 1750Hz TX tone (older style repeater access)
 ENABLE_PWRON_PASSWORD         := 0       power-on password stuff
+ENABLE_DTMF_CALLING           := 1       DTMF calling fuctionality, sending calls, receiving calls, group calls, contacts list etc.
+
 ENABLE_BIG_FREQ               := 1       big font frequencies (like original QS firmware)
 ENABLE_SMALL_BOLD             := 1       bold channel name/no. (when name + freq channel display mode)
 ENABLE_KEEP_MEM_NAME          := 1       maintain channel name when (re)saving memory channel
@@ -124,8 +127,7 @@ ENABLE_SPECTRUM               := 1       fagci spectrum analyzer, activated with
 ENABLE_REDUCE_LOW_MID_TX_POWER:= 0       makes medium and low power settings even lower
 ENABLE_BYP_RAW_DEMODULATORS   := 0       additional BYP (bypass?) and RAW demodulation options, proved not to be very useful, but it is there if you want to experiment
 ENABLE_BLMIN_TMP_OFF          := 0       additional function for configurable buttons that toggles `BLMin` on and off wihout saving it to the EEPROM
-ENABLE_SCAN_RANGES            := 1       set VFO for A & B then hold NOAA button to scan within range 
-ENABLE_DTMF_CALLING           := 1       use * Scan button to enter DTMF code and then PTT to send
+ENABLE_SCAN_RANGES            := 1       scan range mode for frequency scanning, see wiki for instructions (radio operation -> frequency scanning)
 ```
 
 
