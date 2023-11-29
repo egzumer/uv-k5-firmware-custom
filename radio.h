@@ -117,8 +117,9 @@ typedef struct VFO_Info_t
 	uint8_t        SCANLIST2_PARTICIPATION;
 
 	uint8_t        Band;
-
+#ifdef ENABLE_DTMF_CALLING
 	uint8_t        DTMF_DECODING_ENABLE;
+#endif
 	PTT_ID_t       DTMF_PTT_ID_TX_MODE;
 
 	uint8_t        BUSY_CHANNEL_LOCK;
@@ -131,7 +132,7 @@ typedef struct VFO_Info_t
 } VFO_Info_t;
 
 // Settings of the main VFO that is selected by the user
-// The pointer follows gEeprom.RX_VFO index
+// The pointer follows gEeprom.TX_VFO index
 extern VFO_Info_t    *gTxVfo;
 
 // Settings of the actual VFO that is now used for RX,

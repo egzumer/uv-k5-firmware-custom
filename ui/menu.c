@@ -100,16 +100,22 @@ const t_menu_item MenuList[] =
 #ifdef ENABLE_ALARM
 	{"AlarmT", VOICE_ID_INVALID,                       MENU_AL_MOD        },
 #endif
+#ifdef ENABLE_DTMF_CALLING
 	{"ANI ID", VOICE_ID_ANI_CODE,                      MENU_ANI_ID        },
+#endif
 	{"UPCode", VOICE_ID_INVALID,                       MENU_UPCODE        },
 	{"DWCode", VOICE_ID_INVALID,                       MENU_DWCODE        },
 	{"PTT ID", VOICE_ID_INVALID,                       MENU_PTT_ID        },
 	{"D ST",   VOICE_ID_INVALID,                       MENU_D_ST          },
+#ifdef ENABLE_DTMF_CALLING
     {"D Resp", VOICE_ID_INVALID,                       MENU_D_RSP         },
 	{"D Hold", VOICE_ID_INVALID,                       MENU_D_HOLD        },
+#endif
 	{"D Prel", VOICE_ID_INVALID,                       MENU_D_PRE         },
+#ifdef ENABLE_DTMF_CALLING
 	{"D Decd", VOICE_ID_INVALID,                       MENU_D_DCD         },
 	{"D List", VOICE_ID_INVALID,                       MENU_D_LIST        },
+#endif
 	{"D Live", VOICE_ID_INVALID,                       MENU_D_LIVE_DEC    }, // live DTMF decoder
 #ifdef ENABLE_AM_FIX
 	{"AM Fix", VOICE_ID_INVALID,                       MENU_AM_FIX        },
@@ -234,6 +240,7 @@ const char* gSubMenu_MDF[] =
 	};
 #endif
 
+#ifdef ENABLE_DTMF_CALLING
 const char gSubMenu_D_RSP[][11] =
 {
 	"DO\nNOTHING",
@@ -241,6 +248,7 @@ const char gSubMenu_D_RSP[][11] =
 	"REPLY",
 	"BOTH"
 };
+#endif
 
 const char* gSubMenu_PTT_ID[] =
 {
@@ -403,7 +411,10 @@ void UI_DisplayMenu(void)
 	const unsigned int menu_item_x2    = LCD_WIDTH - 1;
 	unsigned int       i;
 	char               String[64];  // bigger cuz we can now do multi-line in one string (use '\n' char)
+
+#ifdef ENABLE_DTMF_CALLING
 	char               Contact[16];
+#endif
 
 	// clear the screen buffer
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
@@ -638,7 +649,9 @@ void UI_DisplayMenu(void)
 		case MENU_S_ADD2:
 		case MENU_STE:
 		case MENU_D_ST:
+#ifdef ENABLE_DTMF_CALLING
 		case MENU_D_DCD:
+#endif
 		case MENU_D_LIVE_DEC:
 		#ifdef ENABLE_NOAA
 			case MENU_NOAA_S:
@@ -756,10 +769,11 @@ void UI_DisplayMenu(void)
 				break;
 		#endif
 
+#ifdef ENABLE_DTMF_CALLING
 		case MENU_ANI_ID:
 			strcpy(String, gEeprom.ANI_DTMF_ID);
 			break;
-
+#endif
 		case MENU_UPCODE:
 			strcpy(String, gEeprom.DTMF_UP_CODE);
 			break;
@@ -768,6 +782,7 @@ void UI_DisplayMenu(void)
 			strcpy(String, gEeprom.DTMF_DOWN_CODE);
 			break;
 
+#ifdef ENABLE_DTMF_CALLING
 		case MENU_D_RSP:
 			strcpy(String, gSubMenu_D_RSP[gSubMenuSelection]);
 			break;
@@ -775,7 +790,7 @@ void UI_DisplayMenu(void)
 		case MENU_D_HOLD:
 			sprintf(String, "%ds", gSubMenuSelection);
 			break;
-
+#endif
 		case MENU_D_PRE:
 			sprintf(String, "%d*10ms", gSubMenuSelection);
 			break;
@@ -788,6 +803,7 @@ void UI_DisplayMenu(void)
 			strcpy(String, gSubMenu_BAT_TXT[gSubMenuSelection]);
 			break;
 
+#ifdef ENABLE_DTMF_CALLING
 		case MENU_D_LIST:
 			gIsDtmfContactValid = DTMF_GetContact((int)gSubMenuSelection - 1, Contact);
 			if (!gIsDtmfContactValid)
@@ -795,6 +811,7 @@ void UI_DisplayMenu(void)
 			else
 				memmove(String, Contact, 8);
 			break;
+#endif
 
 		case MENU_PONMSG:
 			strcpy(String, gSubMenu_PONMSG[gSubMenuSelection]);
@@ -980,6 +997,7 @@ void UI_DisplayMenu(void)
 		if (strlen(gEeprom.DTMF_DOWN_CODE) > 8)
 			UI_PrintString(gEeprom.DTMF_DOWN_CODE + 8, menu_item_x1, menu_item_x2, 4, 8);
 
+#ifdef ENABLE_DTMF_CALLING
 	if (UI_MENU_GetCurrentMenuId() == MENU_D_LIST && gIsDtmfContactValid)
 	{
 		Contact[11] = 0;
@@ -987,12 +1005,17 @@ void UI_DisplayMenu(void)
 		sprintf(String, "ID:%s", Contact + 8);
 		UI_PrintString(String, menu_item_x1, menu_item_x2, 4, 8);
 	}
+#endif
 
 	if (UI_MENU_GetCurrentMenuId() == MENU_R_CTCS ||
 	    UI_MENU_GetCurrentMenuId() == MENU_T_CTCS ||
 	    UI_MENU_GetCurrentMenuId() == MENU_R_DCS  ||
-	    UI_MENU_GetCurrentMenuId() == MENU_T_DCS  ||
-	    UI_MENU_GetCurrentMenuId() == MENU_D_LIST)
+	    UI_MENU_GetCurrentMenuId() == MENU_T_DCS
+#ifdef ENABLE_DTMF_CALLING
+	    || UI_MENU_GetCurrentMenuId() == MENU_D_LIST
+#endif		
+		)
+
 	{
 		sprintf(String, "%2d", gSubMenuSelection);
 		UI_PrintStringSmall(String, 105, 0, 0);

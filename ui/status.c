@@ -79,13 +79,16 @@ void UI_DisplayStatus()
 	#else
 		// hmmm, what to put in it's place
 	#endif
-	
+
+#ifdef ENABLE_DTMF_CALLING
 	if (gSetting_KILLED)
 	{
 		memset(line + x, 0xFF, 10);
 		x1 = x + 10;
 	}
-	else
+	else 
+#endif
+	{
 		// SCAN indicator
 		if (gScanStateDir != SCAN_OFF || SCANNER_IsScanning())
 		{
@@ -105,6 +108,7 @@ void UI_DisplayStatus()
 			UI_PrintStringSmallBuffer(s, line + x);
 			x1 = x + 7;
 		}
+	}
 	x += 7;  // font character width
 
 	#ifdef ENABLE_VOICE

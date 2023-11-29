@@ -167,8 +167,9 @@ void ACTION_Scan(bool bRestart)
 
 		gMonitor = false;
 
+#ifdef ENABLE_DTMF_CALLING
 		DTMF_clear_RX();
-
+#endif
 		gDTMF_RX_live_timeout = 0;
 		memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
 

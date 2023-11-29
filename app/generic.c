@@ -184,6 +184,7 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 	if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
 		gRequestDisplayScreen = DISPLAY_MAIN;
 
+
 	if (!gDTMF_InputMode && gDTMF_InputBox_Index == 0)
 		goto start_tx;	// wasn't entering a DTMF code .. start TX'ing (maybe)
 
@@ -198,6 +199,7 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 		if (gDTMF_InputBox_Index < sizeof(gDTMF_InputBox))
 			gDTMF_InputBox[gDTMF_InputBox_Index] = 0;             // NULL term the string
 
+#ifdef ENABLE_DTMF_CALLING
 		// append our DTMF ID to the inputted DTMF code -
 		//  IF the user inputted code is exactly 3 digits long and D-DCD is enabled
 		if (gDTMF_InputBox_Index == 3 && gTxVfo->DTMF_DECODING_ENABLE > 0)
@@ -205,12 +207,12 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 		else
 			gDTMF_CallMode = DTMF_CALL_MODE_DTMF;
 
+		gDTMF_State      = DTMF_STATE_0;
+#endif
 		// remember the DTMF string
 		gDTMF_PreviousIndex = gDTMF_InputBox_Index;
 		strcpy(gDTMF_String, gDTMF_InputBox);
-
 		gDTMF_ReplyState = DTMF_REPLY_ANI;
-		gDTMF_State      = DTMF_STATE_0;
 	}
 
 	DTMF_clear_input_box();

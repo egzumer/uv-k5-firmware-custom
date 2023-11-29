@@ -46,8 +46,15 @@
 void toggle_chan_scanlist(void)
 {	// toggle the selected channels scanlist setting
 
-	if ( SCANNER_IsScanning() || !IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
+	if ( SCANNER_IsScanning())
 		return;
+
+	if(!IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE)) {
+#ifdef ENABLE_SCAN_RANGES
+		gScanRangeStart = gScanRangeStart ? 0 : gTxVfo->pRX->Frequency;
+#endif
+		return;
+	}
 
 	if (gTxVfo->SCANLIST1_PARTICIPATION)
 	{
@@ -480,12 +487,14 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 
 		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 
+#ifdef ENABLE_DTMF_CALLING
 		if (gDTMF_CallState != DTMF_CALL_STATE_NONE && gCurrentFunction != FUNCTION_TRANSMIT)
 		{	// clear CALL mode being displayed
 			gDTMF_CallState = DTMF_CALL_STATE_NONE;
 			gUpdateDisplay  = true;
 			return;
 		}
+#endif
 
 		#ifdef ENABLE_FMRADIO
 			if (!gFmRadioMode)
