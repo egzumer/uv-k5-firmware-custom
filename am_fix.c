@@ -29,6 +29,7 @@
 #include "frequencies.h"
 #include "functions.h"
 #include "misc.h"
+#include "radio.h"
 
 #ifdef ENABLE_AM_FIX
 
@@ -347,6 +348,8 @@
 			const int16_t new_rssi = BK4819_GetRSSI();
 			rssi                   = (prev_rssi[vfo] > 0) ? (prev_rssi[vfo] + new_rssi) / 2 : new_rssi;
 			prev_rssi[vfo]         = new_rssi;
+      
+      if(rssi > 200)      RADIO_SetupRegisters(true);                       //BK4819 Chip seems to lockup with very large signals. Gain changes no longer work. Resetting seems to fix it. G4EML
 		}
 
 		// save the corrected RSSI level
