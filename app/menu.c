@@ -224,13 +224,6 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 			*pMax = ARRAY_SIZE(gSubMenu_RX_TX) - 1;
 			break;
 
-		#ifdef ENABLE_AM_FIX_TEST1
-			case MENU_AM_FIX_TEST1:
-				*pMin = 0;
-				*pMax = ARRAY_SIZE(gSubMenu_AM_fix_test1) - 1;
-				break;
-		#endif
-
 		#ifdef ENABLE_AM_FIX
 			case MENU_AM_FIX:
 		#endif
@@ -740,14 +733,6 @@ void MENU_AcceptSetting(void)
 				break;
 		#endif
 
-		#ifdef ENABLE_AM_FIX_TEST1
-			case MENU_AM_FIX_TEST1:
-				gSetting_AM_fix_test1 = gSubMenuSelection;
-				gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
-				gFlagResetVfos    = true;
-				break;
-		#endif
-
 		#ifdef ENABLE_NOAA
 			case MENU_NOAA_S:
 				gEeprom.NOAA_AUTO_SCAN = gSubMenuSelection;
@@ -1124,13 +1109,6 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gSetting_AM_fix;
 			break;
 #endif
-
-		#ifdef ENABLE_AM_FIX_TEST1
-			case MENU_AM_FIX_TEST1:
-				gSubMenuSelection = gSetting_AM_fix_test1;
-				break;
-		#endif
-
 		#ifdef ENABLE_NOAA
 			case MENU_NOAA_S:
 				gSubMenuSelection = gEeprom.NOAA_AUTO_SCAN;

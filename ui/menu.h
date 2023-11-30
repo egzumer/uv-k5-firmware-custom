@@ -104,9 +104,6 @@ enum
 #ifdef ENABLE_AM_FIX
 	MENU_AM_FIX,
 #endif
-#ifdef ENABLE_AM_FIX_TEST1
-	MENU_AM_FIX_TEST1,
-#endif
 #ifdef ENABLE_NOAA
 	MENU_NOAA_S,
 #endif
@@ -158,9 +155,6 @@ extern const char        gSubMenu_RESET[2][4];
 extern const char*       gSubMenu_F_LOCK[F_LOCK_LEN];
 extern const char        gSubMenu_BACKLIGHT[8][7];
 extern const char        gSubMenu_RX_TX[4][6];
-#ifdef ENABLE_AM_FIX_TEST1
-	extern const char    gSubMenu_AM_fix_test1[4][8];
-#endif
 extern const char        gSubMenu_BAT_TXT[3][8];
 extern const char 		 gSubMenu_BATTYP[2][9];
 extern const char        gSubMenu_SCRAMBLER[11][7];

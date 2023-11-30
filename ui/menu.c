@@ -117,9 +117,6 @@ const t_menu_item MenuList[] =
 #ifdef ENABLE_AM_FIX
 	{"AM Fix", VOICE_ID_INVALID,                       MENU_AM_FIX        },
 #endif
-#ifdef ENABLE_AM_FIX_TEST1
-	{"AM FT1", VOICE_ID_INVALID,                       MENU_AM_FIX_TEST1  },
-#endif
 #ifdef ENABLE_VOX
 	{"VOX",    VOICE_ID_VOX,                           MENU_VOX           },
 #endif
@@ -308,16 +305,6 @@ const char gSubMenu_RX_TX[][6] =
 	"RX",
 	"TX/RX"
 };
-
-#ifdef ENABLE_AM_FIX_TEST1
-	const char gSubMenu_AM_fix_test1[][8] =
-	{
-		"LNA-S 0",
-		"LNA-S 1",
-		"LNA-S 2",
-		"LNA-S 3"
-	};
-#endif
 
 const char gSubMenu_BAT_TXT[][8] =
 {
@@ -610,13 +597,6 @@ void UI_DisplayMenu(void)
 		case MENU_AM:
 			strcpy(String, gModulationStr[gSubMenuSelection]);
 			break;
-
-		#ifdef ENABLE_AM_FIX_TEST1
-			case MENU_AM_FIX_TEST1:
-				strcpy(String, gSubMenu_AM_fix_test1[gSubMenuSelection]);
-//				gSetting_AM_fix = gSubMenuSelection;
-				break;
-		#endif
 
 		case MENU_AUTOLK:
 			strcpy(String, (gSubMenuSelection == 0) ? "OFF" : "AUTO");

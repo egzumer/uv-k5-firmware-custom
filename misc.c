@@ -94,9 +94,7 @@ uint8_t           gSetting_backlight_on_tx_rx;
 #ifdef ENABLE_AM_FIX
 	bool          gSetting_AM_fix;
 #endif
-#ifdef ENABLE_AM_FIX_TEST1
-	uint8_t       gSetting_AM_fix_test1 = 0;
-#endif
+
 #ifdef ENABLE_AUDIO_BAR
 	bool          gSetting_mic_bar;
 #endif

@@ -41,10 +41,15 @@ enum BK4819_REGISTER_t {
 	BK4819_REG_0C = 0x0CU,
 	BK4819_REG_0D = 0x0DU,
 	BK4819_REG_0E = 0x0EU,
+	// RX AGC Gain Table[0]
 	BK4819_REG_10 = 0x10U,
+	// RX AGC Gain Table[1]
 	BK4819_REG_11 = 0x11U,
+	// RX AGC Gain Table[2]
 	BK4819_REG_12 = 0x12U,
+	// RX AGC Gain Table[3]
 	BK4819_REG_13 = 0x13U,
+	// RX AGC Gain Table[-1]
 	BK4819_REG_14 = 0x14U,
 	BK4819_REG_19 = 0x19U,
 	BK4819_REG_1F = 0x1FU,
@@ -72,6 +77,12 @@ enum BK4819_REGISTER_t {
 	BK4819_REG_46 = 0x46U,
 	BK4819_REG_47 = 0x47U,
 	BK4819_REG_48 = 0x48U,
+	// REG_49<15:14> 0b00; High/Low Lo selection:
+	// 0X: Auto High/Low Lo
+	// 10: Low Lo
+	// 11: High Lo
+	// REG_49<13:7> 0x50; RF AGC high threshold, 1 dB/LSB
+	// REG_49<6:0> 0x30; RF AGC low threshold, 1 dB/LSB
 	BK4819_REG_49 = 0x49U,
 	BK4819_REG_4D = 0x4DU,
 	BK4819_REG_4E = 0x4EU,
@@ -100,9 +111,22 @@ enum BK4819_REGISTER_t {
 	BK4819_REG_78 = 0x78U,
 	BK4819_REG_79 = 0x79U,
 	BK4819_REG_7A = 0x7AU,
+	// REG_7B<15:0> 0xae34 RSSI table
 	BK4819_REG_7B = 0x7BU,
+	// REG_7C<15:0> 0x8000 RSSI table
 	BK4819_REG_7C = 0x7CU,
 	BK4819_REG_7D = 0x7DU,
+	// REG_7E<15> 0; AGC fix mode:
+	// 1: Fix
+	// 0: Auto
+	// REG_7E<14:12> 0b011; AGC fix index:
+	// 011: Max.
+	// …
+	// 100: Min.
+	// REG_7E<5:3> 0b101; DC filter bandwidth for TX (MIC in):
+	// 000: Bypass DC filter
+	// REG_7E<2:0> 0b110; DC filter bandwidth for RX (IF in):
+	// 000: Bypass DC filter
 	BK4819_REG_7E = 0x7EU,
 };
 
