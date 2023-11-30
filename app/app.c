@@ -517,6 +517,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 			BK4819_WriteRegister(BK4819_REG_13, (orig_lna_short << 8) | (orig_lna << 5) | (orig_mixer << 3) | (orig_pga << 0));
 		}
 #else
+		(void)reset_am_fix;
 		BK4819_WriteRegister(BK4819_REG_13, (orig_lna_short << 8) | (orig_lna << 5) | (orig_mixer << 3) | (orig_pga << 0));
 #endif
 	}
