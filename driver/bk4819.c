@@ -55,8 +55,8 @@ void BK4819_Init(void)
 	BK4819_WriteRegister(BK4819_REG_37, 0x1D0F);
 	BK4819_WriteRegister(BK4819_REG_36, 0x0022);
 
-	BK4819_DisableAGC();
-//	BK4819_EnableAGC();
+	BK4819_InitAGC();
+	BK4819_SetAGC(true);
 
 	BK4819_WriteRegister(BK4819_REG_19, 0b0001000001000001);   // <15> MIC AGC  1 = disable  0 = enable
 
@@ -236,19 +236,46 @@ void BK4819_WriteU16(uint16_t Data)
 	}
 }
 
-void BK4819_DisableAGC()
+void BK4819_SetAGC(bool enable)
 {
-	// REG_10
+	uint16_t regVal = BK4819_ReadRegister(BK4819_REG_7E);
+	if(!(regVal & (1 << 15)) == enable)
+		return;
+
+	BK4819_WriteRegister(BK4819_REG_7E, (regVal & ~(1 << 15) & ~(0b111 << 12)) 
+		| (!enable << 15)   // 0  AGC fix mode
+		| (3u << 12)       // 3  AGC fix index
+	);
+
+	// if(enable) {
+	// 	BK4819_WriteRegister(BK4819_REG_7B, 0x8420);
+	// }
+	// else {
+	// 	BK4819_WriteRegister(BK4819_REG_7B, 0x318C);
+
+	// 	BK4819_WriteRegister(BK4819_REG_7C, 0x595E);
+	// 	BK4819_WriteRegister(BK4819_REG_20, 0x8DEF);
+
+	// 	for (uint8_t i = 0; i < 8; i++) {
+	// 		//BK4819_WriteRegister(BK4819_REG_06, ((i << 13) | 0x2500u) + 0x036u);
+	// 		BK4819_WriteRegister(BK4819_REG_06, (i & 7) << 13 | 0x4A << 7 | 0x36);
+	// 	}
+	// }
+}
+
+void BK4819_InitAGC()
+{
+	// REG_10, REG_11, REG_12 REG_13, REG_14
 	//
-	// 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
+	// Rx AGC Gain Table[]. (Index Max->Min is 3,2,1,0,-1)
 	//
 	// <15:10> ???
 	//
-	// <9:8>   LNA Gain Short
-	//         3 =   0dB  <<<
-	//         2 = -24dB       // was -11
-	//         1 = -30dB       // was -16
-	//         0 = -33dB       // was -19
+	// <9:8>   LNA Gain Short 
+	//         3 =   0dB  <<<		1o11				read from spectrum			reference manual
+	//         2 = 					-24dB  				-19     					 -11
+	//         1 = 					-30dB  				-24     					 -16
+	//         0 = 					-33dB  				-28     					 -19
 	//
 	// <7:5>   LNA Gain
 	//         7 =   0dB
@@ -276,75 +303,18 @@ void BK4819_DisableAGC()
 	//         1 = -27dB
 	//         0 = -33dB
 	//
-	BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (5u << 5) | (3u << 3) | (6u << 0));  // 000000 11 101 11 110
 
-	BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 000000 11 011 11 011
-	BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
-	BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
-	BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 000000 00 000 11 001
-
-	BK4819_WriteRegister(BK4819_REG_49, 0x2A38);
+	BK4819_WriteRegister(BK4819_REG_13, 0x03BE);  // 0x03BE / 000000 11 101 11 110 /  -7dB
+	BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 0x037B / 000000 11 011 11 011 / -24dB
+	BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 0x027B / 000000 10 011 11 011 / -43dB
+	BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 0x007A / 000000 00 011 11 010 / -58dB
+	BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 0x0019 / 000000 00 000 11 001 / -79dB
+	BK4819_WriteRegister(BK4819_REG_49, (0 << 14) | (84 << 7) | (56 << 0)); //0x2A38 / 00 1010100 0111000 / 84, 56
 	BK4819_WriteRegister(BK4819_REG_7B, 0x8420);
+
 }
 
-void BK4819_EnableAGC()
-{	
-	// REG_10
-	//
-	// 0x0038 Rx AGC Gain Table[0]. (Index Max->Min is 3,2,1,0,-1)
-	//
-	// (15:10> ???
-	//
-	// <9:8>   LNA Gain Short
-	//         3 =   0dB   << original
-	//         2 = -24dB       // was -11
-	//         1 = -30dB       // was -16
-	//         0 = -33dB       // was -19
-	//
-	// <7:5>   LNA Gain
-	//         7 =   0dB
-	//         6 =  -2dB
-	//         5 =  -4dB
-	//         4 =  -6dB
-	//         3 =  -9dB
-	//         2 = -14dB   << original
-	//         1 = -19dB
-	//         0 = -24dB
-	//
-	// <4:3>   MIXER Gain
-	//         3 =   0dB   << original
-	//         2 =  -3dB
-	//         1 =  -6dB
-	//         0 =  -8dB
-	//
-	// <2:0>   PGA Gain
-	//         7 =   0dB
-	//         6 =  -3dB   << original
-	//         5 =  -6dB
-	//         4 =  -9dB
-	//         3 = -15dB
-	//         2 = -21dB
-	//         1 = -27dB
-	//         0 = -33dB
-	//
-	BK4819_WriteRegister(BK4819_REG_13, (3u << 8) | (5u << 5) | (3u << 3) | (6u << 0));
 
-	BK4819_WriteRegister(BK4819_REG_12, 0x037C);  // 000000 11 011 11 100
-	BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 000000 10 011 11 011
-	BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 000000 00 011 11 010
-	BK4819_WriteRegister(BK4819_REG_14, 0x0018);  // 000000 00 000 11 000
-
-	BK4819_WriteRegister(BK4819_REG_49, 0x2A38);
-	BK4819_WriteRegister(BK4819_REG_7B, 0x318C);
-
-	BK4819_WriteRegister(BK4819_REG_7C, 0x595E);
-	BK4819_WriteRegister(BK4819_REG_20, 0x8DEF);
-
-	for (uint8_t i = 0; i < 8; i++) {
-		//BK4819_WriteRegister(BK4819_REG_06, ((i << 13) | 0x2500u) + 0x036u);
-		BK4819_WriteRegister(BK4819_REG_06, (i & 7) << 13 | 0x4A << 7 | 0x36);
-	}
-}
 
 void BK4819_ToggleGpioOut(BK4819_GPIO_PIN_t Pin, bool bSet)
 {
@@ -828,16 +798,18 @@ void BK4819_RX_TurnOn(void)
 	// Turn off everything
 	BK4819_WriteRegister(BK4819_REG_30, 0);
 
-	// Enable  VCO Calibration
-	// Enable  RX Link
-	// Enable  AF DAC
-	// Enable  PLL/VCO
-	// Disable PA Gain
-	// Disable MIC ADC
-	// Disable TX DSP
-	// Enable  RX DSP
-	//
-	BK4819_WriteRegister(BK4819_REG_30, 0b1011111111110001); // 1 0 1111 1 1 1111 0 0 0 1
+
+	BK4819_WriteRegister(BK4819_REG_30, 
+		BK4819_REG_30_ENABLE_VCO_CALIB |
+		BK4819_REG_30_DISABLE_UNKNOWN |
+		BK4819_REG_30_ENABLE_RX_LINK |
+		BK4819_REG_30_ENABLE_AF_DAC |
+		BK4819_REG_30_ENABLE_DISC_MODE |
+		BK4819_REG_30_ENABLE_PLL_VCO |
+		BK4819_REG_30_DISABLE_PA_GAIN |
+		BK4819_REG_30_DISABLE_MIC_ADC |
+		BK4819_REG_30_DISABLE_TX_DSP |
+		BK4819_REG_30_ENABLE_RX_DSP );
 }
 
 void BK4819_PickRXFilterPathBasedOnFrequency(uint32_t Frequency)
@@ -1130,11 +1102,15 @@ void BK4819_ExitBypass(void)
 	//         0 ~ 7
 	//         0 = bypass DC filter
 	//
-	BK4819_WriteRegister(BK4819_REG_7E, // 0x302E);   // 0 011 000000 101 110
-		(0u << 15) |      // 0  AGC fix mode
-		(3u << 12) |      // 3  AGC fix index
-		(5u <<  3) |      // 5  DC Filter band width for Tx (MIC In)
-		(6u <<  0));      // 6  DC Filter band width for Rx (I.F In)
+
+	uint16_t regVal = BK4819_ReadRegister(BK4819_REG_7E);
+
+	// 0x302E / 0 011 000000 101 110
+	BK4819_WriteRegister(BK4819_REG_7E, (regVal & ~(0b111 << 3)) 
+
+		| (5u <<  3)       // 5  DC Filter band width for Tx (MIC In)
+
+	);
 }
 
 void BK4819_PrepareTransmit(void)
