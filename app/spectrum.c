@@ -18,6 +18,8 @@
 #include "driver/backlight.h"
 #include "audio.h"
 #include "ui/helper.h"
+#include "am_fix.h"
+#include "ui/main.h"
 
 struct FrequencyBandInfo {
     uint32_t lower;
@@ -29,6 +31,7 @@ struct FrequencyBandInfo {
 #define F_MAX frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper
 
 const uint16_t RSSI_MAX_VALUE = 65535;
+
 
 static uint16_t R30, R37, R3D, R43, R47, R48, R7E;
 static uint32_t initialFreq;
@@ -68,7 +71,7 @@ SpectrumSettings settings = {stepsCount: STEPS_64,
 uint32_t fMeasure = 0;
 uint32_t currentFreq, tempFreq;
 uint16_t rssiHistory[128];
-
+int vfo;
 uint8_t freqInputIndex = 0;
 uint8_t freqInputDotIndex = 0;
 KEY_Code_t freqInputArr[10];
@@ -99,7 +102,10 @@ static uint8_t DBm2S(int dbm) {
   return i;
 }
 
-static int Rssi2DBm(uint16_t rssi) { return (rssi >> 1) - 160; }
+static int Rssi2DBm(uint16_t rssi) 
+{    
+      return  (rssi / 2) - 160 + dBmCorrTable[gRxVfo->Band];
+}
 
 static uint16_t GetRegMenuValue(uint8_t st) {
   RegisterSpec s = registerSpecs[st];
@@ -276,7 +282,15 @@ uint16_t GetRssi() {
   while ((BK4819_ReadRegister(0x63) & 0b11111111) >= 255) {
     SYSTICK_DelayUs(100);
   }
-  return BK4819_GetRSSI();
+  if(settings.modulationType == MODULATION_AM)
+      {
+      return BK4819_GetRSSI() -  rssi_gain_diff[vfo];          //return the corrected RSSI to allow for AM_Fixs AGC action. 
+      }
+   else
+     {
+     return BK4819_GetRSSI();
+     }
+  
 }
 
 static void ToggleAudio(bool on) {
@@ -383,7 +397,7 @@ static void Measure() { rssiHistory[scanInfo.i] = scanInfo.rssi = GetRssi(); }
 
 static uint16_t dbm2rssi(int dBm)
 {
-  return (dBm + 160)*2;
+  return (dBm + 160 - dBmCorrTable[gRxVfo->Band])*2;
 }
 
 static void ClampRssiTriggerLevel()
@@ -475,6 +489,9 @@ static void ToggleModulation() {
     settings.modulationType = MODULATION_FM;
   }
   RADIO_SetModulation(settings.modulationType);
+  BK4819_SetAGC(settings.modulationType != MODULATION_AM || !gSetting_AM_fix);
+  BK4819_InitAGC();
+  RelaunchScan();
   redrawScreen = true;
 }
 
@@ -588,7 +605,7 @@ uint8_t Rssi2PX(uint16_t rssi, uint8_t pxMin, uint8_t pxMax) {
 
   const uint8_t PX_RANGE = pxMax - pxMin;
 
-  int dbm = clamp(rssi - (160 << 1), DB_MIN, DB_MAX);
+  int dbm = clamp(Rssi2DBm(rssi) << 1, DB_MIN, DB_MAX);
 
   return ((dbm - DB_MIN) * PX_RANGE + DB_RANGE / 2) / DB_RANGE + pxMin;
 }
@@ -1104,6 +1121,11 @@ static void UpdateListening() {
 }
 
 static void Tick() {
+
+  if(settings.modulationType == MODULATION_AM)
+    {
+      AM_fix_10ms(vfo);                //allow AM_Fix to apply its AGC action
+    }
   if (!preventKeypress) {
     HandleUserInput();
   }
@@ -1133,8 +1155,8 @@ static void Tick() {
 
 void APP_RunSpectrum() {
   // TX here coz it always? set to active VFO
-  currentFreq = initialFreq =
-      gEeprom.VfoInfo[gEeprom.TX_VFO].pRX->Frequency;
+  vfo =  gEeprom.TX_VFO;
+  currentFreq = initialFreq = gEeprom.VfoInfo[vfo].pRX->Frequency - ((GetStepsCount()/2) * GetScanStep());                          //set the current frequency in the middle of the display
 
   BackupRegisters();
 
@@ -1144,7 +1166,8 @@ void APP_RunSpectrum() {
   newScanStart = true;
 
   ToggleRX(true), ToggleRX(false); // hack to prevent noise when squelch off
-  RADIO_SetModulation(settings.modulationType = MODULATION_FM);
+  RADIO_SetModulation(settings.modulationType = gRxVfo->Modulation);
+  BK4819_SetAGC(settings.modulationType != MODULATION_AM || !gSetting_AM_fix);
   BK4819_SetFilterBandwidth(settings.listenBw = BK4819_FILTER_BW_WIDE, false);
 
   RelaunchScan();
