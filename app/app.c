@@ -508,6 +508,9 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		const uint8_t orig_pga       = 6;   //  -3dB
 
 #ifdef ENABLE_AM_FIX
+
+		BK4819_SetAGC(gRxVfo->Modulation != MODULATION_AM || !gSetting_AM_fix);
+
 		if (gRxVfo->Modulation == MODULATION_AM && gSetting_AM_fix) {	// AM RX mode
 			if (reset_am_fix)
 				AM_fix_reset(chan);      // TODO: only reset it when moving channel/frequency
@@ -517,6 +520,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 			BK4819_WriteRegister(BK4819_REG_13, (orig_lna_short << 8) | (orig_lna << 5) | (orig_mixer << 3) | (orig_pga << 0));
 		}
 #else
+		(void)reset_am_fix;
 		BK4819_WriteRegister(BK4819_REG_13, (orig_lna_short << 8) | (orig_lna << 5) | (orig_mixer << 3) | (orig_pga << 0));
 #endif
 	}
@@ -1187,7 +1191,6 @@ void APP_TimeSlice10ms(void)
 	#endif
 
 	#ifdef ENABLE_AM_FIX
-//		if (gEeprom.VfoInfo[gEeprom.RX_VFO].Modulation != MODULATION_FM && gSetting_AM_fix)
 		if (gRxVfo->Modulation == MODULATION_AM && gSetting_AM_fix)
 			AM_fix_10ms(gEeprom.RX_VFO);
 	#endif
@@ -2011,7 +2014,7 @@ Skip:
 		gRequestSaveVFO = false;
 	}
 
-	if (gRequestSaveChannel > 0)
+	if (gRequestSaveChannel > 0) // TODO: remove the gRequestSaveChannel, why use global variable for that??
 	{
 		if (!bKeyHeld)
 		{

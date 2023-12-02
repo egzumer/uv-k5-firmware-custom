@@ -404,14 +404,6 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 			pConfig->Frequency = 43300000;
 	}
 
-	if (pVfo->Modulation != MODULATION_FM)
-	{	// freq/chan is in AM mode
-		pVfo->SCRAMBLING_TYPE         = 0;
-//		pVfo->DTMF_DECODING_ENABLE    = false;  // no reason to disable DTMF decoding, aircraft use it on SSB
-		pVfo->freq_config_RX.CodeType = CODE_TYPE_OFF;
-		pVfo->freq_config_TX.CodeType = CODE_TYPE_OFF;
-	}
-
 	pVfo->Compander = att.compander;
 
 	RADIO_ConfigureSquelchAndOutputPower(pVfo);
@@ -585,8 +577,6 @@ void RADIO_SelectVfos(void)
 void RADIO_SetupRegisters(bool switchToForeground)
 {
 	BK4819_FilterBandwidth_t Bandwidth = gRxVfo->CHANNEL_BANDWIDTH;
-	uint16_t                 InterruptMask;
-	uint32_t                 Frequency;
 
 	AUDIO_AudioPathOff();
 
@@ -630,6 +620,7 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	// mic gain 0.5dB/step 0 to 31
 	BK4819_WriteRegister(BK4819_REG_7D, 0xE940 | (gEeprom.MIC_SENSITIVITY_TUNING & 0x1f));
 
+	uint32_t Frequency;
 	#ifdef ENABLE_NOAA
 		if (!IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) || !gIsNoaaMode)
 			Frequency = gRxVfo->pRX->Frequency;
@@ -659,7 +650,7 @@ void RADIO_SetupRegisters(bool switchToForeground)
 		(gEeprom.DAC_GAIN    << 0));     // AF DAC Gain (after Gain-1 and Gain-2)
 
 
-	InterruptMask = BK4819_REG_3F_SQUELCH_FOUND | BK4819_REG_3F_SQUELCH_LOST;
+	uint16_t InterruptMask = BK4819_REG_3F_SQUELCH_FOUND | BK4819_REG_3F_SQUELCH_LOST;
 
 	#ifdef ENABLE_NOAA
 		if (!IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))

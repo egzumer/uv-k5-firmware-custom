@@ -230,13 +230,6 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 			*pMax = ARRAY_SIZE(gSubMenu_RX_TX) - 1;
 			break;
 
-		#ifdef ENABLE_AM_FIX_TEST1
-			case MENU_AM_FIX_TEST1:
-				*pMin = 0;
-				*pMax = ARRAY_SIZE(gSubMenu_AM_fix_test1) - 1;
-				break;
-		#endif
-
 		#ifdef ENABLE_AM_FIX
 			case MENU_AM_FIX:
 		#endif
@@ -388,7 +381,6 @@ void MENU_AcceptSetting(void)
 {
 	int32_t        Min;
 	int32_t        Max;
-	uint8_t        Code;
 	FREQ_Config_t *pConfig = &gTxVfo->freq_config_RX;
 
 	if (!MENU_GetLimits(UI_MENU_GetCurrentMenuId(), &Min, &Max))
@@ -427,62 +419,45 @@ void MENU_AcceptSetting(void)
 
 			// Fallthrough
 
-		case MENU_R_DCS:
-			if (gSubMenuSelection == 0)
-			{
-				if (pConfig->CodeType != CODE_TYPE_DIGITAL && pConfig->CodeType != CODE_TYPE_REVERSE_DIGITAL)
-				{
-					gRequestSaveChannel = 1;
+		case MENU_R_DCS: {
+			if (gSubMenuSelection == 0) {
+				if (pConfig->CodeType == CODE_TYPE_CONTINUOUS_TONE) {
 					return;
 				}
-				Code              = 0;
+				pConfig->Code = 0;
 				pConfig->CodeType = CODE_TYPE_OFF;
 			}
-			else
-			if (gSubMenuSelection < 105)
-			{
+			else if (gSubMenuSelection < 105) {
 				pConfig->CodeType = CODE_TYPE_DIGITAL;
-				Code              = gSubMenuSelection - 1;
+				pConfig->Code = gSubMenuSelection - 1;
 			}
-			else
-			{
+			else {
 				pConfig->CodeType = CODE_TYPE_REVERSE_DIGITAL;
-				Code              = gSubMenuSelection - 105;
+				pConfig->Code = gSubMenuSelection - 105;
 			}
 
-			pConfig->Code       = Code;
 			gRequestSaveChannel = 1;
 			return;
-
+		}
 		case MENU_T_CTCS:
 			pConfig = &gTxVfo->freq_config_TX;
 			[[fallthrough]];
-		case MENU_R_CTCS:
-			if (gSubMenuSelection == 0)
-			{
-				if (pConfig->CodeType != CODE_TYPE_CONTINUOUS_TONE)
-				{
-					gRequestSaveChannel = 1;
+		case MENU_R_CTCS: {
+			if (gSubMenuSelection == 0) {
+				if (pConfig->CodeType != CODE_TYPE_CONTINUOUS_TONE) {
 					return;
 				}
-				Code              = 0;
-				pConfig->Code     = Code;
+				pConfig->Code     = 0;
 				pConfig->CodeType = CODE_TYPE_OFF;
-
-				BK4819_ExitSubAu();
 			}
-			else
-			{
+			else {
+				pConfig->Code     = gSubMenuSelection - 1;
 				pConfig->CodeType = CODE_TYPE_CONTINUOUS_TONE;
-				Code              = gSubMenuSelection - 1;
-				pConfig->Code     = Code;
-
-				BK4819_SetCTCSSFrequency(CTCSS_Options[Code]);
 			}
 
 			gRequestSaveChannel = 1;
 			return;
-
+		}
 		case MENU_SFT_D:
 			gTxVfo->TX_OFFSET_FREQUENCY_DIRECTION = gSubMenuSelection;
 			gRequestSaveChannel                   = 1;
@@ -746,14 +721,6 @@ void MENU_AcceptSetting(void)
 		#ifdef ENABLE_AM_FIX
 			case MENU_AM_FIX:
 				gSetting_AM_fix = gSubMenuSelection;
-				gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
-				gFlagResetVfos    = true;
-				break;
-		#endif
-
-		#ifdef ENABLE_AM_FIX_TEST1
-			case MENU_AM_FIX_TEST1:
-				gSetting_AM_fix_test1 = gSubMenuSelection;
 				gVfoConfigureMode = VFO_CONFIGURE_RELOAD;
 				gFlagResetVfos    = true;
 				break;
@@ -1139,13 +1106,6 @@ void MENU_ShowCurrentSetting(void)
 			gSubMenuSelection = gSetting_AM_fix;
 			break;
 #endif
-
-		#ifdef ENABLE_AM_FIX_TEST1
-			case MENU_AM_FIX_TEST1:
-				gSubMenuSelection = gSetting_AM_fix_test1;
-				break;
-		#endif
-
 		#ifdef ENABLE_NOAA
 			case MENU_NOAA_S:
 				gSubMenuSelection = gEeprom.NOAA_AUTO_SCAN;

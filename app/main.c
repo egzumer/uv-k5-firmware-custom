@@ -154,11 +154,14 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				return;
 			}
 
+#ifdef ENABLE_WIDE_RX
 			if(gTxVfo->Band == 6 && gTxVfo->pRX->Frequency < 100000000) {
 					gTxVfo->pRX->Frequency = 100000000;
 					return;
 			}
-			else {
+			else 
+#endif			
+			{
 				Band = gTxVfo->Band + 1;
 				if (gSetting_350EN || Band != BAND5_350MHz) {
 					if (Band > BAND7_470MHz)
