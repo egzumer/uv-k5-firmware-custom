@@ -253,6 +253,11 @@ typedef struct {
 
 extern EEPROM_Config_t gEeprom;
 
+void     SETTINGS_InitEEPROM(void);
+void     SETTINGS_LoadCalibration(void);
+uint32_t SETTINGS_FetchChannelFrequency(const int channel);
+void     SETTINGS_FetchChannelName(char *s, const int channel);
+void     SETTINGS_FactoryReset(bool bIsAll);
 #ifdef ENABLE_FMRADIO
 	void SETTINGS_SaveFM(void);
 #endif

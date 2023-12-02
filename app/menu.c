@@ -496,13 +496,10 @@ void MENU_AcceptSetting(void)
 			return;
 
 		case MENU_MEM_NAME:
-			{	// trailing trim
-				for (int i = 9; i >= 0; i--)
-				{
-					if (edit[i] != ' ' && edit[i] != '_' && edit[i] != 0x00 && edit[i] != 0xff)
-						break;
-					edit[i] = ' ';
-				}
+			for (int i = 9; i >= 0; i--) {
+				if (edit[i] != ' ' && edit[i] != '_' && edit[i] != 0x00 && edit[i] != 0xff)
+					break;
+				edit[i] = ' ';
 			}
 
 			// save the channel name
@@ -521,7 +518,7 @@ void MENU_AcceptSetting(void)
 				gEeprom.VOX_SWITCH = gSubMenuSelection != 0;
 				if (gEeprom.VOX_SWITCH)
 					gEeprom.VOX_LEVEL = gSubMenuSelection - 1;
-				BOARD_EEPROM_LoadCalibration();
+				SETTINGS_LoadCalibration();
 				gFlagReconfigureVfos = true;
 				gUpdateStatus        = true;
 				break;
@@ -605,7 +602,7 @@ void MENU_AcceptSetting(void)
 
 		case MENU_MIC:
 			gEeprom.MIC_SENSITIVITY = gSubMenuSelection;
-			BOARD_EEPROM_LoadCalibration();
+			SETTINGS_LoadCalibration();
 			gFlagReconfigureVfos = true;
 			break;
 
@@ -729,7 +726,7 @@ void MENU_AcceptSetting(void)
 			return;
 
 		case MENU_RESET:
-			BOARD_FactoryReset(gSubMenuSelection);
+			SETTINGS_FactoryReset(gSubMenuSelection);
 			return;
 
 		case MENU_350TX:
@@ -1434,7 +1431,7 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 			if (!RADIO_CheckValidChannel(gSubMenuSelection, false, 0))
 				return;
 
-			BOARD_fetchChannelName(edit, gSubMenuSelection);
+			SETTINGS_FetchChannelName(edit, gSubMenuSelection);
 
 			// pad the channel name out with '_'
 			edit_index = strlen(edit);

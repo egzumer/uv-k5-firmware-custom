@@ -526,7 +526,7 @@ void UI_DisplayMain(void)
 					case MDF_NAME:		// show the channel name
 					case MDF_NAME_FREQ:	// show the channel name and frequency
 
-						BOARD_fetchChannelName(String, gEeprom.ScreenChannel[vfo_num]);
+						SETTINGS_FetchChannelName(String, gEeprom.ScreenChannel[vfo_num]);
 						if (String[0] == 0)
 						{	// no channel name, show the channel number instead
 							sprintf(String, "CH-%03u", gEeprom.ScreenChannel[vfo_num] + 1);
