@@ -404,14 +404,6 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 			pConfig->Frequency = 43300000;
 	}
 
-	if (pVfo->Modulation != MODULATION_FM)
-	{	// freq/chan is in AM mode
-		pVfo->SCRAMBLING_TYPE         = 0;
-//		pVfo->DTMF_DECODING_ENABLE    = false;  // no reason to disable DTMF decoding, aircraft use it on SSB
-		pVfo->freq_config_RX.CodeType = CODE_TYPE_OFF;
-		pVfo->freq_config_TX.CodeType = CODE_TYPE_OFF;
-	}
-
 	pVfo->Compander = att.compander;
 
 	RADIO_ConfigureSquelchAndOutputPower(pVfo);

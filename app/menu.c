@@ -415,8 +415,7 @@ void MENU_AcceptSetting(void)
 
 		case MENU_R_DCS: {
 			if (gSubMenuSelection == 0) {
-				if (pConfig->CodeType != CODE_TYPE_DIGITAL && pConfig->CodeType != CODE_TYPE_REVERSE_DIGITAL) {
-					gRequestSaveChannel = 1;
+				if (pConfig->CodeType == CODE_TYPE_CONTINUOUS_TONE) {
 					return;
 				}
 				pConfig->Code = 0;
@@ -440,19 +439,14 @@ void MENU_AcceptSetting(void)
 		case MENU_R_CTCS: {
 			if (gSubMenuSelection == 0) {
 				if (pConfig->CodeType != CODE_TYPE_CONTINUOUS_TONE) {
-					gRequestSaveChannel = 1;
 					return;
 				}
 				pConfig->Code     = 0;
 				pConfig->CodeType = CODE_TYPE_OFF;
-
-				BK4819_ExitSubAu();
 			}
 			else {
 				pConfig->Code     = gSubMenuSelection - 1;
 				pConfig->CodeType = CODE_TYPE_CONTINUOUS_TONE;
-
-				BK4819_SetCTCSSFrequency(CTCSS_Options[pConfig->Code]);
 			}
 
 			gRequestSaveChannel = 1;
