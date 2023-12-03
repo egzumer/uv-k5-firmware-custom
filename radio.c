@@ -352,8 +352,9 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		else
 			pVfo->freq_config_RX.Frequency = info.Frequency;
 
-		if (info.Offset >= 100000000)
-			info.Offset = 1000000;
+		if (info.Offset >= _1GHz_in_KHz)
+			info.Offset = _1GHz_in_KHz / 100;
+
 		pVfo->TX_OFFSET_FREQUENCY = info.Offset;
 
 		// ***************

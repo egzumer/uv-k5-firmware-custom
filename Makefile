@@ -184,17 +184,15 @@ else # unix
 endif
 
 AS = arm-none-eabi-gcc
-
-CC =
 LD = arm-none-eabi-gcc
 
 ifeq ($(ENABLE_CLANG),0)
-	CC += arm-none-eabi-gcc
+	CC = arm-none-eabi-gcc
 # Use GCC's linker to avoid undefined symbol errors
 #	LD += arm-none-eabi-gcc
 else
 #	May need to adjust this to match your system
-	CC += clang --sysroot=/usr/arm-none-eabi --target=arm-none-eabi
+	CC = clang --sysroot=/usr/arm-none-eabi --target=arm-none-eabi
 #	Bloats binaries to 512MB
 #	LD = ld.lld
 endif
@@ -221,17 +219,18 @@ endif
 
 CFLAGS =
 ifeq ($(ENABLE_CLANG),0)
-	CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
+	CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c2x -MMD
+	#CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
 	#CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c99 -MMD
 	#CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu99 -MMD
 	#CFLAGS += -Os -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=gnu11 -MMD
 else
 	# Oz needed to make it fit on flash
-	CFLAGS += -Oz -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c11 -MMD
+	CFLAGS += -Oz -Wall -Werror -mcpu=cortex-m0 -fno-builtin -fshort-enums -fno-delete-null-pointer-checks -std=c2x -MMD
 endif
 
 ifeq ($(ENABLE_LTO),1)
-	CFLAGS += -flto=2
+	CFLAGS += -flto=auto
 else
 	# We get most of the space savings if LTO creates problems
 	CFLAGS += -ffunction-sections -fdata-sections
@@ -366,20 +365,10 @@ ifeq ($(ENABLE_AGC_SHOW_DATA),1)
 endif
 
 LDFLAGS =
-ifeq ($(ENABLE_CLANG),0)
-	LDFLAGS += -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld
-else
-#	Fix warning about implied executable stack
-	LDFLAGS += -z noexecstack -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld
-endif
+LDFLAGS += -z noexecstack -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld -Wl,--gc-sections
 
 # Use newlib-nano instead of newlib
 LDFLAGS += --specs=nano.specs
-
-ifeq ($(ENABLE_LTO),0)
-	# Throw away unneeded func/data sections like LTO does
-	LDFLAGS += -Wl,--gc-sections
-endif
 
 ifeq ($(DEBUG),1)
 	ASFLAGS += -g
