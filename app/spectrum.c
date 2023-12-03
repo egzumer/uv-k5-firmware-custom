@@ -19,6 +19,7 @@
 #include "audio.h"
 #include "ui/helper.h"
 #include "am_fix.h"
+#include "settings.h"
 #include "ui/main.h"
 
 struct FrequencyBandInfo {
@@ -754,9 +755,9 @@ static void ShowChannelName(uint32_t f) {
   if ( isListening ) { 
     for (i = 0; IS_MR_CHANNEL(i); i++) {
         if (RADIO_CheckValidChannel(i, false, 0)) {
-          if (BOARD_fetchChannelFrequency(i) == f) {
+          if (SETTINGS_FetchChannelFrequency(i) == f) {
             memset(s, 0, sizeof(s));
-            BOARD_fetchChannelName(s, i);
+            SETTINGS_FetchChannelName(s, i);
             if (s[0] != 0) {
               if ( strlen(String) != 0 )
                 strcat(String, "/");   // Add a space to result
