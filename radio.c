@@ -889,6 +889,7 @@ void RADIO_SetTxParameters(void)
 
 void RADIO_SetModulation(ModulationMode_t modulation)
 {
+	static ModulationMode_t m = MODULATION_UKNOWN;
 	BK4819_AF_Type_t mod;
 	switch(modulation) {
 		default:
@@ -913,9 +914,16 @@ void RADIO_SetModulation(ModulationMode_t modulation)
 	}
 
 	BK4819_SetAF(mod);
-	BK4819_SetRegValue(afDacGainRegSpec, 0xF);
-	BK4819_WriteRegister(BK4819_REG_3D, modulation == MODULATION_USB ? 0 : 0x2AAB);
-	BK4819_SetRegValue(afcDisableRegSpec, modulation != MODULATION_FM);
+	if(m != modulation) {
+		m = modulation;
+		BK4819_SetRegValue(afDacGainRegSpec, 0xF);
+		BK4819_WriteRegister(BK4819_REG_3D, modulation == MODULATION_USB ? 0 : 0x2AAB);
+		BK4819_SetRegValue(afcDisableRegSpec, modulation != MODULATION_FM);
+#ifdef ENABLE_AM_FIX
+		BK4819_SetAGC(modulation != MODULATION_AM || !gSetting_AM_fix);
+		BK4819_InitAGC();
+#endif			
+	}
 }
 
 void RADIO_SetVfoState(VfoState_t State)

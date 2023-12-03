@@ -489,8 +489,6 @@ static void ToggleModulation() {
     settings.modulationType = MODULATION_FM;
   }
   RADIO_SetModulation(settings.modulationType);
-  BK4819_SetAGC(settings.modulationType != MODULATION_AM || !gSetting_AM_fix);
-  BK4819_InitAGC();
   RelaunchScan();
   redrawScreen = true;
 }
@@ -1156,7 +1154,8 @@ static void Tick() {
 void APP_RunSpectrum() {
   // TX here coz it always? set to active VFO
   vfo =  gEeprom.TX_VFO;
-  currentFreq = initialFreq = gEeprom.VfoInfo[vfo].pRX->Frequency - ((GetStepsCount()/2) * GetScanStep());                          //set the current frequency in the middle of the display
+  //set the current frequency in the middle of the display
+  currentFreq = initialFreq = gEeprom.VfoInfo[vfo].pRX->Frequency - ((GetStepsCount()/2) * GetScanStep());
 
   BackupRegisters();
 
@@ -1167,7 +1166,6 @@ void APP_RunSpectrum() {
 
   ToggleRX(true), ToggleRX(false); // hack to prevent noise when squelch off
   RADIO_SetModulation(settings.modulationType = gRxVfo->Modulation);
-  BK4819_SetAGC(settings.modulationType != MODULATION_AM || !gSetting_AM_fix);
   BK4819_SetFilterBandwidth(settings.listenBw = BK4819_FILTER_BW_WIDE, false);
 
   RelaunchScan();
