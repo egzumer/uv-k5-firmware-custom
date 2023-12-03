@@ -228,7 +228,7 @@ else
 endif
 
 ifeq ($(ENABLE_LTO),1)
-	CFLAGS += -flto=2
+	CFLAGS += -flto=auto
 else
 	# We get most of the space savings if LTO creates problems
 	CFLAGS += -ffunction-sections -fdata-sections
