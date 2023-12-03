@@ -77,10 +77,10 @@ FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency);
 uint8_t          FREQUENCY_CalculateOutputPower(uint8_t TxpLow, uint8_t TxpMid, uint8_t TxpHigh, int32_t LowerLimit, int32_t Middle, int32_t UpperLimit, int32_t Frequency);
 uint32_t 		 FREQUENCY_RoundToStep(uint32_t freq, uint16_t step);
 
-uint8_t          FREQUENCY_GetStepIdxFromSortedIdx(uint8_t sortedIdx);
-uint8_t 		 FREQUENCY_GetSortedIdxFromStepIdx(uint8_t step);
+STEP_Setting_t   FREQUENCY_GetStepIdxFromSortedIdx(uint8_t sortedIdx);
+uint32_t		 FREQUENCY_GetSortedIdxFromStepIdx(uint8_t step);
 
-int              TX_freq_check(const uint32_t Frequency);
-int              RX_freq_check(const uint32_t Frequency);
+int32_t          TX_freq_check(const uint32_t Frequency);
+int32_t          RX_freq_check(const uint32_t Frequency);
 
 #endif

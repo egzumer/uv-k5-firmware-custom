@@ -67,16 +67,18 @@ const uint16_t gStepFrequencyTable[] = {
 };
 
 
-const uint8_t StepSortedIndexes[] = {
+const STEP_Setting_t StepSortedIndexes[] = {
 	STEP_0_01kHz, STEP_0_05kHz, STEP_0_1kHz, STEP_0_25kHz, STEP_0_5kHz, STEP_1kHz, STEP_1_25kHz, STEP_2_5kHz, STEP_5kHz, STEP_6_25kHz,
 	STEP_8_33kHz, STEP_10kHz, STEP_12_5kHz, STEP_15kHz, STEP_25kHz, STEP_30kHz, STEP_50kHz, STEP_100kHz,
 	STEP_125kHz, STEP_250kHz, STEP_500kHz
 };
-uint8_t FREQUENCY_GetStepIdxFromSortedIdx(uint8_t sortedIdx) 
+
+STEP_Setting_t FREQUENCY_GetStepIdxFromSortedIdx(uint8_t sortedIdx)
 {
 	return StepSortedIndexes[sortedIdx];
 }
-uint8_t FREQUENCY_GetSortedIdxFromStepIdx(uint8_t stepIdx) 
+
+uint32_t FREQUENCY_GetSortedIdxFromStepIdx(uint8_t stepIdx)
 {
 	for(uint8_t i = 0; i < ARRAY_SIZE(gStepFrequencyTable); i++)
 		if(StepSortedIndexes[i] == stepIdx)
@@ -86,8 +88,7 @@ uint8_t FREQUENCY_GetSortedIdxFromStepIdx(uint8_t stepIdx)
 
 FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency)
 {
-	int band;
-	for (band = ARRAY_SIZE(frequencyBandTable) - 1; band >= 0; band--)
+	for (int band = ARRAY_SIZE(frequencyBandTable) - 1; band >= 0; band--)
 		if (Frequency >= frequencyBandTable[band].lower)
 //		if (Frequency <  frequencyBandTable[band].upper)
 			return (FREQUENCY_Band_t)band;
@@ -128,7 +129,7 @@ uint32_t FREQUENCY_RoundToStep(uint32_t freq, uint16_t step)
 	return (freq + (step + 1) / 2) / step * step;
 }
 
-int TX_freq_check(const uint32_t Frequency)
+int32_t TX_freq_check(const uint32_t Frequency)
 {	// return '0' if TX frequency is allowed
 	// otherwise return '-1'
 
@@ -205,7 +206,7 @@ int TX_freq_check(const uint32_t Frequency)
 	return -1;
 }
 
-int RX_freq_check(const uint32_t Frequency)
+int32_t RX_freq_check(const uint32_t Frequency)
 {	// return '0' if RX frequency is allowed
 	// otherwise return '-1'
 
