@@ -446,6 +446,8 @@ static void HandleFunction(void)
 
 void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 {
+	(void)reset_am_fix;
+
 	const unsigned int chan = gEeprom.RX_VFO;
 //	const unsigned int chan = gRxVfo->CHANNEL_SAVE;
 
@@ -499,31 +501,13 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		gUpdateStatus    = true;
 	}
 
-	{	// RF RX front end gain
-		// original QS front end register settings
-		// 0x03BE   00000 011 101 11 110
-		const uint8_t orig_lna_short = 3;   //   0dB
-		const uint8_t orig_lna       = 5;   //  -4dB
-		const uint8_t orig_mixer     = 3;   //   0dB
-		const uint8_t orig_pga       = 6;   //  -3dB
-
 #ifdef ENABLE_AM_FIX
-
-		BK4819_SetAGC(gRxVfo->Modulation != MODULATION_AM || !gSetting_AM_fix);
-
 		if (gRxVfo->Modulation == MODULATION_AM && gSetting_AM_fix) {	// AM RX mode
 			if (reset_am_fix)
 				AM_fix_reset(chan);      // TODO: only reset it when moving channel/frequency
 			AM_fix_10ms(chan);
 		}
-		else {	// FM RX mode
-			BK4819_WriteRegister(BK4819_REG_13, (orig_lna_short << 8) | (orig_lna << 5) | (orig_mixer << 3) | (orig_pga << 0));
-		}
-#else
-		(void)reset_am_fix;
-		BK4819_WriteRegister(BK4819_REG_13, (orig_lna_short << 8) | (orig_lna << 5) | (orig_mixer << 3) | (orig_pga << 0));
 #endif
-	}
 
 	// AF gain - original QS values
 	// if (gRxVfo->Modulation != MODULATION_FM){

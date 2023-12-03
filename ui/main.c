@@ -39,6 +39,16 @@
 
 center_line_t center_line = CENTER_LINE_NONE;
 
+const int8_t dBmCorrTable[7] = {
+			-15, // band 1
+			-25, // band 2
+			-20, // band 3
+			-4, // band 4
+			-7, // band 5
+			-6, // band 6
+			 -1  // band 7
+		};
+
 // ***************************************************************************
 
 static void DrawSmallAntennaAndBars(uint8_t *p, unsigned int level)
@@ -176,15 +186,6 @@ static void DisplayRSSIBar(const int16_t rssi, const bool now)
 		if (now)
 			memset(p_line, 0, LCD_WIDTH);
 		
-		const int8_t dBmCorrTable[7] = {
-			-15, // band 1
-			-25, // band 2
-			-20, // band 3
-			-4, // band 4
-			-7, // band 5
-			-6, // band 6
-			 -1  // band 7
-		};
 
 		const int16_t      s0_dBm       = -130;                  // S0 .. base level
 		const int16_t      rssi_dBm     = (rssi / 2) - 160 + dBmCorrTable[gRxVfo->Band];
@@ -526,7 +527,7 @@ void UI_DisplayMain(void)
 					case MDF_NAME:		// show the channel name
 					case MDF_NAME_FREQ:	// show the channel name and frequency
 
-						BOARD_fetchChannelName(String, gEeprom.ScreenChannel[vfo_num]);
+						SETTINGS_FetchChannelName(String, gEeprom.ScreenChannel[vfo_num]);
 						if (String[0] == 0)
 						{	// no channel name, show the channel number instead
 							sprintf(String, "CH-%03u", gEeprom.ScreenChannel[vfo_num] + 1);

@@ -84,13 +84,13 @@ void Main(void)
 
 	BOARD_ADC_GetBatteryInfo(&gBatteryCurrentVoltage, &gBatteryCurrent);
 
-	BOARD_EEPROM_Init();
+	SETTINGS_InitEEPROM();
 
 	#ifdef ENABLE_CONTRAST
 		ST7565_SetContrast(gEeprom.LCD_CONTRAST);
 	#endif
 
-	BOARD_EEPROM_LoadCalibration();
+	SETTINGS_LoadCalibration();
 
 	RADIO_ConfigureChannel(0, VFO_CONFIGURE_RELOAD);
 	RADIO_ConfigureChannel(1, VFO_CONFIGURE_RELOAD);

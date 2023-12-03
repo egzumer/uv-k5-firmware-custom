@@ -655,7 +655,7 @@ void UI_DisplayMenu(void)
 
 			if (valid && !gAskForConfirmation)
 			{	// show the frequency so that the user knows the channels frequency
-				const uint32_t frequency = BOARD_fetchChannelFrequency(gSubMenuSelection);
+				const uint32_t frequency = SETTINGS_FetchChannelFrequency(gSubMenuSelection);
 				sprintf(String, "%u.%05u", frequency / 100000, frequency % 100000);
 				UI_PrintString(String, menu_item_x1, menu_item_x2, 4, 8);
 			}
@@ -673,11 +673,11 @@ void UI_DisplayMenu(void)
 
 			if (valid)
 			{
-				const uint32_t frequency = BOARD_fetchChannelFrequency(gSubMenuSelection);
+				const uint32_t frequency = SETTINGS_FetchChannelFrequency(gSubMenuSelection);
 
 				if (!gIsInSubMenu || edit_index < 0)
 				{	// show the channel name
-					BOARD_fetchChannelName(String, gSubMenuSelection);
+					SETTINGS_FetchChannelName(String, gSubMenuSelection);
 					if (String[0] == 0)
 						strcpy(String, "--");
 					UI_PrintString(String, menu_item_x1, menu_item_x2, 2, 8);
@@ -924,7 +924,7 @@ void UI_DisplayMenu(void)
 			UI_PrintString(String, menu_item_x1, menu_item_x2, 0, 8);
 
 			// channel name
-			BOARD_fetchChannelName(String, gSubMenuSelection);
+			SETTINGS_FetchChannelName(String, gSubMenuSelection);
 			if (String[0] == 0)
 				strcpy(String, "--");
 			UI_PrintString(String, menu_item_x1, menu_item_x2, 2, 8);
@@ -935,7 +935,7 @@ void UI_DisplayMenu(void)
 			UI_PrintString(String, menu_item_x1, menu_item_x2, 0, 8);
 
 			// channel name
-			BOARD_fetchChannelName(String, gSubMenuSelection);
+			SETTINGS_FetchChannelName(String, gSubMenuSelection);
 			if (String[0] == 0)
 				strcpy(String, "--");
 			UI_PrintStringSmall(String, menu_item_x1, menu_item_x2, 2);
@@ -959,7 +959,7 @@ void UI_DisplayMenu(void)
 	    UI_MENU_GetCurrentMenuId() == MENU_1_CALL)
 	{	// display the channel name
 		char s[11];
-		BOARD_fetchChannelName(s, gSubMenuSelection);
+		SETTINGS_FetchChannelName(s, gSubMenuSelection);
 		if (s[0] == 0)
 			strcpy(s, "--");
 		UI_PrintString(s, menu_item_x1, menu_item_x2, 2, 8);

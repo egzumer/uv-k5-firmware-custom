@@ -314,7 +314,7 @@ static void CMD_051D(const uint8_t *pBuffer)
 		}
 
 		if (bReloadEeprom)
-			BOARD_EEPROM_Init();
+			SETTINGS_InitEEPROM();
 	}
 
 	SendReply(&Reply, sizeof(Reply));
