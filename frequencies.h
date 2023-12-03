@@ -19,6 +19,8 @@
 
 #include <stdint.h>
 
+#define _1GHz_in_KHz 100000000
+
 typedef struct {
 	const uint32_t lower;
 	const uint32_t upper;

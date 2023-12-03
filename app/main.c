@@ -141,8 +141,8 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			}
 
 #ifdef ENABLE_WIDE_RX
-			if(gTxVfo->Band == BAND7_470MHz && gTxVfo->pRX->Frequency < 100000000) {
-					gTxVfo->pRX->Frequency = 100000000;
+			if(gTxVfo->Band == BAND7_470MHz && gTxVfo->pRX->Frequency < _1GHz_in_KHz) {
+					gTxVfo->pRX->Frequency = _1GHz_in_KHz;
 					return;
 			}
 #endif
@@ -359,7 +359,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 #ifdef ENABLE_VOICE
 			gAnotherVoiceID = (VOICE_ID_t)Key;
 #endif
-			bool isGigaF = gTxVfo->pRX->Frequency >= 100000000;
+			bool isGigaF = gTxVfo->pRX->Frequency >= _1GHz_in_KHz;
 			if (gInputBoxIndex < 6 + isGigaF)
 			{
 				return;
