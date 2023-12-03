@@ -358,19 +358,17 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
 		{	// user is entering a frequency
 
-			uint32_t Frequency;
+#ifdef ENABLE_VOICE
+			gAnotherVoiceID = (VOICE_ID_t)Key;
+#endif
 			bool isGigaF = gTxVfo->pRX->Frequency >= 100000000;
 			if (gInputBoxIndex < 6 + isGigaF)
 			{
-				#ifdef ENABLE_VOICE
-					gAnotherVoiceID = (VOICE_ID_t)Key;
-				#endif
-
 				return;
 			}
 
 			gInputBoxIndex = 0;
-			Frequency = StrToUL(INPUTBOX_GetAscii()) * 100;
+			uint32_t Frequency = StrToUL(INPUTBOX_GetAscii()) * 100;
 
 			// clamp the frequency entered to some valid value
 			if (Frequency < frequencyBandTable[0].lower)
@@ -391,10 +389,6 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			{
 				const FREQUENCY_Band_t band = FREQUENCY_GetBand(Frequency);
-
-				#ifdef ENABLE_VOICE
-					gAnotherVoiceID = (VOICE_ID_t)Key;
-				#endif
 
 				if (gTxVfo->Band != band)
 				{
