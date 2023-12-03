@@ -46,7 +46,7 @@
 void toggle_chan_scanlist(void)
 {	// toggle the selected channels scanlist setting
 
-	if ( SCANNER_IsScanning())
+	if (SCANNER_IsScanning())
 		return;
 
 	if(!IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE)) {
@@ -103,42 +103,38 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				gBeepToPlay     = BEEP_1KHZ_60MS_OPTIONAL;
 
 #ifdef ENABLE_COPY_CHAN_TO_VFO
-				if (gEeprom.VFO_OPEN && !gCssBackgroundScan)
-				{
-
-					if (gScanStateDir != SCAN_OFF)
-					{
-						if (gCurrentFunction != FUNCTION_INCOMING ||
-							gRxReceptionMode == RX_MODE_NONE      ||
-							gScanPauseDelayIn_10ms == 0)
-						{	// scan is running (not paused)
-							return;
-						}
-					}
-
-					const uint8_t vfo = gEeprom.TX_VFO;
-
-					if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo]))
-					{	// copy channel to VFO, then swap to the VFO
-
-						const unsigned int channel = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
-
-						gEeprom.ScreenChannel[vfo] = channel;
-						gEeprom.VfoInfo[vfo].CHANNEL_SAVE = channel;
-
-						RADIO_SelectVfos();
-						RADIO_ApplyOffset(gRxVfo);
-						RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
-						RADIO_SetupRegisters(true);
-
-						//SETTINGS_SaveChannel(channel, gEeprom.RX_VFO, gRxVfo, 1);
-
-						gUpdateDisplay = true;
-					}
-				}
-				else
+				if (!gEeprom.VFO_OPEN || gCssBackgroundScan)
 				{
 					gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+					return;
+				}
+
+				if (gScanStateDir != SCAN_OFF)
+				{
+					if (gCurrentFunction != FUNCTION_INCOMING ||
+						gRxReceptionMode == RX_MODE_NONE      ||
+						gScanPauseDelayIn_10ms == 0)
+					{	// scan is running (not paused)
+						return;
+					}
+				}
+
+				const uint8_t vfo = gEeprom.TX_VFO;
+
+				if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo]))
+				{	// copy channel to VFO, then swap to the VFO
+
+					gEeprom.ScreenChannel[vfo] = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
+					gEeprom.VfoInfo[vfo].CHANNEL_SAVE = gEeprom.ScreenChannel[vfo];
+
+					RADIO_SelectVfos();
+					RADIO_ApplyOffset(gRxVfo);
+					RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
+					RADIO_SetupRegisters(true);
+
+					//SETTINGS_SaveChannel(channel, gEeprom.RX_VFO, gRxVfo, 1);
+
+					gUpdateDisplay = true;
 				}
 #endif
 				return;
