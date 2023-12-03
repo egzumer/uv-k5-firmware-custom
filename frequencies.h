@@ -37,7 +37,8 @@ typedef enum  {
 	BAND4_174MHz,
 	BAND5_350MHz,
 	BAND6_400MHz,
-	BAND7_470MHz
+	BAND7_470MHz,
+	BAND_LAST_ELEMENT //keep this guard as last element
 } FREQUENCY_Band_t;
 
 

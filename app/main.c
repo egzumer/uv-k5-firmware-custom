@@ -79,7 +79,6 @@ void toggle_chan_scanlist(void)
 
 static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 {
-	uint8_t Band;
 	uint8_t Vfo = gEeprom.TX_VFO;
 
 	if (gScreenToDisplay == DISPLAY_MENU)
@@ -155,26 +154,24 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			}
 
 #ifdef ENABLE_WIDE_RX
-			if(gTxVfo->Band == 6 && gTxVfo->pRX->Frequency < 100000000) {
+			if(gTxVfo->Band == BAND7_470MHz && gTxVfo->pRX->Frequency < 100000000) {
 					gTxVfo->pRX->Frequency = 100000000;
 					return;
 			}
-			else 
-#endif			
-			{
-				Band = gTxVfo->Band + 1;
-				if (gSetting_350EN || Band != BAND5_350MHz) {
-					if (Band > BAND7_470MHz)
-						Band = BAND1_50MHz;
-				}
-				else
-					Band = BAND6_400MHz;
+#endif
 
-				gTxVfo->Band = Band;
+			gTxVfo->Band += 1;
 
-				gEeprom.ScreenChannel[Vfo] = FREQ_CHANNEL_FIRST + Band;
-				gEeprom.FreqChannel[Vfo]   = FREQ_CHANNEL_FIRST + Band;
+			if (gTxVfo->Band == BAND5_350MHz && !gSetting_350EN) {
+				// skip if not enabled
+				gTxVfo->Band += 1;
+			} else if (gTxVfo->Band >= BAND_LAST_ELEMENT){
+				// go arround if overflowed
+				gTxVfo->Band = BAND1_50MHz;
 			}
+
+			gEeprom.ScreenChannel[Vfo] = FREQ_CHANNEL_FIRST + gTxVfo->Band;
+			gEeprom.FreqChannel[Vfo]   = FREQ_CHANNEL_FIRST + gTxVfo->Band;
 
 			gRequestSaveVFO            = true;
 			gVfoConfigureMode          = VFO_CONFIGURE_RELOAD;
