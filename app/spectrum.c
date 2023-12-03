@@ -1293,21 +1293,21 @@ static void AutomaticPresetChoose(uint32_t f) {
 
 void APP_RunSpectrum() {
   // TX here coz it always? set to active VFO
-  //vfo =  gEeprom.TX_VFO;
+  vfo =  gEeprom.TX_VFO;
   //set the current frequency in the middle of the display
   //currentFreq = initialFreq = gEeprom.VfoInfo[vfo].pRX->Frequency - ((GetStepsCount()/2) * GetScanStep());
 
   BackupRegisters();
 
-  VFO_Info_t vfo = gEeprom.VfoInfo[gEeprom.TX_VFO];
+  VFO_Info_t vfoi = gEeprom.VfoInfo[vfo];
 
-  initialFreq = vfo.pRX->Frequency;
+  initialFreq = vfoi.pRX->Frequency;
   currentFreq = initialFreq;
-  settings.scanStepIndex = gStepSettingToIndex[vfo.STEP_SETTING];
-  settings.listenBw = vfo.CHANNEL_BANDWIDTH == BK4819_FILTER_BW_WIDE
+  settings.scanStepIndex = gStepSettingToIndex[vfoi.STEP_SETTING];
+  settings.listenBw = vfoi.CHANNEL_BANDWIDTH == BK4819_FILTER_BW_WIDE
                           ? BK4819_FILTER_BW_WIDE
                           : BK4819_FILTER_BW_NARROW;
-  settings.modulationType = vfo.Modulation;
+  settings.modulationType = vfoi.Modulation;
 
   AutomaticPresetChoose(currentFreq);
 
