@@ -319,8 +319,6 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
 		{	// user is entering channel number
 
-			uint16_t Channel;
-
 			if (gInputBoxIndex != 3)
 			{
 				#ifdef ENABLE_VOICE
@@ -332,7 +330,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			gInputBoxIndex = 0;
 
-			Channel = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
+			const uint16_t Channel = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
 
 			if (!RADIO_CheckValidChannel(Channel, false, 0))
 			{
@@ -387,42 +385,37 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				Frequency = frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper;
 			}
 
+			const FREQUENCY_Band_t band = FREQUENCY_GetBand(Frequency);
+
+			if (gTxVfo->Band != band)
 			{
-				const FREQUENCY_Band_t band = FREQUENCY_GetBand(Frequency);
+				gTxVfo->Band               = band;
+				gEeprom.ScreenChannel[Vfo] = band + FREQ_CHANNEL_FIRST;
+				gEeprom.FreqChannel[Vfo]   = band + FREQ_CHANNEL_FIRST;
 
-				if (gTxVfo->Band != band)
-				{
-					gTxVfo->Band               = band;
-					gEeprom.ScreenChannel[Vfo] = band + FREQ_CHANNEL_FIRST;
-					gEeprom.FreqChannel[Vfo]   = band + FREQ_CHANNEL_FIRST;
+				SETTINGS_SaveVfoIndices();
 
-					SETTINGS_SaveVfoIndices();
-
-					RADIO_ConfigureChannel(Vfo, VFO_CONFIGURE_RELOAD);
-				}
-
-				Frequency = FREQUENCY_RoundToStep(Frequency, gTxVfo->StepFrequency);
-
-				if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
-				{	// clamp the frequency to the limit
-					const uint32_t center = (BX4819_band1.upper + BX4819_band2.lower) / 2;
-					Frequency = (Frequency < center) ? BX4819_band1.upper - gTxVfo->StepFrequency : BX4819_band2.lower;
-				}
-
-				gTxVfo->freq_config_RX.Frequency = Frequency;
-
-				gRequestSaveChannel = 1;
-				return;
+				RADIO_ConfigureChannel(Vfo, VFO_CONFIGURE_RELOAD);
 			}
+
+			Frequency = FREQUENCY_RoundToStep(Frequency, gTxVfo->StepFrequency);
+
+			if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
+			{	// clamp the frequency to the limit
+				const uint32_t center = (BX4819_band1.upper + BX4819_band2.lower) / 2;
+				Frequency = (Frequency < center) ? BX4819_band1.upper - gTxVfo->StepFrequency : BX4819_band2.lower;
+			}
+
+			gTxVfo->freq_config_RX.Frequency = Frequency;
+
+			gRequestSaveChannel = 1;
+			return;
 
 		}
 		#ifdef ENABLE_NOAA
 			else
 			if (IS_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 			{	// user is entering NOAA channel
-
-				uint8_t Channel;
-
 				if (gInputBoxIndex != 2)
 				{
 					#ifdef ENABLE_VOICE
@@ -434,7 +427,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 				gInputBoxIndex = 0;
 
-				Channel = (gInputBox[0] * 10) + gInputBox[1];
+				uint8_t Channel = (gInputBox[0] * 10) + gInputBox[1];
 				if (Channel >= 1 && Channel <= ARRAY_SIZE(NoaaFrequencyTable))
 				{
 					Channel                   += NOAA_CHANNEL_FIRST;
@@ -564,7 +557,7 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 
 	if (!bKeyPressed && !gDTMF_InputMode)
 	{	// menu key released
-		const bool bFlag = (gInputBoxIndex == 0);
+		const bool bFlag = !gInputBoxIndex;
 		gInputBoxIndex   = 0;
 
 		if (bFlag)
