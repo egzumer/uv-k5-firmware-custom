@@ -15,23 +15,22 @@
  */
 
 #include "app/spectrum.h"
-#include "driver/backlight.h"
-#include "audio.h"
-#include "ui/helper.h"
 #include "am_fix.h"
+#include "audio.h"
+#include "driver/backlight.h"
+#include "ui/helper.h"
 #include "ui/main.h"
 
 struct FrequencyBandInfo {
-    uint32_t lower;
-    uint32_t upper;
-    uint32_t middle;
+  uint32_t lower;
+  uint32_t upper;
+  uint32_t middle;
 };
 
 #define F_MIN frequencyBandTable[0].lower
 #define F_MAX frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper
 
 const uint16_t RSSI_MAX_VALUE = 65535;
-
 
 static uint16_t R30, R37, R3D, R43, R47, R48, R7E;
 static uint32_t initialFreq;
@@ -56,17 +55,17 @@ const char *bwOptions[] = {"  25k", "12.5k", "6.25k"};
 const uint8_t modulationTypeTuneSteps[] = {100, 50, 10};
 const uint8_t modTypeReg47Values[] = {1, 7, 5};
 
-SpectrumSettings settings = {stepsCount: STEPS_64,
-                             scanStepIndex: S_STEP_25_0kHz,
-                             frequencyChangeStep: 80000,
-                             scanDelay: 3200,
-                             rssiTriggerLevel: 150,
-                             backlightState: true,
-                             bw: BK4819_FILTER_BW_WIDE,
-                             listenBw: BK4819_FILTER_BW_WIDE,
-                             modulationType: false,
-                             dbMin: -130,
-                             dbMax: -50};
+SpectrumSettings settings = {.stepsCount = STEPS_64,
+                             .scanStepIndex = S_STEP_25_0kHz,
+                             .frequencyChangeStep = 80000,
+                             .scanDelay = 3200,
+                             .rssiTriggerLevel = 150,
+                             .backlightState = true,
+                             .bw = BK4819_FILTER_BW_WIDE,
+                             .listenBw = BK4819_FILTER_BW_WIDE,
+                             .modulationType = false,
+                             .dbMin = -130,
+                             .dbMax = -50};
 
 uint32_t fMeasure = 0;
 uint32_t currentFreq, tempFreq;
@@ -102,9 +101,8 @@ static uint8_t DBm2S(int dbm) {
   return i;
 }
 
-static int Rssi2DBm(uint16_t rssi) 
-{    
-      return  (rssi / 2) - 160 + dBmCorrTable[gRxVfo->Band];
+static int Rssi2DBm(uint16_t rssi) {
+  return (rssi / 2) - 160 + dBmCorrTable[gRxVfo->Band];
 }
 
 static uint16_t GetRegMenuValue(uint8_t st) {
@@ -282,15 +280,9 @@ uint16_t GetRssi() {
   while ((BK4819_ReadRegister(0x63) & 0b11111111) >= 255) {
     SYSTICK_DelayUs(100);
   }
-  if(settings.modulationType == MODULATION_AM)
-      {
-      return BK4819_GetRSSI() -  rssi_gain_diff[vfo];          //return the corrected RSSI to allow for AM_Fixs AGC action. 
-      }
-   else
-     {
-     return BK4819_GetRSSI();
-     }
-  
+
+  return BK4819_GetRSSI() -
+         ((settings.modulationType == MODULATION_AM) ? rssi_gain_diff[vfo] : 0);
 }
 
 static void ToggleAudio(bool on) {
@@ -395,21 +387,21 @@ static void Measure() { rssiHistory[scanInfo.i] = scanInfo.rssi = GetRssi(); }
 
 // Update things by keypress
 
-static uint16_t dbm2rssi(int dBm)
-{
-  return (dBm + 160 - dBmCorrTable[gRxVfo->Band])*2;
+static uint16_t dbm2rssi(int dBm) {
+  return (dBm + 160 - dBmCorrTable[gRxVfo->Band]) * 2;
 }
 
-static void ClampRssiTriggerLevel()
-{
-  settings.rssiTriggerLevel = clamp(settings.rssiTriggerLevel, dbm2rssi(settings.dbMin), dbm2rssi(settings.dbMax));
+static void ClampRssiTriggerLevel() {
+  settings.rssiTriggerLevel =
+      clamp(settings.rssiTriggerLevel, dbm2rssi(settings.dbMin),
+            dbm2rssi(settings.dbMax));
 }
 
 static void UpdateRssiTriggerLevel(bool inc) {
   if (inc)
-      settings.rssiTriggerLevel += 2;
+    settings.rssiTriggerLevel += 2;
   else
-      settings.rssiTriggerLevel -= 2;
+    settings.rssiTriggerLevel -= 2;
 
   ClampRssiTriggerLevel();
 
@@ -549,8 +541,8 @@ static void UpdateFreqInput(KEY_Code_t key) {
   }
   if (key == KEY_EXIT) {
     freqInputIndex--;
-    if(freqInputDotIndex==freqInputIndex)
-      freqInputDotIndex = 0;    
+    if (freqInputDotIndex == freqInputIndex)
+      freqInputDotIndex = 0;
   } else {
     freqInputArr[freqInputIndex++] = key;
   }
@@ -564,7 +556,7 @@ static void UpdateFreqInput(KEY_Code_t key) {
   for (int i = 0; i < 10; ++i) {
     if (i < freqInputIndex) {
       digitKey = freqInputArr[i];
-      freqInputString[i] = digitKey <= KEY_9 ? '0' + digitKey-KEY_0 : '.';
+      freqInputString[i] = digitKey <= KEY_9 ? '0' + digitKey - KEY_0 : '.';
     } else {
       freqInputString[i] = '-';
     }
@@ -572,14 +564,14 @@ static void UpdateFreqInput(KEY_Code_t key) {
 
   uint32_t base = 100000; // 1MHz in BK units
   for (int i = dotIndex - 1; i >= 0; --i) {
-    tempFreq += (freqInputArr[i]-KEY_0) * base;
+    tempFreq += (freqInputArr[i] - KEY_0) * base;
     base *= 10;
   }
 
   base = 10000; // 0.1MHz in BK units
   if (dotIndex < freqInputIndex) {
     for (int i = dotIndex + 1; i < freqInputIndex; ++i) {
-      tempFreq += (freqInputArr[i]-KEY_0) * base;
+      tempFreq += (freqInputArr[i] - KEY_0) * base;
       base /= 10;
     }
   }
@@ -630,11 +622,12 @@ static void DrawStatus() {
 #endif
   GUI_DisplaySmallest(String, 0, 1, true, true);
 
-  BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[gBatteryCheckCounter++ % 4], &gBatteryCurrent);
+  BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[gBatteryCheckCounter++ % 4],
+                           &gBatteryCurrent);
 
-  uint16_t voltage = (gBatteryVoltages[0] + gBatteryVoltages[1] + gBatteryVoltages[2] +
-             gBatteryVoltages[3]) /
-            4 * 760 / gBatteryCalibration[3];
+  uint16_t voltage = (gBatteryVoltages[0] + gBatteryVoltages[1] +
+                      gBatteryVoltages[2] + gBatteryVoltages[3]) /
+                     4 * 760 / gBatteryCalibration[3];
 
   unsigned perc = BATTERY_VoltsToPercent(voltage);
 
@@ -646,9 +639,9 @@ static void DrawStatus() {
   for (int i = 118; i <= 126; i++) {
     gStatusLine[i] = 0b00100010;
   }
-  
+
   for (unsigned i = 127; i >= 118; i--) {
-    if (127 - i <= (perc+5)*9/100) {
+    if (127 - i <= (perc + 5) * 9 / 100) {
       gStatusLine[i] = 0b00111110;
     }
   }
@@ -912,9 +905,7 @@ void OnKeyDownStill(KEY_Code_t key) {
   }
 }
 
-static void RenderFreqInput() {
-  UI_PrintString(freqInputString, 2, 127, 0, 8);
-}
+static void RenderFreqInput() { UI_PrintString(freqInputString, 2, 127, 0, 8); }
 
 static void RenderStatus() {
   memset(gStatusLine, 0, sizeof(gStatusLine));
@@ -1014,13 +1005,12 @@ bool HandleUserInput() {
   kbd.current = GetKey();
 
   if (kbd.current != KEY_INVALID && kbd.current == kbd.prev) {
-    if(kbd.counter < 16)
+    if (kbd.counter < 16)
       kbd.counter++;
     else
-      kbd.counter-=3;
+      kbd.counter -= 3;
     SYSTEM_DelayMs(20);
-  }
-  else {
+  } else {
     kbd.counter = 0;
   }
 
@@ -1120,10 +1110,9 @@ static void UpdateListening() {
 
 static void Tick() {
 
-  if(settings.modulationType == MODULATION_AM)
-    {
-      AM_fix_10ms(vfo);                //allow AM_Fix to apply its AGC action
-    }
+  if (settings.modulationType == MODULATION_AM) {
+    AM_fix_10ms(vfo); // allow AM_Fix to apply its AGC action
+  }
   if (!preventKeypress) {
     HandleUserInput();
   }
@@ -1153,9 +1142,10 @@ static void Tick() {
 
 void APP_RunSpectrum() {
   // TX here coz it always? set to active VFO
-  vfo =  gEeprom.TX_VFO;
-  //set the current frequency in the middle of the display
-  currentFreq = initialFreq = gEeprom.VfoInfo[vfo].pRX->Frequency - ((GetStepsCount()/2) * GetScanStep());
+  vfo = gEeprom.TX_VFO;
+  // set the current frequency in the middle of the display
+  currentFreq = initialFreq = gEeprom.VfoInfo[vfo].pRX->Frequency -
+                              ((GetStepsCount() / 2) * GetScanStep());
 
   BackupRegisters();
 
