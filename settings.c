@@ -76,7 +76,6 @@ void SETTINGS_SaveSettings(void)
 {
 	uint8_t  State[8];
 	uint32_t Password[2];
-	uint32_t RxOffset;
 
 	State[0] = gEeprom.CHAN_1_CALL;
 	State[1] = gEeprom.SQUELCH_LEVEL;
@@ -194,9 +193,7 @@ void SETTINGS_SaveSettings(void)
 	 
 	EEPROM_WriteBuffer(0x0F40, State);
 
-	memset(&RxOffset, 0xFF, sizeof(&RxOffset));
-	RxOffset = gEeprom.RX_OFFSET;
-	EEPROM_WriteBuffer(0x0F80, &RxOffset);
+	EEPROM_WriteBuffer(0x0F80, &gEeprom.RX_OFFSET);
 }
 
 void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, uint8_t Mode)
