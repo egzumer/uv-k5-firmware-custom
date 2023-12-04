@@ -153,7 +153,7 @@ extern bool                  gSetting_350EN;
 extern uint8_t               gSetting_F_LOCK;
 extern bool                  gSetting_ScrambleEnable;
 
-extern uint8_t               gSetting_backlight_on_tx_rx;
+extern enum BacklightOnRxTx_t gSetting_backlight_on_tx_rx;
 
 #ifdef ENABLE_AM_FIX
 	extern bool              gSetting_AM_fix;
@@ -340,4 +340,3 @@ int32_t NUMBER_AddWithWraparound(int32_t Base, int32_t Add, int32_t LowerLimit, 
 unsigned long StrToUL(const char * str);
 
 #endif
-

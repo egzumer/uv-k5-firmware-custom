@@ -244,9 +244,9 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			else
 				BK4819_DisableScramble();
 
-			if (gSetting_backlight_on_tx_rx == BACKLIGHT_ON_TR_TX || 
-			    gSetting_backlight_on_tx_rx == BACKLIGHT_ON_TR_TXRX)
+			if (gSetting_backlight_on_tx_rx & BACKLIGHT_ON_TR_TX) {
 				BACKLIGHT_TurnOn();
+			}
 
 			break;
 
