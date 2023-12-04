@@ -45,6 +45,7 @@ bool redrawScreen = false;
 bool newScanStart = true;
 bool preventKeypress = true;
 bool audioState = true;
+bool lockAGC = false;
 
 State currentState = SPECTRUM, previousState = SPECTRUM;
 
@@ -112,9 +113,19 @@ static uint16_t GetRegMenuValue(uint8_t st) {
   return (BK4819_ReadRegister(s.num) >> s.offset) & s.mask;
 }
 
+void LockAGC()
+{
+  if(!lockAGC)
+    BK4819_SetAGC(0);
+  lockAGC = true;
+}
+
 static void SetRegMenuValue(uint8_t st, bool add) {
   uint16_t v = GetRegMenuValue(st);
   RegisterSpec s = registerSpecs[st];
+
+  if(s.num == BK4819_REG_13)
+    LockAGC();
 
   uint16_t reg = BK4819_ReadRegister(s.num);
   if (add && v <= s.mask - s.inc) {
@@ -908,6 +919,7 @@ void OnKeyDownStill(KEY_Code_t key) {
   case KEY_EXIT:
     if (!menuState) {
       SetState(SPECTRUM);
+      lockAGC = false;
       monitorMode = false;
       RelaunchScan();
       break;
@@ -1128,7 +1140,7 @@ static void UpdateListening() {
 static void Tick() {
 #ifdef ENABLE_AM_FIX
   if(settings.modulationType == MODULATION_AM) {
-      AM_fix_10ms(vfo, true); //allow AM_Fix to apply its AGC action
+      AM_fix_10ms(vfo, !lockAGC); //allow AM_Fix to apply its AGC action
   }
 #endif
 
