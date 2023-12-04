@@ -282,11 +282,15 @@ uint16_t GetRssi() {
   while ((BK4819_ReadRegister(0x63) & 0b11111111) >= 255) {
     SYSTICK_DelayUs(100);
   }
+
+#ifdef ENABLE_AM_FIX
   if(settings.modulationType == MODULATION_AM) {
     //return the corrected RSSI to allow for AM_Fixs AGC action. 
     return BK4819_GetRSSI() -  AM_fix_get_rssi_gain_diff(vfo);
   }
-  else {
+  else 	
+#endif
+  {
     return BK4819_GetRSSI();
   }
   
@@ -488,6 +492,10 @@ static void ToggleModulation() {
     settings.modulationType = MODULATION_FM;
   }
   RADIO_SetModulation(settings.modulationType);
+  if(settings.modulationType != MODULATION_AM) {
+    BK4819_InitAGC();
+    BK4819_SetAGC(1);
+  }
   RelaunchScan();
   redrawScreen = true;
 }
@@ -1118,11 +1126,12 @@ static void UpdateListening() {
 }
 
 static void Tick() {
+#ifdef ENABLE_AM_FIX
+  if(settings.modulationType == MODULATION_AM) {
+      AM_fix_10ms(vfo, true); //allow AM_Fix to apply its AGC action
+  }
+#endif
 
-  if(settings.modulationType == MODULATION_AM)
-    {
-      AM_fix_10ms(vfo);                //allow AM_Fix to apply its AGC action
-    }
   if (!preventKeypress) {
     HandleUserInput();
   }
@@ -1165,6 +1174,14 @@ void APP_RunSpectrum() {
 
   ToggleRX(true), ToggleRX(false); // hack to prevent noise when squelch off
   RADIO_SetModulation(settings.modulationType = gRxVfo->Modulation);
+
+#ifdef ENABLE_AM_FIX
+  if(settings.modulationType != MODULATION_AM) {
+    BK4819_InitAGC();
+    BK4819_SetAGC(1);
+  }
+#endif
+
   BK4819_SetFilterBandwidth(settings.listenBw = BK4819_FILTER_BW_WIDE, false);
 
   RelaunchScan();

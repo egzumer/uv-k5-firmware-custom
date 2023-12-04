@@ -230,7 +230,7 @@ static void HandleIncoming(void)
 	}
 #endif
 
-	APP_StartListening(gMonitor ? FUNCTION_MONITOR : FUNCTION_RECEIVE, false);
+	APP_StartListening(gMonitor ? FUNCTION_MONITOR : FUNCTION_RECEIVE);
 }
 
 static void HandleReceive(void)
@@ -444,12 +444,9 @@ static void HandleFunction(void)
 	}
 }
 
-void APP_StartListening(FUNCTION_Type_t function, const bool reset_am_fix)
+void APP_StartListening(FUNCTION_Type_t function)
 {
-	(void)reset_am_fix;
-
 	const unsigned int vfo = gEeprom.RX_VFO;
-//	const unsigned int chan = gRxVfo->CHANNEL_SAVE;
 
 #ifdef ENABLE_DTMF_CALLING
 	if (gSetting_KILLED)
@@ -500,14 +497,6 @@ void APP_StartListening(FUNCTION_Type_t function, const bool reset_am_fix)
 		gDualWatchActive = false;
 		gUpdateStatus    = true;
 	}
-
-#ifdef ENABLE_AM_FIX
-		if (gRxVfo->Modulation == MODULATION_AM && gSetting_AM_fix) {	// AM RX mode
-			if (reset_am_fix)
-				AM_fix_reset(vfo);      // TODO: only reset it when moving channel/frequency
-			AM_fix_10ms(vfo);
-		}
-#endif
 
 	BK4819_WriteRegister(BK4819_REG_48,
 		(11u << 12)                |     // ??? .. 0 to 15, doesn't seem to make any difference
@@ -1169,7 +1158,7 @@ void APP_TimeSlice10ms(void)
 
 	#ifdef ENABLE_AM_FIX
 		if (gRxVfo->Modulation == MODULATION_AM && gSetting_AM_fix)
-			AM_fix_10ms(gEeprom.RX_VFO);
+			AM_fix_10ms(gEeprom.RX_VFO, false);
 	#endif
 
 	if (UART_IsCommandAvailable())
