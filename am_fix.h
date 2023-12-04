@@ -21,14 +21,13 @@
 #include <stdbool.h>
 
 #ifdef ENABLE_AM_FIX
-	extern int16_t rssi_gain_diff[2];
-
 	void AM_fix_init(void);
-	void AM_fix_reset(const int vfo);
-	void AM_fix_10ms(const int vfo);
+	void AM_fix_reset(const unsigned vfo);
+	void AM_fix_10ms(const unsigned vfo);
 	#ifdef ENABLE_AM_FIX_SHOW_DATA
-		void AM_fix_print_data(const int vfo, char *s);
+		void AM_fix_print_data(const unsigned vfo, char *s);
 	#endif
+	int16_t AM_fix_get_rssi_gain_diff(const unsigned vfo);
 		
 #endif
 

@@ -81,11 +81,6 @@ typedef struct
 //
 // these 4 tables need a measuring/calibration update
 //
-//
-// QUESTION: why do I have to surround the negative numbers in brackets ???
-//           if I don't add the brackets, reading the table returns unexpected/different values !!!
-//
-//
 ////	static const int16_t lna_short_dB[] = {  -19,   -16,   -11,     0};   // was (but wrong)
 //	static const int16_t lna_short_dB[] = { (-33), (-30), (-24),    0};   // corrected'ish
 //	static const int16_t lna_dB[]       = { (-24), (-19), (-14), ( -9), (-6), (-4), (-2), 0};
@@ -220,7 +215,7 @@ unsigned int hold_counter[2] = {0, 0};
 int16_t rssi_gain_diff[2] = {0, 0};
 
 // used to limit the max RF gain
-unsigned int max_index = ARRAY_SIZE(gain_table) - 1;
+const unsigned max_index = ARRAY_SIZE(gain_table) - 1;
 
 // -89dBm, any higher and the AM demodulator starts to saturate/clip/distort
 const int16_t desired_rssi = (-89 + 160) * 2;
@@ -230,13 +225,13 @@ void AM_fix_init(void)
 	for (int i = 0; i < 2; i++) {
 		gain_table_index[i] = original_index;  // re-start with original QS setting
 	}
-
-	// use the full range of available gains
-	max_index = ARRAY_SIZE(gain_table) - 1;
 }
 
-void AM_fix_reset(const int vfo)
+void AM_fix_reset(const unsigned vfo)
 {	// reset the AM fixer upper
+	if (vfo > 1)
+		return;
+
 	#ifdef ENABLE_AM_FIX_SHOW_DATA
 		counter = 0;
 	#endif
@@ -254,10 +249,10 @@ void AM_fix_reset(const int vfo)
 // won't/don't do it for itself, we're left to bodging it ourself by
 // playing with the RF front end gain setting
 //
-void AM_fix_10ms(const int vfo)
+void AM_fix_10ms(const unsigned vfo)
 {
-	int16_t diff_dB;
-	int16_t rssi;
+	if(vfo > 1)
+		return;
 
 	switch (gCurrentFunction)
 	{
@@ -286,6 +281,7 @@ void AM_fix_10ms(const int vfo)
 	}
 #endif
 
+	int16_t rssi;
 	{	// sample the current RSSI level
 		// average it with the previous rssi (a bit of noise/spike immunity)
 		const int16_t new_rssi = BK4819_GetRSSI();
@@ -310,7 +306,6 @@ void AM_fix_10ms(const int vfo)
 	gCurrentRSSI[vfo] = rssi - rssi_gain_diff[vfo];
 #endif
 
-
 	// automatically adjust the RF RX gain
 
 	// update the gain hold counter
@@ -318,7 +313,7 @@ void AM_fix_10ms(const int vfo)
 		hold_counter[vfo]--;
 
 	// dB difference between actual and desired RSSI level
-	diff_dB = (rssi - desired_rssi) / 2;
+	int16_t diff_dB = (rssi - desired_rssi) / 2;
 
 	if (diff_dB > 0) {	// decrease gain
 		unsigned int index = gain_table_index[vfo];   // current position we're at
@@ -359,7 +354,6 @@ void AM_fix_10ms(const int vfo)
 
 
 	{	// apply the new settings to the front end registers
-
 		const unsigned int index = gain_table_index[vfo];
 
 		// remember the new table index
@@ -385,15 +379,20 @@ void AM_fix_10ms(const int vfo)
 }
 
 #ifdef ENABLE_AM_FIX_SHOW_DATA
-
-void AM_fix_print_data(const int vfo, char *s) {
-	if (s != NULL && vfo >= 0 && vfo < (int)ARRAY_SIZE(gain_table_index)) {
+void AM_fix_print_data(const unsigned vfo, char *s) {
+	if (s != NULL && vfo < ARRAY_SIZE(gain_table_index)) {
 		const unsigned int index = gain_table_index[vfo];
 		sprintf(s, "%2u %4ddB %3u", index, gain_table[index].gain_dB, prev_rssi[vfo]);
 		counter = 0;
 	}
 }
-
 #endif
+
+int16_t AM_fix_get_rssi_gain_diff(const unsigned vfo)
+{
+	if(vfo > 1)
+		return 0;
+	return rssi_gain_diff[vfo];
+}
 
 #endif

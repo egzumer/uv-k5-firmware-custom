@@ -16,6 +16,7 @@
 
 #include <string.h>
 
+#include "am_fix.h"
 #include "app/action.h"
 #ifdef ENABLE_AIRCOPY
 	#include "app/aircopy.h"
@@ -44,7 +45,6 @@
 #include "driver/keyboard.h"
 #include "driver/st7565.h"
 #include "driver/system.h"
-#include "am_fix.h"
 #include "dtmf.h"
 #include "external/printf/printf.h"
 #include "frequencies.h"
@@ -73,7 +73,7 @@ static void UpdateRSSI(const int vfo)
 	#ifdef ENABLE_AM_FIX
 		// add RF gain adjust compensation
 		if (gEeprom.VfoInfo[vfo].Modulation == MODULATION_AM && gSetting_AM_fix)
-			rssi -= rssi_gain_diff[vfo];
+			rssi -= AM_fix_get_rssi_gain_diff(vfo);
 	#endif
 
 	if (gCurrentRSSI[vfo] == rssi)
@@ -171,8 +171,6 @@ static void CheckForIncoming(void)
 
 static void HandleIncoming(void)
 {
-	bool bFlag;
-
 	if (!g_SquelchLost) {	// squelch is closed
 #ifdef ENABLE_DTMF_CALLING
 		if (gDTMF_RX_index > 0)
@@ -185,7 +183,7 @@ static void HandleIncoming(void)
 		return;
 	}
 
-	bFlag = (gScanStateDir == SCAN_OFF && gCurrentCodeType == CODE_TYPE_OFF);
+	bool bFlag = (gScanStateDir == SCAN_OFF && gCurrentCodeType == CODE_TYPE_OFF);
 
 #ifdef ENABLE_NOAA
 	if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gNOAACountdown_10ms > 0) {
@@ -199,7 +197,9 @@ static void HandleIncoming(void)
 		gFoundCTCSS = false;
 	}
 
-	if (g_CDCSS_Lost && gCDCSSCodeType == CDCSS_POSITIVE_CODE && (gCurrentCodeType == CODE_TYPE_DIGITAL || gCurrentCodeType == CODE_TYPE_REVERSE_DIGITAL)) {
+	if (g_CDCSS_Lost && gCDCSSCodeType == CDCSS_POSITIVE_CODE 
+	    && (gCurrentCodeType == CODE_TYPE_DIGITAL || gCurrentCodeType == CODE_TYPE_REVERSE_DIGITAL)) 
+	{
 		gFoundCDCSS = false;
 	}
 	else if (!bFlag)
@@ -444,11 +444,11 @@ static void HandleFunction(void)
 	}
 }
 
-void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
+void APP_StartListening(FUNCTION_Type_t function, const bool reset_am_fix)
 {
 	(void)reset_am_fix;
 
-	const unsigned int chan = gEeprom.RX_VFO;
+	const unsigned int vfo = gEeprom.RX_VFO;
 //	const unsigned int chan = gRxVfo->CHANNEL_SAVE;
 
 #ifdef ENABLE_DTMF_CALLING
@@ -462,7 +462,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 #endif
 
 	// clear the other vfo's rssi level (to hide the antenna symbol)
-	gVFO_RSSI_bar_level[(chan + 1) & 1u] = 0;
+	gVFO_RSSI_bar_level[!vfo] = 0;
 
 	AUDIO_AudioPathOn();
 	gEnableSpeaker = true;
@@ -478,7 +478,7 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 		gRxVfo->CHANNEL_SAVE        = gNoaaChannel + NOAA_CHANNEL_FIRST;
 		gRxVfo->pRX->Frequency      = NoaaFrequencyTable[gNoaaChannel];
 		gRxVfo->pTX->Frequency      = NoaaFrequencyTable[gNoaaChannel];
-		gEeprom.ScreenChannel[chan] = gRxVfo->CHANNEL_SAVE;
+		gEeprom.ScreenChannel[vfo] = gRxVfo->CHANNEL_SAVE;
 
 		gNOAA_Countdown_10ms        = 500;   // 5 sec
 		gScheduleNOAA               = false;
@@ -504,35 +504,28 @@ void APP_StartListening(FUNCTION_Type_t Function, const bool reset_am_fix)
 #ifdef ENABLE_AM_FIX
 		if (gRxVfo->Modulation == MODULATION_AM && gSetting_AM_fix) {	// AM RX mode
 			if (reset_am_fix)
-				AM_fix_reset(chan);      // TODO: only reset it when moving channel/frequency
-			AM_fix_10ms(chan);
+				AM_fix_reset(vfo);      // TODO: only reset it when moving channel/frequency
+			AM_fix_10ms(vfo);
 		}
 #endif
 
-	// AF gain - original QS values
-	// if (gRxVfo->Modulation != MODULATION_FM){
-	// 	BK4819_WriteRegister(BK4819_REG_48, 0xB3A8);
-	// }
-	// else 
-	{
 	BK4819_WriteRegister(BK4819_REG_48,
 		(11u << 12)                |     // ??? .. 0 to 15, doesn't seem to make any difference
 		( 0u << 10)                |     // AF Rx Gain-1
 		(gEeprom.VOLUME_GAIN << 4) |     // AF Rx Gain-2
 		(gEeprom.DAC_GAIN    << 0));     // AF DAC Gain (after Gain-1 and Gain-2)
-	}
 
 #ifdef ENABLE_VOICE
 	if (gVoiceWriteIndex == 0)       // AM/FM RX mode will be set when the voice has finished
 #endif
 		RADIO_SetModulation(gRxVfo->Modulation);  // no need, set it now
 
-	FUNCTION_Select(Function);
+	FUNCTION_Select(function);
 
 #ifdef ENABLE_FMRADIO
-	if (Function == FUNCTION_MONITOR || gFmRadioMode)
+	if (function == FUNCTION_MONITOR || gFmRadioMode)
 #else
-	if (Function == FUNCTION_MONITOR)
+	if (function == FUNCTION_MONITOR)
 #endif
 	{	// squelch is disabled
 		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu

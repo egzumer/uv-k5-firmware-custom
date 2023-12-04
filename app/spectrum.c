@@ -282,14 +282,13 @@ uint16_t GetRssi() {
   while ((BK4819_ReadRegister(0x63) & 0b11111111) >= 255) {
     SYSTICK_DelayUs(100);
   }
-  if(settings.modulationType == MODULATION_AM)
-      {
-      return BK4819_GetRSSI() -  rssi_gain_diff[vfo];          //return the corrected RSSI to allow for AM_Fixs AGC action. 
-      }
-   else
-     {
-     return BK4819_GetRSSI();
-     }
+  if(settings.modulationType == MODULATION_AM) {
+    //return the corrected RSSI to allow for AM_Fixs AGC action. 
+    return BK4819_GetRSSI() -  AM_fix_get_rssi_gain_diff(vfo);
+  }
+  else {
+    return BK4819_GetRSSI();
+  }
   
 }
 
