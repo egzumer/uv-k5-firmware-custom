@@ -63,7 +63,7 @@ enum {
 enum AlarmState_t {
 	ALARM_STATE_OFF = 0,
 	ALARM_STATE_TXALARM,
-	ALARM_STATE_ALARM,
+	ALARM_STATE_SITE_ALARM,
 	ALARM_STATE_TX1750
 };
 typedef enum AlarmState_t AlarmState_t;

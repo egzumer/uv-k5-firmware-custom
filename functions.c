@@ -174,35 +174,33 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 			gDTMF_RX_live_timeout = 0;
 			memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
 
-			#if defined(ENABLE_FMRADIO)
-				if (gFmRadioMode)
-					BK1080_Init(0, false);
-			#endif
+		#if defined(ENABLE_FMRADIO)
+			if (gFmRadioMode)
+				BK1080_Init(0, false);
+		#endif
 
-			#ifdef ENABLE_ALARM
-				if (gAlarmState == ALARM_STATE_TXALARM && gEeprom.ALARM_MODE != ALARM_MODE_TONE)
-				{
-					gAlarmState = ALARM_STATE_ALARM;
+		#ifdef ENABLE_ALARM
+			if (gAlarmState == ALARM_STATE_SITE_ALARM)
+			{
+				GUI_DisplayScreen();
 
-					GUI_DisplayScreen();
+				AUDIO_AudioPathOff();
 
-					AUDIO_AudioPathOff();
+				SYSTEM_DelayMs(20);
+				BK4819_PlayTone(500, 0);
+				SYSTEM_DelayMs(2);
 
-					SYSTEM_DelayMs(20);
-					BK4819_PlayTone(500, 0);
-					SYSTEM_DelayMs(2);
+				AUDIO_AudioPathOn();
 
-					AUDIO_AudioPathOn();
+				gEnableSpeaker = true;
 
-					gEnableSpeaker = true;
+				SYSTEM_DelayMs(60);
+				BK4819_ExitTxMute();
 
-					SYSTEM_DelayMs(60);
-					BK4819_ExitTxMute();
-
-					gAlarmToneCounter = 0;
-					break;
-				}
-			#endif
+				gAlarmToneCounter = 0;
+				break;
+			}
+		#endif
 
 			gUpdateStatus = true;
 
@@ -219,24 +217,25 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 				BK4819_PlaySingleTone(2525, 250, 0, gEeprom.DTMF_SIDE_TONE);
 
 			#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
-				if (gAlarmState != ALARM_STATE_OFF)
-				{
-					#ifdef ENABLE_TX1750
-						if (gAlarmState == ALARM_STATE_TX1750)
-							BK4819_TransmitTone(true, 1750);
-					#endif
-					#ifdef ENABLE_ALARM
-						if (gAlarmState == ALARM_STATE_TXALARM)
-							BK4819_TransmitTone(true, 500);
-					#endif
-					SYSTEM_DelayMs(2);
-					AUDIO_AudioPathOn();
-					#ifdef ENABLE_ALARM
-						gAlarmToneCounter = 0;
-					#endif
-					gEnableSpeaker = true;
-					break;
-				}
+			if (gAlarmState != ALARM_STATE_OFF) {
+				#ifdef ENABLE_TX1750
+				if (gAlarmState == ALARM_STATE_TX1750)
+					BK4819_TransmitTone(true, 1750);
+				#endif
+
+				#ifdef ENABLE_ALARM
+				if (gAlarmState == ALARM_STATE_TXALARM)
+					BK4819_TransmitTone(true, 500);
+
+				gAlarmToneCounter = 0;
+				#endif
+
+				SYSTEM_DelayMs(2);
+				AUDIO_AudioPathOn();
+				gEnableSpeaker = true;
+
+				break;
+			}
 			#endif
 
 			if (gCurrentVfo->SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)

@@ -51,6 +51,16 @@ const int8_t dBmCorrTable[7] = {
 			 -1  // band 7
 		};
 
+const char *VfoStateStr[] = {
+       [VFO_STATE_NORMAL]="",
+       [VFO_STATE_BUSY]="BUSY",
+       [VFO_STATE_BAT_LOW]="BAT LOW",
+       [VFO_STATE_TX_DISABLE]="TX DISABLE",
+       [VFO_STATE_TIMEOUT]="TIMEOUT",
+       [VFO_STATE_ALARM]="ALARM",
+       [VFO_STATE_VOLTAGE_HIGH]="VOLT HIGH"
+};
+
 // ***************************************************************************
 
 static void DrawSmallAntennaAndBars(uint8_t *p, unsigned int level)
@@ -303,10 +313,7 @@ void UI_MAIN_TimeSlice500ms(void)
 
 void UI_DisplayMain(void)
 {
-	const unsigned int line0 = 0;  // text screen line
-	const unsigned int line1 = 4;
 	char               String[22];
-	unsigned int       vfo_num;
 
 	center_line = CENTER_LINE_NONE;
 
@@ -329,8 +336,10 @@ void UI_DisplayMain(void)
 							
 	unsigned int activeTxVFO = gRxVfoIsActive ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 
-	for (vfo_num = 0; vfo_num < 2; vfo_num++)
+	for (unsigned int vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
+		const unsigned int line0 = 0;  // text screen line
+		const unsigned int line1 = 4;
 		const unsigned int line       = (vfo_num == 0) ? line0 : line1;
 		const bool         isMainVFO   = (vfo_num == gEeprom.TX_VFO);
 		uint8_t           *p_line0    = gFrameBuffer[line + 0];
@@ -416,7 +425,7 @@ void UI_DisplayMain(void)
 		{	// transmitting
 
 #ifdef ENABLE_ALARM
-			if (gAlarmState == ALARM_STATE_ALARM)
+			if (gAlarmState == ALARM_STATE_SITE_ALARM)
 				mode = 2;
 			else
 #endif
@@ -483,10 +492,10 @@ void UI_DisplayMain(void)
 
 		// ************
 
-		unsigned int state = VfoState[vfo_num];
+		enum VfoState_t state = VfoState[vfo_num];
 
 #ifdef ENABLE_ALARM
-		if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_ALARM) {
+		if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_SITE_ALARM) {
 			if (activeTxVFO == vfo_num)
 				state = VFO_STATE_ALARM;
 		}
@@ -496,9 +505,8 @@ void UI_DisplayMain(void)
 
 		if (state != VFO_STATE_NORMAL)
 		{
-			const char *state_list[] = {"", "BUSY", "BAT LOW", "TX DISABLE", "TIMEOUT", "ALARM", "VOLT HIGH"};
-			if (state < ARRAY_SIZE(state_list))
-				UI_PrintString(state_list[state], 31, 0, line, 8);
+			if (state < ARRAY_SIZE(VfoStateStr))
+				UI_PrintString(VfoStateStr[state], 31, 0, line, 8);
 		}
 		else if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_VFO == vfo_num)
 		{	// user entering a frequency
