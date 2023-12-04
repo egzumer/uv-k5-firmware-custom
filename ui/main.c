@@ -249,6 +249,53 @@ void UI_UpdateRSSI(const int16_t rssi, const int vfo)
 
 }
 
+#ifdef ENABLE_AGC_SHOW_DATA
+static void PrintAGC(bool now)
+{
+	char buf[20];
+	memset(gFrameBuffer[3], 0, 128);
+	union {
+		struct {
+			uint16_t _ : 5;
+			uint16_t agcSigStrength : 7;
+			int16_t gainIdx : 3;    
+			uint16_t agcEnab : 1;
+		};
+    	uint16_t __raw;
+	} reg7e;
+	reg7e.__raw = BK4819_ReadRegister(0x7E);
+	uint8_t gainAddr = reg7e.gainIdx < 0 ? 0x14 : 0x10 + reg7e.gainIdx;
+	union {
+		struct {
+			uint16_t pga:3;
+			uint16_t mixer:2;
+			uint16_t lna:3;
+			uint16_t lnaS:2;
+		};
+		uint16_t __raw;
+	} agcGainReg;
+	agcGainReg.__raw = BK4819_ReadRegister(gainAddr);
+	int8_t lnaShortTab[] = {-28, -24, -19, 0};
+	int8_t lnaTab[] = {-24, -19, -14, -9, -6, -4, -2, 0};
+	int8_t mixerTab[] = {-8, -6, -3, 0};
+	int8_t pgaTab[] = {-33, -27, -21, -15, -9, -6, -3, 0};
+	int16_t agcGain = lnaShortTab[agcGainReg.lnaS] + lnaTab[agcGainReg.lna] + mixerTab[agcGainReg.mixer] + pgaTab[agcGainReg.pga];
+
+	sprintf(buf, "%d%2d %2d %2d %3d", reg7e.agcEnab, reg7e.gainIdx, -agcGain, reg7e.agcSigStrength, BK4819_GetRSSI());
+	UI_PrintStringSmall(buf, 2, 0, 3);
+	if(now)
+		ST7565_BlitLine(3);
+}
+#endif
+
+void UI_MAIN_TimeSlice500ms(void)
+{
+#ifdef ENABLE_AGC_SHOW_DATA
+if(gScreenToDisplay==DISPLAY_MAIN)
+	PrintAGC(true);
+#endif
+}
+
 // ***************************************************************************
 
 void UI_DisplayMain(void)
@@ -671,6 +718,11 @@ void UI_DisplayMain(void)
 		if (gEeprom.VfoInfo[vfo_num].SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
 			UI_PrintStringSmall("SCR", LCD_WIDTH + 106, 0, line + 1);
 	}
+
+#ifdef ENABLE_AGC_SHOW_DATA
+	center_line = CENTER_LINE_IN_USE;
+	PrintAGC(false);
+#endif
 
 	if (center_line == CENTER_LINE_NONE)
 	{	// we're free to use the middle line

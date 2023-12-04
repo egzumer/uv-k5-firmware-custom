@@ -1564,6 +1564,7 @@ void APP_TimeSlice500ms(void)
 
 	BATTERY_TimeSlice500ms();
 	SCANNER_TimeSlice500ms();
+	UI_MAIN_TimeSlice500ms();
 
 #ifdef ENABLE_DTMF_CALLING
 	if (gCurrentFunction != FUNCTION_TRANSMIT)

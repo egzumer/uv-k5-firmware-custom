@@ -56,6 +56,14 @@ void ST7565_BlitFullScreen(void)
 	SPI_ToggleMasterMode(&SPI0->CR, true);
 }
 
+void ST7565_BlitLine(unsigned line)
+{
+	SPI_ToggleMasterMode(&SPI0->CR, false);
+	ST7565_WriteByte(0x40);    // start line ?
+	DrawLine(0, line+1, gFrameBuffer[line], LCD_WIDTH);
+	SPI_ToggleMasterMode(&SPI0->CR, true);
+}
+
 void ST7565_BlitStatusLine(void)
 {	// the top small text line on the display
 	SPI_ToggleMasterMode(&SPI0->CR, false);
