@@ -92,7 +92,6 @@ typedef struct VFO_Info_t
 	FREQ_Config_t *pTX;
 
 	uint32_t       TX_OFFSET_FREQUENCY;
-	uint32_t       FREQUENCY_OF_DEVIATION;
 	uint16_t       StepFrequency;
 
 	uint8_t        CHANNEL_SAVE;

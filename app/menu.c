@@ -481,9 +481,8 @@ void MENU_AcceptSetting(void)
 			return;
 			
 		case MENU_RX_OFFSET:
-    			gTxVfo->FREQUENCY_OF_DEVIATION = gSubMenuSelection;
-    			gRequestSaveChannel	= 1;
-    			return;
+			gEeprom.RX_OFFSET = gSubMenuSelection;
+			break;
 
 		case MENU_W_N:
 			gTxVfo->CHANNEL_BANDWIDTH = gSubMenuSelection;
@@ -928,7 +927,7 @@ void MENU_ShowCurrentSetting(void)
 			break;
 			
 		case MENU_RX_OFFSET:
-    			gSubMenuSelection = gTxVfo->FREQUENCY_OF_DEVIATION;
+    		gSubMenuSelection = gEeprom.RX_OFFSET;
 			break;
 
 		case MENU_W_N:

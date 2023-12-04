@@ -727,14 +727,17 @@ void BOARD_EEPROM_Init(void)
 		gSetting_AM_fix        = (Data[7] & (1u << 5)) ? true : false;
 	#endif
 	gSetting_backlight_on_tx_rx = (Data[7] >> 6) & 3u;
-
+	// 0F80..0F84
+	EEPROM_ReadBuffer(0x0F80, Data, 8);
+    memmove(&gEeprom.RX_OFFSET, Data, 4);
+	
 	if (!gEeprom.VFO_OPEN)
 	{
 		gEeprom.ScreenChannel[0] = gEeprom.MrChannel[0];
 		gEeprom.ScreenChannel[1] = gEeprom.MrChannel[1];
 	}
 
-	// 0D60..0E27
+	//	..0E27
 	EEPROM_ReadBuffer(0x0D60, gMR_ChannelAttributes, sizeof(gMR_ChannelAttributes));
 	for(uint16_t i = 0; i < sizeof(gMR_ChannelAttributes); i++) {
 		ChannelAttributes_t *att = &gMR_ChannelAttributes[i];

@@ -249,6 +249,7 @@ typedef struct {
 #endif
 	uint8_t               BACKLIGHT_MAX;
 	BATTERY_Type_t		  BATTERY_TYPE;
+	uint32_t              RX_OFFSET;
 } EEPROM_Config_t;
 
 extern EEPROM_Config_t gEeprom;
