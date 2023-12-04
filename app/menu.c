@@ -479,6 +479,11 @@ void MENU_AcceptSetting(void)
 			gTxVfo->TX_OFFSET_FREQUENCY = gSubMenuSelection;
 			gRequestSaveChannel         = 1;
 			return;
+			
+		case MENU_RX_OFFSET:
+    			gTxVfo->FREQUENCY_OF_DEVIATION = gSubMenuSelection;
+    			gRequestSaveChannel	= 1;
+    			return;
 
 		case MENU_W_N:
 			gTxVfo->CHANNEL_BANDWIDTH = gSubMenuSelection;
@@ -921,6 +926,10 @@ void MENU_ShowCurrentSetting(void)
 		case MENU_OFFSET:
 			gSubMenuSelection = gTxVfo->TX_OFFSET_FREQUENCY;
 			break;
+			
+		case MENU_RX_OFFSET:
+    			gSubMenuSelection = gTxVfo->FREQUENCY_OF_DEVIATION;
+			break;
 
 		case MENU_W_N:
 			gSubMenuSelection = gTxVfo->CHANNEL_BANDWIDTH;
@@ -1267,7 +1276,8 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		return;
 	}
 
-	if (UI_MENU_GetCurrentMenuId() == MENU_OFFSET)
+	if (UI_MENU_GetCurrentMenuId() == MENU_OFFSET ||
+	    UI_MENU_GetCurrentMenuId() == MENU_RX_OFFSET)
 	{
 		uint32_t Frequency;
 
@@ -1658,7 +1668,8 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 		return;
 	}
 
-	if (UI_MENU_GetCurrentMenuId() == MENU_OFFSET)
+	if (UI_MENU_GetCurrentMenuId() == MENU_OFFSET ||
+	    UI_MENU_GetCurrentMenuId() == MENU_RX_OFFSET)
 	{
 		int32_t Offset = (Direction * gTxVfo->StepFrequency) + gSubMenuSelection;
 		if (Offset < 99999990)

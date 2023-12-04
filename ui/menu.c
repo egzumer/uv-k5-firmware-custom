@@ -47,6 +47,7 @@ const t_menu_item MenuList[] =
 	{"TxCTCS", VOICE_ID_CTCSS,                         MENU_T_CTCS        }, // was "T_CTCS"
 	{"TxODir", VOICE_ID_TX_OFFSET_FREQUENCY_DIRECTION, MENU_SFT_D         }, // was "SFT_D"
 	{"TxOffs", VOICE_ID_TX_OFFSET_FREQUENCY,           MENU_OFFSET        }, // was "OFFSET"
+	{"RxOffs", VOICE_ID_INVALID,                       MENU_RX_OFFSET     }, // was "OFFSET"
 	{"W/N",    VOICE_ID_CHANNEL_BANDWIDTH,             MENU_W_N           },
 	{"Scramb", VOICE_ID_SCRAMBLER_ON,                  MENU_SCR           }, // was "SCR"
 	{"BusyCL", VOICE_ID_BUSY_LOCKOUT,                  MENU_BCL           }, // was "BCL"
@@ -540,6 +541,24 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_OFFSET:
+			if (!gIsInSubMenu || gInputBoxIndex == 0)
+			{
+				sprintf(String, "%3d.%05u", gSubMenuSelection / 100000, abs(gSubMenuSelection) % 100000);
+				UI_PrintString(String, menu_item_x1, menu_item_x2, 1, 8);
+			}
+			else
+			{
+				const char * ascii = INPUTBOX_GetAscii();
+				sprintf(String, "%.3s.%.3s  ",ascii, ascii + 3);
+				UI_PrintString(String, menu_item_x1, menu_item_x2, 1, 8);
+			}
+
+			UI_PrintString("MHz",  menu_item_x1, menu_item_x2, 3, 8);
+
+			already_printed = true;
+			break;
+
+		case MENU_RX_OFFSET:
 			if (!gIsInSubMenu || gInputBoxIndex == 0)
 			{
 				sprintf(String, "%3d.%05u", gSubMenuSelection / 100000, abs(gSubMenuSelection) % 100000);
