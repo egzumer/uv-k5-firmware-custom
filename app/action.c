@@ -43,14 +43,15 @@ static void ACTION_FlashLight(void)
 {
 	switch (gFlashLightState)
 	{
-		case 0:
+		case FLASHLIGHT_OFF:
 			gFlashLightState++;
 			GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);
 			break;
-		case 1:
-		case 2:
+		case FLASHLIGHT_ON:
+		case FLASHLIGHT_BLINK:
 			gFlashLightState++;
 			break;
+		case FLASHLIGHT_SOS:
 		default:
 			gFlashLightState = 0;
 			GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);

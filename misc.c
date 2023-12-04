@@ -199,7 +199,9 @@ bool              g_CxCSS_TAIL_Found;
 	uint16_t      gVoxPauseCountdown;
 #endif
 bool              g_SquelchLost;
-uint8_t           gFlashLightState;
+
+enum FlashlightMode_t  gFlashLightState;
+
 volatile uint16_t gFlashLightBlinkCounter;
 bool              gFlagEndTransmission;
 uint8_t           gNextMrChannel;
