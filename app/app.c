@@ -18,6 +18,7 @@
 
 #include "am_fix.h"
 #include "app/action.h"
+
 #ifdef ENABLE_AIRCOPY
 	#include "app/aircopy.h"
 #endif
@@ -436,8 +437,9 @@ void APP_StartListening(FUNCTION_Type_t function)
 	AUDIO_AudioPathOn();
 	gEnableSpeaker = true;
 
-	if (gSetting_backlight_on_tx_rx >= BACKLIGHT_ON_TR_RX)
+	if (gSetting_backlight_on_tx_rx != BACKLIGHT_ON_TR_OFF) {
 		BACKLIGHT_TurnOn();
+	}
 
 	if (gScanStateDir != SCAN_OFF)
 		CHFRSCANNER_Found();
@@ -1360,15 +1362,16 @@ void APP_TimeSlice500ms(void)
 		}
 	#endif
 
-	if (gBacklightCountdown > 0 && 
-		!gAskToSave && 
-		!gCssBackgroundScan &&
+	if (gBacklightCountdown_500ms > 0 &&  !gAskToSave &&  !gCssBackgroundScan &&
 		// don't turn off backlight if user is in backlight menu option
-		!(gScreenToDisplay == DISPLAY_MENU && (UI_MENU_GetCurrentMenuId() == MENU_ABR || UI_MENU_GetCurrentMenuId() == MENU_ABR_MAX)) 
-		) 
-	{	if (--gBacklightCountdown == 0)
-				if (gEeprom.BACKLIGHT_TIME < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1)) // backlight is not set to be always on
-					BACKLIGHT_TurnOff();   // turn backlight off
+		!(gScreenToDisplay == DISPLAY_MENU && (UI_MENU_GetCurrentMenuId() == MENU_ABR || UI_MENU_GetCurrentMenuId() == MENU_ABR_MAX)))
+	{
+		if (--gBacklightCountdown_500ms == 0) {
+			if (gEeprom.BACKLIGHT_TIME < (ARRAY_SIZE(gSubMenu_BACKLIGHT) - 1)) {
+				// backlight is not set to be always on
+				BACKLIGHT_TurnOff();
+			}
+		}
 	}
 
 	if (gSerialConfigCountDown_500ms > 0)
@@ -1641,10 +1644,9 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	}
 	else // key pressed or held
 	{
-		const uint8_t s = gSetting_backlight_on_tx_rx;
 		const int m = UI_MENU_GetCurrentMenuId();
 		if 	(	//not when PTT and the backlight shouldn't turn on on TX
-				!(Key == KEY_PTT && s != BACKLIGHT_ON_TR_TX && s != BACKLIGHT_ON_TR_TXRX) 
+				!(Key == KEY_PTT && !(gSetting_backlight_on_tx_rx & BACKLIGHT_ON_TR_TX))
 				// not in the backlight menu
 				&& !(gScreenToDisplay == DISPLAY_MENU && ( m == MENU_ABR || m == MENU_ABR_MAX || m == MENU_ABR_MIN))
 			) 
