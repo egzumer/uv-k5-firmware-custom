@@ -21,6 +21,7 @@
 #include "am_fix.h"
 #include "settings.h"
 #include "ui/main.h"
+#include "ui/ui.h"
 
 struct FrequencyBandInfo {
     uint32_t lower;
@@ -139,47 +140,6 @@ static void SetRegMenuValue(uint8_t st, bool add) {
   reg &= ~(s.mask << s.offset);
   BK4819_WriteRegister(s.num, reg | (v << s.offset));
   redrawScreen = true;
-}
-
-// GUI functions
-
-static void PutPixel(uint8_t x, uint8_t y, bool fill) {
-  UI_DrawPixelBuffer(gFrameBuffer, x, y, fill);
-}
-static void PutPixelStatus(uint8_t x, uint8_t y, bool fill) {
-  UI_DrawPixelBuffer(&gStatusLine, x, y, fill);
-}
-
-static void DrawVLine(int sy, int ey, int nx, bool fill) {
-  for (int i = sy; i <= ey; i++) {
-    if (i < 56 && nx < 128) {
-      PutPixel(nx, i, fill);
-    }
-  }
-}
-
-static void GUI_DisplaySmallest(const char *pString, uint8_t x, uint8_t y,
-                                bool statusbar, bool fill) {
-  uint8_t c;
-  uint8_t pixels;
-  const uint8_t *p = (const uint8_t *)pString;
-
-  while ((c = *p++) && c != '\0') {
-    c -= 0x20;
-    for (int i = 0; i < 3; ++i) {
-      pixels = gFont3x5[c][i];
-      for (int j = 0; j < 6; ++j) {
-        if (pixels & 1) {
-          if (statusbar)
-            PutPixelStatus(x + i, y + j, fill);
-          else
-            PutPixel(x + i, y + j, fill);
-        }
-        pixels >>= 1;
-      }
-    }
-    x += 4;
-  }
 }
 
 // Utility functions

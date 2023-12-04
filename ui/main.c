@@ -626,16 +626,26 @@ void UI_DisplayMain(void)
 			default:
 				s = gModulationStr[mod];
 			break;
-		}		
+		}
+#ifdef ENABLE_SMALL_BOLD
+		GUI_DisplaySmallest(s, 18, line == 0 ? 17 : 49, false, true);
+#else
 		UI_PrintStringSmall(s, LCD_WIDTH + 24, 0, line + 1);
+#endif		
+		
 
 		if (state == VFO_STATE_NORMAL || state == VFO_STATE_ALARM)
-		{	// show the TX power
+		{	// show the TX power			
+#ifdef ENABLE_SMALL_BOLD
+			const char *powerNames[] = {"LOW", "MID", "HIGH"};
+			GUI_DisplaySmallest(powerNames[gEeprom.VfoInfo[vfo_num].OUTPUT_POWER], 34, line == 0 ? 17 : 49, false, true);
+#else
 			const char pwr_list[] = "LMH";
 			const unsigned int i = gEeprom.VfoInfo[vfo_num].OUTPUT_POWER;
 			String[0] = (i < ARRAY_SIZE(pwr_list)) ? pwr_list[i] : '\0';
 			String[1] = '\0';
 			UI_PrintStringSmall(String, LCD_WIDTH + 46, 0, line + 1);
+#endif				
 		}
 
 		if (gEeprom.VfoInfo[vfo_num].freq_config_RX.Frequency != gEeprom.VfoInfo[vfo_num].freq_config_TX.Frequency)
@@ -643,15 +653,27 @@ void UI_DisplayMain(void)
 			const char dir_list[] = "\0+-";
 			const unsigned int i = gEeprom.VfoInfo[vfo_num].TX_OFFSET_FREQUENCY_DIRECTION;
 			String[0] = (i < sizeof(dir_list)) ? dir_list[i] : '?';
-			String[1] = '\0';
+			String[1] = '\0';		
+#ifdef ENABLE_SMALL_BOLD
+			GUI_DisplaySmallest(String, 54, line == 0 ? 17 : 49, false, true);
+#else			
 			UI_PrintStringSmall(String, LCD_WIDTH + 54, 0, line + 1);
+#endif				
 		}
 
 		// show the TX/RX reverse symbol
 		if (gEeprom.VfoInfo[vfo_num].FrequencyReverse)
+#ifdef ENABLE_SMALL_BOLD			
+			GUI_DisplaySmallest("R", 62, line == 0 ? 17 : 49, false, true);
+#else
 			UI_PrintStringSmall("R", LCD_WIDTH + 62, 0, line + 1);
+#endif				
 
-		{	// show the narrow band symbol
+		{	// show the narrow band symbol			
+#ifdef ENABLE_SMALL_BOLD
+			const char *bwNames[3] = {"  25k", "12.5k", "6.25k"};
+			GUI_DisplaySmallest(bwNames[gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH], 70, line == 0 ? 17 : 49, false, true);
+#else
 			String[0] = '\0';
 			if (gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH == BANDWIDTH_NARROW)
 			{
@@ -659,17 +681,26 @@ void UI_DisplayMain(void)
 				String[1] = '\0';
 			}
 			UI_PrintStringSmall(String, LCD_WIDTH + 70, 0, line + 1);
+#endif				
 		}
 
 #ifdef ENABLE_DTMF_CALLING
-		// show the DTMF decoding symbol
+		// show the DTMF decoding symbol		
 		if (gEeprom.VfoInfo[vfo_num].DTMF_DECODING_ENABLE || gSetting_KILLED)
+#ifdef ENABLE_SMALL_BOLD
+			GUI_DisplaySmallest("DTMF", 93, line == 0 ? 17 : 49, false, true);
+#else
 			UI_PrintStringSmall("DTMF", LCD_WIDTH + 78, 0, line + 1);
+#endif				
 #endif
 
 		// show the audio scramble symbol
 		if (gEeprom.VfoInfo[vfo_num].SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
+#ifdef ENABLE_SMALL_BOLD
+			GUI_DisplaySmallest("SCR", 111, line == 0 ? 17 : 49, false, true);
+#else
 			UI_PrintStringSmall("SCR", LCD_WIDTH + 106, 0, line + 1);
+#endif			
 	}
 
 	if (center_line == CENTER_LINE_NONE)

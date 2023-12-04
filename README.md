@@ -232,6 +232,10 @@ Video showing the AM fix working ..
   - Frequency in Bold
   - Show channel name
 
+- Main display
+
 <p float="left">
   <img src="/images/spectrum_v2.jpg" width=300 />
+  <img src="/images/main_v2.jpg" width=300 />
+  <img src="/images/main_8_v2.jpg" width=300 />
 </p>
