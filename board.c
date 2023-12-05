@@ -737,7 +737,7 @@ void BOARD_EEPROM_Init(void)
 		gEeprom.ScreenChannel[1] = gEeprom.MrChannel[1];
 	}
 
-	//	..0E27
+	// 0D60..0E27
 	EEPROM_ReadBuffer(0x0D60, gMR_ChannelAttributes, sizeof(gMR_ChannelAttributes));
 	for(uint16_t i = 0; i < sizeof(gMR_ChannelAttributes); i++) {
 		ChannelAttributes_t *att = &gMR_ChannelAttributes[i];
