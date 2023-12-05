@@ -25,126 +25,63 @@
 #include "driver/system.h"
 #include "misc.h"
 
-uint8_t gStatusLine[128];
-uint8_t gFrameBuffer[7][128];
-
 #ifdef ENABLE_CONTRAST
 	uint8_t contrast = 31;  // 0 ~ 63
 #endif
 
-void ST7565_DrawLine(const unsigned int Column, const unsigned int Line, const unsigned int Size, const uint8_t *pBitmap)
-{
-	unsigned int i;
+uint8_t gStatusLine[LCD_WIDTH];
+uint8_t gFrameBuffer[FRAME_LINES][LCD_WIDTH];
 
-	SPI_ToggleMasterMode(&SPI0->CR, false);
-
-	ST7565_SelectColumnAndLine(Column + 4U, Line);
-
+static void DrawLine(uint8_t column, uint8_t line, const uint8_t * lineBuffer, unsigned size_defVal)
+{	
+	ST7565_SelectColumnAndLine(column + 4, line);
 	GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_ST7565_A0);
-
-	if (pBitmap != NULL)
-	{
-		for (i = 0; i < Size; i++)
-		{
-			while ((SPI0->FIFOST & SPI_FIFOST_TFF_MASK) != SPI_FIFOST_TFF_BITS_NOT_FULL) {}
-			SPI0->WDR = pBitmap[i];
-		}
+	for (unsigned i = 0; i < size_defVal; i++) {
+		while ((SPI0->FIFOST & SPI_FIFOST_TFF_MASK) != SPI_FIFOST_TFF_BITS_NOT_FULL) {}
+		SPI0->WDR = lineBuffer ? lineBuffer[i] : size_defVal;
 	}
-	else
-	{
-		for (i = 0; i < Size; i++)
-		{
-			while ((SPI0->FIFOST & SPI_FIFOST_TFF_MASK) != SPI_FIFOST_TFF_BITS_NOT_FULL) {}
-			SPI0->WDR = 0;
-		}
-	}
-
 	SPI_WaitForUndocumentedTxFifoStatusBit();
+}
 
+void ST7565_DrawLine(const unsigned int Column, const unsigned int Line, const uint8_t *pBitmap, const unsigned int Size)
+{
+	SPI_ToggleMasterMode(&SPI0->CR, false);
+	DrawLine(Column, Line, pBitmap, Size);
 	SPI_ToggleMasterMode(&SPI0->CR, true);
 }
 
 void ST7565_BlitFullScreen(void)
 {
-	unsigned int Line;
-
-	// reset some of the displays settings to try and overcome the
-	// radios hardware problem - RF corrupting the display
-	ST7565_Init(false);
-
 	SPI_ToggleMasterMode(&SPI0->CR, false);
-
 	ST7565_WriteByte(0x40);
-
-	for (Line = 0; Line < ARRAY_SIZE(gFrameBuffer); Line++)
-	{
-		unsigned int Column;
-		ST7565_SelectColumnAndLine(4, Line + 1);
-		GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_ST7565_A0);
-		for (Column = 0; Column < ARRAY_SIZE(gFrameBuffer[0]); Column++)
-		{
-			while ((SPI0->FIFOST & SPI_FIFOST_TFF_MASK) != SPI_FIFOST_TFF_BITS_NOT_FULL) {}
-			SPI0->WDR = gFrameBuffer[Line][Column];
-		}
-		SPI_WaitForUndocumentedTxFifoStatusBit();
+	for (unsigned line = 0; line < FRAME_LINES; line++) {
+		DrawLine(0, line+1, gFrameBuffer[line], LCD_WIDTH);
 	}
+	SPI_ToggleMasterMode(&SPI0->CR, true);
+}
 
-	#if 0
-		// whats the delay for I wonder, it holds things up :(
-		SYSTEM_DelayMs(20);
-	#else
-//		SYSTEM_DelayMs(1);
-	#endif
-
+void ST7565_BlitLine(unsigned line)
+{
+	SPI_ToggleMasterMode(&SPI0->CR, false);
+	ST7565_WriteByte(0x40);    // start line ?
+	DrawLine(0, line+1, gFrameBuffer[line], LCD_WIDTH);
 	SPI_ToggleMasterMode(&SPI0->CR, true);
 }
 
 void ST7565_BlitStatusLine(void)
 {	// the top small text line on the display
-
-	unsigned int i;
-
 	SPI_ToggleMasterMode(&SPI0->CR, false);
-
 	ST7565_WriteByte(0x40);    // start line ?
-
-	ST7565_SelectColumnAndLine(4, 0);
-
-	GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_ST7565_A0);
-
-	for (i = 0; i < ARRAY_SIZE(gStatusLine); i++)
-	{
-		while ((SPI0->FIFOST & SPI_FIFOST_TFF_MASK) != SPI_FIFOST_TFF_BITS_NOT_FULL) {}
-		SPI0->WDR = gStatusLine[i];
-	}
-
-	SPI_WaitForUndocumentedTxFifoStatusBit();
-
+	DrawLine(0, 0, gStatusLine, LCD_WIDTH);
 	SPI_ToggleMasterMode(&SPI0->CR, true);
 }
 
-void ST7565_FillScreen(uint8_t Value)
+void ST7565_FillScreen(uint8_t value)
 {
-	unsigned int i;
-
-	// reset some of the displays settings to try and overcome the radios hardware problem - RF corrupting the display
-	ST7565_Init(false);
-	
 	SPI_ToggleMasterMode(&SPI0->CR, false);
-
-	for (i = 0; i < 8; i++)
-	{
-		unsigned int j;
-		ST7565_SelectColumnAndLine(0, i);
-		GPIO_SetBit(&GPIOB->DATA, GPIOB_PIN_ST7565_A0);
-		for (j = 0; j < 132; j++)
-		{
-			while ((SPI0->FIFOST & SPI_FIFOST_TFF_MASK) != SPI_FIFOST_TFF_BITS_NOT_FULL) {}
-			SPI0->WDR = Value;
-		}
-		SPI_WaitForUndocumentedTxFifoStatusBit();
+	for (unsigned i = 0; i < 8; i++) {
+		DrawLine(0, i, NULL, value);
 	}
-
 	SPI_ToggleMasterMode(&SPI0->CR, true);
 }
 
@@ -213,47 +150,39 @@ uint8_t cmds[] = {
 	ST7565_CMD_DISPLAY_ON_OFF | 1,			// Display ON/OFF: ON
 };
 
-void ST7565_Init(const bool full)
+void ST7565_Init(void)
 {
-	if (full) {
-		SPI0_Init();
-		ST7565_HardwareReset();
-		SPI_ToggleMasterMode(&SPI0->CR, false);
-		ST7565_WriteByte(ST7565_CMD_SOFTWARE_RESET);   // software reset
-		SYSTEM_DelayMs(120);
-	}
-	else
-		SPI_ToggleMasterMode(&SPI0->CR, false);
+	SPI0_Init();
+	ST7565_HardwareReset();
+	SPI_ToggleMasterMode(&SPI0->CR, false);
+	ST7565_WriteByte(ST7565_CMD_SOFTWARE_RESET);   // software reset
+	SYSTEM_DelayMs(120);
 
 	for(uint8_t i = 0; i < 8; i++)
 		ST7565_WriteByte(cmds[i]);
 
-	ST7565_WriteByte(ST7565_CMD_SET_EV);          //
+	ST7565_WriteByte(ST7565_CMD_POWER_CIRCUIT | 0b011);   // VB=0 VR=1 VF=1
+	SYSTEM_DelayMs(1);
+	ST7565_WriteByte(ST7565_CMD_POWER_CIRCUIT | 0b110);   // VB=1 VR=1 VF=0
+	SYSTEM_DelayMs(1);
+
+	for(uint8_t i = 0; i < 4; i++) // why 4 times?
+		ST7565_WriteByte(ST7565_CMD_POWER_CIRCUIT | 0b111);   // VB=1 VR=1 VF=1
+
+	SYSTEM_DelayMs(40);
+
 	#ifdef ENABLE_CONTRAST
 		ST7565_WriteByte(contrast);  // brightness 0 ~ 63
 	#else
 		ST7565_WriteByte(31);        // brightness 0 ~ 63
 	#endif
-
-	if (full) {
-		ST7565_WriteByte(ST7565_CMD_POWER_CIRCUIT | 0b011);   // VB=0 VR=1 VF=1
-		SYSTEM_DelayMs(1);
-		ST7565_WriteByte(ST7565_CMD_POWER_CIRCUIT | 0b110);   // VB=1 VR=1 VF=0
-		SYSTEM_DelayMs(1);
 	
-		for(uint8_t i = 0; i < 4; i++) // why 4 times?
-			ST7565_WriteByte(ST7565_CMD_POWER_CIRCUIT | 0b111);   // VB=1 VR=1 VF=1
-
-		SYSTEM_DelayMs(40);
-	}
-
 	ST7565_WriteByte(ST7565_CMD_SET_START_LINE | 0);   // line 0
 	ST7565_WriteByte(ST7565_CMD_DISPLAY_ON_OFF | 1);   // D=1
 	SPI_WaitForUndocumentedTxFifoStatusBit();
 	SPI_ToggleMasterMode(&SPI0->CR, true);
 
-	if (full)
-		ST7565_FillScreen(0x00);
+	ST7565_FillScreen(0x00);
 }
 
 void ST7565_FixInterfGlitch(void)

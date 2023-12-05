@@ -46,7 +46,7 @@
 void toggle_chan_scanlist(void)
 {	// toggle the selected channels scanlist setting
 
-	if ( SCANNER_IsScanning())
+	if (SCANNER_IsScanning())
 		return;
 
 	if(!IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE)) {
@@ -55,20 +55,11 @@ void toggle_chan_scanlist(void)
 #endif
 		return;
 	}
-
-	if (gTxVfo->SCANLIST1_PARTICIPATION)
-	{
-		if (gTxVfo->SCANLIST2_PARTICIPATION)
-			gTxVfo->SCANLIST1_PARTICIPATION = 0;
-		else
-			gTxVfo->SCANLIST2_PARTICIPATION = 1;
-	}
-	else
-	{
-		if (gTxVfo->SCANLIST2_PARTICIPATION)
-			gTxVfo->SCANLIST2_PARTICIPATION = 0;
-		else
-			gTxVfo->SCANLIST1_PARTICIPATION = 1;
+	
+	if (gTxVfo->SCANLIST1_PARTICIPATION ^ gTxVfo->SCANLIST2_PARTICIPATION){
+		gTxVfo->SCANLIST2_PARTICIPATION = gTxVfo->SCANLIST1_PARTICIPATION;
+	} else {
+		gTxVfo->SCANLIST1_PARTICIPATION = !gTxVfo->SCANLIST1_PARTICIPATION;
 	}
 
 	SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
@@ -79,7 +70,6 @@ void toggle_chan_scanlist(void)
 
 static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 {
-	uint8_t Band;
 	uint8_t Vfo = gEeprom.TX_VFO;
 
 	if (gScreenToDisplay == DISPLAY_MENU)
@@ -113,68 +103,62 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				gBeepToPlay     = BEEP_1KHZ_60MS_OPTIONAL;
 
 #ifdef ENABLE_COPY_CHAN_TO_VFO
-				if (gEeprom.VFO_OPEN && !gCssBackgroundScan)
-				{
-
-					if (gScanStateDir != SCAN_OFF)
-					{
-						if (gCurrentFunction != FUNCTION_INCOMING ||
-							gRxReceptionMode == RX_MODE_NONE      ||
-							gScanPauseDelayIn_10ms == 0)
-						{	// scan is running (not paused)
-							return;
-						}
-					}
-
-					const uint8_t vfo = gEeprom.TX_VFO;
-
-					if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo]))
-					{	// copy channel to VFO, then swap to the VFO
-
-						const unsigned int channel = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
-
-						gEeprom.ScreenChannel[vfo] = channel;
-						gEeprom.VfoInfo[vfo].CHANNEL_SAVE = channel;
-
-						RADIO_SelectVfos();
-						RADIO_ApplyOffset(gRxVfo);
-						RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
-						RADIO_SetupRegisters(true);
-
-						//SETTINGS_SaveChannel(channel, gEeprom.RX_VFO, gRxVfo, 1);
-
-						gUpdateDisplay = true;
-					}
-				}
-				else
+				if (!gEeprom.VFO_OPEN || gCssBackgroundScan)
 				{
 					gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+					return;
+				}
+
+				if (gScanStateDir != SCAN_OFF)
+				{
+					if (gCurrentFunction != FUNCTION_INCOMING ||
+						gRxReceptionMode == RX_MODE_NONE      ||
+						gScanPauseDelayIn_10ms == 0)
+					{	// scan is running (not paused)
+						return;
+					}
+				}
+
+				const uint8_t vfo = gEeprom.TX_VFO;
+
+				if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo]))
+				{	// copy channel to VFO, then swap to the VFO
+
+					gEeprom.ScreenChannel[vfo] = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
+					gEeprom.VfoInfo[vfo].CHANNEL_SAVE = gEeprom.ScreenChannel[vfo];
+
+					RADIO_SelectVfos();
+					RADIO_ApplyOffset(gRxVfo);
+					RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
+					RADIO_SetupRegisters(true);
+
+					//SETTINGS_SaveChannel(channel, gEeprom.RX_VFO, gRxVfo, 1);
+
+					gUpdateDisplay = true;
 				}
 #endif
 				return;
 			}
 
 #ifdef ENABLE_WIDE_RX
-			if(gTxVfo->Band == 6 && gTxVfo->pRX->Frequency < 100000000) {
-					gTxVfo->pRX->Frequency = 100000000;
+			if(gTxVfo->Band == BAND7_470MHz && gTxVfo->pRX->Frequency < _1GHz_in_KHz) {
+					gTxVfo->pRX->Frequency = _1GHz_in_KHz;
 					return;
 			}
-			else 
-#endif			
-			{
-				Band = gTxVfo->Band + 1;
-				if (gSetting_350EN || Band != BAND5_350MHz) {
-					if (Band > BAND7_470MHz)
-						Band = BAND1_50MHz;
-				}
-				else
-					Band = BAND6_400MHz;
+#endif
 
-				gTxVfo->Band = Band;
+			gTxVfo->Band += 1;
 
-				gEeprom.ScreenChannel[Vfo] = FREQ_CHANNEL_FIRST + Band;
-				gEeprom.FreqChannel[Vfo]   = FREQ_CHANNEL_FIRST + Band;
+			if (gTxVfo->Band == BAND5_350MHz && !gSetting_350EN) {
+				// skip if not enabled
+				gTxVfo->Band += 1;
+			} else if (gTxVfo->Band >= BAND_LAST_ELEMENT){
+				// go arround if overflowed
+				gTxVfo->Band = BAND1_50MHz;
 			}
+
+			gEeprom.ScreenChannel[Vfo] = FREQ_CHANNEL_FIRST + gTxVfo->Band;
+			gEeprom.FreqChannel[Vfo]   = FREQ_CHANNEL_FIRST + gTxVfo->Band;
 
 			gRequestSaveVFO            = true;
 			gVfoConfigureMode          = VFO_CONFIGURE_RELOAD;
@@ -335,8 +319,6 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE))
 		{	// user is entering channel number
 
-			uint16_t Channel;
-
 			if (gInputBoxIndex != 3)
 			{
 				#ifdef ENABLE_VOICE
@@ -348,7 +330,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			gInputBoxIndex = 0;
 
-			Channel = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
+			const uint16_t Channel = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
 
 			if (!RADIO_CheckValidChannel(Channel, false, 0))
 			{
@@ -374,19 +356,17 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
 		{	// user is entering a frequency
 
-			uint32_t Frequency;
-			bool isGigaF = gTxVfo->pRX->Frequency >= 100000000;
+#ifdef ENABLE_VOICE
+			gAnotherVoiceID = (VOICE_ID_t)Key;
+#endif
+			bool isGigaF = gTxVfo->pRX->Frequency >= _1GHz_in_KHz;
 			if (gInputBoxIndex < 6 + isGigaF)
 			{
-				#ifdef ENABLE_VOICE
-					gAnotherVoiceID = (VOICE_ID_t)Key;
-				#endif
-
 				return;
 			}
 
 			gInputBoxIndex = 0;
-			Frequency = StrToUL(INPUTBOX_GetAscii()) * 100;
+			uint32_t Frequency = StrToUL(INPUTBOX_GetAscii()) * 100;
 
 			// clamp the frequency entered to some valid value
 			if (Frequency < frequencyBandTable[0].lower)
@@ -405,46 +385,37 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				Frequency = frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper;
 			}
 
+			const FREQUENCY_Band_t band = FREQUENCY_GetBand(Frequency);
+
+			if (gTxVfo->Band != band)
 			{
-				const FREQUENCY_Band_t band = FREQUENCY_GetBand(Frequency);
+				gTxVfo->Band               = band;
+				gEeprom.ScreenChannel[Vfo] = band + FREQ_CHANNEL_FIRST;
+				gEeprom.FreqChannel[Vfo]   = band + FREQ_CHANNEL_FIRST;
 
-				#ifdef ENABLE_VOICE
-					gAnotherVoiceID = (VOICE_ID_t)Key;
-				#endif
+				SETTINGS_SaveVfoIndices();
 
-				if (gTxVfo->Band != band)
-				{
-					gTxVfo->Band               = band;
-					gEeprom.ScreenChannel[Vfo] = band + FREQ_CHANNEL_FIRST;
-					gEeprom.FreqChannel[Vfo]   = band + FREQ_CHANNEL_FIRST;
-
-					SETTINGS_SaveVfoIndices();
-
-					RADIO_ConfigureChannel(Vfo, VFO_CONFIGURE_RELOAD);
-				}
-
-				Frequency = FREQUENCY_RoundToStep(Frequency, gTxVfo->StepFrequency);
-
-				if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
-				{	// clamp the frequency to the limit
-					const uint32_t center = (BX4819_band1.upper + BX4819_band2.lower) / 2;
-					Frequency = (Frequency < center) ? BX4819_band1.upper - gTxVfo->StepFrequency : BX4819_band2.lower;
-				}
-
-				gTxVfo->freq_config_RX.Frequency = Frequency;
-
-				gRequestSaveChannel = 1;
-				return;
+				RADIO_ConfigureChannel(Vfo, VFO_CONFIGURE_RELOAD);
 			}
+
+			Frequency = FREQUENCY_RoundToStep(Frequency, gTxVfo->StepFrequency);
+
+			if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
+			{	// clamp the frequency to the limit
+				const uint32_t center = (BX4819_band1.upper + BX4819_band2.lower) / 2;
+				Frequency = (Frequency < center) ? BX4819_band1.upper - gTxVfo->StepFrequency : BX4819_band2.lower;
+			}
+
+			gTxVfo->freq_config_RX.Frequency = Frequency;
+
+			gRequestSaveChannel = 1;
+			return;
 
 		}
 		#ifdef ENABLE_NOAA
 			else
 			if (IS_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 			{	// user is entering NOAA channel
-
-				uint8_t Channel;
-
 				if (gInputBoxIndex != 2)
 				{
 					#ifdef ENABLE_VOICE
@@ -456,7 +427,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 				gInputBoxIndex = 0;
 
-				Channel = (gInputBox[0] * 10) + gInputBox[1];
+				uint8_t Channel = (gInputBox[0] * 10) + gInputBox[1];
 				if (Channel >= 1 && Channel <= ARRAY_SIZE(NoaaFrequencyTable))
 				{
 					Channel                   += NOAA_CHANNEL_FIRST;
@@ -586,7 +557,7 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 
 	if (!bKeyPressed && !gDTMF_InputMode)
 	{	// menu key released
-		const bool bFlag = (gInputBoxIndex == 0);
+		const bool bFlag = !gInputBoxIndex;
 		gInputBoxIndex   = 0;
 
 		if (bFlag)

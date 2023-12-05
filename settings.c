@@ -623,29 +623,32 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 		if (Mode >= 2 || !IS_MR_CHANNEL(Channel))
 		{	// copy VFO to a channel
 
-			uint8_t State[8];
+			union {
+				uint8_t _8[8];
+				uint32_t _32[2];
+			} State;
 
-			((uint32_t *)State)[0] = pVFO->freq_config_RX.Frequency;
-			((uint32_t *)State)[1] = pVFO->TX_OFFSET_FREQUENCY;
-			EEPROM_WriteBuffer(OffsetVFO + 0, State);
+			State._32[0] = pVFO->freq_config_RX.Frequency;
+			State._32[1] = pVFO->TX_OFFSET_FREQUENCY;
+			EEPROM_WriteBuffer(OffsetVFO + 0, State._32);
 
-			State[0] =  pVFO->freq_config_RX.Code;
-			State[1] =  pVFO->freq_config_TX.Code;
-			State[2] = (pVFO->freq_config_TX.CodeType << 4) | pVFO->freq_config_RX.CodeType;
-			State[3] = (pVFO->Modulation << 4) | pVFO->TX_OFFSET_FREQUENCY_DIRECTION;
-			State[4] = 0
+			State._8[0] =  pVFO->freq_config_RX.Code;
+			State._8[1] =  pVFO->freq_config_TX.Code;
+			State._8[2] = (pVFO->freq_config_TX.CodeType << 4) | pVFO->freq_config_RX.CodeType;
+			State._8[3] = (pVFO->Modulation << 4) | pVFO->TX_OFFSET_FREQUENCY_DIRECTION;
+			State._8[4] = 0
 				| (pVFO->BUSY_CHANNEL_LOCK << 4)
 				| (pVFO->OUTPUT_POWER      << 2)
 				| (pVFO->CHANNEL_BANDWIDTH << 1)
 				| (pVFO->FrequencyReverse  << 0);
-			State[5] = ((pVFO->DTMF_PTT_ID_TX_MODE & 7u) << 1) 
+			State._8[5] = ((pVFO->DTMF_PTT_ID_TX_MODE & 7u) << 1)
 #ifdef ENABLE_DTMF_CALLING
 				| ((pVFO->DTMF_DECODING_ENABLE & 1u) << 0)
 #endif
 			;
-			State[6] =  pVFO->STEP_SETTING;
-			State[7] =  pVFO->SCRAMBLING_TYPE;
-			EEPROM_WriteBuffer(OffsetVFO + 8, State);
+			State._8[6] =  pVFO->STEP_SETTING;
+			State._8[7] =  pVFO->SCRAMBLING_TYPE;
+			EEPROM_WriteBuffer(OffsetVFO + 8, State._8);
 
 			SETTINGS_UpdateChannel(Channel, pVFO, true);
 

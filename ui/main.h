@@ -33,6 +33,7 @@ extern const int8_t dBmCorrTable[7];
 
 void UI_DisplayAudioBar(void);
 void UI_UpdateRSSI(const int16_t rssi, const int vfo);
+void UI_MAIN_TimeSlice500ms(void);
 void UI_DisplayMain(void);
 
 #endif

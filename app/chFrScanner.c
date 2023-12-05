@@ -71,14 +71,14 @@ void CHFRSCANNER_ContinueScanning(void)
 	if (IS_FREQ_CHANNEL(gNextMrChannel))
 	{
 		if (gCurrentFunction == FUNCTION_INCOMING)
-			APP_StartListening(gMonitor ? FUNCTION_MONITOR : FUNCTION_RECEIVE, true);
+			APP_StartListening(gMonitor ? FUNCTION_MONITOR : FUNCTION_RECEIVE);
 		else
 			NextFreqChannel();  // switch to next frequency
 	}
 	else
 	{
 		if (gCurrentCodeType == CODE_TYPE_OFF && gCurrentFunction == FUNCTION_INCOMING)
-			APP_StartListening(gMonitor ? FUNCTION_MONITOR : FUNCTION_RECEIVE, true);
+			APP_StartListening(gMonitor ? FUNCTION_MONITOR : FUNCTION_RECEIVE);
 		else
 			NextMemChannel();    // switch to next channel
 	}
