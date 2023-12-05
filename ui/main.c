@@ -338,10 +338,10 @@ void UI_DisplayMain(void)
 		const unsigned int line0 = 0;  // text screen line
 		const unsigned int line1 = 4;
 		const unsigned int line       = (vfo_num == 0) ? line0 : line1;
-		const bool         isMainVFO   = (vfo_num == gEeprom.TX_VFO);
+		const bool         isMainVFO  = (vfo_num == gEeprom.TX_VFO);
 		uint8_t           *p_line0    = gFrameBuffer[line + 0];
 		uint8_t           *p_line1    = gFrameBuffer[line + 1];
-		unsigned int       mode       = 0;
+		enum Vfo_txtr_mode mode       = VFO_MODE_NONE;
 
 		if (activeTxVFO != vfo_num) // this is not active TX VFO
 		{
@@ -423,13 +423,13 @@ void UI_DisplayMain(void)
 
 #ifdef ENABLE_ALARM
 			if (gAlarmState == ALARM_STATE_SITE_ALARM)
-				mode = 2;
+				mode = VFO_MODE_RX;
 			else
 #endif
 			{
 				if (activeTxVFO == vfo_num)
 				{	// show the TX symbol
-					mode = 1;
+					mode = VFO_MODE_TX;
 #ifdef ENABLE_SMALL_BOLD
 					UI_PrintStringSmallBold("TX", 14, 0, line);
 #else
@@ -440,7 +440,7 @@ void UI_DisplayMain(void)
 		}
 		else
 		{	// receiving .. show the RX symbol
-			mode = 2;
+			mode = VFO_MODE_RX;
 			if ((gCurrentFunction == FUNCTION_RECEIVE ||
 			     gCurrentFunction == FUNCTION_MONITOR ||
 			     gCurrentFunction == FUNCTION_INCOMING) &&
@@ -640,7 +640,7 @@ void UI_DisplayMain(void)
 		{	// show the TX/RX level
 			uint8_t Level = 0;
 
-			if (mode == 1)
+			if (mode == VFO_MODE_TX)
 			{	// TX power level
 				switch (gRxVfo->OUTPUT_POWER)
 				{
@@ -650,7 +650,7 @@ void UI_DisplayMain(void)
 				}
 			}
 			else
-			if (mode == 2)
+			if (mode == VFO_MODE_RX)
 			{	// RX signal level
 				#ifndef ENABLE_RSSI_BAR
 					// bar graph
@@ -671,7 +671,7 @@ void UI_DisplayMain(void)
 		const ModulationMode_t mod = gEeprom.VfoInfo[vfo_num].Modulation;
 		switch (mod){
 			case MODULATION_FM: {
-				const FREQ_Config_t *pConfig = (mode == 1) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
+				const FREQ_Config_t *pConfig = (mode == VFO_MODE_TX) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
 				const unsigned int code_type = pConfig->CodeType;
 				const char *code_list[] = {"", "CT", "DCS", "DCR"};
 				if (code_type < ARRAY_SIZE(code_list))
