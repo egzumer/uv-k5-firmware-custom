@@ -377,7 +377,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 	else if (!IS_MR_CHANNEL(channel))
 		pVfo->TX_OFFSET_FREQUENCY = FREQUENCY_RoundToStep(pVfo->TX_OFFSET_FREQUENCY, pVfo->StepFrequency);
 
-	RADIO_ApplyOffset(pVfo);
+	RADIO_ApplyTxOffset(pVfo);
 
 	memset(pVfo->Name, 0, sizeof(pVfo->Name));
 	if (IS_MR_CHANNEL(channel))
@@ -537,7 +537,7 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 	// *******************************
 }
 
-void RADIO_ApplyOffset(VFO_Info_t *pInfo)
+void RADIO_ApplyTxOffset(VFO_Info_t *pInfo)
 {
 	uint32_t Frequency = pInfo->freq_config_RX.Frequency;
 
@@ -635,7 +635,7 @@ void RADIO_SetupRegisters(bool switchToForeground)
 		else
 			Frequency = NoaaFrequencyTable[gNoaaChannel];
 	#else
-		Frequency = gRxVfo->pRX->Frequency;
+		Frequency = gRxVfo->pRX->Frequency + gEeprom.RX_OFFSET;
 	#endif
 	BK4819_SetFrequency(Frequency);
 

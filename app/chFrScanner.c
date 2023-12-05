@@ -142,7 +142,7 @@ void CHFRSCANNER_Stop(void)
 	}
 	else {
 		gRxVfo->freq_config_RX.Frequency = chFr;
-		RADIO_ApplyOffset(gRxVfo);
+		RADIO_ApplyTxOffset(gRxVfo);
 		RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
 		if(channelChanged) {
 			SETTINGS_SaveChannel(gRxVfo->CHANNEL_SAVE, gEeprom.RX_VFO, gRxVfo, 1);
@@ -165,7 +165,7 @@ static void NextFreqChannel(void)
 #endif
 		gRxVfo->freq_config_RX.Frequency = APP_SetFrequencyByStep(gRxVfo, gScanStateDir);
 
-	RADIO_ApplyOffset(gRxVfo);
+	RADIO_ApplyTxOffset(gRxVfo);
 	RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
 	RADIO_SetupRegisters(true);
 
