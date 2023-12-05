@@ -564,10 +564,10 @@ uint32_t APP_SetFreqByStepAndLimits(VFO_Info_t *pInfo, int8_t direction, uint32_
 {
 	uint32_t Frequency = FREQUENCY_RoundToStep(pInfo->freq_config_RX.Frequency + (direction * pInfo->StepFrequency), pInfo->StepFrequency);
 
-	if (Frequency >= upper)
+	if (Frequency > upper)
 		Frequency =  lower;
 	else if (Frequency < lower)
-		Frequency = FREQUENCY_RoundToStep(upper - pInfo->StepFrequency, pInfo->StepFrequency);
+		Frequency =  upper;
 
 	return Frequency;
 }
