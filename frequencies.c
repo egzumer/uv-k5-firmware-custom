@@ -210,11 +210,21 @@ int RX_freq_check(const uint32_t Frequency)
 {	// return '0' if RX frequency is allowed
 	// otherwise return '-1'
 
-	if (Frequency < frequencyBandTable[0].lower || Frequency > frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper)
+	if (Frequency < RX_freq_min() || Frequency > frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper)
 		return -1;
 
 	if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
 		return -1;
 
 	return 0;   // OK frequency
+}
+
+uint32_t RX_freq_min()
+{
+	return gEeprom.RX_OFFSET >= frequencyBandTable[0].lower ? 0 : frequencyBandTable[0].lower - gEeprom.RX_OFFSET;
+}
+
+uint32_t Band_freq_min(FREQUENCY_Band_t Band)
+{
+	return gEeprom.RX_OFFSET >= frequencyBandTable[Band].lower ? 0 : frequencyBandTable[Band].lower - gEeprom.RX_OFFSET;
 }

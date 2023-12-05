@@ -363,8 +363,8 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 	// fix previously set incorrect band
 	band = FREQUENCY_GetBand(frequency);
 
-	if (frequency < frequencyBandTable[band].lower)
-		frequency = frequencyBandTable[band].lower;
+	if (frequency < Band_freq_min(band))
+		frequency = Band_freq_min(band);
 	else if (frequency > frequencyBandTable[band].upper)
 		frequency = frequencyBandTable[band].upper;
 	else if (channel >= FREQ_CHANNEL_FIRST)

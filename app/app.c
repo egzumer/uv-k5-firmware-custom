@@ -574,7 +574,7 @@ uint32_t APP_SetFreqByStepAndLimits(VFO_Info_t *pInfo, int8_t direction, uint32_
 
 uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t direction)
 {
-	return APP_SetFreqByStepAndLimits(pInfo, direction, frequencyBandTable[pInfo->Band].lower, frequencyBandTable[pInfo->Band].upper);
+	return APP_SetFreqByStepAndLimits(pInfo, direction, Band_freq_min(pInfo->Band), frequencyBandTable[pInfo->Band].upper);
 }
 
 #ifdef ENABLE_NOAA

@@ -386,9 +386,9 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			Frequency = StrToUL(INPUTBOX_GetAscii()) * 100;
 
 			// clamp the frequency entered to some valid value
-			if (Frequency < frequencyBandTable[0].lower)
+			if (Frequency < RX_freq_min())
 			{
-				Frequency = frequencyBandTable[0].lower;
+				Frequency = RX_freq_min();
 			}
 			else
 			if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)

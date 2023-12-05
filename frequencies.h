@@ -81,5 +81,7 @@ uint8_t 		 FREQUENCY_GetSortedIdxFromStepIdx(uint8_t step);
 
 int              TX_freq_check(const uint32_t Frequency);
 int              RX_freq_check(const uint32_t Frequency);
+uint32_t         RX_freq_min();
+uint32_t         Band_freq_min(FREQUENCY_Band_t Band);
 
 #endif
