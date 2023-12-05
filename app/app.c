@@ -25,6 +25,9 @@
 #include "app/app.h"
 #include "app/chFrScanner.h"
 #include "app/dtmf.h"
+#ifdef ENABLE_FLASHLIGHT
+	#include "app/flashlight.h"
+#endif
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
@@ -65,7 +68,8 @@
 #include "ui/ui.h"
 
 static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
-static void FlashlightTimeSlice();
+
+
 
 static void UpdateRSSI(const int vfo)
 {
@@ -1174,10 +1178,10 @@ void APP_TimeSlice10ms(void)
 
 	if (gCurrentFunction == FUNCTION_TRANSMIT)
 	{	// transmitting
-		#ifdef ENABLE_AUDIO_BAR
-			if (gSetting_mic_bar && (gFlashLightBlinkCounter % (150 / 10)) == 0) // once every 150ms
-				UI_DisplayAudioBar();
-		#endif
+#ifdef ENABLE_AUDIO_BAR
+		if (gSetting_mic_bar && (gFlashLightBlinkCounter % (150 / 10)) == 0) // once every 150ms
+			UI_DisplayAudioBar();
+#endif
 	}
 
 	if (gUpdateDisplay)
@@ -1191,20 +1195,22 @@ void APP_TimeSlice10ms(void)
 
 	// Skipping authentic device checks
 
-	#ifdef ENABLE_FMRADIO
-		if (gFmRadioMode && gFmRadioCountdown_500ms > 0)   // 1of11
-			return;
-	#endif
+#ifdef ENABLE_FMRADIO
+	if (gFmRadioMode && gFmRadioCountdown_500ms > 0)   // 1of11
+		return;
+#endif
 
+#ifdef ENABLE_FLASHLIGHT
 	FlashlightTimeSlice();
+#endif
 
-	#ifdef ENABLE_VOX
-		if (gVoxResumeCountdown > 0)
-			gVoxResumeCountdown--;
+#ifdef ENABLE_VOX
+	if (gVoxResumeCountdown > 0)
+		gVoxResumeCountdown--;
 
-		if (gVoxPauseCountdown > 0)
-			gVoxPauseCountdown--;
-	#endif
+	if (gVoxPauseCountdown > 0)
+		gVoxPauseCountdown--;
+#endif
 
 	if (gCurrentFunction == FUNCTION_TRANSMIT)
 	{
@@ -2070,42 +2076,4 @@ Skip:
 	gRequestDisplayScreen = DISPLAY_INVALID;
 
 	gUpdateDisplay = true;
-}
-
-static void FlashlightTimeSlice()
-{
-	if (gFlashLightState == FLASHLIGHT_BLINK && (gFlashLightBlinkCounter & 15u) == 0) {
-		GPIO_FlipBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);
-		return;
-	}
-
-	if (gFlashLightState == FLASHLIGHT_SOS) {
-		const uint16_t u = 15;
-		static uint8_t c;
-		static uint16_t next;
-
-		if (gFlashLightBlinkCounter - next > 7 * u) {
-			c = 0;
-			next = gFlashLightBlinkCounter + 1;
-			return;
-		}
-
-		if (gFlashLightBlinkCounter == next) {
-			if (c==0) {
-				GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);
-			} else {
-				GPIO_FlipBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);
-			}
-
-			if (c >= 18) {
-				next = gFlashLightBlinkCounter + 7 * u;
-				c = 0;
-			} else if(c==7 || c==9 || c==11) {
-				next = gFlashLightBlinkCounter + 3 * u;
-			} else {
-				next = gFlashLightBlinkCounter + u;
-			}
-			c++;
-		}
-	}
 }

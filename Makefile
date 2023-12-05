@@ -20,6 +20,7 @@ ENABLE_ALARM                  := 0
 ENABLE_TX1750                 := 0
 ENABLE_PWRON_PASSWORD         := 0
 ENABLE_DTMF_CALLING           := 1
+ENABLE_FLASHLIGHT             := 1
 
 # ---- CUSTOM MODS ----
 ENABLE_BIG_FREQ               := 1
@@ -113,6 +114,9 @@ OBJS += app/app.o
 OBJS += app/chFrScanner.o
 OBJS += app/common.o
 OBJS += app/dtmf.o
+ifeq ($(ENABLE_FLASHLIGHT),1)
+	OBJS += app/flashlight.o
+endif
 ifeq ($(ENABLE_FMRADIO),1)
 	OBJS += app/fm.o
 endif
@@ -362,6 +366,9 @@ ifeq ($(ENABLE_DTMF_CALLING),1)
 endif
 ifeq ($(ENABLE_AGC_SHOW_DATA),1)
 	CFLAGS  += -DENABLE_AGC_SHOW_DATA
+endif
+ifeq ($(ENABLE_FLASHLIGHT),1)
+	CFLAGS  += -DENABLE_FLASHLIGHT
 endif
 
 LDFLAGS =

@@ -21,6 +21,9 @@
 #include "app/chFrScanner.h"
 #include "app/common.h"
 #include "app/dtmf.h"
+#ifdef ENABLE_FLASHLIGHT
+	#include "app/flashlight.h"
+#endif
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
@@ -38,25 +41,6 @@
 #include "settings.h"
 #include "ui/inputbox.h"
 #include "ui/ui.h"
-
-static void ACTION_FlashLight(void)
-{
-	switch (gFlashLightState)
-	{
-		case FLASHLIGHT_OFF:
-			gFlashLightState++;
-			GPIO_SetBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);
-			break;
-		case FLASHLIGHT_ON:
-		case FLASHLIGHT_BLINK:
-			gFlashLightState++;
-			break;
-		case FLASHLIGHT_SOS:
-		default:
-			gFlashLightState = 0;
-			GPIO_ClearBit(&GPIOC->DATA, GPIOC_PIN_FLASHLIGHT);
-	}
-}
 
 void ACTION_Power(void)
 {
@@ -399,8 +383,10 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		case ACTION_OPT_NONE:
 			break;
 		case ACTION_OPT_FLASHLIGHT:
+#ifdef ENABLE_FLASHLIGHT
 			ACTION_FlashLight();
-			break;
+#endif
+		break;
 		case ACTION_OPT_POWER:
 			ACTION_Power();
 			break;
