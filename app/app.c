@@ -386,7 +386,7 @@ Skip:
 						break;
 
 					case SCAN_RESUME_CO:
-						gScanPauseDelayIn_10ms = scan_pause_delay_in_6_10ms;
+						gScanPauseDelayIn_10ms = scan_pause_delay_in_7_10ms;
 						gScheduleScanListen    = false;
 						break;
 
