@@ -47,13 +47,6 @@ enum {
 	LAST_CHANNEL
 };
 
-enum FlashlightMode_t {
-	FLASHLIGHT_OFF = 0,
-	FLASHLIGHT_ON,
-	FLASHLIGHT_BLINK,
-	FLASHLIGHT_SOS
-};
-
 enum {
 	VFO_CONFIGURE_NONE = 0,
 	VFO_CONFIGURE,
@@ -285,8 +278,9 @@ extern bool                  g_CxCSS_TAIL_Found;
 
 // true means we are receiving signal
 extern bool                  g_SquelchLost;
-extern enum FlashlightMode_t gFlashLightState;
+
 extern volatile uint16_t     gFlashLightBlinkCounter;
+
 extern bool                  gFlagEndTransmission;
 extern uint8_t               gNextMrChannel;
 extern ReceptionMode_t       gRxReceptionMode;

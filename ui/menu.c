@@ -337,7 +337,9 @@ const char gSubMenu_SCRAMBLER[][7] =
 const t_sidefunction SIDEFUNCTIONS[] =
 {
 	{"NONE",			ACTION_OPT_NONE},
+#ifdef ENABLE_FLASHLIGHT
 	{"FLASH\nLIGHT",	ACTION_OPT_FLASHLIGHT},
+#endif
 	{"POWER",			ACTION_OPT_POWER},
 	{"MONITOR",			ACTION_OPT_MONITOR},
 	{"SCAN",			ACTION_OPT_SCAN},

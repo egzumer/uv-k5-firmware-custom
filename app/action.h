@@ -19,7 +19,6 @@
 
 #include "driver/keyboard.h"
 
-//static void ACTION_FlashLight(void)
 void ACTION_Power(void);
 void ACTION_Monitor(void);
 void ACTION_Scan(bool bRestart);
@@ -41,4 +40,3 @@ void ACTION_BlminTmpOff(void);
 void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
 #endif
-

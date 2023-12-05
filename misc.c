@@ -199,9 +199,8 @@ bool              g_CxCSS_TAIL_Found;
 #endif
 bool              g_SquelchLost;
 
-enum FlashlightMode_t  gFlashLightState;
-
 volatile uint16_t gFlashLightBlinkCounter;
+
 bool              gFlagEndTransmission;
 uint8_t           gNextMrChannel;
 ReceptionMode_t   gRxReceptionMode;
