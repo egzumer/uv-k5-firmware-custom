@@ -1295,7 +1295,14 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		#endif
 		
 		Frequency = StrToUL(INPUTBOX_GetAscii())*100;
-		gSubMenuSelection = FREQUENCY_RoundToStep(Frequency, gTxVfo->StepFrequency);
+		if(UI_MENU_GetCurrentMenuId() == MENU_OFFSET)
+		{
+			gSubMenuSelection = FREQUENCY_RoundToStep(Frequency, gTxVfo->StepFrequency);
+		}
+		else
+		{
+			gSubMenuSelection = Frequency;
+		}
 
 		gInputBoxIndex = 0;
 		return;
