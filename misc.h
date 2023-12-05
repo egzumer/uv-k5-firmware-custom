@@ -247,7 +247,6 @@ enum
 extern volatile bool     gScheduleScanListen;
 extern volatile uint16_t gScanPauseDelayIn_10ms;
 
-extern bool                  gUpdateRSSI;
 extern AlarmState_t          gAlarmState;
 extern uint16_t              gMenuCountdown;
 extern bool                  gPttWasReleased;
@@ -332,7 +331,6 @@ extern volatile uint8_t      gVFOStateResumeCountdown_500ms;
 #ifdef ENABLE_FMRADIO
 	extern volatile bool     gScheduleFM;
 #endif
-extern int16_t               gCurrentRSSI[2];   // now one per VFO
 extern uint8_t               gIsLocked;
 extern volatile uint8_t      boot_counter_10ms;
 

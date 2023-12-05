@@ -186,7 +186,7 @@ static const t_gain_table gain_table[] =
 	{0x03FF,  0},   // 91 .. 3 7 3 7 ..   0dB   0dB  0dB   0dB ..   0dB
 };
 
-static const unsigned int original_index = 90;
+static const unsigned int original_index = 85;
 
 #ifdef ENABLE_AM_FIX_SHOW_DATA
 	// display update rate
@@ -205,9 +205,6 @@ int16_t prev_rssi[2] = {0, 0};
 
 // to help reduce gain hunting, peak hold count down tick
 unsigned int hold_counter[2] = {0, 0};
-
-// used to correct the RSSI readings after our RF gain adjustments
-int16_t rssi_gain_diff[2] = {0, 0};
 
 // used to limit the max RF gain
 const unsigned max_index = ARRAY_SIZE(gain_table) - 1;
@@ -233,7 +230,6 @@ void AM_fix_reset(const unsigned vfo)
 
 	prev_rssi[vfo] = 0;
 	hold_counter[vfo] = 0;
-	rssi_gain_diff[vfo] = 0;
 	gain_table_index_prev[vfo] = 0;
 }
 
@@ -287,9 +283,10 @@ void AM_fix_10ms(const unsigned vfo, bool force)
 
 #ifdef ENABLE_AM_FIX_SHOW_DATA
 	{
-		int16_t new_rssi = rssi - rssi_gain_diff[vfo];
-		if (gCurrentRSSI[vfo] != new_rssi) { // rssi changed
-			gCurrentRSSI[vfo] = new_rssi;
+		static int16_t lastRssi;
+		
+		if (lastRssi != rssi) { // rssi changed
+			lastRssi = rssi;
 
 			if (counter == 0) {	
 				counter        = 1;
@@ -353,15 +350,7 @@ void AM_fix_10ms(const unsigned vfo, bool force)
 		gain_table_index_prev[vfo] = index;
 
 		BK4819_WriteRegister(BK4819_REG_13, gain_table[index].reg_val);
-
-		// offset the RSSI reading to the rest of the firmware to cancel out the gain adjustments we make
-
-		// RF gain difference from original QS setting
-		rssi_gain_diff[vfo] = ((int16_t)gain_table[index].gain_dB - gain_table[original_index].gain_dB) * 2;
 	}
-
-	// save the corrected RSSI level
-	gCurrentRSSI[vfo] = rssi - rssi_gain_diff[vfo];
 
 #ifdef ENABLE_AM_FIX_SHOW_DATA
 	if (counter == 0) {
@@ -381,11 +370,5 @@ void AM_fix_print_data(const unsigned vfo, char *s) {
 }
 #endif
 
-int16_t AM_fix_get_rssi_gain_diff(const unsigned vfo)
-{
-	if(vfo > 1)
-		return 0;
-	return rssi_gain_diff[vfo];
-}
 
 #endif

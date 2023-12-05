@@ -26,7 +26,6 @@
 	#ifdef ENABLE_AM_FIX_SHOW_DATA
 		void AM_fix_print_data(const unsigned vfo, char *s);
 	#endif
-	int16_t AM_fix_get_rssi_gain_diff(const unsigned vfo);
 		
 #endif
 

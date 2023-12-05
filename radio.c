@@ -772,8 +772,12 @@ void RADIO_SetupRegisters(bool switchToForeground)
 		}
 	#endif
 
-	BK4819_SetAGC(1);
-	BK4819_InitAGC();
+#ifdef ENABLE_AM_FIX
+	if(gSetting_AM_fix) {
+		BK4819_SetAGC(true);
+		BK4819_InitAGC(false);
+	}
+#endif
 
 	// enable/disable BK4819 selected interrupts
 	BK4819_WriteRegister(BK4819_REG_3F, InterruptMask);
@@ -923,9 +927,11 @@ void RADIO_SetModulation(ModulationMode_t modulation)
 	BK4819_WriteRegister(BK4819_REG_3D, modulation == MODULATION_USB ? 0 : 0x2AAB);
 	BK4819_SetRegValue(afcDisableRegSpec, modulation != MODULATION_FM);
 #ifdef ENABLE_AM_FIX
-	if(modulation == MODULATION_AM && gSetting_AM_fix)
+	if(modulation == MODULATION_AM && gSetting_AM_fix) {
 		BK4819_SetAGC(0);
-#endif			
+	}
+#endif
+	BK4819_InitAGC(modulation == MODULATION_AM);
 }
 
 void RADIO_SetVfoState(VfoState_t State)

@@ -292,11 +292,7 @@ uint16_t GetRssi() {
     SYSTICK_DelayUs(100);
   }
 
-  return BK4819_GetRSSI()
-#ifdef ENABLE_AM_FIX
-    - ((settings.modulationType == MODULATION_AM) ? AM_fix_get_rssi_gain_diff(vfo) : 0)
-#endif
-	;
+  return BK4819_GetRSSI();
 }
 
 static void ToggleAudio(bool on) {
@@ -495,10 +491,14 @@ static void ToggleModulation() {
     settings.modulationType = MODULATION_FM;
   }
   RADIO_SetModulation(settings.modulationType);
-  if(settings.modulationType != MODULATION_AM) {
-    BK4819_InitAGC();
+
+#ifdef ENABLE_AM_FIX
+  if(gSetting_AM_fix && settings.modulationType != MODULATION_AM) {
+    BK4819_InitAGC(false);
     BK4819_SetAGC(1);
   }
+#endif
+
   RelaunchScan();
   redrawScreen = true;
 }
@@ -1180,8 +1180,8 @@ void APP_RunSpectrum() {
 
 #ifdef ENABLE_AM_FIX
   if(settings.modulationType != MODULATION_AM) {
-    BK4819_InitAGC();
-    BK4819_SetAGC(1);
+    BK4819_InitAGC(false);
+    BK4819_SetAGC(true);
   }
 #endif
 

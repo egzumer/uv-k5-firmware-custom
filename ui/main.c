@@ -37,6 +37,8 @@
 #include "ui/main.h"
 #include "ui/ui.h"
 
+#include "debugging.h"
+
 center_line_t center_line = CENTER_LINE_NONE;
 
 const int8_t dBmCorrTable[7] = {
@@ -150,64 +152,63 @@ void UI_DisplayAudioBar(void)
 #endif
 
 
-static void DisplayRSSIBar(const int16_t rssi, const bool now)
+void DisplayRSSIBar(const bool now)
 {
 #if defined(ENABLE_RSSI_BAR)
 
-	if (center_line == CENTER_LINE_RSSI) {
-		const unsigned int txt_width    = 7 * 8;                 // 8 text chars
-		const unsigned int bar_x        = 2 + txt_width + 4;     // X coord of bar graph
+	const unsigned int txt_width    = 7 * 8;                 // 8 text chars
+	const unsigned int bar_x        = 2 + txt_width + 4;     // X coord of bar graph
 
-		const unsigned int line         = 3;
-		uint8_t           *p_line        = gFrameBuffer[line];
-		char               str[16];
+	const unsigned int line         = 3;
+	uint8_t           *p_line        = gFrameBuffer[line];
+	char               str[16];
 
-		const char plus[] = {
-			0b00011000,
-			0b00011000,
-			0b01111110,
-			0b01111110,
-			0b01111110,
-			0b00011000,
-			0b00011000,
-		};
+	const char plus[] = {
+		0b00011000,
+		0b00011000,
+		0b01111110,
+		0b01111110,
+		0b01111110,
+		0b00011000,
+		0b00011000,
+	};
 
-		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
-			return;     // display is in use
+	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
+		return;     // display is in use
 
-		if (gCurrentFunction == FUNCTION_TRANSMIT ||
-			gScreenToDisplay != DISPLAY_MAIN
+	if (gCurrentFunction == FUNCTION_TRANSMIT ||
+		gScreenToDisplay != DISPLAY_MAIN
 #ifdef ENABLE_DTMF_CALLING
-			|| gDTMF_CallState != DTMF_CALL_STATE_NONE
+		|| gDTMF_CallState != DTMF_CALL_STATE_NONE
 #endif
-			)
-			return;     // display is in use
+		)
+		return;     // display is in use
 
-		if (now)
-			memset(p_line, 0, LCD_WIDTH);
-		
+	if (now)
+		memset(p_line, 0, LCD_WIDTH);
+	
 
-		const int16_t      s0_dBm       = -130;                  // S0 .. base level
-		const int16_t      rssi_dBm     = (rssi / 2) - 160 + dBmCorrTable[gRxVfo->Band];
+	const int16_t      s0_dBm       = -130;                  // S0 .. base level
+	const int16_t      rssi_dBm     = BK4819_GetRSSI_dBm() + dBmCorrTable[gRxVfo->Band];
 
-		const uint8_t s_level = MIN(MAX((rssi_dBm - s0_dBm) / 6, 0), 9); // S0 - S9
-		uint8_t overS9dBm = MIN(MAX(rssi_dBm - (s0_dBm + 9*6), 0), 99);
-		uint8_t overS9Bars = MIN(overS9dBm/10, 4);
-		
-		if(overS9Bars == 0) {
-			sprintf(str, "% 4d S%d", rssi_dBm, s_level);
-		}
-		else {
-			sprintf(str, "% 4d  %2d", rssi_dBm, overS9dBm);
-			memcpy(p_line + 2 + 7*5, &plus, ARRAY_SIZE(plus));
-		}
-
-		UI_PrintStringSmall(str, 2, 0, line);
-
-		DrawLevelBar(bar_x, line, s_level + overS9Bars);
+	const uint8_t s_level = MIN(MAX((rssi_dBm - s0_dBm) / 6, 0), 9); // S0 - S9
+	uint8_t overS9dBm = MIN(MAX(rssi_dBm - (s0_dBm + 9*6), 0), 99);
+	uint8_t overS9Bars = MIN(overS9dBm/10, 4);
+	
+	if(overS9Bars == 0) {
+		sprintf(str, "% 4d S%d", rssi_dBm, s_level);
 	}
-#else
+	else {
+		sprintf(str, "% 4d  %2d", rssi_dBm, overS9dBm);
+		memcpy(p_line + 2 + 7*5, &plus, ARRAY_SIZE(plus));
+	}
 
+	UI_PrintStringSmall(str, 2, 0, line);
+	DrawLevelBar(bar_x, line, s_level + overS9Bars);
+	if (now)
+		ST7565_BlitLine(line);
+#else
+	int16_t rssi = BK4819_GetRSSI();
 	uint8_t Level;
 
 	if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][3]) {
@@ -226,28 +227,14 @@ static void DisplayRSSIBar(const int16_t rssi, const bool now)
 	if (now)
 		memset(pLine, 0, 23);
 	DrawSmallAntennaAndBars(pLine, Level);
+	if (now)
+		ST7565_BlitFullScreen();	
 #endif
 
-	if (now)
-		ST7565_BlitFullScreen();
-}
-
-
-void UI_UpdateRSSI(const int16_t rssi, const int vfo)
-{
-	(void)vfo;  // unused
-	
-	// optional larger RSSI dBm, S-point and bar level
-
-	if (gCurrentFunction == FUNCTION_RECEIVE ||
-		gCurrentFunction == FUNCTION_MONITOR ||
-		gCurrentFunction == FUNCTION_INCOMING)
-	{
-		
-		DisplayRSSIBar(rssi, true);
-	}
 
 }
+
+
 
 #ifdef ENABLE_AGC_SHOW_DATA
 static void PrintAGC(bool now)
@@ -290,10 +277,20 @@ static void PrintAGC(bool now)
 
 void UI_MAIN_TimeSlice500ms(void)
 {
+	if(gScreenToDisplay==DISPLAY_MAIN) {
 #ifdef ENABLE_AGC_SHOW_DATA
-if(gScreenToDisplay==DISPLAY_MAIN)
-	PrintAGC(true);
+		PrintAGC(true);
+		return;
 #endif
+
+		const bool rx = (gCurrentFunction == FUNCTION_RECEIVE ||
+			gCurrentFunction == FUNCTION_MONITOR ||
+			gCurrentFunction == FUNCTION_INCOMING);
+
+
+		if(rx) 
+			DisplayRSSIBar(true);
+	}
 }
 
 // ***************************************************************************
@@ -759,7 +756,7 @@ void UI_DisplayMain(void)
 #ifdef ENABLE_RSSI_BAR
 		if (rx) {
 			center_line = CENTER_LINE_RSSI;
-			DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_VFO], false);
+			DisplayRSSIBar(false);
 		}
 		else
 #endif

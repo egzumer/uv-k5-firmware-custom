@@ -63,26 +63,10 @@
 #include "ui/status.h"
 #include "ui/ui.h"
 
+#include "debugging.h"
+
 static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 static void FlashlightTimeSlice();
-
-static void UpdateRSSI(const int vfo)
-{
-	int16_t rssi = BK4819_GetRSSI();
-
-	#ifdef ENABLE_AM_FIX
-		// add RF gain adjust compensation
-		if (gEeprom.VfoInfo[vfo].Modulation == MODULATION_AM && gSetting_AM_fix)
-			rssi -= AM_fix_get_rssi_gain_diff(vfo);
-	#endif
-
-	if (gCurrentRSSI[vfo] == rssi)
-		return;     // no change
-
-	gCurrentRSSI[vfo] = rssi;
-
-	UI_UpdateRSSI(rssi, vfo);
-}
 
 static void CheckForIncoming(void)
 {
@@ -108,9 +92,6 @@ static void CheckForIncoming(void)
 			{
 				FUNCTION_Select(FUNCTION_INCOMING);
 				//gUpdateDisplay = true;
-
-				UpdateRSSI(gEeprom.RX_VFO);
-				gUpdateRSSI = true;
 			}
 
 			return;
@@ -124,9 +105,6 @@ static void CheckForIncoming(void)
 			{
 				FUNCTION_Select(FUNCTION_INCOMING);
 				//gUpdateDisplay = true;
-
-				UpdateRSSI(gEeprom.RX_VFO);
-				gUpdateRSSI = true;
 			}
 			return;
 		}
@@ -146,9 +124,6 @@ static void CheckForIncoming(void)
 			{
 				FUNCTION_Select(FUNCTION_INCOMING);
 				//gUpdateDisplay = true;
-
-				UpdateRSSI(gEeprom.RX_VFO);
-				gUpdateRSSI = true;
 			}
 			return;
 		}
@@ -163,9 +138,6 @@ static void CheckForIncoming(void)
 	{
 		FUNCTION_Select(FUNCTION_INCOMING);
 		//gUpdateDisplay = true;
-
-		UpdateRSSI(gEeprom.RX_VFO);
-		gUpdateRSSI = true;
 	}
 }
 
@@ -994,8 +966,6 @@ void APP_Update(void)
 			    !gCssBackgroundScan)
 			{	// dual watch mode, toggle between the two VFO's
 				DualwatchAlternate();
-
-				gUpdateRSSI = false;
 			}
 
 			FUNCTION_Init();
@@ -1004,11 +974,8 @@ void APP_Update(void)
 			gRxIdleMode     = false;            // RX is awake
 		}
 		else
-		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF || gScanStateDir != SCAN_OFF || gCssBackgroundScan || gUpdateRSSI)
+		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF || gScanStateDir != SCAN_OFF || gCssBackgroundScan)
 		{	// dual watch mode off or scanning or rssi update request
-
-			UpdateRSSI(gEeprom.RX_VFO);
-
 			// go back to sleep
 
 			gPowerSave_10ms = gEeprom.BATTERY_SAVE * 10;
@@ -1021,12 +988,9 @@ void APP_Update(void)
 			// Authentic device checked removed
 
 		}
-		else
-		{
+		else {
 			// toggle between the two VFO's
 			DualwatchAlternate();
-
-			gUpdateRSSI       = true;
 			gPowerSave_10ms   = power_save1_10ms;
 		}
 
@@ -1529,9 +1493,6 @@ void APP_TimeSlice500ms(void)
 			}
 		}
 	}
-
-	if (gCurrentFunction != FUNCTION_POWER_SAVE && gCurrentFunction != FUNCTION_TRANSMIT)
-		UpdateRSSI(gEeprom.RX_VFO);
 
 	if (!gPttIsPressed && gVFOStateResumeCountdown_500ms > 0)
 	{
