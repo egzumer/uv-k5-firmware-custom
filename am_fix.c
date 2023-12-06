@@ -90,6 +90,10 @@ typedef struct
 
 // lookup table is hugely easier than writing code to do the same
 //
+
+#define LOOKUP_TABLE 1
+
+#if LOOKUP_TABLE
 static const t_gain_table gain_table[] =
 {
 	{0x03BE, -7},   //  0 .. 3 5 3 6 ..   0dB  -4dB  0dB  -3dB ..  -7dB original
@@ -186,8 +190,68 @@ static const t_gain_table gain_table[] =
 	{0x03DF, -2},   // 90 .. 3 6 3 7 ..   0dB  -2dB  0dB   0dB ..  -2dB
 	{0x03FF,  0},   // 91 .. 3 7 3 7 ..   0dB   0dB  0dB   0dB ..   0dB
 };
+const uint8_t gain_table_size = ARRAY_SIZE(gain_table);
+#else
 
-static const unsigned int original_index = ARRAY_SIZE(gain_table) - 7;
+t_gain_table gain_table[100] = {{0x03BE, -7}}; //original
+uint8_t gain_table_size = 0;
+
+void CreateTable()
+{
+typedef union  {
+    struct {
+        uint8_t pgaIdx:3;
+        uint8_t mixerIdx:2;
+        uint8_t lnaIdx:3;
+        uint8_t lnaSIdx:2;
+    };
+    uint16_t __raw;
+} GainData;
+
+	static const int8_t lna_short_dB[] = {-28, -24, -19,  0};   // corrected'ish
+	static const int8_t lna_dB[]       = {-24, -19, -14,  -9, -6, -4, -2, 0};
+	static const int8_t mixer_dB[]     = { -8,  -6,  -3,   0};
+	static const int8_t pga_dB[]       = {-33, -27, -21, -15, -9, -6, -3, 0};
+
+	unsigned i;
+    for (uint8_t lnaSIdx = 0; lnaSIdx < ARRAY_SIZE(lna_short_dB); lnaSIdx++) {
+        for (uint8_t lnaIdx = 0; lnaIdx < ARRAY_SIZE(lna_dB); lnaIdx++) {
+            for (uint8_t mixerIdx = 0; mixerIdx < ARRAY_SIZE(mixer_dB); mixerIdx++) {
+                for (uint8_t pgaIdx = 0; pgaIdx < ARRAY_SIZE(pga_dB); pgaIdx++) {
+                    int16_t db = lna_short_dB[lnaSIdx] + lna_dB[lnaIdx] + mixer_dB[mixerIdx] + pga_dB[pgaIdx];
+                    GainData gainData = {{
+                        pgaIdx,
+                        mixerIdx,
+                        lnaIdx,
+                        lnaSIdx,
+                    }};
+
+                    for (i = 1; i < ARRAY_SIZE(gain_table); i++) {
+                        t_gain_table * gain = &gain_table[i];
+                        if (db == gain->gain_dB)
+                            break;
+                        if (db > gain->gain_dB)
+                            continue;
+                        if (db < gain->gain_dB) {
+                            if(gain->gain_dB)
+                                memmove(gain + 1, gain, 100 - i);
+                            gain->gain_dB = db;
+                            gain->reg_val = gainData.__raw;
+                            break;
+                        }
+                        gain->gain_dB = db;
+                        gain->reg_val = gainData.__raw;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    gain_table_size = i+1;
+}
+#endif
+
 
 #ifdef ENABLE_AM_FIX_SHOW_DATA
 	// display update rate
@@ -195,21 +259,13 @@ static const unsigned int original_index = ARRAY_SIZE(gain_table) - 7;
 	unsigned int counter = 0;
 #endif
 
-unsigned int gain_table_index[2] = {original_index, original_index};
-
-
+unsigned int gain_table_index[2] = {0, 0};
 // used simply to detect a changed gain setting
 unsigned int gain_table_index_prev[2] = {0, 0};
-
 // holds the previous RSSI level .. we do an average of old + new RSSI reading
 int16_t prev_rssi[2] = {0, 0};
-
 // to help reduce gain hunting, peak hold count down tick
 unsigned int hold_counter[2] = {0, 0};
-
-// used to limit the max RF gain
-const unsigned max_index = ARRAY_SIZE(gain_table) - 1;
-
 // -89dBm, any higher and the AM demodulator starts to saturate/clip/distort
 const int16_t desired_rssi = (-89 + 160) * 2;
 
@@ -219,8 +275,11 @@ bool enabled = true;
 void AM_fix_init(void)
 {	// called at boot-up
 	for (int i = 0; i < 2; i++) {
-		gain_table_index[i] = original_index;  // re-start with original QS setting
+		gain_table_index[i] = 0;  // re-start with original QS setting
 	}
+#if !LOOKUP_TABLE
+	CreateTable();
+#endif
 }
 
 void AM_fix_reset(const unsigned vfo)
@@ -333,7 +392,7 @@ void AM_fix_10ms(const unsigned vfo, bool force)
 				index--;     // slow step-by-step gain reduction
 		}
 
-		index = (index < 1) ? 1 : (index > max_index) ? max_index : index;
+		index = MAX(1u, index);
 
 		if (gain_table_index[vfo] != index)
 		{
@@ -348,7 +407,7 @@ void AM_fix_10ms(const unsigned vfo, bool force)
 	if (hold_counter[vfo] == 0)
 	{	// hold has been released, we're free to increase gain
 		const unsigned int index = gain_table_index[vfo] + 1;                 // move up to next gain index
-		gain_table_index[vfo] = (index <= max_index) ? index : max_index;     // limit the gain index
+		gain_table_index[vfo] = MIN(index, gain_table_size - 1u);
 	}
 
 
@@ -357,7 +416,7 @@ void AM_fix_10ms(const unsigned vfo, bool force)
 
 		// remember the new table index
 		gain_table_index_prev[vfo] = index;
-		currentGainDiff = gain_table[original_index].gain_dB - gain_table[index].gain_dB;
+		currentGainDiff = gain_table[0].gain_dB - gain_table[index].gain_dB;
 		BK4819_WriteRegister(BK4819_REG_13, gain_table[index].reg_val);
 	}
 
