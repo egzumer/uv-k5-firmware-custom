@@ -25,7 +25,6 @@ struct FrequencyBandInfo {
     uint32_t middle;
 };
 
-#define F_MIN frequencyBandTable[0].lower
 #define F_MAX frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper
 
 const uint16_t RSSI_MAX_VALUE = 65535;
@@ -226,7 +225,7 @@ static void ToggleAFDAC(bool on) {
 }
 
 static void SetF(uint32_t f) {
-  fMeasure = f;
+  fMeasure = f + gEeprom.RX_OFFSET;
 
   BK4819_SetFrequency(fMeasure);
   BK4819_PickRXFilterPathBasedOnFrequency(fMeasure);
@@ -435,7 +434,7 @@ static void UpdateScanStep(bool inc) {
 static void UpdateCurrentFreq(bool inc) {
   if (inc && currentFreq < F_MAX) {
     currentFreq += settings.frequencyChangeStep;
-  } else if (!inc && currentFreq > F_MIN) {
+  } else if (!inc && currentFreq > RX_freq_min() && currentFreq > settings.frequencyChangeStep) {
     currentFreq -= settings.frequencyChangeStep;
   } else {
     return;
@@ -450,7 +449,7 @@ static void UpdateCurrentFreqStill(bool inc) {
   uint32_t f = fMeasure;
   if (inc && f < F_MAX) {
     f += offset;
-  } else if (!inc && f > F_MIN) {
+  } else if (!inc && f > RX_freq_min()) {
     f -= offset;
   }
   SetF(f);
@@ -810,7 +809,7 @@ static void OnKeyDownFreqInput(uint8_t key) {
     UpdateFreqInput(key);
     break;
   case KEY_MENU:
-    if (tempFreq < F_MIN || tempFreq > F_MAX) {
+    if (tempFreq < RX_freq_min() || tempFreq > F_MAX) {
       break;
     }
     SetState(previousState);
