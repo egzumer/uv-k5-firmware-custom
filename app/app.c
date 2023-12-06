@@ -945,13 +945,15 @@ void APP_Update(void)
 #endif
 	}
 
-#ifdef ENABLE_VOICE
-	if (gPowerSaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE && gVoiceWriteIndex == 0)
-#else
-	if (gPowerSaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE)
-#endif
-	{	// wake up, enable RX then go back to sleep
 
+	if (gPowerSaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE 
+#ifdef ENABLE_VOICE	
+		&& gVoiceWriteIndex == 0
+#endif		
+	)
+	{	
+		static bool goToSleep;
+		// wake up, enable RX then go back to sleep
 		if (gRxIdleMode)
 		{
 			BK4819_Conditional_RX_TurnOn_and_GPIO6_Enable();
@@ -966,6 +968,7 @@ void APP_Update(void)
 			    !gCssBackgroundScan)
 			{	// dual watch mode, toggle between the two VFO's
 				DualwatchAlternate();
+				goToSleep = false;
 			}
 
 			FUNCTION_Init();
@@ -973,13 +976,13 @@ void APP_Update(void)
 			gPowerSave_10ms = power_save1_10ms; // come back here in a bit
 			gRxIdleMode     = false;            // RX is awake
 		}
-		else
-		if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF || gScanStateDir != SCAN_OFF || gCssBackgroundScan)
+		else if (gEeprom.DUAL_WATCH == DUAL_WATCH_OFF || gScanStateDir != SCAN_OFF || gCssBackgroundScan || goToSleep)
 		{	// dual watch mode off or scanning or rssi update request
 			// go back to sleep
 
 			gPowerSave_10ms = gEeprom.BATTERY_SAVE * 10;
 			gRxIdleMode     = true;
+			goToSleep = false;
 
 			BK4819_DisableVox();
 			BK4819_Sleep();
@@ -992,6 +995,7 @@ void APP_Update(void)
 			// toggle between the two VFO's
 			DualwatchAlternate();
 			gPowerSave_10ms   = power_save1_10ms;
+			goToSleep = true;
 		}
 
 		gPowerSaveCountdownExpired = false;
