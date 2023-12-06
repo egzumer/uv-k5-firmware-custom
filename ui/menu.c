@@ -742,11 +742,11 @@ void UI_DisplayMenu(void)
 			break;
 #endif
 		case MENU_UPCODE:
-			strcpy(String, gEeprom.DTMF_UP_CODE);
+			sprintf(String, "%.8s\n%.8s", gEeprom.DTMF_UP_CODE, gEeprom.DTMF_UP_CODE + 8);
 			break;
 
 		case MENU_DWCODE:
-			strcpy(String, gEeprom.DTMF_DOWN_CODE);
+			sprintf(String, "%.8s\n%.8s", gEeprom.DTMF_DOWN_CODE, gEeprom.DTMF_DOWN_CODE + 8);
 			break;
 
 #ifdef ENABLE_DTMF_CALLING
@@ -955,15 +955,6 @@ void UI_DisplayMenu(void)
 
 	if ((UI_MENU_GetCurrentMenuId() == MENU_R_CTCS || UI_MENU_GetCurrentMenuId() == MENU_R_DCS) && gCssBackgroundScan)
 		UI_PrintString("SCAN", menu_item_x1, menu_item_x2, 4, 8);
-		
-
-	if (UI_MENU_GetCurrentMenuId() == MENU_UPCODE)
-		if (strlen(gEeprom.DTMF_UP_CODE) > 8)
-			UI_PrintString(gEeprom.DTMF_UP_CODE + 8, menu_item_x1, menu_item_x2, 4, 8);
-
-	if (UI_MENU_GetCurrentMenuId() == MENU_DWCODE)
-		if (strlen(gEeprom.DTMF_DOWN_CODE) > 8)
-			UI_PrintString(gEeprom.DTMF_DOWN_CODE + 8, menu_item_x1, menu_item_x2, 4, 8);
 
 #ifdef ENABLE_DTMF_CALLING
 	if (UI_MENU_GetCurrentMenuId() == MENU_D_LIST && gIsDtmfContactValid)
