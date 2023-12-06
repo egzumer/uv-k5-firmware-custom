@@ -29,6 +29,7 @@
 #include "frequencies.h"
 #include "functions.h"
 #include "misc.h"
+#include "settings.h"
 
 #ifdef ENABLE_AM_FIX
 
@@ -186,7 +187,7 @@ static const t_gain_table gain_table[] =
 	{0x03FF,  0},   // 91 .. 3 7 3 7 ..   0dB   0dB  0dB   0dB ..   0dB
 };
 
-static const unsigned int original_index = 85;
+static const unsigned int original_index = ARRAY_SIZE(gain_table) - 7;
 
 #ifdef ENABLE_AM_FIX_SHOW_DATA
 	// display update rate
@@ -211,6 +212,9 @@ const unsigned max_index = ARRAY_SIZE(gain_table) - 1;
 
 // -89dBm, any higher and the AM demodulator starts to saturate/clip/distort
 const int16_t desired_rssi = (-89 + 160) * 2;
+
+int8_t currentGainDiff;
+bool enabled = true;
 
 void AM_fix_init(void)
 {	// called at boot-up
@@ -242,7 +246,7 @@ void AM_fix_reset(const unsigned vfo)
 //
 void AM_fix_10ms(const unsigned vfo, bool force)
 {
-	if(vfo > 1)
+	if(!gSetting_AM_fix || !enabled || vfo > 1 )
 		return;
 
 	if(!force) switch (gCurrentFunction)
@@ -254,7 +258,6 @@ void AM_fix_10ms(const unsigned vfo, bool force)
 #ifdef ENABLE_AM_FIX_SHOW_DATA
 			counter = display_update_rate;  // queue up a display update as soon as we switch to RX mode
 #endif
-			AM_fix_reset(vfo);
 			return;
 
 		// only adjust stuff if we're in one of these modes
@@ -272,6 +275,12 @@ void AM_fix_10ms(const unsigned vfo, bool force)
 		}
 	}
 #endif
+
+	static uint32_t lastFreq[2];
+	if(gEeprom.VfoInfo[vfo].pRX->Frequency != lastFreq[vfo]) {
+		lastFreq[vfo] = gEeprom.VfoInfo[vfo].pRX->Frequency;
+		AM_fix_reset(vfo);
+	}
 
 	int16_t rssi;
 	{	// sample the current RSSI level
@@ -348,7 +357,7 @@ void AM_fix_10ms(const unsigned vfo, bool force)
 
 		// remember the new table index
 		gain_table_index_prev[vfo] = index;
-
+		currentGainDiff = gain_table[original_index].gain_dB - gain_table[index].gain_dB;
 		BK4819_WriteRegister(BK4819_REG_13, gain_table[index].reg_val);
 	}
 
@@ -370,5 +379,13 @@ void AM_fix_print_data(const unsigned vfo, char *s) {
 }
 #endif
 
+int8_t AM_fix_get_gain_diff()
+{
+	return currentGainDiff;
+}
 
+void AM_fix_enable(bool on)
+{
+	enabled = on;
+}
 #endif

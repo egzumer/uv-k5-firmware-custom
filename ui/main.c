@@ -189,7 +189,13 @@ void DisplayRSSIBar(const bool now)
 	
 
 	const int16_t      s0_dBm       = -130;                  // S0 .. base level
-	const int16_t      rssi_dBm     = BK4819_GetRSSI_dBm() + dBmCorrTable[gRxVfo->Band];
+	const int16_t      rssi_dBm     = 
+		BK4819_GetRSSI_dBm()
+#ifdef ENABLE_AM_FIX
+		+ (gSetting_AM_fix ? AM_fix_get_gain_diff() : 0)
+#endif	
+		+ dBmCorrTable[gRxVfo->Band];
+	
 
 	const uint8_t s_level = MIN(MAX((rssi_dBm - s0_dBm) / 6, 0), 9); // S0 - S9
 	uint8_t overS9dBm = MIN(MAX(rssi_dBm - (s0_dBm + 9*6), 0), 99);
