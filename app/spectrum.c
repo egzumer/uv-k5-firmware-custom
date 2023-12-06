@@ -225,9 +225,8 @@ static void ToggleAFDAC(bool on) {
 }
 
 static void SetF(uint32_t f) {
-  fMeasure = f + gEeprom.RX_OFFSET;
-
-  BK4819_SetFrequency(fMeasure);
+  fMeasure = f;
+  BK4819_SetFrequency(fMeasure + gEeprom.RX_OFFSET);
   BK4819_PickRXFilterPathBasedOnFrequency(fMeasure);
   uint16_t reg = BK4819_ReadRegister(BK4819_REG_30);
   BK4819_WriteRegister(BK4819_REG_30, 0);
