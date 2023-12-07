@@ -334,7 +334,7 @@ const char gSubMenu_SCRAMBLER[][7] =
 	"3500Hz"
 };
 
-const t_sidefunction SIDEFUNCTIONS[] =
+const t_sidefunction gSubMenu_SIDEFUNCTIONS[] =
 {
 	{"NONE",			ACTION_OPT_NONE},
 #ifdef ENABLE_FLASHLIGHT
@@ -363,8 +363,8 @@ const t_sidefunction SIDEFUNCTIONS[] =
 	{"BLMIN\nTMP OFF",  ACTION_OPT_BLMIN_TMP_OFF}, 		//BackLight Minimum Temporay OFF
 #endif
 };
-const t_sidefunction* gSubMenu_SIDEFUNCTIONS = SIDEFUNCTIONS;
-const uint8_t gSubMenu_SIDEFUNCTIONS_size = ARRAY_SIZE(SIDEFUNCTIONS);
+
+const uint8_t gSubMenu_SIDEFUNCTIONS_size = ARRAY_SIZE(gSubMenu_SIDEFUNCTIONS);
 
 bool    gIsInSubMenu;
 uint8_t gMenuCursor;

@@ -161,7 +161,7 @@ extern const char        gSubMenu_SCRAMBLER[11][7];
 
 typedef struct {char* name; uint8_t id;} t_sidefunction;
 extern const uint8_t 		 gSubMenu_SIDEFUNCTIONS_size;
-extern const t_sidefunction* gSubMenu_SIDEFUNCTIONS;
+extern const t_sidefunction gSubMenu_SIDEFUNCTIONS[];
 				         
 extern bool              gIsInSubMenu;
 				         
