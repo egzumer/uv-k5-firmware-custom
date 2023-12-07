@@ -331,4 +331,6 @@ extern volatile uint8_t      boot_counter_10ms;
 int32_t NUMBER_AddWithWraparound(int32_t Base, int32_t Add, int32_t LowerLimit, int32_t UpperLimit);
 unsigned long StrToUL(const char * str);
 
+void FUNCTION_NOP();
+
 #endif

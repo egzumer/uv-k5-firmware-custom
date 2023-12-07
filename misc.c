@@ -253,6 +253,8 @@ volatile uint8_t  boot_counter_10ms;
 uint8_t           gIsLocked = 0xFF;
 
 
+inline void FUNCTION_NOP() { ; }
+
 
 int32_t NUMBER_AddWithWraparound(int32_t Base, int32_t Add, int32_t LowerLimit, int32_t UpperLimit)
 {

@@ -42,15 +42,61 @@
 #include "ui/inputbox.h"
 #include "ui/ui.h"
 
-
 #if defined(ENABLE_FMRADIO)
 static void ACTION_Scan_FM(bool bRestart);
 #endif
 
 #if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 static void ACTION_AlarmOr1750(bool b1750);
+inline static void ACTION_Alarm() { ACTION_AlarmOr1750(false); }
+inline static void ACTION_1750() { ACTION_AlarmOr1750(true); };
 #endif
 
+inline static void ACTION_ScanRestart() { ACTION_Scan(true); };
+
+void (*action_opt_table[])(void) = {
+	[ACTION_OPT_NONE] = &FUNCTION_NOP,
+	[ACTION_OPT_FLASHLIGHT] = &ACTION_FlashLight,
+	[ACTION_OPT_POWER] = &ACTION_Power,
+	[ACTION_OPT_MONITOR] = &ACTION_Monitor,
+	[ACTION_OPT_SCAN] = &ACTION_ScanRestart,
+	[ACTION_OPT_KEYLOCK] = &COMMON_KeypadLockToggle,
+	[ACTION_OPT_A_B] = &COMMON_SwitchVFOs,
+	[ACTION_OPT_VFO_MR] = &COMMON_SwitchVFOMode,
+	[ACTION_OPT_SWITCH_DEMODUL] = &ACTION_SwitchDemodul,
+
+#ifdef ENABLE_VOX
+	[ACTION_OPT_VOX] = &ACTION_Vox,
+#else
+	[ACTION_OPT_VOX] = &FUNCTION_NOP,
+#endif
+
+#ifdef ENABLE_FMRADIO
+	[ACTION_OPT_FM] = &ACTION_FM,
+#else
+	[ACTION_OPT_FM] = &FUNCTION_NOP,
+#endif
+
+#ifdef ENABLE_ALARM
+	[ACTION_OPT_ALARM] = &ACTION_Alarm,
+#else
+	[ACTION_OPT_ALARM] = &FUNCTION_NOP,
+#endif
+
+#ifdef ENABLE_TX1750
+	[ACTION_OPT_1750] = &ACTION_1750,
+#else
+	[ACTION_OPT_1750] = &FUNCTION_NOP,
+#endif
+
+#ifdef ENABLE_BLMIN_TMP_OFF
+	[ACTION_OPT_BLMIN_TMP_OFF] = &ACTION_BlminTmpOff,
+#else
+	[ACTION_OPT_BLMIN_TMP_OFF] = &FUNCTION_NOP,
+#endif
+};
+
+static_assert(ARRAY_SIZE(action_opt_table) == ACTION_OPT_LEN);
 
 void ACTION_Power(void)
 {
@@ -128,7 +174,6 @@ void ACTION_Scan(bool bRestart)
 #ifdef ENABLE_DTMF_CALLING
 	DTMF_clear_RX();
 #endif
-
 	gDTMF_RX_live_timeout = 0;
 	memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
 
@@ -160,7 +205,6 @@ void ACTION_Scan(bool bRestart)
 		CHFRSCANNER_Start(false, gScanStateDir);
 		gScanPauseDelayIn_10ms = 1;
 		gScheduleScanListen    = false;
-
 	} else {
 		// start scanning
 		CHFRSCANNER_Start(true, SCAN_FWD);
@@ -183,10 +227,12 @@ void ACTION_Scan(bool bRestart)
 
 void ACTION_SwitchDemodul(void)
 {
+	gRequestSaveChannel = 1;
+
 	gTxVfo->Modulation++;
+
 	if(gTxVfo->Modulation == MODULATION_UKNOWN)
 		gTxVfo->Modulation = MODULATION_FM;
-	gRequestSaveChannel = 1;
 }
 
 
@@ -221,8 +267,8 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		return;
 	}
 
-	uint8_t funcShort = ACTION_OPT_NONE;
-	uint8_t funcLong  = ACTION_OPT_NONE;
+	enum ACTION_OPT_t funcShort = ACTION_OPT_NONE;
+	enum ACTION_OPT_t funcLong  = ACTION_OPT_NONE;
 	switch(Key) {
 		case KEY_SIDE1:
 			funcShort = gEeprom.KEY_1_SHORT_PRESS_ACTION;
@@ -259,69 +305,15 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 	// held or released after short press beyond this point
 
-	switch (funcShort) {
-		default:
-		case ACTION_OPT_NONE:
-			break;
-		case ACTION_OPT_POWER:
-			ACTION_Power();
-			break;
-		case ACTION_OPT_MONITOR:
-			ACTION_Monitor();
-			break;
-		case ACTION_OPT_SCAN:
-			ACTION_Scan(true);
-			break;
-		case ACTION_OPT_KEYLOCK:
-			COMMON_KeypadLockToggle();
-			break;
-		case ACTION_OPT_A_B:
-			COMMON_SwitchVFOs();
-			break;
-		case ACTION_OPT_VFO_MR:
-			COMMON_SwitchVFOMode();
-			break;
-		case ACTION_OPT_SWITCH_DEMODUL:
-			ACTION_SwitchDemodul();
-			break;
-#ifdef ENABLE_FLASHLIGHT
-		case ACTION_OPT_FLASHLIGHT:
-			ACTION_FlashLight();
-#endif
-			break;
-#ifdef ENABLE_VOX
-		case ACTION_OPT_VOX:
-			ACTION_Vox();
-#endif
-			break;
-#ifdef ENABLE_FMRADIO
-		case ACTION_OPT_FM:
-			ACTION_FM();
-#endif
-			break;
-#ifdef ENABLE_ALARM
-		case ACTION_OPT_ALARM:
-			ACTION_AlarmOr1750(false);
-			break;
-#endif
-		case ACTION_OPT_1750:
-#if defined(ENABLE_TX1750)
-			ACTION_AlarmOr1750(true);
-			break;
-#endif
-#ifdef ENABLE_BLMIN_TMP_OFF
-	case ACTION_OPT_BLMIN_TMP_OFF:
-			ACTION_BlminTmpOff();
-			break;
-#endif
-	}
+	action_opt_table[funcShort]();
 }
 
 
 #ifdef ENABLE_FMRADIO
 void ACTION_FM(void)
 {
-	if (gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_MONITOR) {
+	if (gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_MONITOR)
+	{
 		gInputBoxIndex = 0;
 
 		if (gFmRadioMode) {
@@ -346,7 +338,6 @@ void ACTION_FM(void)
 	}
 }
 
-
 static void ACTION_Scan_FM(bool bRestart)
 {
 	if (FUNCTION_IsRx()) {
@@ -354,12 +345,14 @@ static void ACTION_Scan_FM(bool bRestart)
 	}
 
 	GUI_SelectNextDisplay(DISPLAY_FM);
+
 	gMonitor = false;
 
 	if (gFM_ScanState != FM_SCAN_OFF) {
 		FM_PlayAndUpdate();
+
 #ifdef ENABLE_VOICE
-			gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
+		gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
 #endif
 		return;
 	}
@@ -411,12 +404,12 @@ static void ACTION_AlarmOr1750(const bool b1750)
 
 	gFlagPrepareTX = gAlarmState != ALARM_STATE_OFF;
 
-	if (gScreenToDisplay != DISPLAY_MENU) {     // 1of11 .. don't close the menu
+	if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
 		gRequestDisplayScreen = DISPLAY_MAIN;
-	}
 }
-#endif
 
+
+#endif
 
 #ifdef ENABLE_VOX
 void ACTION_Vox(void)
@@ -426,13 +419,11 @@ void ACTION_Vox(void)
 	gFlagReconfigureVfos = true;
 	gUpdateStatus        = true;
 
-#ifdef ENABLE_VOICE
-	gAnotherVoiceID  = VOICE_ID_VOX;
-#endif
-
+	#ifdef ENABLE_VOICE
+		gAnotherVoiceID  = VOICE_ID_VOX;
+	#endif
 }
 #endif
-
 
 #ifdef ENABLE_BLMIN_TMP_OFF
 void ACTION_BlminTmpOff(void)
