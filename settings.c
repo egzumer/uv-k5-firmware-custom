@@ -711,3 +711,50 @@ void SETTINGS_UpdateChannel(uint8_t channel, const VFO_Info_t *pVFO, bool keep)
 		}
 	}
 }
+
+void SETTINGS_WriteBuildOptions(void)
+{
+	uint8_t buf[8]= {};
+buf[0] = 0
+#ifdef ENABLE_FMRADIO
+    | (1 << 0)
+#endif
+#ifdef ENABLE_NOAA
+    | (1 << 1)
+#endif
+#ifdef ENABLE_VOICE
+    | (1 << 2)
+#endif
+#ifdef ENABLE_VOX
+    | (1 << 3)
+#endif
+#ifdef ENABLE_ALARM
+    | (1 << 4)
+#endif
+#ifdef ENABLE_TX1750
+    | (1 << 5)
+#endif
+#ifdef ENABLE_PWRON_PASSWORD
+    | (1 << 6)
+#endif
+#ifdef ENABLE_DTMF_CALLING
+    | (1 << 7)
+#endif
+;
+
+buf[1] = 0
+#ifdef ENABLE_FLASHLIGHT
+    | (1 << 0)
+#endif
+#ifdef ENABLE_WIDE_RX
+    | (1 << 1)
+#endif
+#ifdef ENABLE_BYP_RAW_DEMODULATORS
+    | (1 << 2)
+#endif
+#ifdef ENABLE_BLMIN_TMP_OFF
+    | (1 << 3)
+#endif
+;
+	EEPROM_WriteBuffer(0x1FF0, buf);
+}
