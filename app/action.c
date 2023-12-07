@@ -102,9 +102,7 @@ void ACTION_Scan(bool bRestart)
 #ifdef ENABLE_FMRADIO
 	if (gFmRadioMode)
 	{
-		if (gCurrentFunction != FUNCTION_RECEIVE &&
-			gCurrentFunction != FUNCTION_MONITOR &&
-			gCurrentFunction != FUNCTION_TRANSMIT)
+		if (FUNCTION_IsRx())
 		{
 			GUI_SelectNextDisplay(DISPLAY_FM);
 

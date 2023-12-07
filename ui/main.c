@@ -247,10 +247,7 @@ void DisplayRSSIBar(const bool now)
 		ST7565_BlitFullScreen();	
 #endif
 
-
 }
-
-
 
 #ifdef ENABLE_AGC_SHOW_DATA
 static void PrintAGC(bool now)
@@ -444,11 +441,7 @@ void UI_DisplayMain(void)
 		else
 		{	// receiving .. show the RX symbol
 			mode = VFO_MODE_RX;
-			if ((gCurrentFunction == FUNCTION_RECEIVE ||
-			     gCurrentFunction == FUNCTION_MONITOR ||
-			     gCurrentFunction == FUNCTION_INCOMING) &&
-			     gEeprom.RX_VFO == vfo_num)
-			{
+			if (FUNCTION_IsRx() && gEeprom.RX_VFO == vfo_num) {
 #ifdef ENABLE_SMALL_BOLD
 				UI_PrintStringSmallBold("RX", 14, 0, line);
 #else
@@ -738,9 +731,7 @@ void UI_DisplayMain(void)
 	if (center_line == CENTER_LINE_NONE)
 	{	// we're free to use the middle line
 
-		const bool rx = (gCurrentFunction == FUNCTION_RECEIVE ||
-		                 gCurrentFunction == FUNCTION_MONITOR ||
-		                 gCurrentFunction == FUNCTION_INCOMING);
+		const bool rx = FUNCTION_IsRx();
 
 #ifdef ENABLE_AUDIO_BAR
 		if (gSetting_mic_bar && gCurrentFunction == FUNCTION_TRANSMIT) {

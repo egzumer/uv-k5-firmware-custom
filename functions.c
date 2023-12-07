@@ -42,6 +42,14 @@
 
 FUNCTION_Type_t gCurrentFunction;
 
+inline bool FUNCTION_IsRx()
+{
+	return gCurrentFunction == FUNCTION_MONITOR ||
+		   gCurrentFunction == FUNCTION_INCOMING ||
+		   gCurrentFunction == FUNCTION_RECEIVE;
+}
+
+
 void FUNCTION_Init(void)
 {
 #ifdef ENABLE_NOAA
@@ -119,7 +127,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 				if (gFmRadioMode)
 					gFM_RestoreCountdown_10ms = fm_restore_countdown_10ms;
 			#endif
-			
+
 #ifdef ENABLE_DTMF_CALLING
 			if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT ||
 			    gDTMF_CallState == DTMF_CALL_STATE_RECEIVED ||
@@ -147,7 +155,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 
 			gMonitor = false;
 
-			BK4819_DisableVox();			
+			BK4819_DisableVox();
 			BK4819_Sleep();
 
 			BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_RX_ENABLE, false);

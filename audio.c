@@ -255,9 +255,7 @@ void AUDIO_PlaySingleVoice(bool bFlag)
 			VoiceID += VOICE_ID_ENG_BASE;
 		}
 
-		if (gCurrentFunction == FUNCTION_RECEIVE ||
-			gCurrentFunction == FUNCTION_MONITOR ||
-			gCurrentFunction == FUNCTION_INCOMING)   // 1of11
+		if (FUNCTION_IsRx())   // 1of11
 			BK4819_SetAF(BK4819_AF_MUTE);
 
 		#ifdef ENABLE_FMRADIO
@@ -281,9 +279,7 @@ void AUDIO_PlaySingleVoice(bool bFlag)
 		{
 			SYSTEM_DelayMs(Delay * 10);
 
-			if (gCurrentFunction == FUNCTION_RECEIVE ||
-			    gCurrentFunction == FUNCTION_MONITOR ||
-				gCurrentFunction == FUNCTION_INCOMING)	// 1of11
+			if (FUNCTION_IsRx())	// 1of11
 				RADIO_SetModulation(gRxVfo->Modulation);
 
 			#ifdef ENABLE_FMRADIO
@@ -422,9 +418,7 @@ void AUDIO_PlayQueuedVoice(void)
 		}
 	}
 
-	if (gCurrentFunction == FUNCTION_RECEIVE ||
-		gCurrentFunction == FUNCTION_MONITOR ||
-		gCurrentFunction == FUNCTION_INCOMING)
+	if (FUNCTION_IsRx())
 	{
 		RADIO_SetModulation(gRxVfo->Modulation); // 1of11
 	}

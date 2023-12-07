@@ -897,12 +897,8 @@ void APP_Update(void)
 	}
 
 #ifdef ENABLE_FMRADIO
-	if (gScheduleFM                          &&
-		gFM_ScanState    != FM_SCAN_OFF      &&
-		gCurrentFunction != FUNCTION_MONITOR &&
-		gCurrentFunction != FUNCTION_RECEIVE &&
-		gCurrentFunction != FUNCTION_TRANSMIT)
-	{	// switch to FM radio mode
+	if (gScheduleFM && gFM_ScanState != FM_SCAN_OFF && !FUNCTION_IsRx()) {
+		// switch to FM radio mode
 		FM_Play();
 		gScheduleFM = false;
 	}
@@ -1479,11 +1475,7 @@ void APP_TimeSlice500ms(void)
 					GUI_DisplayType_t disp = DISPLAY_INVALID;
 
 					#ifdef ENABLE_FMRADIO
-						if (gFmRadioMode &&
-							gCurrentFunction != FUNCTION_RECEIVE &&
-							gCurrentFunction != FUNCTION_MONITOR &&
-							gCurrentFunction != FUNCTION_TRANSMIT)
-						{
+						if (gFmRadioMode && ! FUNCTION_IsRx()) {
 							disp = DISPLAY_FM;
 						}
 					#endif
@@ -1509,11 +1501,8 @@ void APP_TimeSlice500ms(void)
 		{
 			RADIO_SetVfoState(VFO_STATE_NORMAL);
 #ifdef ENABLE_FMRADIO
-			if (gCurrentFunction != FUNCTION_RECEIVE  &&
-			    gCurrentFunction != FUNCTION_TRANSMIT &&
-			    gCurrentFunction != FUNCTION_MONITOR  &&
-				gFmRadioMode)
-			{	// switch back to FM radio mode
+			if (gFmRadioMode && !FUNCTION_IsRx()) {
+				// switch back to FM radio mode
 				FM_Start();
 				GUI_SelectNextDisplay(DISPLAY_FM);
 			}
