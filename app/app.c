@@ -1128,7 +1128,7 @@ void APP_TimeSlice10ms(void)
 
 	#ifdef ENABLE_AM_FIX
 		if (gRxVfo->Modulation == MODULATION_AM)
-			AM_fix_10ms(gEeprom.RX_VFO, false);
+			AM_fix_10ms(gEeprom.RX_VFO);
 	#endif
 
 	if (UART_IsCommandAvailable())

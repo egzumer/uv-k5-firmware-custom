@@ -1128,8 +1128,8 @@ static void Tick() {
 #ifdef ENABLE_AM_FIX
   if (gNextTimeslice) {
     gNextTimeslice = false;
-    if(settings.modulationType == MODULATION_AM) {
-      AM_fix_10ms(vfo, !lockAGC); //allow AM_Fix to apply its AGC action
+    if(settings.modulationType == MODULATION_AM && !lockAGC) {
+      AM_fix_10ms(vfo); //allow AM_Fix to apply its AGC action
     }
   }
 #endif

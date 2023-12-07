@@ -303,12 +303,12 @@ void AM_fix_reset(const unsigned vfo)
 // won't/don't do it for itself, we're left to bodging it ourself by
 // playing with the RF front end gain setting
 //
-void AM_fix_10ms(const unsigned vfo, bool force)
+void AM_fix_10ms(const unsigned vfo)
 {
 	if(!gSetting_AM_fix || !enabled || vfo > 1 )
 		return;
 
-	if(!force) switch (gCurrentFunction)
+	switch (gCurrentFunction)
 	{
 		case FUNCTION_TRANSMIT:
 		case FUNCTION_BAND_SCOPE:
