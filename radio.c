@@ -773,7 +773,7 @@ void RADIO_SetupRegisters(bool switchToForeground)
 		}
 	#endif
 
-	RADIO_SetupAGC(false, false);
+	RADIO_SetupAGC(gRxVfo->Modulation == MODULATION_AM, false);
 
 	// enable/disable BK4819 selected interrupts
 	BK4819_WriteRegister(BK4819_REG_3F, InterruptMask);
