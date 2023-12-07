@@ -508,7 +508,7 @@ void UI_DisplayMenu(void)
 		#endif
 
 		case MENU_STEP: {
-			uint16_t step = gStepFrequencyTable[FREQUENCY_GetStepIdxFromSortedIdx(gSubMenuSelection)];
+			uint16_t step = gStepFrequencyTable[gSubMenuSelection];
 			sprintf(String, "%d.%02ukHz", step / 100, step % 100);
 			break;
 		}

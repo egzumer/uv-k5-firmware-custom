@@ -40,7 +40,6 @@
 #endif
 #include "ui/inputbox.h"
 #include "ui/menu.h"
-#include "ui/menu.h"
 #include "ui/ui.h"
 
 #ifndef ARRAY_SIZE
@@ -123,7 +122,7 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 
 		case MENU_STEP:
 			*pMin = 0;
-			*pMax = ARRAY_SIZE(gStepFrequencyTable) - 1;
+			*pMax = STEP_N_ELEM - 1;
 			break;
 
 		case MENU_ABR:
@@ -395,7 +394,7 @@ void MENU_AcceptSetting(void)
 			break;
 
 		case MENU_STEP:
-			gTxVfo->STEP_SETTING = FREQUENCY_GetStepIdxFromSortedIdx(gSubMenuSelection);
+			gTxVfo->STEP_SETTING = gSubMenuSelection;
 			if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
 			{
 				gRequestSaveChannel = 1;
@@ -827,7 +826,7 @@ void MENU_ShowCurrentSetting(void)
 			break;
 
 		case MENU_STEP:
-			gSubMenuSelection = FREQUENCY_GetSortedIdxFromStepIdx(gTxVfo->STEP_SETTING);
+			gSubMenuSelection = gTxVfo->STEP_SETTING;
 			break;
 
 		case MENU_TXP:

@@ -29,47 +29,47 @@ typedef struct {
 extern const freq_band_table_t BX4819_band1;
 extern const freq_band_table_t BX4819_band2;
 
-extern const freq_band_table_t frequencyBandTable[7];
-
 typedef enum  {
-	BAND_NONE   = -1,
-	BAND1_50MHz =  0,
+	BAND_NONE = -1,
+	BAND1_50MHz = 0,
 	BAND2_108MHz,
 	BAND3_137MHz,
 	BAND4_174MHz,
 	BAND5_350MHz,
 	BAND6_400MHz,
 	BAND7_470MHz,
-	BAND_LAST_ELEMENT //keep this guard as last element
+	BAND_N_ELEM
 } FREQUENCY_Band_t;
 
+extern const freq_band_table_t frequencyBandTable[];
 
 typedef enum {
-	STEP_2_5kHz, 
-	STEP_5kHz, 
-	STEP_6_25kHz, 
-	STEP_10kHz, 
-	STEP_12_5kHz, 
-	STEP_25kHz, 
+	STEP_0_01kHz,
+	STEP_0_05kHz,
+	STEP_0_1kHz,
+	STEP_0_25kHz,
+	STEP_0_5kHz,
+	STEP_1kHz,
+	STEP_1_25kHz,
+	STEP_2_5kHz,
+	STEP_5kHz,
+	STEP_6_25kHz,
 	STEP_8_33kHz,
-	STEP_0_01kHz,	
-	STEP_0_05kHz,	
-	STEP_0_1kHz, 
-	STEP_0_25kHz, 
-	STEP_0_5kHz, 
-	STEP_1kHz, 
-	STEP_1_25kHz, 
+	STEP_10kHz,
+	STEP_12_5kHz,
 	STEP_15kHz,
-	STEP_30kHz, 
-	STEP_50kHz, 
-	STEP_100kHz, 
-	STEP_125kHz, 
-	STEP_250kHz, 
+	STEP_25kHz,
+	STEP_30kHz,
+	STEP_50kHz,
+	STEP_100kHz,
+	STEP_125kHz,
+	STEP_250kHz,
 	STEP_500kHz,
+	STEP_N_ELEM
 } STEP_Setting_t;
 
 
-extern const uint16_t  	gStepFrequencyTable[21];
+extern const uint16_t gStepFrequencyTable[];
 
 #ifdef ENABLE_NOAA
 	extern const uint32_t NoaaFrequencyTable[10];
