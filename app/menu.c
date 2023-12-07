@@ -198,7 +198,7 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 		case MENU_R_CTCS:
 		case MENU_T_CTCS:
 			*pMin = 0;
-			*pMax = ARRAY_SIZE(CTCSS_Options) - 1;
+			*pMax = ARRAY_SIZE(CTCSS_Options);
 			break;
 
 		case MENU_W_N:
