@@ -713,10 +713,13 @@ void BK4819_SetupPowerAmplifier(const uint8_t bias, const uint32_t frequency)
 	//               7 = max
 	//               0 = min
 	//
-	//                                  280MHz       g1=1  g2=0 (-14.9dBm),  g1=4  g2=2 (0.13dBm)
-	const uint8_t gain   = (frequency < 28000000) ? (1u << 3) | (0u << 0) : (4u << 3) | (2u << 0);
+	//                            280MHz       g1=1  g2=0 (-14.9dBm),  g1=4  g2=2 (0.13dBm)
+	uint8_t gain   = (frequency < 28000000) ? (1u << 3) | (0u << 0) : (4u << 3) | (2u << 0);
+	gain = 0b000010;
+	(void)bias;
+	(void)frequency;
 	const uint8_t enable = 1;
-	BK4819_WriteRegister(BK4819_REG_36, (bias << 8) | (enable << 7) | (gain << 0));
+	BK4819_WriteRegister(BK4819_REG_36, (16 << 8) | (enable << 7) | (gain << 0));
 }
 
 void BK4819_SetFrequency(uint32_t Frequency)
