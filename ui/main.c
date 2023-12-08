@@ -665,13 +665,16 @@ void UI_DisplayMain(void)
 		// show the modulation symbol
 		const char * s = "";
 		const ModulationMode_t mod = gEeprom.VfoInfo[vfo_num].Modulation;
+		uint8_t ModPos = 0;
 		switch (mod){
 			case MODULATION_FM: {
 				const FREQ_Config_t *pConfig = (mode == VFO_MODE_TX) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
 				const unsigned int code_type = pConfig->CodeType;
-				const char *code_list[] = {"", "CT", "DCS", "DCR"};
+				const char *code_list[] = {"FM", "(FM)CT", "(FM)DCS", "(FM)DCR"};
 				if (code_type < ARRAY_SIZE(code_list))
 					s = code_list[code_type];
+				if ( code_type != 0 )
+					ModPos = 12;
 				break;
 			}
 			default:
@@ -679,11 +682,10 @@ void UI_DisplayMain(void)
 			break;
 		}
 #ifdef ENABLE_SMALL_BOLD
-		GUI_DisplaySmallest(s, 18, line == 0 ? 17 : 49, false, true);
+		GUI_DisplaySmallest(s, 16 - ModPos, line == 0 ? 17 : 49, false, true);
 #else
 		UI_PrintStringSmall(s, LCD_WIDTH + 24, 0, line + 1);
 #endif		
-		
 
 		if (state == VFO_STATE_NORMAL || state == VFO_STATE_ALARM)
 		{	// show the TX power			
@@ -722,8 +724,8 @@ void UI_DisplayMain(void)
 
 		{	// show the narrow band symbol			
 #ifdef ENABLE_SMALL_BOLD
-			const char *bwNames[3] = {"  25k", "12.5k", "6.25k"};
-			GUI_DisplaySmallest(bwNames[gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH], 70, line == 0 ? 17 : 49, false, true);
+			const char *bwNames[3] = {"WIDE", "NARROW", ""};
+			GUI_DisplaySmallest(bwNames[gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH], 68, line == 0 ? 17 : 49, false, true);
 #else
 			String[0] = '\0';
 			if (gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH == BANDWIDTH_NARROW)
@@ -739,16 +741,15 @@ void UI_DisplayMain(void)
 		// show the DTMF decoding symbol		
 		if (gEeprom.VfoInfo[vfo_num].DTMF_DECODING_ENABLE || gSetting_KILLED)
 #ifdef ENABLE_SMALL_BOLD
-			GUI_DisplaySmallest("DTMF", 93, line == 0 ? 17 : 49, false, true);
+			GUI_DisplaySmallest("DTMF", 95, line == 0 ? 17 : 49, false, true);
 #else
 			UI_PrintStringSmall("DTMF", LCD_WIDTH + 78, 0, line + 1);
 #endif				
 #endif
-
 		// show the audio scramble symbol
 		if (gEeprom.VfoInfo[vfo_num].SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
 #ifdef ENABLE_SMALL_BOLD
-			GUI_DisplaySmallest("SCR", 111, line == 0 ? 17 : 49, false, true);
+			GUI_DisplaySmallest("SCR", 112, line == 0 ? 17 : 49, false, true);
 #else
 			UI_PrintStringSmall("SCR", LCD_WIDTH + 106, 0, line + 1);
 #endif			
