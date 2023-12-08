@@ -107,6 +107,7 @@ ENABLE_ALARM                  := 0       TX alarms
 ENABLE_TX1750                 := 0       side key 1750Hz TX tone (older style repeater access)
 ENABLE_PWRON_PASSWORD         := 0       power-on password stuff
 ENABLE_DTMF_CALLING           := 1       DTMF calling fuctionality, sending calls, receiving calls, group calls, contacts list etc.
+ENABLE_FLASHLIGHT             := 1       enable top flashlight LED (on, blink, SOS)
 
 ENABLE_BIG_FREQ               := 1       big font frequencies (like original QS firmware)
 ENABLE_SMALL_BOLD             := 1       bold channel name/no. (when name + freq channel display mode)

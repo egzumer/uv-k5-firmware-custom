@@ -126,8 +126,7 @@ static uint16_t GetRegMenuValue(uint8_t st) {
 
 void LockAGC()
 {
-  if(!lockAGC)
-    BK4819_SetAGC(0);
+  RADIO_SetupAGC(settings.modulationType==MODULATION_AM, lockAGC);
   lockAGC = true;
 }
 
@@ -287,12 +286,12 @@ uint16_t GetRssi() {
   while ((BK4819_ReadRegister(0x63) & 0b11111111) >= 255) {
     SYSTICK_DelayUs(50);
   }
-
-  return BK4819_GetRSSI()
+  uint16_t rssi = BK4819_GetRSSI();
 #ifdef ENABLE_AM_FIX
-    - ((settings.modulationType == MODULATION_AM) ? AM_fix_get_rssi_gain_diff(vfo) : 0)
+  if(settings.modulationType==MODULATION_AM && gSetting_AM_fix)
+    rssi += AM_fix_get_gain_diff()*2;
 #endif
-	;
+  return rssi;
 }
 
 static void ToggleAudio(bool on) {
@@ -315,6 +314,7 @@ static void ToggleRX(bool on) {
 
   isListening = on;
 
+  RADIO_SetupAGC(on, lockAGC);
   BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, on);
 
   ToggleAudio(on);
@@ -535,10 +535,7 @@ static void ToggleModulation() {
     settings.modulationType = MODULATION_FM;
   }
   RADIO_SetModulation(settings.modulationType);
-  if(settings.modulationType != MODULATION_AM) {
-    BK4819_InitAGC();
-    BK4819_SetAGC(1);
-  }
+
   RelaunchScan();
   redrawScreen = true;
 }
@@ -1219,8 +1216,11 @@ static void UpdateListening() {
 
 static void Tick() {
 #ifdef ENABLE_AM_FIX
-  if(settings.modulationType == MODULATION_AM) {
-      AM_fix_10ms(vfo, !lockAGC); //allow AM_Fix to apply its AGC action
+  if (gNextTimeslice) {
+    gNextTimeslice = false;
+    if(settings.modulationType == MODULATION_AM && !lockAGC) {
+      AM_fix_10ms(vfo); //allow AM_Fix to apply its AGC action
+    }
   }
 #endif
 
@@ -1290,13 +1290,6 @@ void APP_RunSpectrum() {
 
   ToggleRX(true), ToggleRX(false); // hack to prevent noise when squelch off
   RADIO_SetModulation(settings.modulationType = gRxVfo->Modulation);
-
-#ifdef ENABLE_AM_FIX
-  if(settings.modulationType != MODULATION_AM) {
-    BK4819_InitAGC();
-    BK4819_SetAGC(1);
-  }
-#endif
 
   BK4819_SetFilterBandwidth(settings.listenBw = BK4819_FILTER_BW_WIDE, false);
 

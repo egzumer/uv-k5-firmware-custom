@@ -22,7 +22,7 @@
 #include "settings.h"
 
 // this is decremented once every 500ms
-uint16_t gBacklightCountdown = 0;
+uint16_t gBacklightCountdown_500ms = 0;
 bool backlightOn;
 
 void BACKLIGHT_InitHardware()
@@ -54,42 +54,30 @@ void BACKLIGHT_InitHardware()
 
 void BACKLIGHT_TurnOn(void)
 {
-	if (gEeprom.BACKLIGHT_TIME != 0) {
-		backlightOn = true;
-		BACKLIGHT_SetBrightness(gEeprom.BACKLIGHT_MAX);
-	}
-	else {
+	if (gEeprom.BACKLIGHT_TIME == 0) {
 		BACKLIGHT_TurnOff();
 		return;
 	}
-		
-	switch (gEeprom.BACKLIGHT_TIME)
-	{
+
+	backlightOn = true;
+	BACKLIGHT_SetBrightness(gEeprom.BACKLIGHT_MAX);
+
+	switch (gEeprom.BACKLIGHT_TIME) {
 		default:
 		case 1:	// 5 sec
-			gBacklightCountdown = 5;
-			break;
 		case 2:	// 10 sec
-			gBacklightCountdown = 10;
-			break;
 		case 3:	// 20 sec
-			gBacklightCountdown = 20;
+			gBacklightCountdown_500ms = 1 + (2 << (gEeprom.BACKLIGHT_TIME - 1)) * 10;
 			break;
 		case 4:	// 1 min
-			gBacklightCountdown = 60;
-			break;
 		case 5:	// 2 min
-			gBacklightCountdown = 60 * 2;
-			break;
 		case 6:	// 4 min
-			gBacklightCountdown = 60 * 4;
+			gBacklightCountdown_500ms = 1 + (2 << (gEeprom.BACKLIGHT_TIME - 4)) * 120;
 			break;
 		case 7:	// always on
-			gBacklightCountdown = 0;
+			gBacklightCountdown_500ms = 0;
 			break;
 	}
-
-	gBacklightCountdown *= 2;
 }
 
 void BACKLIGHT_TurnOff()
@@ -106,7 +94,7 @@ void BACKLIGHT_TurnOff()
 #else
 	BACKLIGHT_SetBrightness(gEeprom.BACKLIGHT_MIN);
 #endif
-	gBacklightCountdown = 0;
+	gBacklightCountdown_500ms = 0;
 	backlightOn = false;
 }
 

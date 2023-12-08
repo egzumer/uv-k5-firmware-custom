@@ -42,17 +42,18 @@ VFO_Info_t    *gCurrentVfo;
 DCS_CodeType_t gCurrentCodeType;
 VfoState_t     VfoState[2];
 
-const char gModulationStr[][4] =
-{
-	"FM",
-	"AM",
-	"USB",
+const char gModulationStr[MODULATION_UKNOWN][4] = {
+	[MODULATION_FM]="FM",
+	[MODULATION_AM]="AM",
+	[MODULATION_USB]="USB",
 	
 #ifdef ENABLE_BYP_RAW_DEMODULATORS
-	"BYP",
-	"RAW"
+	[MODULATION_BYP]="BYP",
+	[MODULATION_RAW]="RAW"
 #endif
 };
+
+
 
 bool RADIO_CheckValidChannel(uint16_t Channel, bool bCheckScanList, uint8_t VFO)
 {	// return true if the channel appears valid
@@ -772,8 +773,7 @@ void RADIO_SetupRegisters(bool switchToForeground)
 		}
 	#endif
 
-	BK4819_SetAGC(1);
-	BK4819_InitAGC();
+	RADIO_SetupAGC(gRxVfo->Modulation == MODULATION_AM, false);
 
 	// enable/disable BK4819 selected interrupts
 	BK4819_WriteRegister(BK4819_REG_3F, InterruptMask);
@@ -922,38 +922,56 @@ void RADIO_SetModulation(ModulationMode_t modulation)
 	BK4819_SetRegValue(afDacGainRegSpec, 0xF);
 	BK4819_WriteRegister(BK4819_REG_3D, modulation == MODULATION_USB ? 0 : 0x2AAB);
 	BK4819_SetRegValue(afcDisableRegSpec, modulation != MODULATION_FM);
-#ifdef ENABLE_AM_FIX
-	if(modulation == MODULATION_AM && gSetting_AM_fix)
-		BK4819_SetAGC(0);
-#endif			
+
+	RADIO_SetupAGC(modulation == MODULATION_AM, false);
+}
+
+void RADIO_SetupAGC(bool listeningAM, bool disable)
+{
+	static uint8_t lastSettings;
+	uint8_t newSettings = (listeningAM << 1) | (disable << 1);
+	if(lastSettings == newSettings)
+		return;
+	lastSettings = newSettings;
+
+
+	if(!listeningAM) { // if not actively listening AM we don't need any AM specific regulation
+		BK4819_SetAGC(!disable);
+		BK4819_InitAGC(false);
+	}
+	else {
+#ifdef ENABLE_AM_FIX		
+		if(gSetting_AM_fix) { // if AM fix active lock AGC so AM-fix can do it's job
+			BK4819_SetAGC(0);
+			AM_fix_enable(!disable);
+		}
+		else
+#endif
+		{
+			BK4819_SetAGC(!disable);
+			BK4819_InitAGC(true);
+		}
+	}
 }
 
 void RADIO_SetVfoState(VfoState_t State)
 {
-	if (State == VFO_STATE_NORMAL)
-	{
+	if (State == VFO_STATE_NORMAL) {
 		VfoState[0] = VFO_STATE_NORMAL;
 		VfoState[1] = VFO_STATE_NORMAL;
-		gVFOStateResumeCountdown_500ms = 0;
-	}
-	else
-	{
-		if (State == VFO_STATE_VOLTAGE_HIGH)
-		{
-			VfoState[0] = VFO_STATE_VOLTAGE_HIGH;
-			VfoState[1] = VFO_STATE_TX_DISABLE;
-		}
-		else
-		{	// 1of11
-			const unsigned int vfo = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
-			VfoState[vfo] = State;
-		}
-
-		gVFOStateResumeCountdown_500ms = vfo_state_resume_countdown_500ms;
+	} else if (State == VFO_STATE_VOLTAGE_HIGH) {
+		VfoState[0] = VFO_STATE_VOLTAGE_HIGH;
+		VfoState[1] = VFO_STATE_TX_DISABLE;
+	} else {
+		// 1of11
+		const unsigned int vfo = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF) ? gEeprom.RX_VFO : gEeprom.TX_VFO;
+		VfoState[vfo] = State;
 	}
 
+	gVFOStateResumeCountdown_500ms = (State == VFO_STATE_NORMAL) ? 0 : vfo_state_resume_countdown_500ms;
 	gUpdateDisplay = true;
 }
+
 
 void RADIO_PrepareTX(void)
 {
@@ -979,97 +997,84 @@ void RADIO_PrepareTX(void)
 
 	RADIO_SelectCurrentVfo();
 
-	#if defined(ENABLE_ALARM) && defined(ENABLE_TX1750)
-		if (gAlarmState == ALARM_STATE_OFF    ||
-		    gAlarmState == ALARM_STATE_TX1750 ||
-		   (gAlarmState == ALARM_STATE_ALARM && gEeprom.ALARM_MODE == ALARM_MODE_TONE))
-	#elif defined(ENABLE_ALARM)
-		if (gAlarmState == ALARM_STATE_OFF    ||
-		   (gAlarmState == ALARM_STATE_ALARM && gEeprom.ALARM_MODE == ALARM_MODE_TONE))
-	#elif defined(ENABLE_TX1750)
-		if (gAlarmState == ALARM_STATE_OFF    ||
-		    gAlarmState == ALARM_STATE_TX1750)
-	#endif
-	{
-		#ifndef ENABLE_TX_WHEN_AM
-			if (gCurrentVfo->Modulation != MODULATION_FM)
-			{	// not allowed to TX if in AM mode
-				State = VFO_STATE_TX_DISABLE;
-			}
-			else
+	if(TX_freq_check(gCurrentVfo->pTX->Frequency) != 0
+		#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
+		&& gAlarmState != ALARM_STATE_SITE_ALARM
 		#endif
-		if (gSerialConfigCountDown_500ms > 0)
-		{	// TX is disabled or config upload/download in progress
-			State = VFO_STATE_TX_DISABLE;
-		}
-		else
-		if (TX_freq_check(gCurrentVfo->pTX->Frequency) == 0)
-		{	// TX frequency is allowed
-			if (gCurrentVfo->BUSY_CHANNEL_LOCK && gCurrentFunction == FUNCTION_RECEIVE)
-				State = VFO_STATE_BUSY;          // busy RX'ing a station
-			else
-			if (gBatteryDisplayLevel == 0)
-				State = VFO_STATE_BAT_LOW;       // charge your battery !
-			else
-			if (gBatteryDisplayLevel > 6)
-				State = VFO_STATE_VOLTAGE_HIGH;  // over voltage .. this is being a pain
-		}
-		else
-			State = VFO_STATE_TX_DISABLE;        // TX frequency not allowed
+	) {
+		// TX frequency not allowed
+		State = VFO_STATE_TX_DISABLE;
+	} else if (gSerialConfigCountDown_500ms > 0) {
+		// TX is disabled or config upload/download in progress
+		State = VFO_STATE_TX_DISABLE;
+	} else if (gCurrentVfo->BUSY_CHANNEL_LOCK && gCurrentFunction == FUNCTION_RECEIVE) {
+		// busy RX'ing a station
+		State = VFO_STATE_BUSY;
+	} else if (gBatteryDisplayLevel == 0) {
+		// charge your battery !git co
+		State = VFO_STATE_BAT_LOW;
+	} else if (gBatteryDisplayLevel > 6) {
+		// over voltage .. this is being a pain
+		State = VFO_STATE_VOLTAGE_HIGH;
 	}
+	#ifndef ENABLE_TX_WHEN_AM
+	else if (gCurrentVfo->Modulation != MODULATION_FM) {
+		// not allowed to TX if in AM mode
+		State = VFO_STATE_TX_DISABLE;
+	}
+	#endif
 
-	if (State != VFO_STATE_NORMAL)
-	{	// TX not allowed
+	if (State != VFO_STATE_NORMAL) {
+		// TX not allowed
 		RADIO_SetVfoState(State);
 
-		#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
-			gAlarmState = ALARM_STATE_OFF;
-		#endif
+	#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
+		gAlarmState = ALARM_STATE_OFF;
+	#endif
 
-#ifdef ENABLE_DTMF_CALLING
+	#ifdef ENABLE_DTMF_CALLING
 		gDTMF_ReplyState = DTMF_REPLY_NONE;
-#endif
+	#endif
 		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 		return;
 	}
 
 	// TX is allowed
 
-#ifdef ENABLE_DTMF_CALLING
+	#ifdef ENABLE_DTMF_CALLING
 	if (gDTMF_ReplyState == DTMF_REPLY_ANI)
 	{
 		if (gDTMF_CallMode == DTMF_CALL_MODE_DTMF)
 		{
-			gDTMF_IsTx                  = true;
-			gDTMF_CallState             = DTMF_CALL_STATE_NONE;
+			gDTMF_IsTx = true;
+			gDTMF_CallState = DTMF_CALL_STATE_NONE;
 			gDTMF_TxStopCountdown_500ms = DTMF_txstop_countdown_500ms;
 		}
 		else
 		{
+			gDTMF_IsTx = false;
 			gDTMF_CallState = DTMF_CALL_STATE_CALL_OUT;
-			gDTMF_IsTx      = false;
 		}
 	}
-#endif
+	#endif
 
 	FUNCTION_Select(FUNCTION_TRANSMIT);
 
 	gTxTimerCountdown_500ms = 0;            // no timeout
 
 	#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
-		if (gAlarmState == ALARM_STATE_OFF)
+	if (gAlarmState == ALARM_STATE_OFF)
 	#endif
 	{
 		if (gEeprom.TX_TIMEOUT_TIMER == 0)
 			gTxTimerCountdown_500ms = 60;   // 30 sec
-		else
-		if (gEeprom.TX_TIMEOUT_TIMER < (ARRAY_SIZE(gSubMenu_TOT) - 1))
+		else if (gEeprom.TX_TIMEOUT_TIMER < (ARRAY_SIZE(gSubMenu_TOT) - 1))
 			gTxTimerCountdown_500ms = 120 * gEeprom.TX_TIMEOUT_TIMER;  // minutes
 		else
 			gTxTimerCountdown_500ms = 120 * 15;  // 15 minutes
 	}
-	gTxTimeoutReached    = false;
 
+	gTxTimeoutReached    = false;
 	gFlagEndTransmission = false;
 	gRTTECountdown       = 0;
 

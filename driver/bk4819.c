@@ -55,7 +55,7 @@ void BK4819_Init(void)
 	BK4819_WriteRegister(BK4819_REG_37, 0x1D0F);
 	BK4819_WriteRegister(BK4819_REG_36, 0x0022);
 
-	BK4819_InitAGC();
+	BK4819_InitAGC(false);
 	BK4819_SetAGC(true);
 
 	BK4819_WriteRegister(BK4819_REG_19, 0b0001000001000001);   // <15> MIC AGC  1 = disable  0 = enable
@@ -263,7 +263,7 @@ void BK4819_SetAGC(bool enable)
 	// }
 }
 
-void BK4819_InitAGC()
+void BK4819_InitAGC(bool amModulation)
 {
 	// REG_10, REG_11, REG_12 REG_13, REG_14
 	//
@@ -308,13 +308,56 @@ void BK4819_InitAGC()
 	BK4819_WriteRegister(BK4819_REG_12, 0x037B);  // 0x037B / 000000 11 011 11 011 / -24dB
 	BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 0x027B / 000000 10 011 11 011 / -43dB
 	BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 0x007A / 000000 00 011 11 010 / -58dB
-	BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 0x0019 / 000000 00 000 11 001 / -79dB
-	BK4819_WriteRegister(BK4819_REG_49, (0 << 14) | (84 << 7) | (56 << 0)); //0x2A38 / 00 1010100 0111000 / 84, 56
+	if(amModulation) {
+		BK4819_WriteRegister(BK4819_REG_14, 0x0000); 
+		BK4819_WriteRegister(BK4819_REG_49, (0 << 14) | (50 << 7) | (32 << 0));
+	}
+	else{
+		BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 0x0019 / 000000 00 000 11 001 / -79dB
+		BK4819_WriteRegister(BK4819_REG_49, (0 << 14) | (84 << 7) | (56 << 0)); //0x2A38 / 00 1010100 0111000 / 84, 56		
+	}
+
 	BK4819_WriteRegister(BK4819_REG_7B, 0x8420);
 
 }
 
+int8_t BK4819_GetRxGain_dB(void)
+{
+	union {
+		struct {
+			uint16_t pga:3;
+			uint16_t mixer:2;
+			uint16_t lna:3;
+			uint16_t lnaS:2;
+		};
+		uint16_t __raw;
+	} agcGainReg;
 
+	union {
+		struct {
+			uint16_t _ : 5;
+			uint16_t agcSigStrength : 7;
+			int16_t gainIdx : 3;    
+			uint16_t agcEnab : 1;
+		};
+    	uint16_t __raw;
+	} reg7e;
+
+	reg7e.__raw = BK4819_ReadRegister(BK4819_REG_7E);
+	uint8_t gainAddr = reg7e.gainIdx < 0 ? BK4819_REG_14 : BK4819_REG_10 + reg7e.gainIdx;
+	agcGainReg.__raw = BK4819_ReadRegister(gainAddr);
+	int8_t lnaShortTab[] = {-28, -24, -19, 0};
+	int8_t lnaTab[] = {-24, -19, -14, -9, -6, -4, -2, 0};
+	int8_t mixerTab[] = {-8, -6, -3, 0};
+	int8_t pgaTab[] = {-33, -27, -21, -15, -9, -6, -3, 0};
+	return lnaShortTab[agcGainReg.lnaS] + lnaTab[agcGainReg.lna] + mixerTab[agcGainReg.mixer] + pgaTab[agcGainReg.pga];
+}
+
+int16_t BK4819_GetRSSI_dBm(void)
+{
+	uint16_t rssi = BK4819_GetRSSI();
+	return (rssi / 2) - 160;// - BK4819_GetRxGain_dB();
+}
 
 void BK4819_ToggleGpioOut(BK4819_GPIO_PIN_t Pin, bool bSet)
 {

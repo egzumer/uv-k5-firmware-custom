@@ -36,6 +36,6 @@ extern FUNCTION_Type_t       gCurrentFunction;
 
 void FUNCTION_Init(void);
 void FUNCTION_Select(FUNCTION_Type_t Function);
+bool FUNCTION_IsRx();
 
 #endif
-

@@ -337,10 +337,12 @@ const char gSubMenu_SCRAMBLER[][7] =
 	"3500Hz"
 };
 
-const t_sidefunction SIDEFUNCTIONS[] =
+const t_sidefunction gSubMenu_SIDEFUNCTIONS[] =
 {
 	{"NONE",			ACTION_OPT_NONE},
+#ifdef ENABLE_FLASHLIGHT
 	{"FLASH\nLIGHT",	ACTION_OPT_FLASHLIGHT},
+#endif
 	{"POWER",			ACTION_OPT_POWER},
 	{"MONITOR",			ACTION_OPT_MONITOR},
 	{"SCAN",			ACTION_OPT_SCAN},
@@ -364,8 +366,8 @@ const t_sidefunction SIDEFUNCTIONS[] =
 	{"BLMIN\nTMP OFF",  ACTION_OPT_BLMIN_TMP_OFF}, 		//BackLight Minimum Temporay OFF
 #endif
 };
-const t_sidefunction* gSubMenu_SIDEFUNCTIONS = SIDEFUNCTIONS;
-const uint8_t gSubMenu_SIDEFUNCTIONS_size = ARRAY_SIZE(SIDEFUNCTIONS);
+
+const uint8_t gSubMenu_SIDEFUNCTIONS_size = ARRAY_SIZE(gSubMenu_SIDEFUNCTIONS);
 
 bool    gIsInSubMenu;
 uint8_t gMenuCursor;
@@ -755,11 +757,11 @@ void UI_DisplayMenu(void)
 			break;
 #endif
 		case MENU_UPCODE:
-			strcpy(String, gEeprom.DTMF_UP_CODE);
+			sprintf(String, "%.8s\n%.8s", gEeprom.DTMF_UP_CODE, gEeprom.DTMF_UP_CODE + 8);
 			break;
 
 		case MENU_DWCODE:
-			strcpy(String, gEeprom.DTMF_DOWN_CODE);
+			sprintf(String, "%.8s\n%.8s", gEeprom.DTMF_DOWN_CODE, gEeprom.DTMF_DOWN_CODE + 8);
 			break;
 
 #ifdef ENABLE_DTMF_CALLING
@@ -967,15 +969,6 @@ void UI_DisplayMenu(void)
 
 	if ((UI_MENU_GetCurrentMenuId() == MENU_R_CTCS || UI_MENU_GetCurrentMenuId() == MENU_R_DCS) && gCssBackgroundScan)
 		UI_PrintString("SCAN", menu_item_x1, menu_item_x2, 4, 8);
-		
-
-	if (UI_MENU_GetCurrentMenuId() == MENU_UPCODE)
-		if (strlen(gEeprom.DTMF_UP_CODE) > 8)
-			UI_PrintString(gEeprom.DTMF_UP_CODE + 8, menu_item_x1, menu_item_x2, 4, 8);
-
-	if (UI_MENU_GetCurrentMenuId() == MENU_DWCODE)
-		if (strlen(gEeprom.DTMF_DOWN_CODE) > 8)
-			UI_PrintString(gEeprom.DTMF_DOWN_CODE + 8, menu_item_x1, menu_item_x2, 4, 8);
 
 #ifdef ENABLE_DTMF_CALLING
 	if (UI_MENU_GetCurrentMenuId() == MENU_D_LIST && gIsDtmfContactValid)

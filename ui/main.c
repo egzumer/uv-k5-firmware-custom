@@ -37,6 +37,8 @@
 #include "ui/main.h"
 #include "ui/ui.h"
 
+#include "debugging.h"
+
 center_line_t center_line = CENTER_LINE_NONE;
 
 const int8_t dBmCorrTable[7] = {
@@ -48,6 +50,16 @@ const int8_t dBmCorrTable[7] = {
 			-6, // band 6
 			 -1  // band 7
 		};
+
+const char *VfoStateStr[] = {
+       [VFO_STATE_NORMAL]="",
+       [VFO_STATE_BUSY]="BUSY",
+       [VFO_STATE_BAT_LOW]="BAT LOW",
+       [VFO_STATE_TX_DISABLE]="TX DISABLE",
+       [VFO_STATE_TIMEOUT]="TIMEOUT",
+       [VFO_STATE_ALARM]="ALARM",
+       [VFO_STATE_VOLTAGE_HIGH]="VOLT HIGH"
+};
 
 // ***************************************************************************
 
@@ -150,64 +162,69 @@ void UI_DisplayAudioBar(void)
 #endif
 
 
-static void DisplayRSSIBar(const int16_t rssi, const bool now)
+void DisplayRSSIBar(const bool now)
 {
 #if defined(ENABLE_RSSI_BAR)
 
-	if (center_line == CENTER_LINE_RSSI) {
-		const unsigned int txt_width    = 7 * 8;                 // 8 text chars
-		const unsigned int bar_x        = 2 + txt_width + 4;     // X coord of bar graph
+	const unsigned int txt_width    = 7 * 8;                 // 8 text chars
+	const unsigned int bar_x        = 2 + txt_width + 4;     // X coord of bar graph
 
-		const unsigned int line         = 3;
-		uint8_t           *p_line        = gFrameBuffer[line];
-		char               str[16];
+	const unsigned int line         = 3;
+	uint8_t           *p_line        = gFrameBuffer[line];
+	char               str[16];
 
-		const char plus[] = {
-			0b00011000,
-			0b00011000,
-			0b01111110,
-			0b01111110,
-			0b01111110,
-			0b00011000,
-			0b00011000,
-		};
+	const char plus[] = {
+		0b00011000,
+		0b00011000,
+		0b01111110,
+		0b01111110,
+		0b01111110,
+		0b00011000,
+		0b00011000,
+	};
 
-		if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
-			return;     // display is in use
+	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
+		return;     // display is in use
 
-		if (gCurrentFunction == FUNCTION_TRANSMIT ||
-			gScreenToDisplay != DISPLAY_MAIN
+	if (gCurrentFunction == FUNCTION_TRANSMIT ||
+		gScreenToDisplay != DISPLAY_MAIN
 #ifdef ENABLE_DTMF_CALLING
-			|| gDTMF_CallState != DTMF_CALL_STATE_NONE
+		|| gDTMF_CallState != DTMF_CALL_STATE_NONE
 #endif
-			)
-			return;     // display is in use
+		)
+		return;     // display is in use
 
-		if (now)
-			memset(p_line, 0, LCD_WIDTH);
-		
+	if (now)
+		memset(p_line, 0, LCD_WIDTH);
+	
 
-		const int16_t      s0_dBm       = -130;                  // S0 .. base level
-		const int16_t      rssi_dBm     = (rssi / 2) - 160 + dBmCorrTable[gRxVfo->Band];
+	const int16_t      s0_dBm       = -130;                  // S0 .. base level
+	const int16_t      rssi_dBm     = 
+		BK4819_GetRSSI_dBm()
+#ifdef ENABLE_AM_FIX
+		+ ((gSetting_AM_fix && gRxVfo->Modulation == MODULATION_AM) ? AM_fix_get_gain_diff() : 0)
+#endif	
+		+ dBmCorrTable[gRxVfo->Band];
+	
 
-		const uint8_t s_level = MIN(MAX((rssi_dBm - s0_dBm) / 6, 0), 9); // S0 - S9
-		uint8_t overS9dBm = MIN(MAX(rssi_dBm - (s0_dBm + 9*6), 0), 99);
-		uint8_t overS9Bars = MIN(overS9dBm/10, 4);
-		
-		if(overS9Bars == 0) {
-			sprintf(str, "% 4d S%d", rssi_dBm, s_level);
-		}
-		else {
-			sprintf(str, "% 4d  %2d", rssi_dBm, overS9dBm);
-			memcpy(p_line + 2 + 7*5, &plus, ARRAY_SIZE(plus));
-		}
-
-		UI_PrintStringSmall(str, 2, 0, line);
-
-		DrawLevelBar(bar_x, line, s_level + overS9Bars);
+	const uint8_t s_level = MIN(MAX((rssi_dBm - s0_dBm) / 6, 0), 9); // S0 - S9
+	uint8_t overS9dBm = MIN(MAX(rssi_dBm - (s0_dBm + 9*6), 0), 99);
+	uint8_t overS9Bars = MIN(overS9dBm/10, 4);
+	
+	if(overS9Bars == 0) {
+		sprintf(str, "% 4d S%d", rssi_dBm, s_level);
 	}
-#else
+	else {
+		sprintf(str, "% 4d  %2d", rssi_dBm, overS9dBm);
+		memcpy(p_line + 2 + 7*5, &plus, ARRAY_SIZE(plus));
+	}
 
+	UI_PrintStringSmall(str, 2, 0, line);
+	DrawLevelBar(bar_x, line, s_level + overS9Bars);
+	if (now)
+		ST7565_BlitLine(line);
+#else
+	int16_t rssi = BK4819_GetRSSI();
 	uint8_t Level;
 
 	if (rssi >= gEEPROM_RSSI_CALIB[gRxVfo->Band][3]) {
@@ -226,26 +243,9 @@ static void DisplayRSSIBar(const int16_t rssi, const bool now)
 	if (now)
 		memset(pLine, 0, 23);
 	DrawSmallAntennaAndBars(pLine, Level);
-#endif
-
 	if (now)
-		ST7565_BlitFullScreen();
-}
-
-
-void UI_UpdateRSSI(const int16_t rssi, const int vfo)
-{
-	(void)vfo;  // unused
-	
-	// optional larger RSSI dBm, S-point and bar level
-
-	if (gCurrentFunction == FUNCTION_RECEIVE ||
-		gCurrentFunction == FUNCTION_MONITOR ||
-		gCurrentFunction == FUNCTION_INCOMING)
-	{
-		
-		DisplayRSSIBar(rssi, true);
-	}
+		ST7565_BlitFullScreen();	
+#endif
 
 }
 
@@ -290,20 +290,27 @@ static void PrintAGC(bool now)
 
 void UI_MAIN_TimeSlice500ms(void)
 {
+	if(gScreenToDisplay==DISPLAY_MAIN) {
 #ifdef ENABLE_AGC_SHOW_DATA
-if(gScreenToDisplay==DISPLAY_MAIN)
-	PrintAGC(true);
+		PrintAGC(true);
+		return;
 #endif
+
+		const bool rx = (gCurrentFunction == FUNCTION_RECEIVE ||
+			gCurrentFunction == FUNCTION_MONITOR ||
+			gCurrentFunction == FUNCTION_INCOMING);
+
+
+		if(rx) 
+			DisplayRSSIBar(true);
+	}
 }
 
 // ***************************************************************************
 
 void UI_DisplayMain(void)
 {
-	const unsigned int line0 = 0;  // text screen line
-	const unsigned int line1 = 4;
 	char               String[22];
-	unsigned int       vfo_num;
 
 	center_line = CENTER_LINE_NONE;
 
@@ -326,13 +333,15 @@ void UI_DisplayMain(void)
 							
 	unsigned int activeTxVFO = gRxVfoIsActive ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 
-	for (vfo_num = 0; vfo_num < 2; vfo_num++)
+	for (unsigned int vfo_num = 0; vfo_num < 2; vfo_num++)
 	{
+		const unsigned int line0 = 0;  // text screen line
+		const unsigned int line1 = 4;
 		const unsigned int line       = (vfo_num == 0) ? line0 : line1;
-		const bool         isMainVFO   = (vfo_num == gEeprom.TX_VFO);
+		const bool         isMainVFO  = (vfo_num == gEeprom.TX_VFO);
 		uint8_t           *p_line0    = gFrameBuffer[line + 0];
 		uint8_t           *p_line1    = gFrameBuffer[line + 1];
-		unsigned int       mode       = 0;
+		enum Vfo_txtr_mode mode       = VFO_MODE_NONE;
 
 		if (activeTxVFO != vfo_num) // this is not active TX VFO
 		{
@@ -413,14 +422,14 @@ void UI_DisplayMain(void)
 		{	// transmitting
 
 #ifdef ENABLE_ALARM
-			if (gAlarmState == ALARM_STATE_ALARM)
-				mode = 2;
+			if (gAlarmState == ALARM_STATE_SITE_ALARM)
+				mode = VFO_MODE_RX;
 			else
 #endif
 			{
 				if (activeTxVFO == vfo_num)
 				{	// show the TX symbol
-					mode = 1;
+					mode = VFO_MODE_TX;
 #ifdef ENABLE_SMALL_BOLD
 					UI_PrintStringSmallBold("TX", 14, 0, line);
 #else
@@ -431,12 +440,8 @@ void UI_DisplayMain(void)
 		}
 		else
 		{	// receiving .. show the RX symbol
-			mode = 2;
-			if ((gCurrentFunction == FUNCTION_RECEIVE ||
-			     gCurrentFunction == FUNCTION_MONITOR ||
-			     gCurrentFunction == FUNCTION_INCOMING) &&
-			     gEeprom.RX_VFO == vfo_num)
-			{
+			mode = VFO_MODE_RX;
+			if (FUNCTION_IsRx() && gEeprom.RX_VFO == vfo_num) {
 #ifdef ENABLE_SMALL_BOLD
 				UI_PrintStringSmallBold("RX", 14, 0, line);
 #else
@@ -480,10 +485,10 @@ void UI_DisplayMain(void)
 
 		// ************
 
-		unsigned int state = VfoState[vfo_num];
+		enum VfoState_t state = VfoState[vfo_num];
 
 #ifdef ENABLE_ALARM
-		if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_ALARM) {
+		if (gCurrentFunction == FUNCTION_TRANSMIT && gAlarmState == ALARM_STATE_SITE_ALARM) {
 			if (activeTxVFO == vfo_num)
 				state = VFO_STATE_ALARM;
 		}
@@ -493,9 +498,8 @@ void UI_DisplayMain(void)
 
 		if (state != VFO_STATE_NORMAL)
 		{
-			const char *state_list[] = {"", "BUSY", "BAT LOW", "TX DISABLE", "TIMEOUT", "ALARM", "VOLT HIGH"};
-			if (state < ARRAY_SIZE(state_list))
-				UI_PrintString(state_list[state], 31, 0, line, 8);
+			if (state < ARRAY_SIZE(VfoStateStr))
+				UI_PrintString(VfoStateStr[state], 31, 0, line, 8);
 		}
 		else if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_VFO == vfo_num)
 		{	// user entering a frequency
@@ -632,7 +636,7 @@ void UI_DisplayMain(void)
 		{	// show the TX/RX level
 			uint8_t Level = 0;
 
-			if (mode == 1)
+			if (mode == VFO_MODE_TX)
 			{	// TX power level
 				switch (gRxVfo->OUTPUT_POWER)
 				{
@@ -642,7 +646,7 @@ void UI_DisplayMain(void)
 				}
 			}
 			else
-			if (mode == 2)
+			if (mode == VFO_MODE_RX)
 			{	// RX signal level
 				#ifndef ENABLE_RSSI_BAR
 					// bar graph
@@ -663,7 +667,7 @@ void UI_DisplayMain(void)
 		const ModulationMode_t mod = gEeprom.VfoInfo[vfo_num].Modulation;
 		switch (mod){
 			case MODULATION_FM: {
-				const FREQ_Config_t *pConfig = (mode == 1) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
+				const FREQ_Config_t *pConfig = (mode == VFO_MODE_TX) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
 				const unsigned int code_type = pConfig->CodeType;
 				const char *code_list[] = {"", "CT", "DCS", "DCR"};
 				if (code_type < ARRAY_SIZE(code_list))
@@ -758,9 +762,7 @@ void UI_DisplayMain(void)
 	if (center_line == CENTER_LINE_NONE)
 	{	// we're free to use the middle line
 
-		const bool rx = (gCurrentFunction == FUNCTION_RECEIVE ||
-		                 gCurrentFunction == FUNCTION_MONITOR ||
-		                 gCurrentFunction == FUNCTION_INCOMING);
+		const bool rx = FUNCTION_IsRx();
 
 #ifdef ENABLE_AUDIO_BAR
 		if (gSetting_mic_bar && gCurrentFunction == FUNCTION_TRANSMIT) {
@@ -790,7 +792,7 @@ void UI_DisplayMain(void)
 #ifdef ENABLE_RSSI_BAR
 		if (rx) {
 			center_line = CENTER_LINE_RSSI;
-			DisplayRSSIBar(gCurrentRSSI[gEeprom.RX_VFO], false);
+			DisplayRSSIBar(false);
 		}
 		else
 #endif

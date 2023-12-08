@@ -89,7 +89,7 @@ bool              gSetting_350EN;
 uint8_t           gSetting_F_LOCK;
 bool              gSetting_ScrambleEnable;
 
-uint8_t           gSetting_backlight_on_tx_rx;
+enum BacklightOnRxTx_t gSetting_backlight_on_tx_rx;
 
 #ifdef ENABLE_AM_FIX
 	bool          gSetting_AM_fix;
@@ -160,7 +160,6 @@ bool     		  gCssBackgroundScan;
 volatile bool     gScheduleScanListen = true;
 volatile uint16_t gScanPauseDelayIn_10ms;
 
-bool              gUpdateRSSI;
 #if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 	AlarmState_t  gAlarmState;
 #endif
@@ -199,8 +198,9 @@ bool              g_CxCSS_TAIL_Found;
 	uint16_t      gVoxPauseCountdown;
 #endif
 bool              g_SquelchLost;
-uint8_t           gFlashLightState;
+
 volatile uint16_t gFlashLightBlinkCounter;
+
 bool              gFlagEndTransmission;
 uint8_t           gNextMrChannel;
 ReceptionMode_t   gRxReceptionMode;
@@ -250,10 +250,10 @@ volatile bool     gFlagTailNoteEliminationComplete;
 
 volatile uint8_t  boot_counter_10ms;
 
-int16_t           gCurrentRSSI[2] = {0, 0};  // now one per VFO
-
 uint8_t           gIsLocked = 0xFF;
 
+
+inline void FUNCTION_NOP() { ; }
 
 
 int32_t NUMBER_AddWithWraparound(int32_t Base, int32_t Add, int32_t LowerLimit, int32_t UpperLimit)

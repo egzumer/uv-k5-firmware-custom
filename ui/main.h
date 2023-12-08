@@ -26,15 +26,20 @@ enum center_line_t {
 	CENTER_LINE_DTMF_DEC,
 	CENTER_LINE_CHARGE_DATA
 };
+
+enum Vfo_txtr_mode{
+	VFO_MODE_NONE = 0,
+	VFO_MODE_TX = 1,
+	VFO_MODE_RX = 2,
+};
+
 typedef enum center_line_t center_line_t;
 
 extern center_line_t center_line;
 extern const int8_t dBmCorrTable[7];
 
 void UI_DisplayAudioBar(void);
-void UI_UpdateRSSI(const int16_t rssi, const int vfo);
 void UI_MAIN_TimeSlice500ms(void);
 void UI_DisplayMain(void);
 
 #endif
-

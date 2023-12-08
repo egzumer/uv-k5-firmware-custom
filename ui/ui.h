@@ -43,4 +43,3 @@ void GUI_DisplayScreen(void);
 void GUI_SelectNextDisplay(GUI_DisplayType_t Display);
 
 #endif
-

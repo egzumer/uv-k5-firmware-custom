@@ -90,6 +90,7 @@ void Main(void)
 		ST7565_SetContrast(gEeprom.LCD_CONTRAST);
 	#endif
 
+	SETTINGS_WriteBuildOptions();
 	SETTINGS_LoadCalibration();
 
 	RADIO_ConfigureChannel(0, VFO_CONFIGURE_RELOAD);

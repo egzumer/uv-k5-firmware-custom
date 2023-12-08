@@ -53,9 +53,7 @@ void UI_DisplayStatus()
 		x1 = x + sizeof(BITMAP_TX);
 	}
 	else
-	if (gCurrentFunction == FUNCTION_RECEIVE ||
-	    gCurrentFunction == FUNCTION_MONITOR ||
-	    gCurrentFunction == FUNCTION_INCOMING)
+	if (FUNCTION_IsRx())
 	{
 		memmove(line + x, BITMAP_RX, sizeof(BITMAP_RX));
 		x1 = x + sizeof(BITMAP_RX);
