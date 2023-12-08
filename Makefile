@@ -18,7 +18,7 @@ ENABLE_VOICE                  := 0
 ENABLE_VOX                    := 1
 ENABLE_ALARM                  := 0
 ENABLE_TX1750                 := 0
-ENABLE_PWRON_PASSWORD         := 0
+ENABLE_PWRON_PASSWORD         := 1
 ENABLE_DTMF_CALLING           := 1
 ENABLE_FLASHLIGHT             := 1
 
