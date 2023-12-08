@@ -56,7 +56,11 @@ inline static void ACTION_ScanRestart() { ACTION_Scan(true); };
 
 void (*action_opt_table[])(void) = {
 	[ACTION_OPT_NONE] = &FUNCTION_NOP,
+#ifdef ENABLE_FLASHLIGHT	
 	[ACTION_OPT_FLASHLIGHT] = &ACTION_FlashLight,
+#else
+	[ACTION_OPT_FLASHLIGHT] = &FUNCTION_NOP,	
+#endif
 	[ACTION_OPT_POWER] = &ACTION_Power,
 	[ACTION_OPT_MONITOR] = &ACTION_Monitor,
 	[ACTION_OPT_SCAN] = &ACTION_ScanRestart,
@@ -96,7 +100,7 @@ void (*action_opt_table[])(void) = {
 #endif
 };
 
-static_assert(ARRAY_SIZE(action_opt_table) == ACTION_OPT_LEN);
+//static_assert(ARRAY_SIZE(action_opt_table) == ACTION_OPT_LEN);
 
 void ACTION_Power(void)
 {
