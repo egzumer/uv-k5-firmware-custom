@@ -1183,9 +1183,7 @@ void APP_RunSpectrum() {
 
   RelaunchScan();
 
-  for (int i = 0; i < 128; ++i) {
-    rssiHistory[i] = 0;
-  }
+  memset(rssiHistory, 0, sizeof(rssiHistory));
 
   isInitialized = true;
 
