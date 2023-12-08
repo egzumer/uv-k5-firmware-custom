@@ -33,7 +33,7 @@ enum POWER_OnDisplayMode_t {
 };
 typedef enum POWER_OnDisplayMode_t POWER_OnDisplayMode_t;
 
-enum {
+enum TxLockModes_t {
 	F_LOCK_DEF, //all default frequencies + configurable
 	F_LOCK_FCC,
 	F_LOCK_CE,

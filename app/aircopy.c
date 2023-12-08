@@ -133,7 +133,7 @@ static void AIRCOPY_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		gInputBoxIndex = 0;
 		Frequency = StrToUL(INPUTBOX_GetAscii()) * 100;	
 
-		for (i = 0; i < ARRAY_SIZE(frequencyBandTable); i++)
+		for (i = 0; i < BAND_N_ELEM; i++)
 		{
 			if (Frequency >= frequencyBandTable[i].lower && Frequency < frequencyBandTable[i].upper)
 			{

@@ -46,7 +46,7 @@ const char gModulationStr[MODULATION_UKNOWN][4] = {
 	[MODULATION_FM]="FM",
 	[MODULATION_AM]="AM",
 	[MODULATION_USB]="USB",
-	
+
 #ifdef ENABLE_BYP_RAW_DEMODULATORS
 	[MODULATION_BYP]="BYP",
 	[MODULATION_RAW]="RAW"
@@ -145,7 +145,7 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t
 		pInfo->Modulation = MODULATION_AM;
 	else
 		pInfo->Modulation = MODULATION_FM;
-		
+
 	RADIO_ConfigureSquelchAndOutputPower(pInfo);
 }
 
@@ -249,11 +249,11 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		pVfo->TX_OFFSET_FREQUENCY_DIRECTION = tmp;
 		tmp = data[3] >> 4;
 		if (tmp >= MODULATION_UKNOWN)
-			tmp = MODULATION_FM;		
+			tmp = MODULATION_FM;
 		pVfo->Modulation = tmp;
 
 		tmp = data[6];
-		if (tmp >= ARRAY_SIZE(gStepFrequencyTable))
+		if (tmp >= STEP_N_ELEM)
 			tmp = STEP_12_5kHz;
 		pVfo->STEP_SETTING  = tmp;
 		pVfo->StepFrequency = gStepFrequencyTable[tmp];
@@ -412,13 +412,12 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 {
-	uint8_t          Txp[3];
-	FREQUENCY_Band_t Band;
+
 
 	// *******************************
 	// squelch
-	
-	Band = FREQUENCY_GetBand(pInfo->pRX->Frequency);
+
+	FREQUENCY_Band_t Band = FREQUENCY_GetBand(pInfo->pRX->Frequency);
 	uint16_t Base = (Band < BAND4_174MHz) ? 0x1E60 : 0x1E00;
 
 	if (gEeprom.SQUELCH_LEVEL == 0)
@@ -498,11 +497,11 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 
 	// *******************************
 	// output power
-	
+
 	Band = FREQUENCY_GetBand(pInfo->pTX->Frequency);
 
+	uint8_t Txp[3];
 	EEPROM_ReadBuffer(0x1ED0 + (Band * 16) + (pInfo->OUTPUT_POWER * 3), Txp, 3);
-
 
 #ifdef ENABLE_REDUCE_LOW_MID_TX_POWER
 	// make low and mid even lower
@@ -548,16 +547,15 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 
 	if (Frequency < frequencyBandTable[0].lower)
 		Frequency = frequencyBandTable[0].lower;
-	else
-	if (Frequency > frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper)
-		Frequency = frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper;
+	else if (Frequency > frequencyBandTable[BAND_N_ELEM - 1].upper)
+		Frequency = frequencyBandTable[BAND_N_ELEM - 1].upper;
 
 	pInfo->freq_config_TX.Frequency = Frequency;
 }
 
 static void RADIO_SelectCurrentVfo(void)
 {
-	// if crossband is active and DW not the gCurrentVfo is gTxVfo (gTxVfo/TX_VFO is only ever changed by the user) 
+	// if crossband is active and DW not the gCurrentVfo is gTxVfo (gTxVfo/TX_VFO is only ever changed by the user)
 	// otherwise it is set to gRxVfo which is set to gTxVfo in RADIO_SelectVfos
 	// so in the end gCurrentVfo is equal to gTxVfo unless dual watch changes it on incomming transmition (again, this can only happen when XB off)
 	// note: it is called only in certain situations so could be not up-to-date
@@ -1142,7 +1140,7 @@ void RADIO_SendEndOfTransmission(void)
 				gEeprom.DTMF_HASH_CODE_PERSIST_TIME,
 				gEeprom.DTMF_CODE_PERSIST_TIME,
 				gEeprom.DTMF_CODE_INTERVAL_TIME);
-		
+
 		AUDIO_AudioPathOff();
 		gEnableSpeaker = false;
 	}

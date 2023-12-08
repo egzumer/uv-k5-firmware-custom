@@ -152,7 +152,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			if (gTxVfo->Band == BAND5_350MHz && !gSetting_350EN) {
 				// skip if not enabled
 				gTxVfo->Band += 1;
-			} else if (gTxVfo->Band >= BAND_LAST_ELEMENT){
+			} else if (gTxVfo->Band >= BAND_N_ELEM){
 				// go arround if overflowed
 				gTxVfo->Band = BAND1_50MHz;
 			}
@@ -380,9 +380,9 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				Frequency = (Frequency < center) ? BX4819_band1.upper : BX4819_band2.lower;
 			}
 			else
-			if (Frequency > frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper)
+			if (Frequency > frequencyBandTable[BAND_N_ELEM - 1].upper)
 			{
-				Frequency = frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper;
+				Frequency = frequencyBandTable[BAND_N_ELEM - 1].upper;
 			}
 
 			const FREQUENCY_Band_t band = FREQUENCY_GetBand(Frequency);
