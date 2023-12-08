@@ -29,7 +29,6 @@
 #include "../driver/systick.h"
 #include "../external/printf/printf.h"
 #include "../font.h"
-#include "../frequencies.h"
 #include "../helper/battery.h"
 #include "../misc.h"
 #include "../radio.h"

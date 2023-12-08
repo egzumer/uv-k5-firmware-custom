@@ -17,6 +17,7 @@
 #include "frequencies.h"
 #include "misc.h"
 #include "settings.h"
+#include <assert.h>
 
 // the BK4819 has 2 bands it covers, 18MHz ~ 630MHz and 760MHz ~ 1300MHz
 
@@ -61,9 +62,31 @@ const freq_band_table_t frequencyBandTable[] =
 #endif
 
 
+// this order of steps has to be preserved for backwards compatibility with other/stock firmwares
 const uint16_t gStepFrequencyTable[] = {
-	250, 500, 625, 1000, 1250, 2500, 833,
-	1, 5, 10, 25, 50, 100, 125, 1500, 3000, 5000, 10000, 12500, 25000, 50000
+// standard steps
+	[STEP_2_5kHz]   = 250, 
+	[STEP_5kHz]     = 500, 
+	[STEP_6_25kHz]  = 625, 
+	[STEP_10kHz]    = 1000, 
+	[STEP_12_5kHz]  = 1250, 
+	[STEP_25kHz]    = 2500, 
+	[STEP_8_33kHz]  = 833,
+// custom steps
+	[STEP_0_01kHz]  = 1, 
+	[STEP_0_05kHz]  = 5, 
+	[STEP_0_1kHz]   = 10, 
+	[STEP_0_25kHz]  = 25, 
+	[STEP_0_5kHz]   = 50, 
+	[STEP_1kHz]     = 100, 
+	[STEP_1_25kHz]  = 125, 
+	[STEP_15kHz]    = 1500, 
+	[STEP_30kHz]    = 3000, 
+	[STEP_50kHz]    = 5000, 
+	[STEP_100kHz]   = 10000, 
+	[STEP_125kHz]   = 12500, 
+	[STEP_250kHz]   = 25000, 
+	[STEP_500kHz]   = 50000
 };
 
 
@@ -86,15 +109,16 @@ uint32_t FREQUENCY_GetSortedIdxFromStepIdx(uint8_t stepIdx)
 	return 0;
 }
 
+static_assert(ARRAY_SIZE(gStepFrequencyTable) == STEP_N_ELEM);
+
+
 FREQUENCY_Band_t FREQUENCY_GetBand(uint32_t Frequency)
 {
-	for (int band = ARRAY_SIZE(frequencyBandTable) - 1; band >= 0; band--)
+	for (int32_t band = BAND_N_ELEM - 1; band >= 0; band--)
 		if (Frequency >= frequencyBandTable[band].lower)
-//		if (Frequency <  frequencyBandTable[band].upper)
 			return (FREQUENCY_Band_t)band;
 
 	return BAND1_50MHz;
-//	return BAND_NONE;
 }
 
 uint8_t FREQUENCY_CalculateOutputPower(uint8_t TxpLow, uint8_t TxpMid, uint8_t TxpHigh, int32_t LowerLimit, int32_t Middle, int32_t UpperLimit, int32_t Frequency)
@@ -124,6 +148,7 @@ uint32_t FREQUENCY_RoundToStep(uint32_t freq, uint16_t step)
         int chno = (freq - base) / 700;    // convert entered aviation 8.33Khz channel number scheme to actual frequency. 
         return base + (chno * 833) + (chno == 3);
 	}
+
 	if(step == 1)
 		return freq;
 	if(step >= 1000) 
@@ -135,8 +160,8 @@ int32_t TX_freq_check(const uint32_t Frequency)
 {	// return '0' if TX frequency is allowed
 	// otherwise return '-1'
 
-	if (Frequency < frequencyBandTable[0].lower || Frequency > frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper)
-		return -1;  // not allowed outside this range
+	if (Frequency < frequencyBandTable[0].lower || Frequency > frequencyBandTable[BAND_N_ELEM - 1].upper)
+		return 1;  // not allowed outside this range
 
 	if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
 		return -1;  // BX chip does not work in this range
@@ -212,7 +237,7 @@ int32_t RX_freq_check(const uint32_t Frequency)
 {	// return '0' if RX frequency is allowed
 	// otherwise return '-1'
 
-	if (Frequency < frequencyBandTable[0].lower || Frequency > frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper)
+	if (Frequency < frequencyBandTable[0].lower || Frequency > frequencyBandTable[BAND_N_ELEM - 1].upper)
 		return -1;
 
 	if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
