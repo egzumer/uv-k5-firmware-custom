@@ -184,10 +184,11 @@ void UI_DisplayFrequency(const char *string, uint8_t X, uint8_t Y, bool center)
 
 void UI_DrawPixelBuffer(uint8_t (*buffer)[128], uint8_t x, uint8_t y, bool black) 
 {
+	const uint8_t pattern = 1 << (y % 8);
 	if(black)
-		buffer[y/8][x] |= 1 << (y%8);
+		buffer[y/8][x] |= pattern;
 	else
-		buffer[y/8][x] &= ~(1 << (y%8));
+		buffer[y/8][x] &= ~pattern;
 }
 
 static void sort(int16_t *a, int16_t *b)
