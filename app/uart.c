@@ -36,10 +36,12 @@
 #include "functions.h"
 #include "misc.h"
 #include "settings.h"
+#include "version.h"
+
 #if defined(ENABLE_OVERLAY)
 	#include "sram-overlay.h"
 #endif
-#include "version.h"
+
 
 #define DMA_INDEX(x, y) (((x) + (y)) % sizeof(UART_DMA_Buffer))
 
