@@ -84,7 +84,7 @@ uint32_t 		 FREQUENCY_RoundToStep(uint32_t freq, uint16_t step);
 STEP_Setting_t   FREQUENCY_GetStepIdxFromSortedIdx(uint8_t sortedIdx);
 uint32_t		 FREQUENCY_GetSortedIdxFromStepIdx(uint8_t step);
 
-int32_t          TX_freq_check(const uint32_t Frequency);
-int32_t          RX_freq_check(const uint32_t Frequency);
+int32_t          TX_freq_check(uint32_t Frequency);
+int32_t          RX_freq_check(uint32_t Frequency);
 
 #endif

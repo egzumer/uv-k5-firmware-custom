@@ -37,11 +37,10 @@ extern uint8_t         gAirCopyIsSendMode;
 
 extern uint16_t        g_FSK_Buffer[36];
 
-void AIRCOPY_SendMessage(void);
+bool AIRCOPY_SendMessage(void);
 void AIRCOPY_StorePacket(void);
 void AIRCOPY_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
 #endif
 
 #endif
-
