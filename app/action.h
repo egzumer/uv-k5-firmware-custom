@@ -29,6 +29,11 @@ void ACTION_Scan(bool bRestart);
 #ifdef ENABLE_FMRADIO
 	void ACTION_FM(void);
 #endif
+
+#ifdef ENABLE_PMR_MODE
+	void ACTION_PMR(void);
+#endif
+
 void ACTION_SwitchDemodul(void);
 
 #ifdef ENABLE_BLMIN_TMP_OFF

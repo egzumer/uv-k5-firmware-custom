@@ -31,6 +31,9 @@
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
+#ifdef ENABLE_PMR_MODE
+	#include "app/pmr.h"
+#endif
 #include "app/generic.h"
 #include "app/main.h"
 #include "app/menu.h"
@@ -1859,6 +1862,13 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 					FM_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 					break;
 #endif
+
+#ifdef ENABLE_PMR_MODE
+				case DISPLAY_PMR:
+					PMR_ProcessKeys(Key, bKeyPressed, bKeyHeld);
+					break;
+#endif
+
 				case DISPLAY_MENU:
 					MENU_ProcessKeys(Key, bKeyPressed, bKeyHeld);
 					break;

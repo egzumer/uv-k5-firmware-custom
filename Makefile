@@ -51,6 +51,9 @@ ENABLE_SCAN_RANGES            := 1
 ENABLE_AM_FIX_SHOW_DATA       := 0
 ENABLE_AGC_SHOW_DATA          := 0
 
+# ----
+ENABLE_PMR_MODE               := 1
+
 #############################################################
 
 TARGET = build/firmware
@@ -131,6 +134,9 @@ OBJS += app/scanner.o
 ifeq ($(ENABLE_UART),1)
 	OBJS += app/uart.o
 endif
+ifeq ($(ENABLE_PMR_MODE),1)
+	OBJS += app/pmr.o
+endif
 ifeq ($(ENABLE_AM_FIX), 1)
 	OBJS += am_fix.o
 endif
@@ -167,6 +173,10 @@ OBJS += ui/ui.o
 OBJS += ui/welcome.o
 OBJS += version.o
 OBJS += main.o
+
+ifeq ($(ENABLE_PMR_MODE),1)
+	OBJS += ui/pmr.o
+endif
 
 ifeq ($(OS), Windows_NT)
 	TOP := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
@@ -373,6 +383,10 @@ ifeq ($(ENABLE_AGC_SHOW_DATA),1)
 endif
 ifeq ($(ENABLE_FLASHLIGHT),1)
 	CFLAGS  += -DENABLE_FLASHLIGHT
+endif
+
+ifeq ($(ENABLE_PMR_MODE),1)
+	CFLAGS  += -DENABLE_PMR_MODE
 endif
 
 LDFLAGS =

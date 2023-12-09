@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.sql": "oracle",
-        "regex": "c"
+        "regex": "c",
+        "printf.h": "c"
     }
 }

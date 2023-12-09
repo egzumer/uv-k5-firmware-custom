@@ -98,6 +98,13 @@ void (*action_opt_table[])(void) = {
 #else
 	[ACTION_OPT_BLMIN_TMP_OFF] = &FUNCTION_NOP,
 #endif
+
+#ifdef ENABLE_PMR_MODE
+	[ACTION_OPT_PMR] = &ACTION_PMR,
+#else
+	[ACTION_OPT_PMR] = &FUNCTION_NOP,
+#endif
+
 };
 
 //static_assert(ARRAY_SIZE(action_opt_table) == ACTION_OPT_LEN);
@@ -383,6 +390,19 @@ static void ACTION_Scan_FM(bool bRestart)
 
 }
 
+#endif
+
+
+#ifdef ENABLE_PMR_MODE
+void ACTION_PMR(void)
+{
+	if (gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_MONITOR)
+	{
+		gInputBoxIndex = 0;
+
+		gRequestDisplayScreen = DISPLAY_PMR;
+	}
+}
 #endif
 
 

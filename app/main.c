@@ -90,7 +90,9 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			#else
 
 
-				// TODO: make use of this function key
+			#ifdef ENABLE_PMR_MODE
+				ACTION_PMR();
+			#endif	
 
 
 			#endif

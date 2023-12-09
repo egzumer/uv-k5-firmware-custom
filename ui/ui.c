@@ -29,6 +29,9 @@
 #ifdef ENABLE_FMRADIO
 	#include "ui/fmradio.h"
 #endif
+#ifdef ENABLE_PMR_MODE
+	#include "ui/pmr.h"
+#endif
 #include "ui/inputbox.h"
 #include "ui/main.h"
 #include "ui/menu.h"
@@ -53,6 +56,12 @@ void GUI_DisplayScreen(void)
 		#ifdef ENABLE_FMRADIO
 			case DISPLAY_FM:
 				UI_DisplayFM();
+				break;
+		#endif
+
+		#ifdef ENABLE_PMR_MODE
+			case DISPLAY_PMR:
+				UI_DisplayPMR();
 				break;
 		#endif
 		

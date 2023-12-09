@@ -133,9 +133,11 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 			#endif
 
 			RADIO_SetVfoState(VFO_STATE_NORMAL);
-
+			
+			#ifndef ENABLE_PMR_MODE // && gRequestDisplayScreen != DISPLAY_PMR
 			if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
 				gRequestDisplayScreen = DISPLAY_MAIN;
+			#endif
 		}
 
 		return;
@@ -173,6 +175,11 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 #ifdef ENABLE_FMRADIO
 	if (gScreenToDisplay == DISPLAY_FM)
 		goto start_tx;	// listening to the FM radio .. start TX'ing
+#endif
+
+#ifdef ENABLE_PMR_MODE
+	if (gScreenToDisplay == DISPLAY_PMR)
+		goto start_tx;	// PMR Mode
 #endif
 
 	if (gCurrentFunction == FUNCTION_TRANSMIT && gRTTECountdown == 0)
@@ -230,8 +237,10 @@ cancel_tx:
 
 done:	
 	gPttDebounceCounter = 0;
-	if (gScreenToDisplay != DISPLAY_MENU && gRequestDisplayScreen != DISPLAY_FM)     // 1of11 .. don't close the menu
-		gRequestDisplayScreen = DISPLAY_MAIN;
+	#ifndef ENABLE_PMR_MODE //  && gRequestDisplayScreen != DISPLAY_PMR
+		if (gScreenToDisplay != DISPLAY_MENU && gRequestDisplayScreen != DISPLAY_FM)     // 1of11 .. don't close the menu
+			gRequestDisplayScreen = DISPLAY_MAIN;
+	#endif
 	gUpdateStatus  = true;
 	gUpdateDisplay = true;
 }
