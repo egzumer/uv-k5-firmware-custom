@@ -714,18 +714,19 @@ static void CheckRadioInterrupts(void)
 			BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, false);
 		}
 
-		#ifdef ENABLE_AIRCOPY
-			if (interrupt_status_bits & BK4819_REG_02_FSK_FIFO_ALMOST_FULL &&
-			    gScreenToDisplay == DISPLAY_AIRCOPY &&
-			    gAircopyState == AIRCOPY_TRANSFER &&
-			    gAirCopyIsSendMode == 0)
-			{
-				unsigned int i;
-				for (i = 0; i < 4; i++)
-					g_FSK_Buffer[gFSKWriteIndex++] = BK4819_ReadRegister(BK4819_REG_5F);
-				AIRCOPY_StorePacket();
+#ifdef ENABLE_AIRCOPY
+		if (interrupt_status_bits & BK4819_REG_02_FSK_FIFO_ALMOST_FULL &&
+			gScreenToDisplay == DISPLAY_AIRCOPY &&
+			gAircopyState == AIRCOPY_TRANSFER &&
+			gAirCopyIsSendMode == 0)
+		{
+			for (unsigned int i = 0; i < 4; i++) {
+				g_FSK_Buffer[gFSKWriteIndex++] = BK4819_ReadRegister(BK4819_REG_5F);
 			}
-		#endif
+
+			AIRCOPY_StorePacket();
+		}
+#endif
 	}
 }
 
@@ -1281,13 +1282,8 @@ void APP_TimeSlice10ms(void)
 #ifdef ENABLE_AIRCOPY
 	if (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState == AIRCOPY_TRANSFER && gAirCopyIsSendMode == 1)
 	{
-		if (gAircopySendCountdown > 0)
-		{
-			if (--gAircopySendCountdown == 0)
-			{
-				AIRCOPY_SendMessage();
-				GUI_DisplayScreen();
-			}
+		if (!AIRCOPY_SendMessage()) {
+			GUI_DisplayScreen();
 		}
 	}
 #endif

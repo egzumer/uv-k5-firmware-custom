@@ -295,9 +295,6 @@ extern uint8_t               gPttDebounceCounter;
 extern uint8_t               gMenuListCount;
 extern uint8_t               gBackup_CROSS_BAND_RX_TX;
 extern uint8_t               gScanDelay_10ms;
-#ifdef ENABLE_AIRCOPY
-	extern uint8_t           gAircopySendCountdown;
-#endif
 extern uint8_t               gFSKWriteIndex;
 #ifdef ENABLE_NOAA
 	extern bool              gIsNoaaMode;
