@@ -49,6 +49,7 @@ ENABLE_SCAN_RANGES            ?= 1
 # ---- DEBUGGING ----
 ENABLE_AM_FIX_SHOW_DATA       ?= 0
 ENABLE_AGC_SHOW_DATA          ?= 0
+ENABLE_UART_RW_BK_REGS        ?= 0
 
 #############################################################
 
@@ -368,6 +369,9 @@ ifeq ($(ENABLE_AGC_SHOW_DATA),1)
 endif
 ifeq ($(ENABLE_FLASHLIGHT),1)
 	CFLAGS  += -DENABLE_FLASHLIGHT
+endif
+ifeq ($(ENABLE_UART_RW_BK_REGS),1)
+	CFLAGS  += -DENABLE_UART_RW_BK_REGS
 endif
 
 LDFLAGS =
