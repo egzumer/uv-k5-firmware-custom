@@ -944,14 +944,14 @@ static void RenderStill() {
 
   const uint8_t METER_PAD_LEFT = 3;
 
-  for (int i = 0; i < 121; i++) {
-    if (i % 10 == 0) {
-      gFrameBuffer[2][i + METER_PAD_LEFT] = 0b01110000;
-    } else if (i % 5 == 0) {
-      gFrameBuffer[2][i + METER_PAD_LEFT] = 0b00110000;
-    } else {
-      gFrameBuffer[2][i + METER_PAD_LEFT] = 0b00010000;
-    }
+  memset(&gFrameBuffer[2][METER_PAD_LEFT], 0b00010000, 121);
+
+  for (int i = 0; i < 121; i+=5) {
+    gFrameBuffer[2][i + METER_PAD_LEFT] = 0b00110000;
+  }
+
+  for (int i = 0; i < 121; i+=10) {
+    gFrameBuffer[2][i + METER_PAD_LEFT] = 0b01110000;
   }
 
   uint8_t x = Rssi2PX(scanInfo.rssi, 0, 121);
