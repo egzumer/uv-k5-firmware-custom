@@ -59,6 +59,7 @@
 #include "misc.h"
 #include "radio.h"
 #include "settings.h"
+
 #if defined(ENABLE_OVERLAY)
 	#include "sram-overlay.h"
 #endif
@@ -810,7 +811,7 @@ static void HandleVox(void)
 		if (gCurrentFunction == FUNCTION_POWER_SAVE)
 			FUNCTION_Select(FUNCTION_FOREGROUND);
 
-		if (gCurrentFunction != FUNCTION_TRANSMIT && gSerialConfigCountDown_500ms == 0)
+		if (gCurrentFunction != FUNCTION_TRANSMIT && !SerialConfigInProgress())
 		{
 #ifdef ENABLE_DTMF_CALLING
 			gDTMF_ReplyState = DTMF_REPLY_NONE;
@@ -831,7 +832,7 @@ void APP_Update(void)
 	}
 #endif
 
-	if (gCurrentFunction == FUNCTION_TRANSMIT && (gTxTimeoutReached || gSerialConfigCountDown_500ms > 0))
+	if (gCurrentFunction == FUNCTION_TRANSMIT && (gTxTimeoutReached || SerialConfigInProgress()))
 	{	// transmitter timed out or must de-key
 		gTxTimeoutReached = false;
 
@@ -1037,9 +1038,9 @@ static void CheckKeys(void)
 // -------------------- PTT ------------------------
 	if (gPttIsPressed)
 	{
-		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) || gSerialConfigCountDown_500ms > 0)
+		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) || SerialConfigInProgress())
 		{	// PTT released or serial comms config in progress
-			if (++gPttDebounceCounter >= 3 || gSerialConfigCountDown_500ms > 0)	    // 30ms
+			if (++gPttDebounceCounter >= 3 || SerialConfigInProgress())	    // 30ms
 			{	// stop transmitting
 				ProcessKey(KEY_PTT, false, false);
 				gPttIsPressed = false;
@@ -1050,7 +1051,7 @@ static void CheckKeys(void)
 		else
 			gPttDebounceCounter = 0;
 	}
-	else if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) && gSerialConfigCountDown_500ms == 0)
+	else if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) && !SerialConfigInProgress())
 	{	// PTT pressed
 		if (++gPttDebounceCounter >= 3)	    // 30ms
 		{	// start transmitting
@@ -1389,10 +1390,6 @@ void APP_TimeSlice500ms(void)
 				BACKLIGHT_TurnOff();
 			}
 		}
-	}
-
-	if (gSerialConfigCountDown_500ms > 0)
-	{
 	}
 
 	if (gReducedService)

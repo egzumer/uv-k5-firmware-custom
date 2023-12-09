@@ -333,4 +333,6 @@ unsigned long StrToUL(const char * str);
 
 void FUNCTION_NOP();
 
+inline bool SerialConfigInProgress() { return gSerialConfigCountDown_500ms != 0; }
+
 #endif
