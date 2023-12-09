@@ -228,6 +228,8 @@ static bool IsBadChallenge(const uint32_t *pKey, const uint32_t *pIn, const uint
 	return false;
 }
 
+// session init, sends back version info and state
+// timestamp is a session id really
 static void CMD_0514(const uint8_t *pBuffer)
 {
 	const CMD_0514_t *pCmd = (const CMD_0514_t *)pBuffer;
@@ -246,6 +248,7 @@ static void CMD_0514(const uint8_t *pBuffer)
 	SendVersion();
 }
 
+// read eeprom
 static void CMD_051B(const uint8_t *pBuffer)
 {
 	const CMD_051B_t *pCmd = (const CMD_051B_t *)pBuffer;
@@ -276,6 +279,7 @@ static void CMD_051B(const uint8_t *pBuffer)
 	SendReply(&Reply, pCmd->Size + 8);
 }
 
+// write eeprom
 static void CMD_051D(const uint8_t *pBuffer)
 {
 	const CMD_051D_t *pCmd = (const CMD_051D_t *)pBuffer;
@@ -322,6 +326,7 @@ static void CMD_051D(const uint8_t *pBuffer)
 	SendReply(&Reply, sizeof(Reply));
 }
 
+// read RSSI
 static void CMD_0527(void)
 {
 	REPLY_0527_t Reply;
@@ -335,6 +340,7 @@ static void CMD_0527(void)
 	SendReply(&Reply, sizeof(Reply));
 }
 
+// read ADC
 static void CMD_0529(void)
 {
 	REPLY_0529_t Reply;
@@ -554,7 +560,7 @@ void UART_HandleCommand(void)
 			CMD_052F(UART_Command.Buffer);
 			break;
 	
-		case 0x05DD:
+		case 0x05DD: // reset
 			#if defined(ENABLE_OVERLAY)
 				overlay_FLASH_RebootToBootloader();
 			#else
