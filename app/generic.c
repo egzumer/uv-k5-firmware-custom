@@ -96,6 +96,9 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 				return;
 			}
+		#else
+			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+			return;
 		#endif
 
 		gBeepToPlay     = BEEP_440HZ_500MS;
