@@ -14,6 +14,8 @@
  *     limitations under the License.
  */
 
+#include <assert.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "am_fix.h"
@@ -60,6 +62,7 @@
 #include "misc.h"
 #include "radio.h"
 #include "settings.h"
+
 #if defined(ENABLE_OVERLAY)
 	#include "sram-overlay.h"
 #endif
@@ -73,6 +76,27 @@
 #include "debugging.h"
 
 static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
+
+
+void (*ProcessKeysFunctions[])(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) = {
+	[DISPLAY_MAIN] = &MAIN_ProcessKeys,
+	[DISPLAY_MENU] = &MENU_ProcessKeys,
+	[DISPLAY_SCANNER] = &SCANNER_ProcessKeys,
+
+#ifdef ENABLE_FMRADIO
+	[DISPLAY_FM] = &FM_ProcessKeys,
+#endif
+
+#ifdef ENABLE_PMR_MODE
+	[DISPLAY_PMR] = &PMR_ProcessKeys,
+#endif
+
+#ifdef ENABLE_AIRCOPY
+	[DISPLAY_AIRCOPY] = &AIRCOPY_ProcessKeys,
+#endif
+};
+
+static_assert(ARRAY_SIZE(ProcessKeysFunctions) == DISPLAY_N_ELEM);
 
 
 
@@ -697,18 +721,19 @@ static void CheckRadioInterrupts(void)
 			BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, false);
 		}
 
-		#ifdef ENABLE_AIRCOPY
-			if (interrupt_status_bits & BK4819_REG_02_FSK_FIFO_ALMOST_FULL &&
-			    gScreenToDisplay == DISPLAY_AIRCOPY &&
-			    gAircopyState == AIRCOPY_TRANSFER &&
-			    gAirCopyIsSendMode == 0)
-			{
-				unsigned int i;
-				for (i = 0; i < 4; i++)
-					g_FSK_Buffer[gFSKWriteIndex++] = BK4819_ReadRegister(BK4819_REG_5F);
-				AIRCOPY_StorePacket();
+#ifdef ENABLE_AIRCOPY
+		if (interrupt_status_bits & BK4819_REG_02_FSK_FIFO_ALMOST_FULL &&
+			gScreenToDisplay == DISPLAY_AIRCOPY &&
+			gAircopyState == AIRCOPY_TRANSFER &&
+			gAirCopyIsSendMode == 0)
+		{
+			for (unsigned int i = 0; i < 4; i++) {
+				g_FSK_Buffer[gFSKWriteIndex++] = BK4819_ReadRegister(BK4819_REG_5F);
 			}
-		#endif
+
+			AIRCOPY_StorePacket();
+		}
+#endif
 	}
 }
 
@@ -794,7 +819,7 @@ static void HandleVox(void)
 		if (gCurrentFunction == FUNCTION_POWER_SAVE)
 			FUNCTION_Select(FUNCTION_FOREGROUND);
 
-		if (gCurrentFunction != FUNCTION_TRANSMIT && gSerialConfigCountDown_500ms == 0)
+		if (gCurrentFunction != FUNCTION_TRANSMIT && !SerialConfigInProgress())
 		{
 #ifdef ENABLE_DTMF_CALLING
 			gDTMF_ReplyState = DTMF_REPLY_NONE;
@@ -815,7 +840,7 @@ void APP_Update(void)
 	}
 #endif
 
-	if (gCurrentFunction == FUNCTION_TRANSMIT && (gTxTimeoutReached || gSerialConfigCountDown_500ms > 0))
+	if (gCurrentFunction == FUNCTION_TRANSMIT && (gTxTimeoutReached || SerialConfigInProgress()))
 	{	// transmitter timed out or must de-key
 		gTxTimeoutReached = false;
 
@@ -1021,9 +1046,9 @@ static void CheckKeys(void)
 // -------------------- PTT ------------------------
 	if (gPttIsPressed)
 	{
-		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) || gSerialConfigCountDown_500ms > 0)
+		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) || SerialConfigInProgress())
 		{	// PTT released or serial comms config in progress
-			if (++gPttDebounceCounter >= 3 || gSerialConfigCountDown_500ms > 0)	    // 30ms
+			if (++gPttDebounceCounter >= 3 || SerialConfigInProgress())	    // 30ms
 			{	// stop transmitting
 				ProcessKey(KEY_PTT, false, false);
 				gPttIsPressed = false;
@@ -1034,7 +1059,7 @@ static void CheckKeys(void)
 		else
 			gPttDebounceCounter = 0;
 	}
-	else if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) && gSerialConfigCountDown_500ms == 0)
+	else if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) && !SerialConfigInProgress())
 	{	// PTT pressed
 		if (++gPttDebounceCounter >= 3)	    // 30ms
 		{	// start transmitting
@@ -1264,13 +1289,8 @@ void APP_TimeSlice10ms(void)
 #ifdef ENABLE_AIRCOPY
 	if (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState == AIRCOPY_TRANSFER && gAirCopyIsSendMode == 1)
 	{
-		if (gAircopySendCountdown > 0)
-		{
-			if (--gAircopySendCountdown == 0)
-			{
-				AIRCOPY_SendMessage();
-				GUI_DisplayScreen();
-			}
+		if (!AIRCOPY_SendMessage()) {
+			GUI_DisplayScreen();
 		}
 	}
 #endif
@@ -1373,10 +1393,6 @@ void APP_TimeSlice500ms(void)
 				BACKLIGHT_TurnOff();
 			}
 		}
-	}
-
-	if (gSerialConfigCountDown_500ms > 0)
-	{
 	}
 
 	if (gReducedService)
@@ -1582,8 +1598,6 @@ static void ALARM_Off(void)
 		gRequestDisplayScreen = DISPLAY_MAIN;
 }
 #endif
-
-
 
 static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
@@ -1852,40 +1866,8 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			}
 #endif
 		}
-		else if (Key != KEY_SIDE1 && Key != KEY_SIDE2) {
-			switch (gScreenToDisplay) {
-				case DISPLAY_MAIN:
-					MAIN_ProcessKeys(Key, bKeyPressed, bKeyHeld);
-					break;
-#ifdef ENABLE_FMRADIO
-				case DISPLAY_FM:
-					FM_ProcessKeys(Key, bKeyPressed, bKeyHeld);
-					break;
-#endif
-
-#ifdef ENABLE_PMR_MODE
-				case DISPLAY_PMR:
-					PMR_ProcessKeys(Key, bKeyPressed, bKeyHeld);
-					break;
-#endif
-
-				case DISPLAY_MENU:
-					MENU_ProcessKeys(Key, bKeyPressed, bKeyHeld);
-					break;
-
-				case DISPLAY_SCANNER:
-					SCANNER_ProcessKeys(Key, bKeyPressed, bKeyHeld);
-					break;
-
-#ifdef ENABLE_AIRCOPY
-				case DISPLAY_AIRCOPY:
-					AIRCOPY_ProcessKeys(Key, bKeyPressed, bKeyHeld);
-					break;
-#endif
-				case DISPLAY_INVALID:
-				default:
-					break;
-			}
+		else if (Key != KEY_SIDE1 && Key != KEY_SIDE2 && gScreenToDisplay != DISPLAY_INVALID) {
+			ProcessKeysFunctions[gScreenToDisplay](Key, bKeyPressed, bKeyHeld);
 		}
 		else
 #ifdef ENABLE_AIRCOPY

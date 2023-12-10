@@ -996,13 +996,13 @@ void RADIO_PrepareTX(void)
 	RADIO_SelectCurrentVfo();
 
 	if(TX_freq_check(gCurrentVfo->pTX->Frequency) != 0
-		#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
+#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 		&& gAlarmState != ALARM_STATE_SITE_ALARM
-		#endif
-	) {
+#endif
+	){
 		// TX frequency not allowed
 		State = VFO_STATE_TX_DISABLE;
-	} else if (gSerialConfigCountDown_500ms > 0) {
+	} else if (SerialConfigInProgress()) {
 		// TX is disabled or config upload/download in progress
 		State = VFO_STATE_TX_DISABLE;
 	} else if (gCurrentVfo->BUSY_CHANNEL_LOCK && gCurrentFunction == FUNCTION_RECEIVE) {
@@ -1015,31 +1015,31 @@ void RADIO_PrepareTX(void)
 		// over voltage .. this is being a pain
 		State = VFO_STATE_VOLTAGE_HIGH;
 	}
-	#ifndef ENABLE_TX_WHEN_AM
+#ifndef ENABLE_TX_WHEN_AM
 	else if (gCurrentVfo->Modulation != MODULATION_FM) {
 		// not allowed to TX if in AM mode
 		State = VFO_STATE_TX_DISABLE;
 	}
-	#endif
+#endif
 
 	if (State != VFO_STATE_NORMAL) {
 		// TX not allowed
 		RADIO_SetVfoState(State);
 
-	#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
+#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 		gAlarmState = ALARM_STATE_OFF;
-	#endif
+#endif
 
-	#ifdef ENABLE_DTMF_CALLING
+#ifdef ENABLE_DTMF_CALLING
 		gDTMF_ReplyState = DTMF_REPLY_NONE;
-	#endif
+#endif
 		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 		return;
 	}
 
 	// TX is allowed
 
-	#ifdef ENABLE_DTMF_CALLING
+#ifdef ENABLE_DTMF_CALLING
 	if (gDTMF_ReplyState == DTMF_REPLY_ANI)
 	{
 		if (gDTMF_CallMode == DTMF_CALL_MODE_DTMF)
@@ -1054,7 +1054,7 @@ void RADIO_PrepareTX(void)
 			gDTMF_CallState = DTMF_CALL_STATE_CALL_OUT;
 		}
 	}
-	#endif
+#endif
 
 	FUNCTION_Select(FUNCTION_TRANSMIT);
 
