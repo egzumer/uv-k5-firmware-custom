@@ -83,13 +83,14 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 	}
 	else // short pressed
 	{
-		if (gScreenToDisplay != DISPLAY_FM)
-		{
-			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-			return;
-		}
-
 		#ifdef ENABLE_FMRADIO
+			if (gScreenToDisplay != DISPLAY_FM)
+			{
+				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+				return;
+			}
+
+		
 			if (gFM_ScanState == FM_SCAN_OFF) // not scanning
 			{
 				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
