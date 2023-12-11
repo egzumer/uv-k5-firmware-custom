@@ -42,6 +42,20 @@ const uint8_t BITMAP_RX[8] =
 	0b00000000
 };
 
+const uint8_t BITMAP_FM[10] =
+{	// "FM"
+	0b00000000,
+	0b01111111,
+	0b00001001,
+	0b00000001,
+	0b00000000,
+	0b01111111,
+	0b00000010,
+	0b00001100,
+	0b00000010,
+	0b01111111
+};
+
 const uint8_t BITMAP_BatteryLevel[2] =
 {
 	0b01011101,
@@ -170,8 +184,9 @@ const uint8_t BITMAP_XB[12] =
 };
 
 
-const uint8_t BITMAP_TDR1[15] =
+const uint8_t BITMAP_TDR1[16] =
 {	// "DWR"
+	0b00000000,
 	0b01111111,
 	0b01000001,
 	0b01000001,
@@ -189,8 +204,9 @@ const uint8_t BITMAP_TDR1[15] =
 	0b01000110
 };
 
-const uint8_t BITMAP_TDR2[9] =
+const uint8_t BITMAP_TDR2[10] =
 {	// "><" .. DW on hold
+	0b00000000,
 	0b00100010,
 	0b00110110,
 	0b00011100,

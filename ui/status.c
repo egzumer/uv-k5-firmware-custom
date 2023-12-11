@@ -71,6 +71,13 @@ void UI_DisplayStatus()
 	}
 	else 
 #endif
+#ifdef ENABLE_FMRADIO
+	if (gFmRadioMode) { // FM indicator
+		memcpy(line + x, BITMAP_FM, sizeof(BITMAP_FM));
+		x1 = x + sizeof(BITMAP_FM);
+	}
+	else
+#endif
 	{ // SCAN indicator
 		if (gScanStateDir != SCAN_OFF || SCANNER_IsScanning()) {
 			char * s = "";
@@ -84,11 +91,11 @@ void UI_DisplayStatus()
 			else {	// frequency mode
 				s = "S";
 			}
-			UI_PrintStringSmallBuffer(s, line + x);
-			x1 = x + 7;
+			UI_PrintStringSmallBuffer(s, line + x + 1);
+			x1 = x + 10;
 		}
 	}
-	x += 7;  // font character width
+	x += 10;  // font character width
 
 #ifdef ENABLE_VOICE
 	// VOICE indicator
@@ -96,35 +103,33 @@ void UI_DisplayStatus()
 		memcpy(line + x, BITMAP_VoicePrompt, sizeof(BITMAP_VoicePrompt));
 		x1 = x + sizeof(BITMAP_VoicePrompt);
 	}
-	x += sizeof(BITMAP_VoicePrompt) + 1;
+	x += sizeof(BITMAP_VoicePrompt);
 #endif
 
-	x++;
 	if(!SCANNER_IsScanning()) {
 		uint8_t dw = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF) + (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF) * 2;
 		if(dw == 1 || dw == 3) { // DWR - dual watch + respond
 			if(gDualWatchActive) 
-				memcpy(line + x, BITMAP_TDR1, sizeof(BITMAP_TDR1) - (dw==1?0:5));
+				memcpy(line + x + (dw==1?0:2), BITMAP_TDR1, sizeof(BITMAP_TDR1) - (dw==1?0:5));
 			else 
 				memcpy(line + x + 3, BITMAP_TDR2, sizeof(BITMAP_TDR2));
 		}
 		else if(dw == 2) { // XB - crossband
-			memcpy(line + x, BITMAP_XB, sizeof(BITMAP_XB));
+			memcpy(line + x + 2, BITMAP_XB, sizeof(BITMAP_XB));
 		}
 	}
-	x += sizeof(BITMAP_TDR1) + 2;
+	x += sizeof(BITMAP_TDR1) + 1;
 	
 #ifdef ENABLE_VOX
 	// VOX indicator
 	if (gEeprom.VOX_SWITCH) {
 		memcpy(line + x, BITMAP_VOX, sizeof(BITMAP_VOX));
-		x1 = x + sizeof(BITMAP_VOX);
+		x1 = x + sizeof(BITMAP_VOX) + 1;
 	}
-	x += sizeof(BITMAP_VOX) + 2;
+	x += sizeof(BITMAP_VOX) + 1;
 #endif
 
-	x = MAX(x, 61u);
-	x1 = x;
+	x = MAX(x1, 61u);
 
 	// KEY-LOCK indicator
 	if (gEeprom.KEY_LOCK) {
@@ -140,7 +145,7 @@ void UI_DisplayStatus()
 
 	{	// battery voltage or percentage
 		char         s[8] = "";	
-		unsigned int x2 = LCD_WIDTH - sizeof(BITMAP_BatteryLevel1) - 3;
+		unsigned int x2 = LCD_WIDTH - sizeof(BITMAP_BatteryLevel1) - 0;
 
 		if (gChargingWithTypeC)
 			x2 -= sizeof(BITMAP_USB_C);  // the radio is on charge
