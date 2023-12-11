@@ -36,71 +36,52 @@
 
 void UI_DisplayStatus()
 {
-	uint8_t     *line = gStatusLine;
-	unsigned int x    = 0;
-	unsigned int x1   = 0;
-	
-	gUpdateStatus = false;
-	
+	gUpdateStatus = false;	
 	memset(gStatusLine, 0, sizeof(gStatusLine));
 
+	uint8_t     *line = gStatusLine;
+	unsigned int x    = 0;
 	// **************
 
 	// POWER-SAVE indicator
-	if (gCurrentFunction == FUNCTION_TRANSMIT)
-	{
-		memmove(line + x, BITMAP_TX, sizeof(BITMAP_TX));
-		x1 = x + sizeof(BITMAP_TX);
+	if (gCurrentFunction == FUNCTION_TRANSMIT) {
+		memcpy(line + x, BITMAP_TX, sizeof(BITMAP_TX));
 	}
-	else
-	if (FUNCTION_IsRx())
-	{
-		memmove(line + x, BITMAP_RX, sizeof(BITMAP_RX));
-		x1 = x + sizeof(BITMAP_RX);
+	else if (FUNCTION_IsRx()) {
+		memcpy(line + x, BITMAP_RX, sizeof(BITMAP_RX));
 	}
-	else
-	if (gCurrentFunction == FUNCTION_POWER_SAVE)
-	{
-		memmove(line + x, BITMAP_POWERSAVE, sizeof(BITMAP_POWERSAVE));
-		x1 = x + sizeof(BITMAP_POWERSAVE);
+	else if (gCurrentFunction == FUNCTION_POWER_SAVE) {
+		memcpy(line + x, BITMAP_POWERSAVE, sizeof(BITMAP_POWERSAVE));
 	}
-	x += sizeof(BITMAP_POWERSAVE);
+	x += 8;
+	unsigned int x1 = x;
 
-	#ifdef ENABLE_NOAA
-		// NOASS SCAN indicator
-		if (gIsNoaaMode)
-		{
-			memmove(line + x, BITMAP_NOAA, sizeof(BITMAP_NOAA));
-			x1 = x + sizeof(BITMAP_NOAA);
-		}
-		x += sizeof(BITMAP_NOAA);
-	#else
-		// hmmm, what to put in it's place
-	#endif
+#ifdef ENABLE_NOAA
+	if (gIsNoaaMode) { // NOASS SCAN indicator
+		memcpy(line + x, BITMAP_NOAA, sizeof(BITMAP_NOAA));
+		x1 = x + sizeof(BITMAP_NOAA);
+	}
+	x += sizeof(BITMAP_NOAA);
+#endif
 
 #ifdef ENABLE_DTMF_CALLING
-	if (gSetting_KILLED)
-	{
+	if (gSetting_KILLED) {
 		memset(line + x, 0xFF, 10);
 		x1 = x + 10;
 	}
 	else 
 #endif
-	{
-		// SCAN indicator
-		if (gScanStateDir != SCAN_OFF || SCANNER_IsScanning())
-		{
+	{ // SCAN indicator
+		if (gScanStateDir != SCAN_OFF || SCANNER_IsScanning()) {
 			char * s = "";
-			if (IS_MR_CHANNEL(gNextMrChannel) && !SCANNER_IsScanning())
-			{	// channel mode
+			if (IS_MR_CHANNEL(gNextMrChannel) && !SCANNER_IsScanning()) { // channel mode
 				switch(gEeprom.SCAN_LIST_DEFAULT) {
 					case 0: s = "1"; break;
 					case 1: s = "2"; break;
 					case 2: s = "*"; break;
 				}
 			}
-			else
-			{	// frequency mode
+			else {	// frequency mode
 				s = "S";
 			}
 			UI_PrintStringSmallBuffer(s, line + x);
@@ -109,97 +90,80 @@ void UI_DisplayStatus()
 	}
 	x += 7;  // font character width
 
-	#ifdef ENABLE_VOICE
-		// VOICE indicator
-		if (gEeprom.VOICE_PROMPT != VOICE_PROMPT_OFF)
-		{
-			memmove(line + x, BITMAP_VoicePrompt, sizeof(BITMAP_VoicePrompt));
-			x1 = x + sizeof(BITMAP_VoicePrompt);
-		}
-		x += sizeof(BITMAP_VoicePrompt) + 1;
-	#else
-		// hmmm, what to put in it's place
-	#endif
+#ifdef ENABLE_VOICE
+	// VOICE indicator
+	if (gEeprom.VOICE_PROMPT != VOICE_PROMPT_OFF){
+		memcpy(line + x, BITMAP_VoicePrompt, sizeof(BITMAP_VoicePrompt));
+		x1 = x + sizeof(BITMAP_VoicePrompt);
+	}
+	x += sizeof(BITMAP_VoicePrompt) + 1;
+#endif
 
 	x++;
 	if(!SCANNER_IsScanning()) {
 		uint8_t dw = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF) + (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF) * 2;
 		if(dw == 1 || dw == 3) { // DWR - dual watch + respond
 			if(gDualWatchActive) 
-				memmove(line + x, BITMAP_TDR1, sizeof(BITMAP_TDR1) - (dw==1?0:5));
+				memcpy(line + x, BITMAP_TDR1, sizeof(BITMAP_TDR1) - (dw==1?0:5));
 			else 
-				memmove(line + x + 3, BITMAP_TDR2, sizeof(BITMAP_TDR2));
+				memcpy(line + x + 3, BITMAP_TDR2, sizeof(BITMAP_TDR2));
 		}
 		else if(dw == 2) { // XB - crossband
-			memmove(line + x, BITMAP_XB, sizeof(BITMAP_XB));
+			memcpy(line + x, BITMAP_XB, sizeof(BITMAP_XB));
 		}
 	}
 	x += sizeof(BITMAP_TDR1) + 2;
 	
-	#ifdef ENABLE_VOX
-		// VOX indicator
-		if (gEeprom.VOX_SWITCH)
-		{
-			memmove(line + x, BITMAP_VOX, sizeof(BITMAP_VOX));
-			x1 = x + sizeof(BITMAP_VOX);
-		}
-		x += sizeof(BITMAP_VOX) + 2;
-	#endif
+#ifdef ENABLE_VOX
+	// VOX indicator
+	if (gEeprom.VOX_SWITCH) {
+		memcpy(line + x, BITMAP_VOX, sizeof(BITMAP_VOX));
+		x1 = x + sizeof(BITMAP_VOX);
+	}
+	x += sizeof(BITMAP_VOX) + 2;
+#endif
 
 	x = MAX(x, 61u);
 	x1 = x;
 
 	// KEY-LOCK indicator
-	if (gEeprom.KEY_LOCK)
-	{
-		memmove(line + x, BITMAP_KeyLock, sizeof(BITMAP_KeyLock));
+	if (gEeprom.KEY_LOCK) {
+		memcpy(line + x, BITMAP_KeyLock, sizeof(BITMAP_KeyLock));
 		x += sizeof(BITMAP_KeyLock);
 		x1 = x;
 	}
-	else
-	if (gWasFKeyPressed)
-	{
-		memmove(line + x, BITMAP_F_Key, sizeof(BITMAP_F_Key));
+	else if (gWasFKeyPressed) {
+		memcpy(line + x, BITMAP_F_Key, sizeof(BITMAP_F_Key));
 		x += sizeof(BITMAP_F_Key);
 		x1 = x;
 	}
 
 	{	// battery voltage or percentage
-		char         s[8];
-		unsigned int space_needed;
-		
+		char         s[8] = "";	
 		unsigned int x2 = LCD_WIDTH - sizeof(BITMAP_BatteryLevel1) - 3;
 
 		if (gChargingWithTypeC)
 			x2 -= sizeof(BITMAP_USB_C);  // the radio is on charge
 
-		switch (gSetting_battery_text)
-		{
+		switch (gSetting_battery_text) {
 			default:
 			case 0:
 				break;
 	
-			case 1:		// voltage
-			{
+			case 1:	{	// voltage
 				const uint16_t voltage = (gBatteryVoltageAverage <= 999) ? gBatteryVoltageAverage : 999; // limit to 9.99V
 				sprintf(s, "%u.%02uV", voltage / 100, voltage % 100);
-				space_needed = (7 * strlen(s));
-				if (x2 >= (x1 + space_needed))
-				{
-					UI_PrintStringSmallBuffer(s, line + x2 - space_needed);
-				}
 				break;
 			}
 			
 			case 2:		// percentage
-			{
 				sprintf(s, "%u%%", BATTERY_VoltsToPercent(gBatteryVoltageAverage));
-				space_needed = (7 * strlen(s));
-				if (x2 >= (x1 + space_needed))
-					UI_PrintStringSmallBuffer(s, line + x2 - space_needed);
 				break;
-			}
 		}
+
+		unsigned int space_needed = (7 * strlen(s));
+		if (x2 >= (x1 + space_needed))
+			UI_PrintStringSmallBuffer(s, line + x2 - space_needed);
 	}
 		
 	// move to right side of the screen
@@ -207,7 +171,7 @@ void UI_DisplayStatus()
 	
 	// USB-C charge indicator
 	if (gChargingWithTypeC)
-		memmove(line + x, BITMAP_USB_C, sizeof(BITMAP_USB_C));
+		memcpy(line + x, BITMAP_USB_C, sizeof(BITMAP_USB_C));
 	x += sizeof(BITMAP_USB_C);
 
 	// BATTERY LEVEL indicator

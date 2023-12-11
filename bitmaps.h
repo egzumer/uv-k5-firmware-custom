@@ -36,8 +36,6 @@ extern const uint8_t BITMAP_TDR2[9];
 
 extern const uint8_t BITMAP_Antenna[5];
 
-extern const uint8_t BITMAP_MARKER[8];
-
 extern const uint8_t BITMAP_VFO_Default[8];
 extern const uint8_t BITMAP_VFO_NotDefault[8];
 
