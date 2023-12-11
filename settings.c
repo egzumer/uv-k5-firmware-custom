@@ -99,7 +99,7 @@ void SETTINGS_InitEEPROM(void)
 		} __attribute__((packed)) FM;
 
 		EEPROM_ReadBuffer(0x0E88, &FM, 8);
-		gEeprom.FM_LowerLimit = 760;
+		gEeprom.FM_LowerLimit = 650;
 		gEeprom.FM_UpperLimit = 1080;
 		if (FM.SelectedFrequency < gEeprom.FM_LowerLimit || FM.SelectedFrequency > gEeprom.FM_UpperLimit)
 			gEeprom.FM_SelectedFrequency = 960;
