@@ -44,6 +44,7 @@ void SETTINGS_InitEEPROM(void)
 	uint8_t      Data[16];
 
 	memset(Data, 0, sizeof(Data));
+	memset(&gEeprom, 0, sizeof(gEeprom));
 
 	// 0E70..0E77
 	EEPROM_ReadBuffer(0x0E70, Data, 8);
