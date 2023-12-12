@@ -21,30 +21,29 @@
 #include "driver/st7565.h"
 #include "functions.h"
 #include "ui/battery.h"
+#include "../misc.h"
 
 void UI_DrawBattery(uint8_t* bitmap, uint8_t level, uint8_t blink)
 {
 	if (level < 2 && blink == 1) {
 		memset(bitmap, 0, sizeof(BITMAP_BatteryLevel1));
+		return;
 	}
-	else 
-	{
-		memmove(bitmap, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
-		if (level > 2)
-		{
-			unsigned int i;
-			uint8_t bars = level - 2;
-			if (bars > 4)
-				bars = 4;
-			for (i = 0; i < bars; i++)
-			{
-				#ifndef ENABLE_REVERSE_BAT_SYMBOL
-					memcpy(bitmap + sizeof(BITMAP_BatteryLevel1) - 4 - (i * 3), BITMAP_BatteryLevel, 2);
-				#else
-					memcpy(bitmap + 3 + (i * 3) + 0, BITMAP_BatteryLevel, 2);
-				#endif
-			}
-		}
+
+	memcpy(bitmap, BITMAP_BatteryLevel1, sizeof(BITMAP_BatteryLevel1));
+
+	if (level <= 2) {
+		return;
+	}
+
+	const uint8_t bars = MAX(4, level - 2);
+
+	for (int i = 0; i < bars; i++) {
+#ifndef ENABLE_REVERSE_BAT_SYMBOL
+		memcpy(bitmap + sizeof(BITMAP_BatteryLevel1) - 4 - (i * 3), BITMAP_BatteryLevel, 2);
+#else
+		memcpy(bitmap + 3 + (i * 3) + 0, BITMAP_BatteryLevel, 2);
+#endif
 	}
 }
 
