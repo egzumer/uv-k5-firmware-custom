@@ -681,7 +681,7 @@ void MENU_AcceptSetting(void)
 				GUI_SelectNextDisplay(DISPLAY_MAIN);
 				gDTMF_InputMode       = true;
 				gDTMF_InputBox_Index  = 3;
-				memmove(gDTMF_InputBox, gDTMF_ID, 4);
+				memcpy(gDTMF_InputBox, gDTMF_ID, 4);
 				gRequestDisplayScreen = DISPLAY_INVALID;
 			}
 			return;
@@ -1436,7 +1436,7 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 			edit_index = 0;  // 'edit_index' is going to be used as the cursor position
 
 			// make a copy so we can test for change when exiting the menu item
-			memmove(edit_original, edit, sizeof(edit_original));
+			memcpy(edit_original, edit, sizeof(edit_original));
 
 			return;
 		}

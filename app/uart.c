@@ -487,11 +487,11 @@ bool UART_IsCommandAvailable(void)
 	if (TailIndex < Index)
 	{
 		const uint16_t ChunkSize = sizeof(UART_DMA_Buffer) - Index;
-		memmove(UART_Command.Buffer, UART_DMA_Buffer + Index, ChunkSize);
-		memmove(UART_Command.Buffer + ChunkSize, UART_DMA_Buffer, TailIndex);
+		memcpy(UART_Command.Buffer, UART_DMA_Buffer + Index, ChunkSize);
+		memcpy(UART_Command.Buffer + ChunkSize, UART_DMA_Buffer, TailIndex);
 	}
 	else
-		memmove(UART_Command.Buffer, UART_DMA_Buffer + Index, TailIndex - Index);
+		memcpy(UART_Command.Buffer, UART_DMA_Buffer + Index, TailIndex - Index);
 
 	TailIndex = DMA_INDEX(TailIndex, 2);
 	if (TailIndex < gUART_WriteIndex)

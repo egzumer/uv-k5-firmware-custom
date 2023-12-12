@@ -408,14 +408,14 @@ void UI_DisplayMain(void)
 
 			// highlight the selected/used VFO with a marker
 			if (isMainVFO)
-				memmove(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
+				memcpy(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 		}
 		else // active TX VFO
 		{	// highlight the selected/used VFO with a marker
 			if (isMainVFO)
-				memmove(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
+				memcpy(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			else
-				memmove(p_line0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
+				memcpy(p_line0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
@@ -537,14 +537,14 @@ void UI_DisplayMain(void)
 				// show the scan list assigment symbols
 				const ChannelAttributes_t att = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
 				if (att.scanlist1)
-					memmove(p_line0 + 113, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
+					memcpy(p_line0 + 113, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
 				if (att.scanlist2)
-					memmove(p_line0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
+					memcpy(p_line0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
 
 				// compander symbol
 #ifndef ENABLE_BIG_FREQ
 				if (att.compander)
-					memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+					memcpy(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
 #else
 				// TODO:  // find somewhere else to put the symbol
 #endif
@@ -624,9 +624,9 @@ void UI_DisplayMain(void)
 				const ChannelAttributes_t att = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
 				if (att.compander)
 #ifdef ENABLE_BIG_FREQ
-					memmove(p_line0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
+					memcpy(p_line0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
 #else
-					memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+					memcpy(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
 #endif
 			}
 		}
