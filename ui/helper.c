@@ -77,8 +77,8 @@ void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Lin
 		if (pString[i] > ' ' && pString[i] < 127)
 		{
 			const unsigned int index = pString[i] - ' ' - 1;
-			memmove(gFrameBuffer[Line + 0] + ofs, &gFontBig[index][0], 7);
-			memmove(gFrameBuffer[Line + 1] + ofs, &gFontBig[index][7], 7);
+			memcpy(gFrameBuffer[Line + 0] + ofs, &gFontBig[index][0], 7);
+			memcpy(gFrameBuffer[Line + 1] + ofs, &gFontBig[index][7], 7);
 		}
 	}
 }
@@ -102,7 +102,7 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 		{
 			const unsigned int index = (unsigned int)pString[i] - ' ' - 1;
 			if (index < ARRAY_SIZE(gFontSmall))
-				memmove(pFb + (i * char_spacing) + 1, &gFontSmall[index], char_width);
+				memcpy(pFb + (i * char_spacing) + 1, &gFontSmall[index], char_width);
 		}
 	}
 }
@@ -125,7 +125,7 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 			{
 				const unsigned int index = (unsigned int)pString[i] - ' ' - 1;
 				if (index < ARRAY_SIZE(gFontSmallBold))
-					memmove(pFb + (i * char_spacing) + 1, &gFontSmallBold[index], char_width);
+					memcpy(pFb + (i * char_spacing) + 1, &gFontSmallBold[index], char_width);
 			}
 		}
 	}
@@ -142,7 +142,7 @@ void UI_PrintStringSmallBuffer(const char *pString, uint8_t *buffer)
 		{
 			const unsigned int index = (unsigned int)pString[i] - ' ' - 1;
 			if (index < ARRAY_SIZE(gFontSmall))
-				memmove(buffer + (i * char_spacing) + 1, &gFontSmall[index], char_width);
+				memcpy(buffer + (i * char_spacing) + 1, &gFontSmall[index], char_width);
 		}
 	}
 }

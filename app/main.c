@@ -622,7 +622,7 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 		)
 		{	// start entering a DTMF string
 			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-			memmove(gDTMF_InputBox, gDTMF_String, MIN(sizeof(gDTMF_InputBox), sizeof(gDTMF_String) - 1));
+			memcpy(gDTMF_InputBox, gDTMF_String, MIN(sizeof(gDTMF_InputBox), sizeof(gDTMF_String) - 1));
 			gDTMF_InputBox_Index  = 0;
 			gDTMF_InputMode       = true;
 
