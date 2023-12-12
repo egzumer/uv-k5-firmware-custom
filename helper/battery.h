@@ -40,9 +40,9 @@ typedef enum {
     BATTERY_TYPE_UNKNOWN
 } BATTERY_Type_t;
 
-unsigned int BATTERY_VoltsToPercent(const unsigned int voltage_10mV);
-void BATTERY_GetReadings(const bool bDisplayBatteryLevel);
+
+unsigned int BATTERY_VoltsToPercent(unsigned int voltage_10mV);
+void BATTERY_GetReadings(bool bDisplayBatteryLevel);
 void BATTERY_TimeSlice500ms(void);
 
 #endif
-
