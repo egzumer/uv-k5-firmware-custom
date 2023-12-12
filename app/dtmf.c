@@ -109,7 +109,7 @@ bool DTMF_GetContact(const int Index, char *pContact)
 		EEPROM_ReadBuffer(0x1C00 + (Index * 16), pContact, 16);
 		i = (int)pContact[0] - ' ';
 	}
-	return (i < 0 || i >= 95) ? false : true;
+	return (i >= 0 && i < 95);
 }
 
 bool DTMF_FindContact(const char *pContact, char *pResult)
@@ -130,7 +130,7 @@ bool DTMF_FindContact(const char *pContact, char *pResult)
 
 		if (j == 3)
 		{
-			memmove(pResult, Contact, 8);
+			memcpy(pResult, Contact, 8);
 			pResult[8] = 0;
 			return true;
 		}
@@ -361,8 +361,8 @@ void DTMF_HandleRequest(void)
 
 			memset(gDTMF_Callee, 0, sizeof(gDTMF_Callee));
 			memset(gDTMF_Caller, 0, sizeof(gDTMF_Caller));
-			memmove(gDTMF_Callee, gDTMF_RX + Offset + 0, 3);
-			memmove(gDTMF_Caller, gDTMF_RX + Offset + 4, 3);
+			memcpy(gDTMF_Callee, gDTMF_RX + Offset + 0, 3);
+			memcpy(gDTMF_Caller, gDTMF_RX + Offset + 4, 3);
 
 			DTMF_clear_RX();
 
