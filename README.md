@@ -1,4 +1,4 @@
-# Open re-implementation of the Quansheng UV-K5 v2.1.27 firmware
+# Open re-implementation of the Quansheng UV-K5/K6/5R v2.1.27 firmware
 
 This repository is a merge of [OneOfEleven custom firmware](https://github.com/OneOfEleven/uv-k5-firmware-custom) with [fagci spectrum analizer](https://github.com/fagci/uv-k5-firmware-fagci-mod/tree/refactor) plus my few changes.
 
