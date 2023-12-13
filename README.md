@@ -143,10 +143,31 @@ You can get it from: https://releases.llvm.org/download.html
 
 ## Building
 
+### Github Codespace build method
+
+This is the least demanding option as you don't have to install enything on your computer. All you need is Github account.
+
+1. Go to https://github.com/egzumer/uv-k5-firmware-custom
+1. Click green `Code` button
+1. Change tab from `Local` to `Codespace`
+1. Click green `Create codespace on main` button
+
+<img src="images/codespace1.png" width=700 />
+
+5. Open `Makefile`
+1. Edit build options, save `Makefile` changes
+1. Run `./compile-with-docker.sh` in terminal window
+1. Open folder `compiled-firmware`
+1. Right click `firmware.packed.bin`
+1. Click `Download`, now you should have a firmware on your computer that you can proceed to flash on your radio. You can use [online flasher](https://egzumer.github.io/uvtools)
+
+<img src="images/codespace2.png" width=700 />
+
+### Docker build method
+
 If you have docker installed you can use [compile-with-docker.bat](./compile-with-docker.bat) (Windows) or [compile-with-docker.sh](./compile-with-docker.sh) (Linux/Mac), the output files are created in `compiled-firmware` folder. This method gives significantly smaller binaries, I've seen differences up to 1kb, so it can fit more functionalities this way. The challenge can be (or not) installing docker itself.
 
-
-To compile directly in windows:
+### Windows environment build method
 
 1. Open windows command line and run:
     ```
