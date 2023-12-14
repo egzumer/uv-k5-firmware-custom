@@ -155,7 +155,7 @@ void     RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int confi
 void     RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo);
 void     RADIO_ApplyOffset(VFO_Info_t *pInfo);
 void     RADIO_SelectVfos(void);
-void     RADIO_SetupRegisters(bool bSwitchToFunction0);
+void     RADIO_SetupRegisters(bool switchToForeground);
 #ifdef ENABLE_NOAA
 	void RADIO_ConfigureNOAA(void);
 #endif
