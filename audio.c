@@ -205,7 +205,7 @@ volatile bool     gFlagPlayQueuedVoice;
 VOICE_ID_t        gAnotherVoiceID = VOICE_ID_INVALID;
 
 
-void AUDIO_PlayVoice(uint8_t VoiceID)
+static void AUDIO_PlayVoice(uint8_t VoiceID)
 {
 	unsigned int i;
 

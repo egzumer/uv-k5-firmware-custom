@@ -723,53 +723,45 @@ void RADIO_SetupRegisters(bool switchToForeground)
 		}
 	#endif
 
-	#ifdef ENABLE_VOX
-		#ifdef ENABLE_NOAA
-			#ifdef ENABLE_FMRADIO
-				if (gEeprom.VOX_SWITCH && !gFmRadioMode && !IS_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->Modulation == MODULATION_FM)
-			#else
-				if (gEeprom.VOX_SWITCH && !IS_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE) && gCurrentVfo->Modulation == MODULATION_FM)
-			#endif
-		#else
-			#ifdef ENABLE_FMRADIO
-				if (gEeprom.VOX_SWITCH && !gFmRadioMode && gCurrentVfo->Modulation == MODULATION_FM)
-			#else
-				if (gEeprom.VOX_SWITCH && gCurrentVfo->Modulation == MODULATION_FM)
-			#endif
-		#endif
-		{
-			BK4819_EnableVox(gEeprom.VOX1_THRESHOLD, gEeprom.VOX0_THRESHOLD);
-			InterruptMask |= BK4819_REG_3F_VOX_FOUND | BK4819_REG_3F_VOX_LOST;
-		}
-		else
-	#endif
+#ifdef ENABLE_VOX
+	if (gEeprom.VOX_SWITCH  && gCurrentVfo->Modulation == MODULATION_FM
+#ifdef ENABLE_NOAA
+		&& !IS_NOAA_CHANNEL(gCurrentVfo->CHANNEL_SAVE)
+#endif
+#ifdef ENABLE_FMRADIO
+		&& !gFmRadioMode
+#endif
+	){
+		BK4819_EnableVox(gEeprom.VOX1_THRESHOLD, gEeprom.VOX0_THRESHOLD);
+		InterruptMask |= BK4819_REG_3F_VOX_FOUND | BK4819_REG_3F_VOX_LOST;
+	}
+	else
+#endif
+	{
 		BK4819_DisableVox();
+	}
 
 	// RX expander
 	BK4819_SetCompander((gRxVfo->Modulation == MODULATION_FM && gRxVfo->Compander >= 2) ? gRxVfo->Compander : 0);
 
-	#if 0
-		if (!gRxVfo->DTMF_DECODING_ENABLE && !gSetting_KILLED)
-		{
-			BK4819_DisableDTMF();
-		}
-		else
-		{
-			BK4819_EnableDTMF();
-			InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
-		}
-	#else
-		if (gCurrentFunction != FUNCTION_TRANSMIT)
-		{
-			BK4819_DisableDTMF();
-			BK4819_EnableDTMF();
-			InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
-		}
-		else
-		{
-			BK4819_DisableDTMF();
-		}
-	#endif
+#if 0
+	if (!gRxVfo->DTMF_DECODING_ENABLE && !gSetting_KILLED)
+	{
+		BK4819_DisableDTMF();
+	}
+	else
+	{
+		BK4819_EnableDTMF();
+		InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
+	}
+#else
+	BK4819_DisableDTMF();
+
+	if (gCurrentFunction != FUNCTION_TRANSMIT) {
+		BK4819_EnableDTMF();
+		InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
+	}
+#endif
 
 	RADIO_SetupAGC(gRxVfo->Modulation == MODULATION_AM, false);
 
@@ -938,7 +930,7 @@ void RADIO_SetupAGC(bool listeningAM, bool disable)
 		BK4819_InitAGC(false);
 	}
 	else {
-#ifdef ENABLE_AM_FIX		
+#ifdef ENABLE_AM_FIX
 		if(gSetting_AM_fix) { // if AM fix active lock AGC so AM-fix can do it's job
 			BK4819_SetAGC(0);
 			AM_fix_enable(!disable);
@@ -1042,15 +1034,12 @@ void RADIO_PrepareTX(void)
 #ifdef ENABLE_DTMF_CALLING
 	if (gDTMF_ReplyState == DTMF_REPLY_ANI)
 	{
-		if (gDTMF_CallMode == DTMF_CALL_MODE_DTMF)
-		{
-			gDTMF_IsTx = true;
+		gDTMF_IsTx = gDTMF_CallMode == DTMF_CALL_MODE_DTMF;
+
+		if (gDTMF_IsTx) {
 			gDTMF_CallState = DTMF_CALL_STATE_NONE;
 			gDTMF_TxStopCountdown_500ms = DTMF_txstop_countdown_500ms;
-		}
-		else
-		{
-			gDTMF_IsTx = false;
+		} else {
 			gDTMF_CallState = DTMF_CALL_STATE_CALL_OUT;
 		}
 	}
@@ -1110,20 +1099,17 @@ void RADIO_SendEndOfTransmission(void)
 {
 	if (gEeprom.ROGER == ROGER_MODE_ROGER)
 		BK4819_PlayRoger();
-	else
-	if (gEeprom.ROGER == ROGER_MODE_MDC)
+	else if (gEeprom.ROGER == ROGER_MODE_MDC)
 		BK4819_PlayRogerMDC();
 
 	if (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_APOLLO)
 		BK4819_PlaySingleTone(2475, 250, 28, gEeprom.DTMF_SIDE_TONE);
 
-	if (
+	if ((gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN || gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH)
 #ifdef ENABLE_DTMF_CALLING
-		gDTMF_CallState == DTMF_CALL_STATE_NONE &&
+		&& gDTMF_CallState == DTMF_CALL_STATE_NONE
 #endif
-	   (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN ||
-	    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH))
-	{	// end-of-tx
+	) {	// end-of-tx
 		if (gEeprom.DTMF_SIDE_TONE)
 		{
 			AUDIO_AudioPathOn();

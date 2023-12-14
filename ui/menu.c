@@ -432,7 +432,7 @@ void UI_DisplayMenu(void)
 
 		// draw the little sub-menu triangle marker
 		if (gIsInSubMenu)
-			memmove(gFrameBuffer[0] + (8 * menu_list_width) + 1, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));
+			memcpy(gFrameBuffer[0] + (8 * menu_list_width) + 1, BITMAP_CurrentIndicator, sizeof(BITMAP_CurrentIndicator));
 
 		// draw the menu index number/count
 		sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
@@ -794,7 +794,7 @@ void UI_DisplayMenu(void)
 			if (!gIsDtmfContactValid)
 				strcpy(String, "NULL");
 			else
-				memmove(String, Contact, 8);
+				memcpy(String, Contact, 8);
 			break;
 #endif
 
@@ -977,7 +977,7 @@ void UI_DisplayMenu(void)
 	if (UI_MENU_GetCurrentMenuId() == MENU_D_LIST && gIsDtmfContactValid)
 	{
 		Contact[11] = 0;
-		memmove(&gDTMF_ID, Contact + 8, 4);
+		memcpy(&gDTMF_ID, Contact + 8, 4);
 		sprintf(String, "ID:%s", Contact + 8);
 		UI_PrintString(String, menu_item_x1, menu_item_x2, 4, 8);
 	}

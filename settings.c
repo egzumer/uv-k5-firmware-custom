@@ -44,6 +44,7 @@ void SETTINGS_InitEEPROM(void)
 	uint8_t      Data[16];
 
 	memset(Data, 0, sizeof(Data));
+	memset(&gEeprom, 0, sizeof(gEeprom));
 
 	// 0E70..0E77
 	EEPROM_ReadBuffer(0x0E70, Data, 8);
@@ -139,9 +140,19 @@ void SETTINGS_InitEEPROM(void)
 	memmove(&gEeprom.POWER_ON_PASSWORD, Data, 4);
 
 	// 0EA0..0EA7
-	#ifdef ENABLE_VOICE
-		EEPROM_ReadBuffer(0x0EA0, Data, 8);
-		gEeprom.VOICE_PROMPT = (Data[0] < 3) ? Data[0] : VOICE_PROMPT_ENGLISH;
+	EEPROM_ReadBuffer(0x0EA0, Data, 8);
+	#ifdef ENABLE_VOICE	
+	gEeprom.VOICE_PROMPT = (Data[0] < 3) ? Data[0] : VOICE_PROMPT_ENGLISH;
+	#endif
+	#ifdef ENABLE_RSSI_BAR
+		if((Data[1] < 200 && Data[1] > 90) && (Data[2] < Data[1]-9 && Data[2] > 50)) {
+			gEeprom.S0_LEVEL = Data[1];
+			gEeprom.S9_LEVEL = Data[2];
+		}
+		else {
+			gEeprom.S0_LEVEL = 130;
+			gEeprom.S9_LEVEL = 76;
+		}
 	#endif
 
 	// 0EA8..0EAF
@@ -538,8 +549,13 @@ void SETTINGS_SaveSettings(void)
 	memset(State, 0xFF, sizeof(State));
 #ifdef ENABLE_VOICE
 	State[0] = gEeprom.VOICE_PROMPT;
-	EEPROM_WriteBuffer(0x0EA0, State);
 #endif
+#ifdef ENABLE_RSSI_BAR
+	State[1] = gEeprom.S0_LEVEL;
+	State[2] = gEeprom.S9_LEVEL;
+#endif	
+	EEPROM_WriteBuffer(0x0EA0, State);
+
 
 	#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 		State[0] = gEeprom.ALARM_MODE;

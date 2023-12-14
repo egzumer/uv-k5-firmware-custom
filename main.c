@@ -75,8 +75,6 @@ void Main(void)
 
 	// Not implementing authentic device checks
 
-	memset(&gEeprom, 0, sizeof(gEeprom));
-
 	memset(gDTMF_String, '-', sizeof(gDTMF_String));
 	gDTMF_String[sizeof(gDTMF_String) - 1] = 0;
 

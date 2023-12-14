@@ -198,17 +198,17 @@ void DisplayRSSIBar(const bool now)
 		memset(p_line, 0, LCD_WIDTH);
 	
 
-	const int16_t      s0_dBm       = -130;                  // S0 .. base level
-	const int16_t      rssi_dBm     = 
+	const int16_t s0_dBm   = -gEeprom.S0_LEVEL;                  // S0 .. base level
+	const int16_t rssi_dBm = 
 		BK4819_GetRSSI_dBm()
 #ifdef ENABLE_AM_FIX
 		+ ((gSetting_AM_fix && gRxVfo->Modulation == MODULATION_AM) ? AM_fix_get_gain_diff() : 0)
 #endif	
 		+ dBmCorrTable[gRxVfo->Band];
 	
-
-	const uint8_t s_level = MIN(MAX((rssi_dBm - s0_dBm) / 6, 0), 9); // S0 - S9
-	uint8_t overS9dBm = MIN(MAX(rssi_dBm - (s0_dBm + 9*6), 0), 99);
+	int s0_9 = gEeprom.S0_LEVEL - gEeprom.S9_LEVEL;
+	const uint8_t s_level = MIN(MAX((int32_t)(rssi_dBm - s0_dBm)*100 / (s0_9*100/9), 0), 9); // S0 - S9
+	uint8_t overS9dBm = MIN(MAX(rssi_dBm + gEeprom.S9_LEVEL, 0), 99);
 	uint8_t overS9Bars = MIN(overS9dBm/10, 4);
 	
 	if(overS9Bars == 0) {
@@ -408,14 +408,14 @@ void UI_DisplayMain(void)
 
 			// highlight the selected/used VFO with a marker
 			if (isMainVFO)
-				memmove(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
+				memcpy(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 		}
 		else // active TX VFO
 		{	// highlight the selected/used VFO with a marker
 			if (isMainVFO)
-				memmove(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
+				memcpy(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			else
-				memmove(p_line0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
+				memcpy(p_line0 + 0, BITMAP_VFO_NotDefault, sizeof(BITMAP_VFO_NotDefault));
 		}
 
 		if (gCurrentFunction == FUNCTION_TRANSMIT)
@@ -537,14 +537,14 @@ void UI_DisplayMain(void)
 				// show the scan list assigment symbols
 				const ChannelAttributes_t att = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
 				if (att.scanlist1)
-					memmove(p_line0 + 113, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
+					memcpy(p_line0 + 113, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
 				if (att.scanlist2)
-					memmove(p_line0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
+					memcpy(p_line0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
 
 				// compander symbol
 #ifndef ENABLE_BIG_FREQ
 				if (att.compander)
-					memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+					memcpy(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
 #else
 				// TODO:  // find somewhere else to put the symbol
 #endif
@@ -624,9 +624,9 @@ void UI_DisplayMain(void)
 				const ChannelAttributes_t att = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
 				if (att.compander)
 #ifdef ENABLE_BIG_FREQ
-					memmove(p_line0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
+					memcpy(p_line0 + 120, BITMAP_compand, sizeof(BITMAP_compand));
 #else
-					memmove(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
+					memcpy(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
 #endif
 			}
 		}
