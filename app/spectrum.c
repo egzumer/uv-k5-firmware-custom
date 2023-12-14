@@ -259,18 +259,51 @@ static void TuneToPeak() {
 }
 #ifdef ENABLE_SPECTRUM_COPY_VFO
 static void ExitAndCopyToVfo() {
+  const FREQUENCY_Band_t band = FREQUENCY_GetBand(peak.f);
+  const uint8_t Vfo = gEeprom.TX_VFO;
+
+  if (gTxVfo->Band != band)
+  {
+    gTxVfo->Band               = band;
+    gEeprom.ScreenChannel[Vfo] = band + FREQ_CHANNEL_FIRST;
+    gEeprom.FreqChannel[Vfo]   = band + FREQ_CHANNEL_FIRST;
+
+    SETTINGS_SaveVfoIndices();
+
+    RADIO_ConfigureChannel(Vfo, VFO_CONFIGURE_RELOAD);
+  }
+
   gTxVfo->freq_config_RX.Frequency = peak.f;
-  gTxVfo->freq_config_TX.Frequency = peak.f;
-  gTxVfo->StepFrequency = STEP_0_01kHz;
-  gTxVfo->pRX->Frequency = peak.f;
-  gTxVfo->Band = FREQUENCY_GetBand(peak.f);
-  gTxVfo->Modulation = settings.modulationType;
 
-  SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_VFO, gTxVfo, 1);
+  gRequestSaveChannel = 1;
 
 
-  RADIO_ConfigureChannel(gEeprom.TX_VFO, VFO_CONFIGURE);
-  RADIO_SetupRegisters(true);
+  // gTxVfo->freq_config_TX.Frequency = peak.f;
+  // gTxVfo->StepFrequency = STEP_0_01kHz;
+  // gTxVfo->pRX->Frequency = peak.f;
+  // gTxVfo->Band = FREQUENCY_GetBand(peak.f);
+  // gTxVfo->Modulation = settings.modulationType;
+
+	// gRequestSaveSettings = 1;
+	// gFlagReconfigureVfos = 1;
+  // gFlagSaveChannel = 1;
+
+  // // RADIO_ConfigureChannel(0, VFO_CONFIGURE_RELOAD);
+	// // RADIO_ConfigureChannel(1, VFO_CONFIGURE_RELOAD);
+
+	// RADIO_SelectVfos();
+
+	// RADIO_SetupRegisters(true);
+
+      //SETTINGS_SaveChannel(channel, gEeprom.RX_VFO, gRxVfo, 1);
+  
+
+
+  // SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_VFO, gTxVfo, 1);
+
+
+  // RADIO_ConfigureChannel(gEeprom.TX_VFO, VFO_CONFIGURE);
+  // RADIO_SetupRegisters(true);
 
   // RADIO_SetModulation(gTxVfo->Modulation);
 	// RADIO_ConfigureSquelchAndOutputPower(gTxVfo);
@@ -280,6 +313,25 @@ static void ExitAndCopyToVfo() {
   // gRequestSaveVFO            = true;
   // gVfoConfigureMode          = VFO_CONFIGURE_RELOAD;
   // step
+
+  // const uint8_t vfo = gEeprom.TX_VFO;
+
+  // if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo]))
+  // {	// copy channel to VFO, then swap to the VFO
+
+  //   const unsigned int channel = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
+
+  //   gEeprom.ScreenChannel[vfo] = channel;
+  //   gEeprom.VfoInfo[vfo].CHANNEL_SAVE = channel;
+
+  //   RADIO_SelectVfos();
+  //   RADIO_ApplyTxOffset(gRxVfo);
+  //   RADIO_ConfigureSquelchAndOutputPower(gRxVfo);
+  //   RADIO_SetupRegisters(true);
+
+  //   //SETTINGS_SaveChannel(channel, gEeprom.RX_VFO, gRxVfo, 1);
+
+  //   gUpdateDisplay = true;
   isInitialized = false;
 
   // &gEeprom.VfoInfo[gEeprom.TX_VFO].pRX->pRX->Frequency = peak.f;
