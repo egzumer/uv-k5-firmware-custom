@@ -14,6 +14,8 @@
  *     limitations under the License.
  */
 
+#include <assert.h>
+
 #include "battery.h"
 #include "driver/backlight.h"
 #include "driver/st7565.h"
