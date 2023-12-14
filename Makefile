@@ -52,7 +52,7 @@ ENABLE_AM_FIX_SHOW_DATA       := 0
 ENABLE_AGC_SHOW_DATA          := 0
 
 # ----
-ENABLE_PMR_MODE               := 1
+ENABLE_PMR_MODE               := 1 # Work in progress
 
 #############################################################
 
