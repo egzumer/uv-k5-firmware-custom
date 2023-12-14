@@ -273,9 +273,7 @@ static void ExitAndCopyToVfo() {
 
     RADIO_ConfigureChannel(Vfo, VFO_CONFIGURE_RELOAD);
   }
-  
-  gTxVfo->STEP_SETTING = STEP_0_01kHz;
-  gTxVfo->StepFrequency = gStepFrequencyTable[STEP_0_01kHz];
+  gTxVfo->STEP_SETTING = FREQUENCY_GetStepIdxFromStepFrequency(GetScanStep());
   gTxVfo->freq_config_RX.Frequency = peak.f;
   gTxVfo->freq_config_TX.Frequency = peak.f;
   gTxVfo->pRX->Frequency = peak.f;
