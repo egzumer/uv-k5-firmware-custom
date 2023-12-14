@@ -22,7 +22,6 @@
 #endif
 #include "driver/bk4819.h"
 #include "driver/eeprom.h"
-#include "driver/uart.h"
 #include "misc.h"
 #include "settings.h"
 #include "ui/menu.h"

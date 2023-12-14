@@ -37,7 +37,10 @@
 #include "app/main.h"
 #include "app/menu.h"
 #include "app/scanner.h"
-#include "app/uart.h"
+#ifdef ENABLE_UART
+	#include "app/uart.h"
+	#include "debugging.h"
+#endif
 #include "ARMCM0.h"
 #include "audio.h"
 #include "board.h"
@@ -69,8 +72,6 @@
 #include "ui/menu.h"
 #include "ui/status.h"
 #include "ui/ui.h"
-
-#include "debugging.h"
 
 static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
@@ -1137,23 +1138,25 @@ void APP_TimeSlice10ms(void)
 {
 	gFlashLightBlinkCounter++;
 
-	#ifdef ENABLE_BOOT_BEEPS
-		if (boot_counter_10ms > 0)
-			if ((boot_counter_10ms % 25) == 0)
-				AUDIO_PlayBeep(BEEP_880HZ_40MS_OPTIONAL);
-	#endif
+#ifdef ENABLE_BOOT_BEEPS
+	if (boot_counter_10ms > 0 && (boot_counter_10ms % 25) == 0) {
+		AUDIO_PlayBeep(BEEP_880HZ_40MS_OPTIONAL);
+	}
+#endif
 
-	#ifdef ENABLE_AM_FIX
-		if (gRxVfo->Modulation == MODULATION_AM)
-			AM_fix_10ms(gEeprom.RX_VFO);
-	#endif
+#ifdef ENABLE_AM_FIX
+	if (gRxVfo->Modulation == MODULATION_AM) {
+		AM_fix_10ms(gEeprom.RX_VFO);
+	}
+#endif
 
-	if (UART_IsCommandAvailable())
-	{
+#ifdef ENABLE_UART
+	if (UART_IsCommandAvailable()) {
 		__disable_irq();
 		UART_HandleCommand();
 		__enable_irq();
 	}
+#endif
 
 	if (gReducedService)
 		return;
