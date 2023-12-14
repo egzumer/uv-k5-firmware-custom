@@ -50,10 +50,10 @@
 		FLASH_Init(FLASH_READ_MODE_1_CYCLE);
 		FLASH_ConfigureTrimValues();
 		SYSTEM_ConfigureClocks();
-	
+
 		overlay_FLASH_MainClock       = 48000000;
 		overlay_FLASH_ClockMultiplier = 48;
-	
+
 		FLASH_Init(FLASH_READ_MODE_2_CYCLE);
 	}
 #endif
@@ -494,10 +494,12 @@ void BOARD_Init(void)
 	BACKLIGHT_InitHardware();
 	BOARD_ADC_Init();
 	ST7565_Init();
-	#ifdef ENABLE_FMRADIO
+#ifdef ENABLE_FMRADIO
 		BK1080_Init(0, false);
-	#endif
+#endif
+
+#if defined(ENABLE_UART) || defined(ENABLED_AIRCOPY)
 	CRC_Init();
+#endif
+
 }
-
-
