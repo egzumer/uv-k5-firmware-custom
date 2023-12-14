@@ -8,7 +8,7 @@
 #include "am_fix.h"
 
 
-static inline void LogUart(char * str)
+static inline void LogUart(const char * const str)
 {
     UART_Send(str, strlen(str));
 }
