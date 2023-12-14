@@ -242,8 +242,13 @@ cancel_tx:
 done:	
 	gPttDebounceCounter = 0;
 	#ifndef ENABLE_PMR_MODE //  && gRequestDisplayScreen != DISPLAY_PMR
-		if (gScreenToDisplay != DISPLAY_MENU && gRequestDisplayScreen != DISPLAY_FM)     // 1of11 .. don't close the menu
-			gRequestDisplayScreen = DISPLAY_MAIN;
+		#ifdef ENABLE_FMRADIO
+			if (gScreenToDisplay != DISPLAY_MENU && gRequestDisplayScreen != DISPLAY_FM)     // 1of11 .. don't close the menu
+				gRequestDisplayScreen = DISPLAY_MAIN;
+		#else
+			if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+				gRequestDisplayScreen = DISPLAY_MAIN;
+		#endif
 	#endif
 	gUpdateStatus  = true;
 	gUpdateDisplay = true;
