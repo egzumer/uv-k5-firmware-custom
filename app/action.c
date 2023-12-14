@@ -57,7 +57,6 @@ inline static void ACTION_ScanRestart() { ACTION_Scan(true); };
 
 void (*action_opt_table[])(void) = {
 	[ACTION_OPT_NONE] = &FUNCTION_NOP,
-	[ACTION_OPT_FLASHLIGHT] = &ACTION_FlashLight,
 	[ACTION_OPT_POWER] = &ACTION_Power,
 	[ACTION_OPT_MONITOR] = &ACTION_Monitor,
 	[ACTION_OPT_SCAN] = &ACTION_ScanRestart,
@@ -65,6 +64,12 @@ void (*action_opt_table[])(void) = {
 	[ACTION_OPT_A_B] = &COMMON_SwitchVFOs,
 	[ACTION_OPT_VFO_MR] = &COMMON_SwitchVFOMode,
 	[ACTION_OPT_SWITCH_DEMODUL] = &ACTION_SwitchDemodul,
+
+#ifdef ENABLE_FLASHLIGHT
+	[ACTION_OPT_FLASHLIGHT] = &ACTION_FlashLight,
+#else
+	[ACTION_OPT_FLASHLIGHT] = &FUNCTION_NOP,
+#endif
 
 #ifdef ENABLE_VOX
 	[ACTION_OPT_VOX] = &ACTION_Vox,
