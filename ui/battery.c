@@ -36,7 +36,7 @@ void UI_DrawBattery(uint8_t* bitmap, uint8_t level, uint8_t blink)
 		return;
 	}
 
-	const uint8_t bars = MAX(4, level - 2);
+	const uint8_t bars = MIN(4, level - 2);
 
 	for (int i = 0; i < bars; i++) {
 #ifndef ENABLE_REVERSE_BAT_SYMBOL
