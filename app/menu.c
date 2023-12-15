@@ -1339,6 +1339,10 @@ static void MENU_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 
 	if (!gCssBackgroundScan)
 	{
+		/* Backlight related menus set full brightness. Set it back to the configured value,
+		   just in case we are exiting from one of them. */
+		BACKLIGHT_SetBrightness(gEeprom.BACKLIGHT_MAX);
+
 		if (gIsInSubMenu)
 		{
 			if (gInputBoxIndex == 0 || UI_MENU_GetCurrentMenuId() != MENU_OFFSET)

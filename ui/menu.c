@@ -488,6 +488,12 @@ void UI_DisplayMenu(void)
 
 	bool already_printed = false;
 
+	/* Brightness is set to max in some entries of this menu. Return it to the configured brightness
+	   level the "next" time we enter here.I.e., when we move from one menu to another.
+	   It also has to be set back to max when pressing the Exit key. */
+
+	BACKLIGHT_SetBrightness(gEeprom.BACKLIGHT_MAX);
+
 	switch (UI_MENU_GetCurrentMenuId())
 	{
 		case MENU_SQL:
