@@ -39,7 +39,6 @@
 #include "app/scanner.h"
 #ifdef ENABLE_UART
 	#include "app/uart.h"
-	#include "debugging.h"
 #endif
 #include "ARMCM0.h"
 #include "audio.h"
