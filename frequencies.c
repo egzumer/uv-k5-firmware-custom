@@ -67,12 +67,18 @@ const uint16_t gStepFrequencyTable[] = {
 	1, 5, 10, 25, 50, 100, 125, 1500, 3000, 5000, 10000, 12500, 25000, 50000
 	};
 
+const uint8_t StepMatchedIndexes[] = {
+	STEP_2_5kHz, STEP_5kHz, STEP_6_25kHz, STEP_10kHz, STEP_12_5kHz, STEP_25kHz, STEP_8_33kHz,
+	STEP_0_01kHz, STEP_0_05kHz, STEP_0_1kHz, STEP_0_25kHz, STEP_0_5kHz, STEP_1kHz, STEP_1_25kHz,
+	STEP_15kHz, STEP_30kHz, STEP_50kHz, STEP_100kHz, STEP_125kHz, STEP_250kHz, STEP_500kHz	
+};
 
 const uint8_t StepSortedIndexes[] = {
-	STEP_0_01kHz, STEP_0_05kHz, STEP_0_1kHz, STEP_0_25kHz, STEP_0_5kHz, STEP_1kHz, STEP_1_25kHz, STEP_2_5kHz, STEP_5kHz, STEP_6_25kHz,
-	STEP_8_33kHz, STEP_10kHz, STEP_12_5kHz, STEP_15kHz, STEP_25kHz, STEP_30kHz, STEP_50kHz, STEP_100kHz,
-	STEP_125kHz, STEP_250kHz, STEP_500kHz
+	STEP_0_01kHz, STEP_0_05kHz, STEP_0_1kHz, STEP_0_25kHz, STEP_0_5kHz, STEP_1kHz, STEP_1_25kHz,
+	STEP_2_5kHz, STEP_5kHz, STEP_6_25kHz, STEP_8_33kHz, STEP_10kHz, STEP_12_5kHz, STEP_15kHz,
+	STEP_25kHz, STEP_30kHz, STEP_50kHz, STEP_100kHz, STEP_125kHz, STEP_250kHz, STEP_500kHz
 };
+
 uint8_t FREQUENCY_GetStepIdxFromSortedIdx(uint8_t sortedIdx) 
 {
 	return StepSortedIndexes[sortedIdx];
@@ -82,6 +88,13 @@ uint8_t FREQUENCY_GetSortedIdxFromStepIdx(uint8_t stepIdx)
 	for(uint8_t i = 0; i < ARRAY_SIZE(gStepFrequencyTable); i++)
 		if(StepSortedIndexes[i] == stepIdx)
 			return i;
+	return 0;
+}
+uint8_t FREQUENCY_GetStepIdxFromStepFrequency(uint16_t stepFrequency) 
+{
+	for(uint8_t i = 0; i < ARRAY_SIZE(gStepFrequencyTable); i++)
+		if(gStepFrequencyTable[i] == stepFrequency)
+			return StepMatchedIndexes[i];
 	return 0;
 }
 

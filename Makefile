@@ -45,6 +45,7 @@ ENABLE_REDUCE_LOW_MID_TX_POWER:= 0
 ENABLE_BYP_RAW_DEMODULATORS   := 0
 ENABLE_BLMIN_TMP_OFF          := 0
 ENABLE_SCAN_RANGES            := 1
+ENABLE_SPECTRUM_COPY_VFO      := 1
 
 #############################################################
 
@@ -199,7 +200,7 @@ endif
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
 
-AUTHOR_STRING := EGZUMER
+AUTHOR_STRING := NUNU
 # the user might not have/want git installed
 # can set own version string here (max 7 chars)
 ifneq (, $(shell $(WHERE) git))
@@ -354,6 +355,9 @@ ifeq ($(ENABLE_BLMIN_TMP_OFF),1)
 endif
 ifeq ($(ENABLE_SCAN_RANGES),1)
 	CFLAGS  += -DENABLE_SCAN_RANGES
+endif
+ifeq ($(ENABLE_SPECTRUM_COPY_VFO),1)
+	CFLAGS  += -DENABLE_SPECTRUM_COPY_VFO
 endif
 ifeq ($(ENABLE_DTMF_CALLING),1)
 	CFLAGS  += -DENABLE_DTMF_CALLING

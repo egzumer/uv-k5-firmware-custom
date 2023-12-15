@@ -39,7 +39,7 @@ Anyway, have fun.
    * more frequency steps
    * squelch more sensitive
 * fagci spectrum analyzer (**F+5** to turn on)
-* some other mods introduced by me:
+* some other mods introduced by egzumer:
    * SSB demodulation (adopted from fagci)
    * backlight dimming
    * battery voltage calibration from menu
@@ -51,6 +51,9 @@ Anyway, have fun.
    * restore initial freq/channel when scanning stopped with EXIT, remember last found transmission with MENU button
    * reordered and renamed menu entries
    * LCD interference crash fix
+* some mods introduced by me:
+   * RxOff setting offsets the receive frequency by any specified amount for use with upconverters. Allows to fine tune frequency as opposed to other implementations that use hardcoded offsets.
+   * ENABLE_SPECTRUM_COPY_VFO allowing to exit the spectrum and fine tuning screen with PTT button and copy current peak frequency, modulation, step, bandwidth to VFO. Now to enter fine tuning screen in spectrum press MENU button. This allows you to save and respond to the frequencies found much faster.
 
  ## Manual
 
@@ -128,6 +131,7 @@ ENABLE_REDUCE_LOW_MID_TX_POWER:= 0       makes medium and low power settings eve
 ENABLE_BYP_RAW_DEMODULATORS   := 0       additional BYP (bypass?) and RAW demodulation options, proved not to be very useful, but it is there if you want to experiment
 ENABLE_BLMIN_TMP_OFF          := 0       additional function for configurable buttons that toggles `BLMin` on and off wihout saving it to the EEPROM
 ENABLE_SCAN_RANGES            := 1       scan range mode for frequency scanning, see wiki for instructions (radio operation -> frequency scanning)
+ENABLE_SPECTRUM_COPY_VFO      := 1       pressing MENU in spectrum mode will exit and copy current peak frequency to current VFO
 ```
 
 
