@@ -31,6 +31,10 @@
 #include "app/spectrum.h"
 #endif
 
+#ifdef ENABLE_MESSENGER
+	#include "app/messenger.h"
+#endif
+
 #include "audio.h"
 #include "board.h"
 #include "driver/bk4819.h"
@@ -91,8 +95,13 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 
 			#ifdef ENABLE_PMR_MODE
-				ACTION_PMR();
-			#endif	
+				//ACTION_PMR();
+			#endif
+
+			#ifdef ENABLE_MESSENGER
+				APP_RunMessenger();
+				gRequestDisplayScreen = DISPLAY_MAIN;
+			#endif
 
 
 			#endif

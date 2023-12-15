@@ -63,6 +63,8 @@ const char *VfoStateStr[] = {
 
 // ***************************************************************************
 
+#ifndef ENABLE_RSSI_BAR
+
 static void DrawSmallAntennaAndBars(uint8_t *p, unsigned int level)
 {
 	if(level>6)
@@ -75,6 +77,9 @@ static void DrawSmallAntennaAndBars(uint8_t *p, unsigned int level)
 		memset(p + 2 + i*3, bar, 2);
 	}
 }
+
+#endif
+
 #if defined ENABLE_AUDIO_BAR || defined ENABLE_RSSI_BAR
 
 static void DrawLevelBar(uint8_t xpos, uint8_t line, uint8_t level)
@@ -340,7 +345,9 @@ void UI_DisplayMain(void)
 		const unsigned int line       = (vfo_num == 0) ? line0 : line1;
 		const bool         isMainVFO  = (vfo_num == gEeprom.TX_VFO);
 		uint8_t           *p_line0    = gFrameBuffer[line + 0];
+#ifndef ENABLE_SMALL_BOLD		
 		uint8_t           *p_line1    = gFrameBuffer[line + 1];
+#endif		
 		enum Vfo_txtr_mode mode       = VFO_MODE_NONE;
 
 		if (activeTxVFO != vfo_num) // this is not active TX VFO
@@ -634,6 +641,9 @@ void UI_DisplayMain(void)
 		// ************
 
 		{	// show the TX/RX level
+		#ifdef ENABLE_SMALL_BOLD
+			
+		#else
 			uint8_t Level = 0;
 
 			if (mode == VFO_MODE_TX)
@@ -654,8 +664,10 @@ void UI_DisplayMain(void)
 						Level = gVFO_RSSI_bar_level[vfo_num];
 				#endif
 			}
+			
 			if(Level)
 				DrawSmallAntennaAndBars(p_line1 + LCD_WIDTH, Level);
+		#endif
 		}
 
 		// ************

@@ -2,6 +2,12 @@
     "files.associations": {
         "*.sql": "oracle",
         "regex": "c",
-        "printf.h": "c"
+        "printf.h": "c",
+        "pmr.h": "c",
+        "messenger.h": "c",
+        "fm.h": "c",
+        "pmu.h": "c",
+        "backlight.h": "c",
+        "variant": "c"
     }
 }

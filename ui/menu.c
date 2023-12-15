@@ -367,7 +367,7 @@ const t_sidefunction gSubMenu_SIDEFUNCTIONS[] =
 #endif
 #ifdef ENABLE_PMR_MODE
 	{"PMR MODE",		ACTION_OPT_PMR},
-#endif	
+#endif
 };
 
 const uint8_t gSubMenu_SIDEFUNCTIONS_size = ARRAY_SIZE(gSubMenu_SIDEFUNCTIONS);

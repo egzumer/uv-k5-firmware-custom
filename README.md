@@ -12,7 +12,7 @@ Anyway, have fun.
 
 ## Table of Contents
 
-- [Open re-implementation of the Quansheng UV-K5 v2.1.27 firmware](#open-re-implementation-of-the-quansheng-uv-k5-v2127-firmware)
+- [Open re-implementation of the Quansheng UV-K5/K6/5R v2.1.27 firmware](#open-re-implementation-of-the-quansheng-uv-k5k65r-v2127-firmware)
   - [Table of Contents](#table-of-contents)
   - [Main features:](#main-features)
   - [Manual](#manual)
@@ -20,6 +20,9 @@ Anyway, have fun.
   - [User customization](#user-customization)
   - [Compiler](#compiler)
   - [Building](#building)
+    - [Github Codespace build method](#github-codespace-build-method)
+    - [Docker build method](#docker-build-method)
+    - [Windows environment build method](#windows-environment-build-method)
   - [Credits](#credits)
   - [License](#license)
   - [Example changes/updates](#example-changesupdates)
@@ -133,6 +136,9 @@ ENABLE_REDUCE_LOW_MID_TX_POWER:= 0       makes medium and low power settings eve
 ENABLE_BYP_RAW_DEMODULATORS   := 0       additional BYP (bypass?) and RAW demodulation options, proved not to be very useful, but it is there if you want to experiment
 ENABLE_BLMIN_TMP_OFF          := 0       additional function for configurable buttons that toggles `BLMin` on and off wihout saving it to the EEPROM
 ENABLE_SCAN_RANGES            := 1       scan range mode for frequency scanning, see wiki for instructions (radio operation -> frequency scanning)
+
+ENABLE_PMR_MODE               := 0       set the radio in PMR only operation ( work in progress ) ( key = F + FM ) 
+ENABLE_MESSENGER              := 0       send and receive short text messages  ( work in progress ) ( key = F + FM )
 ```
 
 

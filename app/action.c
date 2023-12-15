@@ -406,7 +406,6 @@ void ACTION_PMR(void)
 }
 #endif
 
-
 #if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 static void ACTION_AlarmOr1750(const bool b1750)
 {

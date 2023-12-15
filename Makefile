@@ -51,8 +51,10 @@ ENABLE_AM_FIX_SHOW_DATA       ?= 0
 ENABLE_AGC_SHOW_DATA          ?= 0
 
 # ----
-ENABLE_PMR_MODE               ?= 1 # Work in progress
-ENABLE_MESSENGER              ?= 1 # Work in progress
+# Work in progress
+ENABLE_PMR_MODE               ?= 0
+# Work in progress
+ENABLE_MESSENGER              ?= 1
 
 #############################################################
 
@@ -136,6 +138,9 @@ ifeq ($(ENABLE_UART),1)
 endif
 ifeq ($(ENABLE_PMR_MODE),1)
 	OBJS += app/pmr.o
+endif
+ifeq ($(ENABLE_MESSENGER),1)
+	OBJS += app/messenger.o
 endif
 ifeq ($(ENABLE_AM_FIX), 1)
 	OBJS += am_fix.o
@@ -387,6 +392,10 @@ endif
 
 ifeq ($(ENABLE_PMR_MODE),1)
 	CFLAGS  += -DENABLE_PMR_MODE
+endif
+
+ifeq ($(ENABLE_MESSENGER),1)
+	CFLAGS  += -DENABLE_MESSENGER
 endif
 
 LDFLAGS =
