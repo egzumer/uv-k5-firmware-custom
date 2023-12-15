@@ -385,55 +385,10 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			gInputBoxIndex = 0;
 			Frequency = StrToUL(INPUTBOX_GetAscii()) * 100;
 
-			// clamp the frequency entered to some valid value
-			if (Frequency < RX_freq_min())
-			{
-				Frequency = RX_freq_min();
-			}
-			else
-			if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
-			{
-				const uint32_t center = (BX4819_band1.upper + BX4819_band2.lower) / 2;
-				Frequency = (Frequency < center) ? BX4819_band1.upper : BX4819_band2.lower;
-			}
-			else
-			if (Frequency > frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper)
-			{
-				Frequency = frequencyBandTable[ARRAY_SIZE(frequencyBandTable) - 1].upper;
-			}
-
-			{
-				const FREQUENCY_Band_t band = FREQUENCY_GetBand(Frequency);
-
-				#ifdef ENABLE_VOICE
-					gAnotherVoiceID = (VOICE_ID_t)Key;
-				#endif
-
-				if (gTxVfo->Band != band)
-				{
-					gTxVfo->Band               = band;
-					gEeprom.ScreenChannel[Vfo] = band + FREQ_CHANNEL_FIRST;
-					gEeprom.FreqChannel[Vfo]   = band + FREQ_CHANNEL_FIRST;
-
-					SETTINGS_SaveVfoIndices();
-
-					RADIO_ConfigureChannel(Vfo, VFO_CONFIGURE_RELOAD);
-				}
-
-				Frequency = FREQUENCY_RoundToStep(Frequency, gTxVfo->StepFrequency);
-
-				if (Frequency >= BX4819_band1.upper && Frequency < BX4819_band2.lower)
-				{	// clamp the frequency to the limit
-					const uint32_t center = (BX4819_band1.upper + BX4819_band2.lower) / 2;
-					Frequency = (Frequency < center) ? BX4819_band1.upper - gTxVfo->StepFrequency : BX4819_band2.lower;
-				}
-
-				gTxVfo->freq_config_RX.Frequency = Frequency;
-
-				gRequestSaveChannel = 1;
-				return;
-			}
-
+			SETTINGS_SetVfoFrequency(Frequency);
+			
+			gRequestSaveChannel = 1;
+			return;
 		}
 		#ifdef ENABLE_NOAA
 			else

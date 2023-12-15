@@ -52,8 +52,8 @@ Anyway, have fun.
    * reordered and renamed menu entries
    * LCD interference crash fix
 * some mods introduced by me:
-   * RxOff setting shifting the receive frequency by any specified amount for use with upconverters
-   * ENABLE_SPECTRUM_COPY_VFO allowing to exit the spectrum with MENU button and copy current peak frequency to VFO 
+   * RxOff setting offsets the receive frequency by any specified amount for use with upconverters. Allows to fine tune frequency as opposed to other implementations that use hardcoded offsets.
+   * ENABLE_SPECTRUM_COPY_VFO allowing to exit the spectrum and fine tuning screen with PTT button and copy current peak frequency, modulation, step, bandwidth to VFO. Now to enter fine tuning screen in spectrum press MENU button. This allows you to save and respond to the frequencies found much faster.
 
  ## Manual
 

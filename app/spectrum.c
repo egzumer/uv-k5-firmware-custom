@@ -261,7 +261,6 @@ static void TuneToPeak() {
 static void ExitAndCopyToVfo() {
   const FREQUENCY_Band_t band = FREQUENCY_GetBand(peak.f);
   const uint8_t Vfo = gEeprom.TX_VFO;
-    
 
   if (gTxVfo->Band != band)
   {
@@ -274,10 +273,14 @@ static void ExitAndCopyToVfo() {
     RADIO_ConfigureChannel(Vfo, VFO_CONFIGURE_RELOAD);
   }
   gTxVfo->STEP_SETTING = FREQUENCY_GetStepIdxFromStepFrequency(GetScanStep());
-  gTxVfo->freq_config_RX.Frequency = peak.f;
-  gTxVfo->freq_config_TX.Frequency = peak.f;
-  gTxVfo->pRX->Frequency = peak.f;
   gTxVfo->Modulation = settings.modulationType;
+  // TODO: Add support for NARROW- bandwidth in VFO (settings etc)
+  gTxVfo->CHANNEL_BANDWIDTH = settings.listenBw;
+
+  SETTINGS_SetVfoFrequency(peak.f);
+
+  // Additional delay to debounce keys
+  SYSTEM_DelayMs(200);
 
   gRequestSaveChannel = 1;
   
@@ -795,11 +798,18 @@ static void OnKeyDown(uint8_t key) {
     ToggleBacklight();
     break;
   case KEY_PTT:
+    #ifdef ENABLE_SPECTRUM_COPY_VFO
+      ExitAndCopyToVfo();
+    #else
     SetState(STILL);
     TuneToPeak();
+    #endif
     break;
   case KEY_MENU:
-    ExitAndCopyToVfo();
+    #ifdef ENABLE_SPECTRUM_COPY_VFO
+      SetState(STILL);
+      TuneToPeak();
+    #endif
     break;
   case KEY_EXIT:
     if (menuState) {
@@ -897,9 +907,9 @@ void OnKeyDownStill(KEY_Code_t key) {
     ToggleBacklight();
     break;
   case KEY_PTT:
-    // TODO: start transmit
-    /* BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, false);
-    BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true); */
+    #ifdef ENABLE_SPECTRUM_COPY_VFO
+      ExitAndCopyToVfo();
+    #endif
     break;
   case KEY_MENU:
     if (menuState == ARRAY_SIZE(registerSpecs) - 1) {
