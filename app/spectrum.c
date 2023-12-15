@@ -259,19 +259,6 @@ static void TuneToPeak() {
 }
 #ifdef ENABLE_SPECTRUM_COPY_VFO
 static void ExitAndCopyToVfo() {
-  const FREQUENCY_Band_t band = FREQUENCY_GetBand(peak.f);
-  const uint8_t Vfo = gEeprom.TX_VFO;
-
-  if (gTxVfo->Band != band)
-  {
-    gTxVfo->Band               = band;
-    gEeprom.ScreenChannel[Vfo] = band + FREQ_CHANNEL_FIRST;
-    gEeprom.FreqChannel[Vfo]   = band + FREQ_CHANNEL_FIRST;
-
-    SETTINGS_SaveVfoIndices();
-
-    RADIO_ConfigureChannel(Vfo, VFO_CONFIGURE_RELOAD);
-  }
   gTxVfo->STEP_SETTING = FREQUENCY_GetStepIdxFromStepFrequency(GetScanStep());
   gTxVfo->Modulation = settings.modulationType;
   // TODO: Add support for NARROW- bandwidth in VFO (settings etc)
