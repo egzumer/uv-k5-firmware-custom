@@ -167,24 +167,18 @@ OBJS += ui/welcome.o
 OBJS += version.o
 OBJS += main.o
 
-ifeq ($(OS), Windows_NT)
-	TOP := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
-else
-	TOP := $(shell pwd)
-endif
-
-ifdef OS # windows
-   RM = del /Q
-   FixPath = $(subst /,\,$1)
-   WHERE = where
-   NULL_OUTPUT = nul
+ifeq ($(OS), Windows_NT) # windows
+    TOP := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
+    RM = del /Q
+    FixPath = $(subst /,\,$1)
+    WHERE = where
+    NULL_OUTPUT = nul
 else # unix
-   ifeq ($(shell uname), Linux)
-      RM = rm -f
-      FixPath = $1
-	  WHERE = which
-	  NULL_OUTPUT = /dev/null
-   endif
+    TOP := $(shell pwd)
+    RM = rm -f
+    FixPath = $1
+    WHERE = which
+    NULL_OUTPUT = /dev/null	
 endif
 
 AS = arm-none-eabi-gcc
