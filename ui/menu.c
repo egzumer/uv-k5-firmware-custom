@@ -492,7 +492,7 @@ void UI_DisplayMenu(void)
 	   level the "next" time we enter here.I.e., when we move from one menu to another.
 	   It also has to be set back to max when pressing the Exit key. */
 
-	BACKLIGHT_SetBrightness(gEeprom.BACKLIGHT_MAX);
+	BACKLIGHT_TurnOn();
 
 	switch (UI_MENU_GetCurrentMenuId())
 	{
