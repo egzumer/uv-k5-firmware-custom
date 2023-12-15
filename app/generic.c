@@ -83,6 +83,7 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 	}
 	else // short pressed
 	{
+
 		#ifdef ENABLE_FMRADIO
 			if (gScreenToDisplay != DISPLAY_FM)
 			{
@@ -232,14 +233,14 @@ start_tx:
 	// request start TX
 	gFlagPrepareTX = true;
 	goto done;
-	
+
 cancel_tx:
 	if (gPttIsPressed)
 	{
 		gPttWasPressed = true;
 	}
 
-done:	
+done:
 	gPttDebounceCounter = 0;
 	#ifndef ENABLE_PMR_MODE //  && gRequestDisplayScreen != DISPLAY_PMR
 		#ifdef ENABLE_FMRADIO
