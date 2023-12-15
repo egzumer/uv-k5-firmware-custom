@@ -663,6 +663,18 @@ static void DrawF(uint32_t f) {
   sprintf(String, "%s", bwOptions[settings.listenBw]);
   GUI_DisplaySmallest(String, 108, 7, false, true);
 }
+#ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+  static void DrawKnownChannelName(uint32_t f) {
+    int channel;
+    char name[32];
+
+    channel = BOARD_fetchChannel(f);
+    BOARD_fetchChannelName(name, channel);
+
+    sprintf(String, "%s", channel==0 ? "" : name);
+    GUI_DisplaySmallest(String, 0, 13, false, true);
+  }
+#endif
 
 static void DrawNums() {
 
@@ -936,6 +948,9 @@ static void RenderSpectrum() {
   DrawSpectrum();
   DrawRssiTriggerLevel();
   DrawF(peak.f);
+  #ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+    DrawKnownChannelName(peak.f);
+  #endif
   DrawNums();
 }
 

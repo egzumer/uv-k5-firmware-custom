@@ -827,7 +827,24 @@ uint32_t BOARD_fetchChannelFrequency(const int channel)
 	
 	return info.frequency;
 }
+#ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+	// TODO: fetch from memory, reading from eeprom all the time is too slow
+	int BOARD_fetchChannel(const uint32_t freq)
+	{
+		struct
+		{
+			uint32_t frequency;
+			uint32_t offset;
+		} __attribute__((packed)) info;
 
+		for (int i = 1; i <= 200; i++) {
+			EEPROM_ReadBuffer(i * 16, &info, sizeof(info));
+			if (info.frequency == freq)
+				return i;
+		}
+		return 0;
+	}
+#endif
 void BOARD_fetchChannelName(char *s, const int channel)
 {
 	int i;
