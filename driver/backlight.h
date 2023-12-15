@@ -36,5 +36,6 @@ void BACKLIGHT_TurnOn();
 void BACKLIGHT_TurnOff();
 bool BACKLIGHT_IsOn();
 void BACKLIGHT_SetBrightness(uint8_t brigtness);
+uint8_t BACKLIGHT_GetBrightness(void);
 
 #endif

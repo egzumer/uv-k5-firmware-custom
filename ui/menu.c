@@ -590,7 +590,8 @@ void UI_DisplayMenu(void)
 
 		case MENU_ABR:
 			strcpy(String, gSubMenu_BACKLIGHT[gSubMenuSelection]);
-			BACKLIGHT_SetBrightness(-1);
+			if(BACKLIGHT_GetBrightness() < 4)
+				BACKLIGHT_SetBrightness(4);
 			break;
 
 		case MENU_ABR_MIN:
@@ -598,8 +599,8 @@ void UI_DisplayMenu(void)
 			sprintf(String, "%d", gSubMenuSelection);
 			if(gIsInSubMenu)
 				BACKLIGHT_SetBrightness(gSubMenuSelection);
-			else
-				BACKLIGHT_SetBrightness(-1);
+			else if(BACKLIGHT_GetBrightness() < 4)
+				BACKLIGHT_SetBrightness(4);
 			break;	
 
 		case MENU_AM:
