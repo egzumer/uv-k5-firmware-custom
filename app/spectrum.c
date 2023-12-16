@@ -665,14 +665,16 @@ static void DrawF(uint32_t f) {
 }
 #ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
   static void DrawKnownChannelName(uint32_t f) {
+    // TODO: Only draw here, have separate lookup procedure initialized only when peak.f changes to save cycles
     int channel;
-    char name[32];
+    channel = BOARD_gMR_fetchChannel(f);
+    if (channel != -1)
+    {
+      //display channel and name
+      sprintf(String, "M%i:%s", channel+1, gMR_ChannelFrequencyAttributes[channel].Name);
+      GUI_DisplaySmallest(String, 0, 13, false, true);
+    }
 
-    channel = BOARD_fetchChannel(f);
-    BOARD_fetchChannelName(name, channel);
-
-    sprintf(String, "%s", channel==0 ? "" : name);
-    GUI_DisplaySmallest(String, 0, 13, false, true);
   }
 #endif
 

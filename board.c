@@ -758,7 +758,27 @@ void BOARD_EEPROM_Init(void)
 			return;
 		}
 	}
+
+	#ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+		BOARD_gMR_LoadChannels();
+	#endif
+	
 }
+#ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+// Load channel frequencies, names into global memory lookup table
+void BOARD_gMR_LoadChannels() {
+	uint8_t  i;
+	uint32_t freq_buf;
+	
+	for (i = MR_CHANNEL_FIRST; i < MR_CHANNEL_LAST; i++)
+	{
+		freq_buf = BOARD_fetchChannelFrequency(i);
+		
+		gMR_ChannelFrequencyAttributes[i].Frequency = RX_freq_check(freq_buf) == -1 ? 0 : freq_buf;
+		BOARD_fetchChannelName(gMR_ChannelFrequencyAttributes[i].Name, i);
+	}
+}
+#endif
 
 void BOARD_EEPROM_LoadCalibration(void)
 {
@@ -828,21 +848,14 @@ uint32_t BOARD_fetchChannelFrequency(const int channel)
 	return info.frequency;
 }
 #ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
-	// TODO: fetch from memory, reading from eeprom all the time is too slow
-	int BOARD_fetchChannel(const uint32_t freq)
+	int BOARD_gMR_fetchChannel(const uint32_t freq)
 	{
-		struct
-		{
-			uint32_t frequency;
-			uint32_t offset;
-		} __attribute__((packed)) info;
-
-		for (int i = 1; i <= 200; i++) {
-			EEPROM_ReadBuffer(i * 16, &info, sizeof(info));
-			if (info.frequency == freq)
+		for (int i = MR_CHANNEL_FIRST; i <= MR_CHANNEL_LAST; i++) {
+			if (gMR_ChannelFrequencyAttributes[i].Frequency == freq)
 				return i;
 		}
-		return 0;
+		// Return -1 if no channel found
+		return -1;
 	}
 #endif
 void BOARD_fetchChannelName(char *s, const int channel)
