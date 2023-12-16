@@ -93,46 +93,47 @@ us to remove certain firmware features in order to make room in the flash for ot
 You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) ..
 
 ```
-ENABLE_CLANG                  := 0     **experimental, builds with clang instead of gcc (LTO will be disabled if you enable this)
-ENABLE_SWD                    := 0       only needed if using CPU's SWD port (debugging/programming)
-ENABLE_OVERLAY                := 0       cpu FLASH stuff, not needed
-ENABLE_LTO                    := 1     **experimental, reduces size of compiled firmware but might break EEPROM reads (OVERLAY will be disabled if you enable this)
+ENABLE_CLANG                      := 0     **experimental, builds with clang instead of gcc (LTO will be disabled if you enable this)
+ENABLE_SWD                        := 0       only needed if using CPU's SWD port (debugging/programming)
+ENABLE_OVERLAY                    := 0       cpu FLASH stuff, not needed
+ENABLE_LTO                        := 1     **experimental, reduces size of compiled firmware but might break EEPROM reads (OVERLAY will be disabled if you enable this)
 
-ENABLE_UART                   := 1       without this you can't configure radio via PC !
-ENABLE_AIRCOPY                := 0       easier to just enter frequency with butts
-ENABLE_FMRADIO                := 1       WBFM VHF broadcast band receiver
-ENABLE_NOAA                   := 0       everything NOAA (only of any use in the USA)
-ENABLE_VOICE                  := 0       want to hear voices ?
-ENABLE_VOX                    := 1
-ENABLE_ALARM                  := 0       TX alarms
-ENABLE_TX1750                 := 0       side key 1750Hz TX tone (older style repeater access)
-ENABLE_PWRON_PASSWORD         := 0       power-on password stuff
-ENABLE_DTMF_CALLING           := 1       DTMF calling fuctionality, sending calls, receiving calls, group calls, contacts list etc.
+ENABLE_UART                       := 1       without this you can't configure radio via PC !
+ENABLE_AIRCOPY                    := 0       easier to just enter frequency with butts
+ENABLE_FMRADIO                    := 1       WBFM VHF broadcast band receiver
+ENABLE_NOAA                       := 0       everything NOAA (only of any use in the USA)
+ENABLE_VOICE                      := 0       want to hear voices ?
+ENABLE_VOX                        := 1
+ENABLE_ALARM                      := 0       TX alarms
+ENABLE_TX1750                     := 0       side key 1750Hz TX tone (older style repeater access)
+ENABLE_PWRON_PASSWORD             := 0       power-on password stuff
+ENABLE_DTMF_CALLING               := 1       DTMF calling fuctionality, sending calls, receiving calls, group calls, contacts list etc.
 
-ENABLE_BIG_FREQ               := 1       big font frequencies (like original QS firmware)
-ENABLE_SMALL_BOLD             := 1       bold channel name/no. (when name + freq channel display mode)
-ENABLE_KEEP_MEM_NAME          := 1       maintain channel name when (re)saving memory channel
-ENABLE_WIDE_RX                := 1       full 18MHz to 1300MHz RX (though front-end/PA not designed for full range)
-ENABLE_TX_WHEN_AM             := 0       allow TX (always FM) when RX is set to AM
-ENABLE_F_CAL_MENU             := 0       enable the radios hidden frequency calibration menu
-ENABLE_CTCSS_TAIL_PHASE_SHIFT := 0       standard CTCSS tail phase shift rather than QS's own 55Hz tone method
-ENABLE_BOOT_BEEPS             := 0       gives user audio feedback on volume knob position at boot-up
-ENABLE_SHOW_CHARGE_LEVEL      := 1       show the charge level when the radio is on charge
-ENABLE_REVERSE_BAT_SYMBOL     := 0       mirror the battery symbol on the status bar (+ pole on the right)
-ENABLE_NO_CODE_SCAN_TIMEOUT   := 1       disable 32-sec CTCSS/DCS scan timeout (press exit butt instead of time-out to end scan)
-ENABLE_AM_FIX                 := 1       dynamically adjust the front end gains when in AM mode to help prevent AM demodulator saturation, ignore the on-screen RSSI level (for now)
-ENABLE_AM_FIX_SHOW_DATA       := 0       show debug data for the AM fix
-ENABLE_SQUELCH_MORE_SENSITIVE := 1       make squelch levels a little bit more sensitive - I plan to let user adjust the values themselves
-ENABLE_FASTER_CHANNEL_SCAN    := 1       increases the channel scan speed, but the squelch is also made more twitchy
-ENABLE_RSSI_BAR               := 1       enable a dBm/Sn RSSI bar graph level in place of the little antenna symbols
-ENABLE_AUDIO_BAR              := 1       experimental, display an audio bar level when TX'ing
-ENABLE_COPY_CHAN_TO_VFO       := 1       copy current channel into the other VFO. Long press `1 BAND` when in channel mode
-ENABLE_SPECTRUM               := 1       fagci spectrum analyzer, activated with `F` + `5 NOAA`
-ENABLE_REDUCE_LOW_MID_TX_POWER:= 0       makes medium and low power settings even lower
-ENABLE_BYP_RAW_DEMODULATORS   := 0       additional BYP (bypass?) and RAW demodulation options, proved not to be very useful, but it is there if you want to experiment
-ENABLE_BLMIN_TMP_OFF          := 0       additional function for configurable buttons that toggles `BLMin` on and off wihout saving it to the EEPROM
-ENABLE_SCAN_RANGES            := 1       scan range mode for frequency scanning, see wiki for instructions (radio operation -> frequency scanning)
-ENABLE_SPECTRUM_COPY_VFO      := 1       pressing MENU in spectrum mode will exit and copy current peak frequency to current VFO
+ENABLE_BIG_FREQ                   := 1       big font frequencies (like original QS firmware)
+ENABLE_SMALL_BOLD                 := 1       bold channel name/no. (when name + freq channel display mode)
+ENABLE_KEEP_MEM_NAME              := 1       maintain channel name when (re)saving memory channel
+ENABLE_WIDE_RX                    := 1       full 18MHz to 1300MHz RX (though front-end/PA not designed for full range)
+ENABLE_TX_WHEN_AM                 := 0       allow TX (always FM) when RX is set to AM
+ENABLE_F_CAL_MENU                 := 0       enable the radios hidden frequency calibration menu
+ENABLE_CTCSS_TAIL_PHASE_SHIFT     := 0       standard CTCSS tail phase shift rather than QS's own 55Hz tone method
+ENABLE_BOOT_BEEPS                 := 0       gives user audio feedback on volume knob position at boot-up
+ENABLE_SHOW_CHARGE_LEVEL          := 1       show the charge level when the radio is on charge
+ENABLE_REVERSE_BAT_SYMBOL         := 0       mirror the battery symbol on the status bar (+ pole on the right)
+ENABLE_NO_CODE_SCAN_TIMEOUT       := 1       disable 32-sec CTCSS/DCS scan timeout (press exit butt instead of time-out to end scan)
+ENABLE_AM_FIX                     := 1       dynamically adjust the front end gains when in AM mode to help prevent AM demodulator saturation, ignore the on-screen RSSI level (for now)
+ENABLE_AM_FIX_SHOW_DATA           := 0       show debug data for the AM fix
+ENABLE_SQUELCH_MORE_SENSITIVE     := 1       make squelch levels a little bit more sensitive - I plan to let user adjust the values themselves
+ENABLE_FASTER_CHANNEL_SCAN        := 1       increases the channel scan speed, but the squelch is also made more twitchy
+ENABLE_RSSI_BAR                   := 1       enable a dBm/Sn RSSI bar graph level in place of the little antenna symbols
+ENABLE_AUDIO_BAR                  := 1       experimental, display an audio bar level when TX'ing
+ENABLE_COPY_CHAN_TO_VFO           := 1       copy current channel into the other VFO. Long press `1 BAND` when in channel mode
+ENABLE_SPECTRUM                   := 1       fagci spectrum analyzer, activated with `F` + `5 NOAA`
+ENABLE_REDUCE_LOW_MID_TX_POWER    := 1       makes medium and low power settings even lower
+ENABLE_BYP_RAW_DEMODULATORS       := 0       additional BYP (bypass?) and RAW demodulation options, proved not to be very useful, but it is there if you want to experiment
+ENABLE_BLMIN_TMP_OFF              := 0       additional function for configurable buttons that toggles `BLMin` on and off wihout saving it to the EEPROM
+ENABLE_SCAN_RANGES                := 1       scan range mode for frequency scanning, see wiki for instructions (radio operation -> frequency scanning)
+ENABLE_SPECTRUM_COPY_VFO          := 1       pressing MENU in spectrum mode will exit and copy current peak frequency to current VFO
+ENABLE_SPECTRUM_SHOW_CHANNEL_NAME := 1 shows channel number and channel name of the peak frequency in spectrum
 ```
 
 
