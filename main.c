@@ -14,18 +14,26 @@
  *     limitations under the License.
  */
 
+#include <stdint.h>
 #include <string.h>
 #include <stdio.h>     // NULL
 
 #ifdef ENABLE_AM_FIX
 	#include "am_fix.h"
 #endif
+
+#include "audio.h"
+#include "board.h"
+#include "misc.h"
+#include "radio.h"
+#include "settings.h"
+#include "version.h"
+
 #include "app/app.h"
 #include "app/dtmf.h"
-#include "audio.h"
 #include "bsp/dp32g030/gpio.h"
 #include "bsp/dp32g030/syscon.h"
-#include "board.h"
+
 #include "driver/backlight.h"
 #include "driver/bk4819.h"
 #include "driver/gpio.h"
@@ -34,16 +42,13 @@
 #ifdef ENABLE_UART
 	#include "driver/uart.h"
 #endif
+
 #include "helper/battery.h"
 #include "helper/boot.h"
-#include "misc.h"
-#include "radio.h"
-#include "settings.h"
+
 #include "ui/lock.h"
 #include "ui/welcome.h"
 #include "ui/menu.h"
-#include "version.h"
-
 void _putchar(__attribute__((unused)) char c)
 {
 
@@ -66,6 +71,7 @@ void Main(void)
 		| SYSCON_DEV_CLK_GATE_CRC_BITS_ENABLE
 		| SYSCON_DEV_CLK_GATE_AES_BITS_ENABLE
 		| SYSCON_DEV_CLK_GATE_PWM_PLUS0_BITS_ENABLE;
+
 
 	SYSTICK_Init();
 	BOARD_Init();
@@ -102,9 +108,9 @@ void Main(void)
 
 	BATTERY_GetReadings(false);
 
-	#ifdef ENABLE_AM_FIX
-		AM_fix_init();
-	#endif
+#ifdef ENABLE_AM_FIX
+	AM_fix_init();
+#endif
 
 	const BOOT_Mode_t  BootMode = BOOT_GetMode();
 
@@ -211,24 +217,18 @@ void Main(void)
 #ifdef ENABLE_NOAA
 		RADIO_ConfigureNOAA();
 #endif
-
-		// ******************
 	}
 
-	while (1)
-	{
+	while (true) {
 		APP_Update();
 
-		if (gNextTimeslice)
-		{
-			APP_TimeSlice10ms();
-			gNextTimeslice = false;
-		}
+		if (gNextTimeslice) {
 
-		if (gNextTimeslice_500ms)
-		{
-			APP_TimeSlice500ms();
-			gNextTimeslice_500ms = false;
+			APP_TimeSlice10ms();
+
+			if (gNextTimeslice_500ms) {
+				APP_TimeSlice500ms();
+			}
 		}
 	}
 }
