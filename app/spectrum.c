@@ -13,8 +13,14 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  */
-
 #include "app/spectrum.h"
+#include "am_fix.h"
+#include "audio.h"
+
+#ifdef ENABLE_SCAN_RANGES
+#include "chFrScanner.h"
+#endif
+
 #include "driver/backlight.h"
 #include "audio.h"
 #include "ui/helper.h"
@@ -57,6 +63,11 @@ State currentState = SPECTRUM, previousState = SPECTRUM;
 PeakInfo peak;
 ScanInfo scanInfo;
 KeyboardState kbd = {KEY_INVALID, KEY_INVALID, 0};
+
+#ifdef ENABLE_SCAN_RANGES
+static uint16_t blacklistFreqs[15];
+static uint8_t blacklistFreqsIdx;
+#endif
 
 const char *bwOptions[] = {"  25k", "12.5k", "6.25k"};
 const uint8_t modulationTypeTuneSteps[] = {100, 50, 10};
@@ -253,12 +264,24 @@ static void ResetPeak() {
 }
 
 bool IsCenterMode() { return settings.scanStepIndex < S_STEP_2_5kHz; }
-uint8_t GetStepsCount() { return 128 >> settings.stepsCount; }
+// scan step in 0.01khz
 uint16_t GetScanStep() { return scanStepValues[settings.scanStepIndex]; }
+
+uint16_t GetStepsCount() 
+{ 
+#ifdef ENABLE_SCAN_RANGES
+  if(gScanRangeStart) {
+    return (gScanRangeStop - gScanRangeStart) / GetScanStep();
+  }
+#endif
+  return 128 >> settings.stepsCount;
+}
+
 uint32_t GetBW() { return GetStepsCount() * GetScanStep(); }
 uint32_t GetFStart() {
   return IsCenterMode() ? currentFreq - (GetBW() >> 1) : currentFreq;
 }
+
 uint32_t GetFEnd() { return currentFreq + GetBW(); }
 
 static void TuneToPeak() {
@@ -370,6 +393,10 @@ static void ResetBlacklist() {
     if (rssiHistory[i] == RSSI_MAX_VALUE)
       rssiHistory[i] = 0;
   }
+#ifdef ENABLE_SCAN_RANGES
+  memset(blacklistFreqs, 0, sizeof(blacklistFreqs));
+  blacklistFreqsIdx = 0;
+#endif
 }
 
 static void RelaunchScan() {
@@ -419,7 +446,20 @@ static void UpdatePeakInfo() {
     UpdatePeakInfoForce();
 }
 
-static void Measure() { rssiHistory[scanInfo.i] = scanInfo.rssi = GetRssi(); }
+static void Measure() 
+{ 
+  uint16_t rssi = scanInfo.rssi = GetRssi();
+#ifdef ENABLE_SCAN_RANGES  
+  if(scanInfo.measurementsCount > 128) {
+    uint8_t idx = (uint32_t)ARRAY_SIZE(rssiHistory) * 1000 / scanInfo.measurementsCount * scanInfo.i / 1000;
+    if(rssiHistory[idx] < rssi || isListening) 
+      rssiHistory[idx] = rssi;
+    rssiHistory[(idx+1)%128] = 0;
+    return;
+  }
+#endif
+  rssiHistory[scanInfo.i] = rssi;
+}
 
 // Update things by keypress
 
@@ -614,11 +654,24 @@ static void UpdateFreqInput(KEY_Code_t key) {
 }
 
 static void Blacklist() {
+#ifdef ENABLE_SCAN_RANGES
+  blacklistFreqs[blacklistFreqsIdx++ % ARRAY_SIZE(blacklistFreqs)] = peak.i;
+#endif
   rssiHistory[peak.i] = RSSI_MAX_VALUE;
   ResetPeak();
   ToggleRX(false);
-  newScanStart = true;
+  ResetScanStats();
 }
+
+#ifdef ENABLE_SCAN_RANGES
+static bool IsBlacklisted(uint16_t idx)
+{
+  for(uint8_t i = 0; i < ARRAY_SIZE(blacklistFreqs); i++)
+    if(blacklistFreqs[i] == idx)
+      return true;
+  return false;
+}
+#endif
 
 // Draw things
 
@@ -756,9 +809,11 @@ static void DrawRssiTriggerLevel() {
 }
 
 static void DrawTicks() {
-  uint32_t f = GetFStart() % 100000;
-  uint32_t step = GetScanStep();
-  for (uint8_t i = 0; i < 128; i += (1 << settings.stepsCount), f += step) {
+  uint32_t f = GetFStart();
+  uint32_t span = GetFEnd() - GetFStart();
+  uint32_t step = span / 128;
+  for (uint8_t i = 0; i < 128; i += (1 << settings.stepsCount)) {
+    f = GetFStart() + span * i / 128;
     uint8_t barValue = 0b00000001;
     (f % 10000) < step && (barValue |= 0b00000010);
     (f % 50000) < step && (barValue |= 0b00000100);
@@ -810,10 +865,16 @@ static void OnKeyDown(uint8_t key) {
     UpdateFreqChangeStep(false);
     break;
   case KEY_UP:
-    UpdateCurrentFreq(true);
+#ifdef ENABLE_SCAN_RANGES
+    if(!gScanRangeStart)
+#endif
+      UpdateCurrentFreq(true);
     break;
   case KEY_DOWN:
-    UpdateCurrentFreq(false);
+#ifdef ENABLE_SCAN_RANGES
+    if(!gScanRangeStart)
+#endif
+      UpdateCurrentFreq(false);
     break;
   case KEY_SIDE1:
     Blacklist();
@@ -825,7 +886,10 @@ static void OnKeyDown(uint8_t key) {
     UpdateRssiTriggerLevel(false);
     break;
   case KEY_5:
-    FreqInput();
+#ifdef ENABLE_SCAN_RANGES
+    if(!gScanRangeStart)
+#endif  
+      FreqInput();
     break;
   case KEY_0:
     ToggleModulation();
@@ -834,7 +898,10 @@ static void OnKeyDown(uint8_t key) {
     ToggleListeningBW();
     break;
   case KEY_4:
-    ToggleStepsCount();
+#ifdef ENABLE_SCAN_RANGES
+    if(!gScanRangeStart)
+#endif
+      ToggleStepsCount();
     break;
   case KEY_SIDE2:
     ToggleBacklight();
@@ -987,7 +1054,7 @@ static void RenderStatus() {
 
 static void RenderSpectrum() {
   DrawTicks();
-  DrawArrow(peak.i << settings.stepsCount);
+  DrawArrow(128u * peak.i / GetStepsCount());
   DrawSpectrum();
   DrawRssiTriggerLevel();
   DrawF(peak.f);
@@ -1105,7 +1172,11 @@ bool HandleUserInput() {
 }
 
 static void Scan() {
-  if (rssiHistory[scanInfo.i] != RSSI_MAX_VALUE) {
+  if (rssiHistory[scanInfo.i] != RSSI_MAX_VALUE
+#ifdef ENABLE_SCAN_RANGES
+  && !IsBlacklisted(scanInfo.i)
+#endif
+  ) {
     SetF(scanInfo.f);
     Measure();
     UpdateScanInfo();
@@ -1125,6 +1196,10 @@ static void UpdateScan() {
     NextScanStep();
     return;
   }
+
+  if(scanInfo.measurementsCount < 128)
+    memset(&rssiHistory[scanInfo.measurementsCount], 0, 
+      sizeof(rssiHistory) - scanInfo.measurementsCount*sizeof(rssiHistory[0]));
 
   redrawScreen = true;
   preventKeypress = false;
@@ -1178,10 +1253,39 @@ static void UpdateListening() {
   }
 
   ToggleRX(false);
-  newScanStart = true;
+  ResetScanStats();
 }
 
 static void Tick() {
+#ifdef ENABLE_AM_FIX
+  if (gNextTimeslice) {
+    gNextTimeslice = false;
+    if(settings.modulationType == MODULATION_AM && !lockAGC) {
+      AM_fix_10ms(vfo); //allow AM_Fix to apply its AGC action
+    }
+  }
+#endif
+
+#ifdef ENABLE_SCAN_RANGES
+  if (gNextTimeslice_500ms) {
+    gNextTimeslice_500ms = false;
+
+    // if a lot of steps then it takes long time
+    // we don't want to wait for whole scan
+    // listening has it's own timer
+    if(GetStepsCount()>128 && !isListening) {
+      UpdatePeakInfo();
+      if (IsPeakOverLevel()) {
+        ToggleRX(true);
+        TuneToPeak();
+        return;
+      }
+      redrawScreen = true;
+      preventKeypress = false;
+    }
+  }
+#endif
+
   if (!preventKeypress) {
     HandleUserInput();
   }
@@ -1211,15 +1315,31 @@ static void Tick() {
 
 void APP_RunSpectrum() {
   // TX here coz it always? set to active VFO
-  currentFreq = initialFreq =
-      gEeprom.VfoInfo[gEeprom.TX_VFO].pRX->Frequency;
+  vfo = gEeprom.TX_VFO;
+  // set the current frequency in the middle of the display
+#ifdef ENABLE_SCAN_RANGES
+  if(gScanRangeStart) {
+    currentFreq = initialFreq = gScanRangeStart;
+    for(uint8_t i = 0; i < ARRAY_SIZE(scanStepValues); i++) {
+      if(scanStepValues[i] >= gTxVfo->StepFrequency) {
+        settings.scanStepIndex = i;
+        break;
+      }
+    }
+    settings.stepsCount = STEPS_128;
+  }
+  else
+#endif
+    currentFreq = initialFreq = gTxVfo->pRX->Frequency -
+                                ((GetStepsCount() / 2) * GetScanStep());
 
   BackupRegisters();
 
   isListening = true; // to turn off RX later
   redrawStatus = true;
-  redrawScreen = false; // we will wait until scan done
+  redrawScreen = true;
   newScanStart = true;
+
 
   ToggleRX(true), ToggleRX(false); // hack to prevent noise when squelch off
   #ifdef ENABLE_SPECTRUM_COPY_VFO

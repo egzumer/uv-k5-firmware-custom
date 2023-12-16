@@ -137,17 +137,17 @@ typedef struct KeyboardState {
 
 typedef struct ScanInfo {
   uint16_t rssi, rssiMin, rssiMax;
-  uint8_t i, iPeak;
+  uint16_t i, iPeak;
   uint32_t f, fPeak;
   uint16_t scanStep;
-  uint8_t measurementsCount;
+  uint16_t measurementsCount;
 } ScanInfo;
 
 typedef struct PeakInfo {
   uint16_t t;
   uint16_t rssi;
   uint32_t f;
-  uint8_t i;
+  uint16_t i;
 } PeakInfo;
 
 void APP_RunSpectrum(void);

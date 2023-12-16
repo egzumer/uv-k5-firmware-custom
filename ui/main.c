@@ -293,8 +293,7 @@ void UI_DisplayMain(void)
 					UI_PrintString("ScnRng", 5, 0, line, 8);
 					sprintf(String, "%3u.%05u", gScanRangeStart / 100000, gScanRangeStart % 100000);
 					UI_PrintStringSmall(String, 56, 0, line);
-					uint32_t frq = gEeprom.VfoInfo[vfo_num].pRX->Frequency;
-					sprintf(String, "%3u.%05u", frq / 100000, frq % 100000);
+					sprintf(String, "%3u.%05u", gScanRangeStop / 100000, gScanRangeStop % 100000);
 					UI_PrintStringSmall(String, 56, 0, line + 1);
 				continue;
 			}
