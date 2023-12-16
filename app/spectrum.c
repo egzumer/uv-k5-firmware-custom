@@ -33,6 +33,13 @@ static uint16_t R30, R37, R3D, R43, R47, R48, R7E;
 static uint32_t initialFreq;
 static char String[32];
 
+#ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+  uint32_t lastPeakFrequency;
+  bool     isKnownChannel = false;
+  int      channel;
+  char     channelName[12];
+#endif
+
 bool isInitialized = false;
 bool isListening = true;
 bool monitorMode = false;
@@ -384,6 +391,9 @@ static void UpdatePeakInfoForce() {
   peak.rssi = scanInfo.rssiMax;
   peak.f = scanInfo.fPeak;
   peak.i = scanInfo.iPeak;
+  #ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+    LookupChannelInfo();
+  #endif
   AutoTriggerLevel();
 }
 
@@ -664,15 +674,28 @@ static void DrawF(uint32_t f) {
   GUI_DisplaySmallest(String, 108, 7, false, true);
 }
 #ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
-  static void DrawChannelInfo(uint32_t freq) {
-    // TODO: Only draw here, have separate lookup procedure initialized only when peak.f changes to save cycles
-    int channel;
-    channel = BOARD_gMR_fetchChannel(freq);
-    if (channel != -1)
+  static void DrawChannelInfo() {
+    if (isKnownChannel)
     {
       //display channel and name
-      sprintf(String, "M%i:%s", channel+1, gMR_ChannelFrequencyAttributes[channel].Name);
+      sprintf(String, "M%i:%s", channel+1, channelName);
       GUI_DisplaySmallest(String, 0, 13, false, true);
+    }
+
+  }
+
+  void LookupChannelInfo() {
+    if (lastPeakFrequency == peak.f) 
+      return;
+    
+    lastPeakFrequency = peak.f;
+    
+    channel = BOARD_gMR_fetchChannel(peak.f);
+
+    isKnownChannel = channel == -1 ? false : true;
+
+    if (isKnownChannel){
+      memmove(channelName, gMR_ChannelFrequencyAttributes[channel].Name, sizeof(channelName));
     }
 
   }

@@ -152,6 +152,10 @@ typedef struct PeakInfo {
 
 void APP_RunSpectrum(void);
 
+#ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+  void LookupChannelInfo();
+#endif
+
 #endif /* ifndef SPECTRUM_H */
 
 // vim: ft=c
