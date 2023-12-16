@@ -644,6 +644,16 @@ static void DrawStatus() {
 #ifdef SPECTRUM_EXTRA_VALUES
   sprintf(String, "%d/%d P:%d T:%d", settings.dbMin, settings.dbMax,
           Rssi2DBm(peak.rssi), Rssi2DBm(settings.rssiTriggerLevel));
+#elif ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+  if (isKnownChannel)
+  {
+    sprintf(String, "%d/%d M%i:%s", settings.dbMin, settings.dbMax, channel+1, channelName);
+  }
+  else
+  {
+    sprintf(String, "%d/%d", settings.dbMin, settings.dbMax);
+  }
+  
 #else
   sprintf(String, "%d/%d", settings.dbMin, settings.dbMax);
 #endif
@@ -683,16 +693,6 @@ static void DrawF(uint32_t f) {
   GUI_DisplaySmallest(String, 108, 7, false, true);
 }
 #ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
-  static void DrawChannelInfo() {
-    if (isKnownChannel)
-    {
-      //display channel and name
-      sprintf(String, "M%i:%s", channel+1, channelName);
-      GUI_DisplaySmallest(String, 0, 13, false, true);
-    }
-
-  }
-
   void LookupChannelInfo() {
     if (lastPeakFrequency == peak.f) 
       return;
@@ -707,6 +707,7 @@ static void DrawF(uint32_t f) {
       memmove(channelName, gMR_ChannelFrequencyAttributes[channel].Name, sizeof(channelName));
     }
 
+    redrawStatus = true;
   }
 #endif
 
@@ -982,9 +983,6 @@ static void RenderSpectrum() {
   DrawSpectrum();
   DrawRssiTriggerLevel();
   DrawF(peak.f);
-  #ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
-    DrawChannelInfo(peak.f);
-  #endif
   DrawNums();
 }
 
