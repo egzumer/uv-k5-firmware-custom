@@ -18,6 +18,9 @@
 #include "driver/backlight.h"
 #include "audio.h"
 #include "ui/helper.h"
+#ifdef ENABLE_SPECTRUM_COPY_VFO
+  #include "common.h"
+#endif
 
 struct FrequencyBandInfo {
     uint32_t lower;
@@ -32,6 +35,13 @@ const uint16_t RSSI_MAX_VALUE = 65535;
 static uint16_t R30, R37, R3D, R43, R47, R48, R7E;
 static uint32_t initialFreq;
 static char String[32];
+
+#ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+  uint32_t lastPeakFrequency;
+  bool     isKnownChannel = false;
+  int      channel;
+  char     channelName[12];
+#endif
 
 bool isInitialized = false;
 bool isListening = true;
@@ -259,6 +269,12 @@ static void TuneToPeak() {
 }
 #ifdef ENABLE_SPECTRUM_COPY_VFO
 static void ExitAndCopyToVfo() {
+  //if we are in the channel mode
+  if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE)){	
+    // swap to frequency mode
+    COMMON_SwitchToVFOMode();
+  }
+
   gTxVfo->STEP_SETTING = FREQUENCY_GetStepIdxFromStepFrequency(GetScanStep());
   gTxVfo->Modulation = settings.modulationType;
   // TODO: Add support for NARROW- bandwidth in VFO (settings etc)
@@ -384,6 +400,9 @@ static void UpdatePeakInfoForce() {
   peak.rssi = scanInfo.rssiMax;
   peak.f = scanInfo.fPeak;
   peak.i = scanInfo.iPeak;
+  #ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+    LookupChannelInfo();
+  #endif
   AutoTriggerLevel();
 }
 
@@ -625,6 +644,16 @@ static void DrawStatus() {
 #ifdef SPECTRUM_EXTRA_VALUES
   sprintf(String, "%d/%d P:%d T:%d", settings.dbMin, settings.dbMax,
           Rssi2DBm(peak.rssi), Rssi2DBm(settings.rssiTriggerLevel));
+#elif ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+  if (isKnownChannel)
+  {
+    sprintf(String, "%d/%d M%i:%s", settings.dbMin, settings.dbMax, channel+1, channelName);
+  }
+  else
+  {
+    sprintf(String, "%d/%d", settings.dbMin, settings.dbMax);
+  }
+  
 #else
   sprintf(String, "%d/%d", settings.dbMin, settings.dbMax);
 #endif
@@ -663,6 +692,24 @@ static void DrawF(uint32_t f) {
   sprintf(String, "%s", bwOptions[settings.listenBw]);
   GUI_DisplaySmallest(String, 108, 7, false, true);
 }
+#ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+  void LookupChannelInfo() {
+    if (lastPeakFrequency == peak.f) 
+      return;
+    
+    lastPeakFrequency = peak.f;
+    
+    channel = BOARD_gMR_fetchChannel(peak.f);
+
+    isKnownChannel = channel == -1 ? false : true;
+
+    if (isKnownChannel){
+      memmove(channelName, gMR_ChannelFrequencyAttributes[channel].Name, sizeof(channelName));
+    }
+
+    redrawStatus = true;
+  }
+#endif
 
 static void DrawNums() {
 

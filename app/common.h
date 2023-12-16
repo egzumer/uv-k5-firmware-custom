@@ -9,5 +9,7 @@
 void COMMON_KeypadLockToggle();
 void COMMON_SwitchVFOs();
 void COMMON_SwitchVFOMode();
+void COMMON_SwitchToVFOMode();
+void COMMON_SwitchToChannelMode();
 
 #endif

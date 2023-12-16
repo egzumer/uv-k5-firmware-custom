@@ -23,6 +23,7 @@
 #include "driver/uart.h"
 #include "misc.h"
 #include "settings.h"
+#include "board.h"
 
 EEPROM_Config_t gEeprom;
 
@@ -242,7 +243,7 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 
 			if (IS_MR_CHANNEL(Channel))
 			{	// it's a memory channel
-		
+
 				#ifndef ENABLE_KEEP_MEM_NAME
 					// clear/reset the channel name
 					//memset(&State, 0xFF, sizeof(State));
@@ -258,6 +259,11 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 						memset(State, 0x00, sizeof(State));  // follow the QS way
 						memmove(State, pVFO->Name + 8, 2);
 						EEPROM_WriteBuffer(0x0F58 + OffsetMR, State);
+						
+						#ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+							//update channel names stored in memory
+							BOARD_gMR_LoadChannels();
+						#endif
 					}
 				#endif
 			}

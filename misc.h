@@ -189,6 +189,16 @@ typedef union {
     uint8_t __val;
 } ChannelAttributes_t;
 
+#ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
+typedef struct
+{
+	uint32_t     Frequency;
+	char         Name[12];
+}  __attribute__((packed)) ChannelFrequencyAttributes;
+
+extern ChannelFrequencyAttributes gMR_ChannelFrequencyAttributes[200];
+#endif
+
 extern ChannelAttributes_t   gMR_ChannelAttributes[207];
 
 extern volatile uint16_t     gBatterySaveCountdown_10ms;
