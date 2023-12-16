@@ -18,6 +18,9 @@
 #include "driver/backlight.h"
 #include "audio.h"
 #include "ui/helper.h"
+#ifdef ENABLE_SPECTRUM_COPY_VFO
+  #include "common.h"
+#endif
 
 struct FrequencyBandInfo {
     uint32_t lower;
@@ -266,6 +269,12 @@ static void TuneToPeak() {
 }
 #ifdef ENABLE_SPECTRUM_COPY_VFO
 static void ExitAndCopyToVfo() {
+  //if we are in the channel mode
+  if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE)){	
+    // swap to frequency mode
+    COMMON_SwitchToVFOMode();
+  }
+
   gTxVfo->STEP_SETTING = FREQUENCY_GetStepIdxFromStepFrequency(GetScanStep());
   gTxVfo->Modulation = settings.modulationType;
   // TODO: Add support for NARROW- bandwidth in VFO (settings etc)
