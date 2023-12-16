@@ -664,10 +664,10 @@ static void DrawF(uint32_t f) {
   GUI_DisplaySmallest(String, 108, 7, false, true);
 }
 #ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
-  static void DrawKnownChannelName(uint32_t f) {
+  static void DrawChannelInfo(uint32_t freq) {
     // TODO: Only draw here, have separate lookup procedure initialized only when peak.f changes to save cycles
     int channel;
-    channel = BOARD_gMR_fetchChannel(f);
+    channel = BOARD_gMR_fetchChannel(freq);
     if (channel != -1)
     {
       //display channel and name
@@ -951,7 +951,7 @@ static void RenderSpectrum() {
   DrawRssiTriggerLevel();
   DrawF(peak.f);
   #ifdef ENABLE_SPECTRUM_SHOW_CHANNEL_NAME
-    DrawKnownChannelName(peak.f);
+    DrawChannelInfo(peak.f);
   #endif
   DrawNums();
 }
