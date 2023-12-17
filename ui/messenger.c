@@ -21,19 +21,11 @@ void UI_DisplayMSG(void) {
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 	memset(String, 0, sizeof(String));
 
-	UI_PrintStringSmallBold("MESSENGER", 0, 127, 0);
+	//UI_PrintStringSmallBold("MESSENGER", 0, 127, 0);
+	UI_PrintStringSmall("Messenger", 1, 127, 0);
 
 	UI_DrawLineBuffer(gFrameBuffer, 2, 3, 26, 3, true);
-	UI_DrawLineBuffer(gFrameBuffer, 98, 3, 126, 3, true);
-	GUI_DisplaySmallest("TX", 4, 6, false, true);
-
-	if ( keyboardType == NUMERIC ) {
-		GUI_DisplaySmallest("2", 20, 6, false, true);
-	} else if ( keyboardType == UPPERCASE ) {
-		GUI_DisplaySmallest("A", 20, 6, false, true);
-	} else {
-		GUI_DisplaySmallest("a", 20, 6, false, true);
-	}
+	UI_DrawLineBuffer(gFrameBuffer, 100, 3, 126, 3, true);
 
 	/*if ( msgStatus == SENDING ) {
 		GUI_DisplaySmallest("SENDING", 100, 6, false, true);
@@ -43,17 +35,39 @@ void UI_DisplayMSG(void) {
 		GUI_DisplaySmallest("READY", 100, 6, false, true);
 	}*/
 
-	//UI_DrawLineBuffer(gFrameBuffer, 0, 12, 6, 12, true);
+	// RX Screen
 
-	sprintf(String, "%s|", cMessage);
-	UI_PrintStringSmallBold(String, 0, 127, 2);
-
-	UI_DrawLineBuffer(gFrameBuffer, 2, 30, 126, 30, true);
-	GUI_DisplaySmallest("RX", 4, 34, false, true);
+	//GUI_DisplaySmallest("RX", 4, 34, false, true);
 
 	memset(String, 0, sizeof(String));
-	sprintf(String, "%s", rxMessage);
-	UI_PrintStringSmallBold(String, 0, 127, 5);
+	
+	uint8_t mPos = 8;
+	const uint8_t mLine = 7;
+	for (int i = 0; i < 4; ++i) {
+		sprintf(String, "> %s", rxMessage[i]);
+		GUI_DisplaySmallest(String, 2, mPos, false, true);
+		mPos += mLine;
+    }
+
+	// TX Screen
+	
+	UI_DrawDottedLineBuffer(gFrameBuffer, 14, 40, 126, 40, true, 4);
+	memset(String, 0, sizeof(String));
+	if ( keyboardType == NUMERIC ) {
+		strcpy(String, "2");
+	} else if ( keyboardType == UPPERCASE ) {		
+		strcpy(String, "A");
+	} else {		
+		strcpy(String, "a");
+	}
+
+	UI_DrawRectangleBuffer(gFrameBuffer, 2, 36, 10, 44, true);
+	GUI_DisplaySmallest(String, 5, 38, false, true);
+
+	memset(String, 0, sizeof(String));
+	sprintf(String, "%s_", cMessage);
+	//UI_PrintStringSmall(String, 3, 0, 6);
+	GUI_DisplaySmallest(String, 5, 48, false, true);
 
 	// debug msg
 	/*memset(String, 0, sizeof(String));

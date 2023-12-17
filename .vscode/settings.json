@@ -12,6 +12,7 @@
         "functional": "c",
         "bitset": "c",
         "chrono": "c",
-        "algorithm": "c"
+        "algorithm": "c",
+        "array": "c"
     }
 }

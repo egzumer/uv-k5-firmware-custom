@@ -29,9 +29,7 @@
 
 const uint8_t BUTTON_EVENT_SHORT =  0;
 
-#define MAX_MSG_LENGTH 17
-
-#define TX_MSG_LENGTH 20
+#define MAX_MSG_LENGTH TX_MSG_LENGTH - 1
 
 char T9TableLow[9][4] = { {',', '.', '?', '!'}, {'a', 'b', 'c', '\0'}, {'d', 'e', 'f', '\0'}, {'g', 'h', 'i', '\0'}, {'j', 'k', 'l', '\0'}, {'m', 'n', 'o', '\0'}, {'p', 'q', 'r', 's'}, {'t', 'u', 'v', '\0'}, {'w', 'x', 'y', 'z'} };
 char T9TableUp[9][4] = { {',', '.', '?', '!'}, {'A', 'B', 'C', '\0'}, {'D', 'E', 'F', '\0'}, {'G', 'H', 'I', '\0'}, {'J', 'K', 'L', '\0'}, {'M', 'N', 'O', '\0'}, {'P', 'Q', 'R', 'S'}, {'T', 'U', 'V', '\0'}, {'W', 'X', 'Y', 'Z'} };
@@ -39,8 +37,9 @@ unsigned char numberOfLettersAssignedToKey[9] = { 4, 3, 3, 3, 3, 3, 4, 3, 4 };
 char T9TableNum[9][4] = { {'1', '\0', '\0', '\0'}, {'2', '\0', '\0', '\0'}, {'3', '\0', '\0', '\0'}, {'4', '\0', '\0', '\0'}, {'5', '\0', '\0', '\0'}, {'6', '\0', '\0', '\0'}, {'7', '\0', '\0', '\0'}, {'8', '\0', '\0', '\0'}, {'9', '\0', '\0', '\0'} };
 unsigned char numberOfNumsAssignedToKey[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
+uint8_t rxMessagePos = 0;
 char cMessage[TX_MSG_LENGTH];
-char rxMessage[TX_MSG_LENGTH];
+char rxMessage[4][TX_MSG_LENGTH];
 unsigned char cIndex = 0;
 unsigned char prevKey = 0, prevLetter = 0;
 KeyboardType keyboardType = UPPERCASE;
@@ -509,7 +508,7 @@ static void sendMessage() {
 		memset(msgFSKBuffer, 0, sizeof(msgFSKBuffer));		
 		msgFSKBuffer[0] = 'M';
 		msgFSKBuffer[1] = 'S';
-		memcpy(msgFSKBuffer + 2, cMessage, 20);
+		memcpy(msgFSKBuffer + 2, cMessage, TX_MSG_LENGTH);
 
 		BK4819_DisableDTMF();
 
@@ -529,6 +528,17 @@ static void sendMessage() {
 
 }
 
+void insertNewLine(char (*rxMessages)[TX_MSG_LENGTH], const char* newLine) {
+    // Shift existing lines up
+    strcpy(rxMessages[0], rxMessages[1]);
+	strcpy(rxMessages[1], rxMessages[2]);
+	strcpy(rxMessages[2], rxMessages[3]);
+
+    // Insert the new line at the last position
+	memset(rxMessages[3], 0, sizeof(rxMessages[3]));
+    strcpy(rxMessages[3], newLine);
+}
+
 
 void MSG_StorePacket(const uint16_t interrupt_bits) {
 
@@ -539,7 +549,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 	if (rx_sync) {
 		gFSKWriteIndex = 0;
 		memset(msgFSKBuffer, 0, sizeof(msgFSKBuffer));
-		memset(rxMessage, 0, sizeof(rxMessage));
+		//memset(rxMessage, 0, sizeof(rxMessage));
 	}
 
 	if (rx_fifo_almost_full) {
@@ -565,9 +575,10 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 				msgStatus = READY;
 				return;
 			}
-			memset(rxMessage, 0, sizeof(rxMessage));
-			const uint8_t *pData = &msgFSKBuffer[2];
-			memcpy(rxMessage, pData, 19);
+			memset(rxMessage[rxMessagePos], 0, sizeof(rxMessage[rxMessagePos]));
+			//const uint8_t *pData = &msgFSKBuffer[2];
+			insertNewLine(rxMessage, (const char*)&msgFSKBuffer[2]);
+			//memcpy(rxMessage[rxMessagePos], pData, TX_MSG_LENGTH);
 			msgStatus = READY;
 		}
 	}

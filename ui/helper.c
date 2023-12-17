@@ -222,6 +222,25 @@ void UI_DrawLineBuffer(uint8_t (*buffer)[128], int16_t x1, int16_t y1, int16_t x
 	}
 }
 
+void UI_DrawDottedLineBuffer(uint8_t (*buffer)[128], int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black, int dotSpacing)
+{
+    if (x2 == x1) {
+        sort(&y1, &y2);
+        for (int16_t i = y1; i <= y2; i += dotSpacing) {
+            UI_DrawPixelBuffer(buffer, x1, i, black);
+        }
+    } else {
+        const int multipl = 1000;
+        int a = (y2 - y1) * multipl / (x2 - x1);
+        int b = y1 - a * x1 / multipl;
+
+        sort(&x1, &x2);
+        for (int i = x1; i <= x2; i += dotSpacing) {
+            UI_DrawPixelBuffer(buffer, i, i * a / multipl + b, black);
+        }
+    }
+}
+
 void UI_DrawRectangleBuffer(uint8_t (*buffer)[128], int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black)
 {
 	UI_DrawLineBuffer(buffer, x1,y1, x1,y2, black);
