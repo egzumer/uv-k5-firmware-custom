@@ -138,7 +138,7 @@ ENABLE_BLMIN_TMP_OFF          := 0       additional function for configurable bu
 ENABLE_SCAN_RANGES            := 1       scan range mode for frequency scanning, see wiki for instructions (radio operation -> frequency scanning)
 
 ENABLE_PMR_MODE               := 0       set the radio in PMR only operation ( work in progress ) ( key = F + FM ) 
-ENABLE_MESSENGER              := 0       send and receive short text messages  ( work in progress ) ( key = F + FM )
+ENABLE_MESSENGER              := 0       send and receive short text messages  ( work in progress ) ( key = F + MENU )
 ```
 
 

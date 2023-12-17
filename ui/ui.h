@@ -34,6 +34,10 @@ enum GUI_DisplayType_t
 	DISPLAY_PMR,
 #endif
 
+#ifdef ENABLE_MESSENGER
+	DISPLAY_MSG,
+#endif
+
 #ifdef ENABLE_AIRCOPY
 	DISPLAY_AIRCOPY,
 #endif

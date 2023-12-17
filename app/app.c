@@ -24,6 +24,9 @@
 #ifdef ENABLE_AIRCOPY
 	#include "app/aircopy.h"
 #endif
+#ifdef ENABLE_MESSENGER
+	#include "app/messenger.h"
+#endif
 #include "app/app.h"
 #include "app/chFrScanner.h"
 #include "app/dtmf.h"
@@ -90,6 +93,10 @@ void (*ProcessKeysFunctions[])(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) 
 
 #ifdef ENABLE_PMR_MODE
 	[DISPLAY_PMR] = &PMR_ProcessKeys,
+#endif
+
+#ifdef ENABLE_MESSENGER
+	[DISPLAY_MSG] = &MSG_ProcessKeys,
 #endif
 
 #ifdef ENABLE_AIRCOPY
@@ -734,6 +741,10 @@ static void CheckRadioInterrupts(void)
 
 			AIRCOPY_StorePacket();
 		}
+#endif
+
+#ifdef ENABLE_MESSENGER
+		MSG_StorePacket(interrupt_status_bits);
 #endif
 	}
 }

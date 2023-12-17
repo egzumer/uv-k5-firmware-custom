@@ -95,15 +95,9 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 
 
 			#ifdef ENABLE_PMR_MODE
-				//ACTION_PMR();
+				ACTION_PMR();
 			#endif
-
-			#ifdef ENABLE_MESSENGER
-				APP_RunMessenger();
-				gRequestDisplayScreen = DISPLAY_MAIN;
-			#endif
-
-
+			
 			#endif
 			break;
 
@@ -130,13 +124,13 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 					}
 				}
 
-				const uint8_t vfo = gEeprom.TX_VFO;
+				//const uint8_t vfo = gEeprom.TX_VFO;
 
-				if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo]))
+				if (IS_MR_CHANNEL(gEeprom.ScreenChannel[Vfo]))
 				{	// copy channel to VFO, then swap to the VFO
 
-					gEeprom.ScreenChannel[vfo] = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
-					gEeprom.VfoInfo[vfo].CHANNEL_SAVE = gEeprom.ScreenChannel[vfo];
+					gEeprom.ScreenChannel[Vfo] = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[Vfo].Band;
+					gEeprom.VfoInfo[Vfo].CHANNEL_SAVE = gEeprom.ScreenChannel[Vfo];
 
 					RADIO_SelectVfos();
 					RADIO_ApplyOffset(gRxVfo);
@@ -568,6 +562,16 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 
 	if (!bKeyPressed && !gDTMF_InputMode)
 	{	// menu key released
+
+#ifdef ENABLE_MESSENGER
+		if (gWasFKeyPressed) {
+			
+			FSKSetupMSG();
+			gRequestDisplayScreen = DISPLAY_MSG;
+			return;
+		}
+#endif	
+
 		const bool bFlag = !gInputBoxIndex;
 		gInputBoxIndex   = 0;
 

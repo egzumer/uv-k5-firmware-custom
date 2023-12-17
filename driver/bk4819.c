@@ -1666,6 +1666,7 @@ void BK4819_SendFSKData(uint16_t *pData)
 	SYSTEM_DelayMs(20);
 
 	BK4819_WriteRegister(BK4819_REG_3F, BK4819_REG_3F_FSK_TX_FINISHED);
+
 	BK4819_WriteRegister(BK4819_REG_59, 0x8068);
 	BK4819_WriteRegister(BK4819_REG_59, 0x0068);
 
@@ -1688,6 +1689,7 @@ void BK4819_SendFSKData(uint16_t *pData)
 
 void BK4819_PrepareFSKReceive(void)
 {
+
 	BK4819_ResetFSK();
 	BK4819_WriteRegister(BK4819_REG_02, 0);
 	BK4819_WriteRegister(BK4819_REG_3F, 0);

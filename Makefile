@@ -19,7 +19,7 @@ ENABLE_VOX                    ?= 0
 ENABLE_ALARM                  ?= 0
 ENABLE_TX1750                 ?= 0
 ENABLE_PWRON_PASSWORD         ?= 0
-ENABLE_DTMF_CALLING           ?= 1
+ENABLE_DTMF_CALLING           ?= 0
 ENABLE_FLASHLIGHT             ?= 0
 
 # ---- CUSTOM MODS ----
@@ -181,6 +181,10 @@ OBJS += main.o
 
 ifeq ($(ENABLE_PMR_MODE),1)
 	OBJS += ui/pmr.o
+endif
+
+ifeq ($(ENABLE_MESSENGER),1)
+	OBJS += ui/messenger.o
 endif
 
 ifeq ($(OS), Windows_NT)

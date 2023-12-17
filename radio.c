@@ -21,6 +21,9 @@
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
+#ifdef ENABLE_MESSENGER
+	#include "app/messenger.h"
+#endif
 #include "audio.h"
 #include "bsp/dp32g030/gpio.h"
 #include "dcs.h"
@@ -203,6 +206,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 		uint8_t bandIdx = channel - FREQ_CHANNEL_FIRST;
 		RADIO_InitInfo(pVfo, channel, frequencyBandTable[bandIdx].lower);
+
 		return;
 	}
 
@@ -648,7 +652,6 @@ void RADIO_SetupRegisters(bool switchToForeground)
 		(gEeprom.VOLUME_GAIN << 4) |     // AF Rx Gain-2
 		(gEeprom.DAC_GAIN    << 0));     // AF DAC Gain (after Gain-1 and Gain-2)
 
-
 	uint16_t InterruptMask = BK4819_REG_3F_SQUELCH_FOUND | BK4819_REG_3F_SQUELCH_LOST;
 
 	#ifdef ENABLE_NOAA
@@ -766,6 +769,11 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	RADIO_SetupAGC(gRxVfo->Modulation == MODULATION_AM, false);
 
 	// enable/disable BK4819 selected interrupts
+
+#ifdef ENABLE_MESSENGER	
+	InterruptMask |= BK4819_REG_3F_FSK_RX_SYNC | BK4819_REG_3F_FSK_RX_FINISHED | BK4819_REG_3F_FSK_FIFO_ALMOST_FULL | BK4819_REG_3F_FSK_TX_FINISHED;
+	FSKSetupMSG();
+#endif	
 	BK4819_WriteRegister(BK4819_REG_3F, InterruptMask);
 
 	FUNCTION_Init();

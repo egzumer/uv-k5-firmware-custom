@@ -33,6 +33,9 @@
 #ifdef ENABLE_PMR_MODE
 	#include "ui/pmr.h"
 #endif
+#ifdef ENABLE_MESSENGER
+	#include "ui/messenger.h"
+#endif
 #include "ui/inputbox.h"
 #include "ui/main.h"
 #include "ui/menu.h"
@@ -59,6 +62,10 @@ void (*UI_DisplayFunctions[])(void) = {
 
 #ifdef ENABLE_PMR_MODE
 	[DISPLAY_PMR] = &UI_DisplayPMR,
+#endif
+
+#ifdef ENABLE_MESSENGER
+	[DISPLAY_MSG] = &UI_DisplayMSG,
 #endif
 
 #ifdef ENABLE_AIRCOPY

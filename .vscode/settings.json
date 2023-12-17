@@ -8,6 +8,10 @@
         "fm.h": "c",
         "pmu.h": "c",
         "backlight.h": "c",
-        "variant": "c"
+        "variant": "c",
+        "functional": "c",
+        "bitset": "c",
+        "chrono": "c",
+        "algorithm": "c"
     }
 }
