@@ -44,7 +44,7 @@ void UI_DisplayMSG(void) {
 	uint8_t mPos = 8;
 	const uint8_t mLine = 7;
 	for (int i = 0; i < 4; ++i) {
-		sprintf(String, "> %s", rxMessage[i]);
+		sprintf(String, "%s", rxMessage[i]);
 		GUI_DisplaySmallest(String, 2, mPos, false, true);
 		mPos += mLine;
     }
@@ -62,7 +62,7 @@ void UI_DisplayMSG(void) {
 	}
 
 	UI_DrawRectangleBuffer(gFrameBuffer, 2, 36, 10, 44, true);
-	GUI_DisplaySmallest(String, 5, 38, false, true);
+	GUI_DisplaySmallest(String, 5, 38, false, false);
 
 	memset(String, 0, sizeof(String));
 	sprintf(String, "%s_", cMessage);

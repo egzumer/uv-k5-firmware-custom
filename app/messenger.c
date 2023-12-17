@@ -27,7 +27,13 @@
 #include "ui/main.h"
 #include "ui/ui.h"
 
+//const uint8_t BUTTON_STATE_PRESSED = 1 << 0;
+const uint8_t BUTTON_STATE_HELD = 1 << 1;
+
+//const uint8_t BUTTON_EVENT_PRESSED = BUTTON_STATE_PRESSED;
+//const uint8_t BUTTON_EVENT_HELD = BUTTON_STATE_PRESSED | BUTTON_STATE_HELD;
 const uint8_t BUTTON_EVENT_SHORT =  0;
+const uint8_t BUTTON_EVENT_LONG =  BUTTON_STATE_HELD;
 
 #define MAX_MSG_LENGTH TX_MSG_LENGTH - 1
 
@@ -37,7 +43,6 @@ unsigned char numberOfLettersAssignedToKey[9] = { 4, 3, 3, 3, 3, 3, 4, 3, 4 };
 char T9TableNum[9][4] = { {'1', '\0', '\0', '\0'}, {'2', '\0', '\0', '\0'}, {'3', '\0', '\0', '\0'}, {'4', '\0', '\0', '\0'}, {'5', '\0', '\0', '\0'}, {'6', '\0', '\0', '\0'}, {'7', '\0', '\0', '\0'}, {'8', '\0', '\0', '\0'}, {'9', '\0', '\0', '\0'} };
 unsigned char numberOfNumsAssignedToKey[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
-uint8_t rxMessagePos = 0;
 char cMessage[TX_MSG_LENGTH];
 char rxMessage[4][TX_MSG_LENGTH];
 unsigned char cIndex = 0;
@@ -494,6 +499,27 @@ void FSKSetupMSG(void) {
 
 // -----------------------------------------------------
 
+void insertNewLine(char (*rxMessages)[TX_MSG_LENGTH], const char* newLine) {
+    // Shift existing lines up
+    strcpy(rxMessages[0], rxMessages[1]);
+	strcpy(rxMessages[1], rxMessages[2]);
+	strcpy(rxMessages[2], rxMessages[3]);
+
+    // Insert the new line at the last position
+	memset(rxMessages[3], 0, sizeof(rxMessages[3]));
+    strcpy(rxMessages[3], newLine);
+}
+
+void moveUP(char (*rxMessages)[TX_MSG_LENGTH]) {
+    // Shift existing lines up
+    strcpy(rxMessages[0], rxMessages[1]);
+	strcpy(rxMessages[1], rxMessages[2]);
+	strcpy(rxMessages[2], rxMessages[3]);
+
+    // Insert the new line at the last position
+	memset(rxMessages[3], 0, sizeof(rxMessages[3]));    
+}
+
 static void sendMessage() {
 
 	if ( msgStatus != READY ) return;
@@ -524,21 +550,13 @@ static void sendMessage() {
 		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
 
 		FSKSetupMSG();
+
+		moveUP(rxMessage);
+			sprintf(rxMessage[3], "> %s", cMessage);
+		memset(cMessage, 0, sizeof(cMessage));
 	}
 
 }
-
-void insertNewLine(char (*rxMessages)[TX_MSG_LENGTH], const char* newLine) {
-    // Shift existing lines up
-    strcpy(rxMessages[0], rxMessages[1]);
-	strcpy(rxMessages[1], rxMessages[2]);
-	strcpy(rxMessages[2], rxMessages[3]);
-
-    // Insert the new line at the last position
-	memset(rxMessages[3], 0, sizeof(rxMessages[3]));
-    strcpy(rxMessages[3], newLine);
-}
-
 
 void MSG_StorePacket(const uint16_t interrupt_bits) {
 
@@ -575,9 +593,10 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 				msgStatus = READY;
 				return;
 			}
-			memset(rxMessage[rxMessagePos], 0, sizeof(rxMessage[rxMessagePos]));
-			//const uint8_t *pData = &msgFSKBuffer[2];
-			insertNewLine(rxMessage, (const char*)&msgFSKBuffer[2]);
+
+			//insertNewLine(rxMessage, (const char*)&msgFSKBuffer[2]);
+			moveUP(rxMessage);
+			sprintf(rxMessage[3], "< %s", &msgFSKBuffer[2]);
 			//memcpy(rxMessage[rxMessagePos], pData, TX_MSG_LENGTH);
 			msgStatus = READY;
 		}
@@ -588,6 +607,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 	}
 }
 
+// ----------------------------------------------------------------------------------
 
 void insertCharInMessage(uint8_t key) {
 	if ( key == KEY_0 ) {
@@ -642,48 +662,61 @@ void processBackspace() {
 void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 	uint8_t state = bKeyPressed + 2 * bKeyHeld;
 
-	if (state != BUTTON_EVENT_SHORT)
-		return;
+	if (state == BUTTON_EVENT_SHORT) {
 
-	switch (Key)
-	{
-		case KEY_0:
-		case KEY_1:
-		case KEY_2:
-		case KEY_3:
-		case KEY_4:
-		case KEY_5:
-		case KEY_6:
-		case KEY_7:
-		case KEY_8:
-		case KEY_9:
-			if ( cIndex < MAX_MSG_LENGTH ) {
-				insertCharInMessage(Key);
-			}
-			break;
-		case KEY_STAR:
-			processStarKey();
-			break;
-		case KEY_F:
-			processBackspace();
-			break;
-		case KEY_UP:
-			keyboardType = (KeyboardType)((keyboardType + 1) % END_TYPE_KBRD);
-			break;
-		case KEY_MENU:
-			// Send message
-			sendMessage();
-			break;
-		case KEY_EXIT:
+		switch (Key)
+		{
+			case KEY_0:
+			case KEY_1:
+			case KEY_2:
+			case KEY_3:
+			case KEY_4:
+			case KEY_5:
+			case KEY_6:
+			case KEY_7:
+			case KEY_8:
+			case KEY_9:
+				if ( cIndex < MAX_MSG_LENGTH ) {
+					insertCharInMessage(Key);
+				}
+				break;
+			case KEY_STAR:
+				processStarKey();
+				break;
+			case KEY_F:
+				processBackspace();
+				break;
+			case KEY_UP:				
+				break;
+			case KEY_DOWN:				
+				break;
+			case KEY_MENU:
+				// Send message
+				sendMessage();
+				break;
+			case KEY_EXIT:
+				gRequestDisplayScreen = DISPLAY_MAIN;
+				break;
 
-			gRequestDisplayScreen = DISPLAY_MAIN;
-			break;
+			default:
+				if (!bKeyHeld && bKeyPressed)
+					gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+				break;
+		}
+	} else if (state == BUTTON_EVENT_LONG) {
 
-		default:
-			if (!bKeyHeld && bKeyPressed)
-				gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
-			break;
+		switch (Key)
+		{
+			case KEY_STAR:
+				keyboardType = (KeyboardType)((keyboardType + 1) % END_TYPE_KBRD);
+				break;
+			default:
+				if (!bKeyHeld && bKeyPressed)
+					gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+				break;
+		}
 	}
+
 }
 
 
