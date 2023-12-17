@@ -730,6 +730,8 @@ void BOARD_EEPROM_Init(void)
 	// 0F80..0F84
 	EEPROM_ReadBuffer(0x0F80, Data, 8);
     memmove(&gEeprom.RX_OFFSET, Data, 4);
+	// Make sure it inits with some sane value
+	gEeprom.RX_OFFSET = gEeprom.RX_OFFSET > RX_OFFSET_MAX ? 0 : gEeprom.RX_OFFSET;
 	
 	if (!gEeprom.VFO_OPEN)
 	{
@@ -919,7 +921,7 @@ void BOARD_FactoryReset(bool bIsAll)
 	if (bIsAll)
 	{
 		RADIO_InitInfo(gRxVfo, FREQ_CHANNEL_FIRST + BAND6_400MHz, 43350000);
-
+		gEeprom.RX_OFFSET = 0;
 		// set the first few memory channels
 		for (i = 0; i < ARRAY_SIZE(gDefaultFrequencyTable); i++)
 		{

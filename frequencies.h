@@ -68,6 +68,9 @@ typedef enum {
 
 extern const uint16_t  	gStepFrequencyTable[21];
 
+// // RxOffs maximum setting
+#define RX_OFFSET_MAX 15000000
+
 #ifdef ENABLE_NOAA
 	extern const uint32_t NoaaFrequencyTable[10];
 #endif
