@@ -494,6 +494,12 @@ void UI_DisplayMenu(void)
 
 	bool already_printed = false;
 
+	/* Brightness is set to max in some entries of this menu. Return it to the configured brightness
+	   level the "next" time we enter here.I.e., when we move from one menu to another.
+	   It also has to be set back to max when pressing the Exit key. */
+
+	BACKLIGHT_TurnOn();
+
 	switch (UI_MENU_GetCurrentMenuId())
 	{
 		case MENU_SQL:
@@ -590,7 +596,8 @@ void UI_DisplayMenu(void)
 
 		case MENU_ABR:
 			strcpy(String, gSubMenu_BACKLIGHT[gSubMenuSelection]);
-			BACKLIGHT_SetBrightness(-1);
+			if(BACKLIGHT_GetBrightness() < 4)
+				BACKLIGHT_SetBrightness(4);
 			break;
 
 		case MENU_ABR_MIN:
@@ -598,8 +605,8 @@ void UI_DisplayMenu(void)
 			sprintf(String, "%d", gSubMenuSelection);
 			if(gIsInSubMenu)
 				BACKLIGHT_SetBrightness(gSubMenuSelection);
-			else
-				BACKLIGHT_SetBrightness(-1);
+			else if(BACKLIGHT_GetBrightness() < 4)
+				BACKLIGHT_SetBrightness(4);
 			break;	
 		
 		#ifdef ENABLE_CONTRAST

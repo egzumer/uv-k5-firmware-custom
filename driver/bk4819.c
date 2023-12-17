@@ -16,13 +16,15 @@
 
 #include <stdio.h>   // NULL
 
-#include "audio.h"
+#include "../audio.h"
+#include "../bsp/dp32g030/gpio.h"
+#include "../bsp/dp32g030/portcon.h"
+
 #include "bk4819.h"
-#include "bsp/dp32g030/gpio.h"
-#include "bsp/dp32g030/portcon.h"
-#include "driver/gpio.h"
-#include "driver/system.h"
-#include "driver/systick.h"
+#include "gpio.h"
+#include "system.h"
+#include "systick.h"
+
 
 #ifndef ARRAY_SIZE
 	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
@@ -127,7 +129,6 @@ static uint16_t BK4819_ReadU16(void)
 	PORTCON_PORTC_IE = (PORTCON_PORTC_IE & ~PORTCON_PORTC_IE_C2_MASK) | PORTCON_PORTC_IE_C2_BITS_ENABLE;
 	GPIOC->DIR = (GPIOC->DIR & ~GPIO_DIR_2_MASK) | GPIO_DIR_2_BITS_INPUT;
 	SYSTICK_DelayUs(1);
-
 	Value = 0;
 	for (i = 0; i < 16; i++)
 	{

@@ -784,6 +784,9 @@ buf[1] = 0
 #ifdef ENABLE_BLMIN_TMP_OFF
     | (1 << 3)
 #endif
+#ifdef ENABLE_AM_FIX
+    | (1 << 4)
+#endif
 ;
 	EEPROM_WriteBuffer(0x1FF0, buf);
 }

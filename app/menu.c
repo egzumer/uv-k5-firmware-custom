@@ -1354,6 +1354,10 @@ static void MENU_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 
 	if (!gCssBackgroundScan)
 	{
+		/* Backlight related menus set full brightness. Set it back to the configured value,
+		   just in case we are exiting from one of them. */
+		BACKLIGHT_TurnOn();
+
 		if (gIsInSubMenu)
 		{
 			if (gInputBoxIndex == 0 || UI_MENU_GetCurrentMenuId() != MENU_OFFSET)
@@ -1639,7 +1643,10 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 
 		gRequestDisplayScreen = DISPLAY_MENU;
 
-		if (UI_MENU_GetCurrentMenuId() != MENU_ABR && gEeprom.BACKLIGHT_TIME == 0) // backlight always off and not in the backlight menu
+		if (UI_MENU_GetCurrentMenuId() != MENU_ABR
+			&& UI_MENU_GetCurrentMenuId() != MENU_ABR_MIN
+			&& UI_MENU_GetCurrentMenuId() != MENU_ABR_MAX
+			&& gEeprom.BACKLIGHT_TIME == 0) // backlight always off and not in the backlight menu
 		{
 			BACKLIGHT_TurnOff();
 		}

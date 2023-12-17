@@ -37,8 +37,6 @@
 #include "ui/main.h"
 #include "ui/ui.h"
 
-#include "debugging.h"
-
 center_line_t center_line = CENTER_LINE_NONE;
 
 const int8_t dBmCorrTable[7] = {
