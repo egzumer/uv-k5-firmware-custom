@@ -62,7 +62,7 @@ void UI_DisplayMSG(void) {
 	}
 
 	UI_DrawRectangleBuffer(gFrameBuffer, 2, 36, 10, 44, true);
-	GUI_DisplaySmallest(String, 5, 38, false, false);
+	GUI_DisplaySmallest(String, 5, 38, false, true);
 
 	memset(String, 0, sizeof(String));
 	sprintf(String, "%s_", cMessage);
