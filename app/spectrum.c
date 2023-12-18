@@ -62,7 +62,7 @@ const char *bwOptions[] = {"  25k", "12.5k", "6.25k"};
 const uint8_t modulationTypeTuneSteps[] = {100, 50, 10};
 const uint8_t modTypeReg47Values[] = {1, 7, 5};
 
-SpectrumSettings settings = {stepsCount: STEPS_64,
+SpectrumSettings settings = {stepsCount: STEPS_128,
                              scanStepIndex: S_STEP_25_0kHz,
                              frequencyChangeStep: 80000,
                              scanDelay: 3200,
@@ -288,6 +288,14 @@ static void ExitAndCopyToVfo() {
   gRequestSaveChannel = 1;
   
   isInitialized = false;
+}
+
+uint8_t GetScanStepFromStepFrequency(uint16_t stepFrequency) 
+{
+	for(uint8_t i = 0; i < ARRAY_SIZE(scanStepValues); i++)
+		if(scanStepValues[i] == stepFrequency)
+			return i;
+	return S_STEP_25_0kHz;
 }
 #endif
 
@@ -1214,8 +1222,14 @@ void APP_RunSpectrum() {
   newScanStart = true;
 
   ToggleRX(true), ToggleRX(false); // hack to prevent noise when squelch off
-  RADIO_SetModulation(settings.modulationType = MODULATION_FM);
-  BK4819_SetFilterBandwidth(settings.listenBw = BK4819_FILTER_BW_WIDE, false);
+  #ifdef ENABLE_SPECTRUM_COPY_VFO
+    RADIO_SetModulation(settings.modulationType = gTxVfo->Modulation);
+    BK4819_SetFilterBandwidth(settings.listenBw = gTxVfo->CHANNEL_BANDWIDTH, false);
+    settings.scanStepIndex = GetScanStepFromStepFrequency(gTxVfo->StepFrequency);
+  #elif
+    RADIO_SetModulation(settings.modulationType = MODULATION_FM);
+    BK4819_SetFilterBandwidth(settings.listenBw = BK4819_FILTER_BW_WIDE, false);
+  #endif
 
   RelaunchScan();
 
