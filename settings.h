@@ -254,6 +254,8 @@ typedef struct {
 
 extern EEPROM_Config_t gEeprom;
 
+#define RX_OFFSET_ADDR 0x0E9C
+
 #ifdef ENABLE_FMRADIO
 	void SETTINGS_SaveFM(void);
 #endif

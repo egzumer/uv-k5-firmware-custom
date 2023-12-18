@@ -194,7 +194,7 @@ void SETTINGS_SaveSettings(void)
 	 
 	EEPROM_WriteBuffer(0x0F40, State);
 
-	EEPROM_WriteBuffer(0x0F80, &gEeprom.RX_OFFSET);
+	EEPROM_WriteBuffer(RX_OFFSET_ADDR, &gEeprom.RX_OFFSET);
 }
 
 void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, uint8_t Mode)

@@ -727,8 +727,8 @@ void BOARD_EEPROM_Init(void)
 		gSetting_AM_fix        = (Data[7] & (1u << 5)) ? true : false;
 	#endif
 	gSetting_backlight_on_tx_rx = (Data[7] >> 6) & 3u;
-	// 0F80..0F84
-	EEPROM_ReadBuffer(0x0F80, Data, 8);
+	// Read RxOffset setting
+	EEPROM_ReadBuffer(RX_OFFSET_ADDR, Data, 4);
     memmove(&gEeprom.RX_OFFSET, Data, 4);
 	// Make sure it inits with some sane value
 	gEeprom.RX_OFFSET = gEeprom.RX_OFFSET > RX_OFFSET_MAX ? 0 : gEeprom.RX_OFFSET;
