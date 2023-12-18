@@ -279,10 +279,11 @@ Video showing the AM fix working ..
 </p>
 
 Keys :
- "*" - New letter in the same key 
- "Long press *" - Change keyboard, Upper case, Lower case, Numeric.
- "0" - Space, except in numeric mode.
- "F" - Backspace
- "M" - Transmits message in the frequency of active VFO.
- "Exit" - Close application
+
+- "*" - New letter in the same key
+- "Long press *" - Change keyboard, Upper case, Lower case, Numeric.
+- "0" - Space, except in numeric mode.
+- "F" - Backspace
+- "M" - Transmits message in the frequency of active VFO.
+- "Exit" - Close application
 
