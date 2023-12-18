@@ -222,8 +222,8 @@ int16_t rssi_gain_diff[2] = {0, 0};
 // used to limit the max RF gain
 unsigned int max_index = ARRAY_SIZE(gain_table) - 1;
 
-// -89dBm, any higher and the AM demodulator starts to saturate/clip/distort
-const int16_t desired_rssi = (-89 + 160) * 2;
+// -110dBm, any higher and the AM demodulator starts to saturate/clip/distort
+const int16_t desired_rssi = (-110 + 180) * 2;
 
 void AM_fix_init(void)
 {	// called at boot-up
@@ -289,7 +289,7 @@ void AM_fix_10ms(const int vfo)
 	{	// sample the current RSSI level
 		// average it with the previous rssi (a bit of noise/spike immunity)
 		const int16_t new_rssi = BK4819_GetRSSI();
-		rssi                   = (prev_rssi[vfo] > 0) ? (prev_rssi[vfo] + new_rssi) / 2 : new_rssi;
+		rssi                   = new_rssi;
 		prev_rssi[vfo]         = new_rssi;
 	}
 
@@ -307,7 +307,7 @@ void AM_fix_10ms(const int vfo)
 		}
 	}
 #else
-	gCurrentRSSI[vfo] = rssi - rssi_gain_diff[vfo];
+	gCurrentRSSI[vfo] = rssi;
 #endif
 
 
@@ -374,7 +374,7 @@ void AM_fix_10ms(const int vfo)
 	}
 
 	// save the corrected RSSI level
-	gCurrentRSSI[vfo] = rssi - rssi_gain_diff[vfo];
+	gCurrentRSSI[vfo] = rssi;
 
 #ifdef ENABLE_AM_FIX_SHOW_DATA
 	if (counter == 0) {

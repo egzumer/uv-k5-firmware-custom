@@ -68,13 +68,16 @@ static void FlashlightTimeSlice();
 
 static void UpdateRSSI(const int vfo)
 {
+	while ((BK4819_ReadRegister(0x63) & 0b11111111) >= 255) {
+    	SYSTEM_DelayMs(1);
+  	}
 	int16_t rssi = BK4819_GetRSSI();
 
-	#ifdef ENABLE_AM_FIX
-		// add RF gain adjust compensation
-		if (gEeprom.VfoInfo[vfo].Modulation == MODULATION_AM && gSetting_AM_fix)
-			rssi -= rssi_gain_diff[vfo];
-	#endif
+	// #ifdef ENABLE_AM_FIX
+	// 	// add RF gain adjust compensation
+	// 	if (gEeprom.VfoInfo[vfo].Modulation == MODULATION_AM && gSetting_AM_fix)
+	// 		rssi -= rssi_gain_diff[vfo];
+	// #endif
 
 	if (gCurrentRSSI[vfo] == rssi)
 		return;     // no change
