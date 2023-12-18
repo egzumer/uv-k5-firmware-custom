@@ -55,6 +55,8 @@ uint8_t  msgFSKBuffer[2 + TX_MSG_LENGTH];
 
 uint16_t gErrorsDuringMSG;
 
+bool hasNewMessage = false;
+
 // -----------------------------------------------------
 
 void msgFSKSendData(){
@@ -552,8 +554,11 @@ static void sendMessage() {
 		FSKSetupMSG();
 
 		moveUP(rxMessage);
-			sprintf(rxMessage[3], "> %s", cMessage);
+		sprintf(rxMessage[3], "> %s", cMessage);
 		memset(cMessage, 0, sizeof(cMessage));
+		cIndex = 0;
+		prevKey = 0;
+		prevLetter = 0;
 	}
 
 }
@@ -599,6 +604,8 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 			sprintf(rxMessage[3], "< %s", &msgFSKBuffer[2]);
 			//memcpy(rxMessage[rxMessagePos], pData, TX_MSG_LENGTH);
 			msgStatus = READY;
+			if ( gRequestDisplayScreen != DISPLAY_MSG )
+				hasNewMessage = true;
 		}
 	}
 

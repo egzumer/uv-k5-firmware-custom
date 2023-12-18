@@ -20,6 +20,9 @@
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
+#ifdef ENABLE_MESSENGER
+	#include "app/messenger.h"
+#endif
 #include "app/scanner.h"
 #include "bitmaps.h"
 #include "driver/keyboard.h"
@@ -62,6 +65,14 @@ void UI_DisplayStatus()
 		x1 = x + sizeof(BITMAP_NOAA);
 	}
 	x += sizeof(BITMAP_NOAA);
+#endif
+
+#ifdef ENABLE_MESSENGER
+	if (hasNewMessage) { // New Message indicator
+		memcpy(line + x, BITMAP_NEWMSG, sizeof(BITMAP_NEWMSG));
+		x1 = x + sizeof(BITMAP_NEWMSG);
+	}
+	x += sizeof(BITMAP_NEWMSG);
 #endif
 
 #ifdef ENABLE_DTMF_CALLING

@@ -23,12 +23,14 @@ typedef enum KeyboardType {
 
 #define TX_MSG_LENGTH 30
 
-extern MsgStatus msgStatus;
+//extern MsgStatus msgStatus;
 extern KeyboardType keyboardType;
 extern uint16_t gErrorsDuringMSG;
 extern char cMessage[TX_MSG_LENGTH];
 
 extern char rxMessage[4][TX_MSG_LENGTH];
+
+extern bool hasNewMessage;
 
 void FSKSetupMSG(void);
 void MSG_StorePacket(const uint16_t interrupt_bits);

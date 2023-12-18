@@ -15,6 +15,10 @@ extern const uint8_t BITMAP_USB_C[9];
 
 extern const uint8_t BITMAP_KeyLock[6];
 
+#ifdef ENABLE_MESSENGER
+	extern const uint8_t BITMAP_NEWMSG[8];
+#endif
+
 extern const uint8_t BITMAP_F_Key[6];
 
 #ifdef ENABLE_VOX

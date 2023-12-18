@@ -24,8 +24,8 @@ void UI_DisplayMSG(void) {
 	//UI_PrintStringSmallBold("MESSENGER", 0, 127, 0);
 	UI_PrintStringSmall("Messenger", 1, 127, 0);
 
-	UI_DrawLineBuffer(gFrameBuffer, 2, 3, 26, 3, true);
-	UI_DrawLineBuffer(gFrameBuffer, 100, 3, 126, 3, true);
+	UI_DrawDottedLineBuffer(gFrameBuffer, 2, 3, 26, 3, true, 2);
+	UI_DrawDottedLineBuffer(gFrameBuffer, 100, 3, 126, 3, true, 2);
 
 	/*if ( msgStatus == SENDING ) {
 		GUI_DisplaySmallest("SENDING", 100, 6, false, true);

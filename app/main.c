@@ -567,6 +567,7 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		if (gWasFKeyPressed) {
 			
 			FSKSetupMSG();
+			hasNewMessage = false;
 			gRequestDisplayScreen = DISPLAY_MSG;
 			return;
 		}

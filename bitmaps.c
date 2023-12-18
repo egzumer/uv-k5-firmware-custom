@@ -166,6 +166,20 @@ const uint8_t BITMAP_F_Key[6] =
 #endif
 
 
+#ifdef ENABLE_MESSENGER
+const uint8_t BITMAP_NEWMSG[8] =
+{	// message icon
+	0b00000000,
+	0b01111110,
+	0b01000110,
+	0b01001010,
+	0b01010010,
+	0b01001010,
+	0b01000110,
+	0b01111110,
+};
+#endif
+
 // 'XB' (cross-band/cross-VFO)
 const uint8_t BITMAP_XB[12] =
 {	// "XB"
