@@ -56,9 +56,9 @@ void UI_DisplayMSG(void) {
 	if ( keyboardType == NUMERIC ) {
 		strcpy(String, "2");
 	} else if ( keyboardType == UPPERCASE ) {		
-		strcpy(String, "A");
+		strcpy(String, "B");
 	} else {		
-		strcpy(String, "a");
+		strcpy(String, "b");
 	}
 
 	UI_DrawRectangleBuffer(gFrameBuffer, 2, 36, 10, 44, true);

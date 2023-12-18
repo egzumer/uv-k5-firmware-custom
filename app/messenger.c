@@ -573,6 +573,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 		gFSKWriteIndex = 0;
 		memset(msgFSKBuffer, 0, sizeof(msgFSKBuffer));
 		//memset(rxMessage, 0, sizeof(rxMessage));
+		msgStatus = RECEIVING;
 	}
 
 	if (rx_fifo_almost_full) {
@@ -587,8 +588,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 		}
 
 		if (gFSKWriteIndex >= sizeof(msgFSKBuffer)) {
-		
-			msgStatus = RECEIVING;
+					
 			gFSKWriteIndex = 0;
 			uint16_t Status = BK4819_ReadRegister(BK4819_REG_0B);
 			gErrorsDuringMSG = Status;
@@ -599,22 +599,27 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 				return;
 			}
 
-			//insertNewLine(rxMessage, (const char*)&msgFSKBuffer[2]);
 			moveUP(rxMessage);
 			sprintf(rxMessage[3], "< %s", &msgFSKBuffer[2]);
-			//memcpy(rxMessage[rxMessagePos], pData, TX_MSG_LENGTH);
-			msgStatus = READY;
-			if ( gRequestDisplayScreen != DISPLAY_MSG )
+			
+			if ( gScreenToDisplay != DISPLAY_MSG )
 				hasNewMessage = true;
 		}
 	}
 
 	if (rx_finished) {
 		gFSKWriteIndex = 0;
+		msgStatus = READY;
 	}
 }
 
-// ----------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
+void cleanMSG() {
+	memset(rxMessage, 0, sizeof(rxMessage));
+	hasNewMessage = false;
+}
+
+// ---------------------------------------------------------------------------------
 
 void insertCharInMessage(uint8_t key) {
 	if ( key == KEY_0 ) {
@@ -714,6 +719,9 @@ void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 
 		switch (Key)
 		{
+			case KEY_EXIT:
+				cleanMSG();
+				break;
 			case KEY_STAR:
 				keyboardType = (KeyboardType)((keyboardType + 1) % END_TYPE_KBRD);
 				break;

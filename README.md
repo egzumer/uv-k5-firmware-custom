@@ -283,10 +283,11 @@ Video showing the AM fix working ..
 Keys :
 
 - "*" - New letter in the same key
-- "Long press *" - Change keyboard, Upper case, Lower case, Numeric.
+- "(Long press) *" - Change keyboard, Upper case, Lower case, Numeric.
 - "0" - Space, except in numeric mode.
 - "F" - Backspace
 - "M" - Transmits message in the frequency of active VFO.
+- "(Long press) Exit" - Clear all messages
 - "Exit" - Close application
 
 <p float="left">
