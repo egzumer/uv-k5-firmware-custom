@@ -640,7 +640,7 @@ void UI_DisplayMain(void)
 
 		{	// show the TX/RX level
 		#ifdef ENABLE_SMALL_BOLD
-			
+
 		#else
 			uint8_t Level = 0;
 

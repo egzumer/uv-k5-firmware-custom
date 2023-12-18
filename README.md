@@ -289,3 +289,6 @@ Keys :
 - "M" - Transmits message in the frequency of active VFO.
 - "Exit" - Close application
 
+<p float="left">
+<img src="/images/UV-K5 - keypad - T9.jpg" width=600 />
+</p>
