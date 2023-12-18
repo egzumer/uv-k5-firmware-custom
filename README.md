@@ -260,10 +260,29 @@ Video showing the AM fix working ..
   - Frequency in Bold
   - Show channel name
 
+<p float="left">
+  <img src="/images/spectrum_v2.jpg" width=300 />
+</p>
+
 - Main display
 
 <p float="left">
-  <img src="/images/spectrum_v2.jpg" width=300 />
   <img src="/images/main_v2.jpg" width=300 />
   <img src="/images/main_8_v2.jpg" width=300 />
 </p>
+
+- Messenger, send and receive short text messages, write with T9 keyboard.
+
+<p float="left">
+  <img src="/images/msg_1.jpg" width=300 />
+  <img src="/images/msg_2.jpg" width=300 />
+</p>
+
+Keys :
+ "*" - New letter in the same key 
+ "Long press *" - Change keyboard, Upper case, Lower case, Numeric.
+ "0" - Space, except in numeric mode.
+ "F" - Backspace
+ "M" - Transmits message in the frequency of active VFO.
+ "Exit" - Close application
+
