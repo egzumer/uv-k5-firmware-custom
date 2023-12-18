@@ -137,7 +137,7 @@ void SETTINGS_InitEEPROM(void)
 	gEeprom.VOICE_PROMPT = (Data[0] < 3) ? Data[0] : VOICE_PROMPT_ENGLISH;
 	#endif
 	#ifdef ENABLE_RSSI_BAR
-		if((Data[1] < 200 && Data[1] > 90) && (Data[2] < Data[1]-9 && Data[2] > 50)) {
+		if((Data[1] < 200 && Data[1] > 90) && (Data[2] < Data[1]-9 && Data[1] < 160  && Data[2] > 50)) {
 			gEeprom.S0_LEVEL = Data[1];
 			gEeprom.S9_LEVEL = Data[2];
 		}
