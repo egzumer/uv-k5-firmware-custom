@@ -289,7 +289,7 @@ void AM_fix_10ms(const int vfo)
 	{	// sample the current RSSI level
 		// average it with the previous rssi (a bit of noise/spike immunity)
 		const int16_t new_rssi = BK4819_GetRSSI();
-		rssi                   = new_rssi;
+		rssi                   = (prev_rssi[vfo] > 0) ? (prev_rssi[vfo] + new_rssi) / 2 : new_rssi;
 		prev_rssi[vfo]         = new_rssi;
 	}
 

@@ -62,6 +62,7 @@
 #include "ui/menu.h"
 #include "ui/status.h"
 #include "ui/ui.h"
+#include "driver/systick.h"
 
 static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 static void FlashlightTimeSlice();
@@ -69,7 +70,7 @@ static void FlashlightTimeSlice();
 static void UpdateRSSI(const int vfo)
 {
 	while ((BK4819_ReadRegister(0x63) & 0b11111111) >= 255) {
-    	SYSTEM_DelayMs(1);
+		SYSTICK_DelayUs(100);
   	}
 	int16_t rssi = BK4819_GetRSSI();
 
