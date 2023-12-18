@@ -1,10 +1,7 @@
 # Open re-implementation of the Quansheng UV-K5/K6/5R v2.1.27 firmware
 
-This repository is a merge of [OneOfEleven custom firmware](https://github.com/OneOfEleven/uv-k5-firmware-custom) with [fagci spectrum analizer](https://github.com/fagci/uv-k5-firmware-fagci-mod/tree/refactor) plus my few changes.
-
-All is a cloned and customized version of DualTachyon's open firmware found here ..
-
-https://github.com/DualTachyon/uv-k5-firmware .. a cool achievement !
+This repository is a merge of [OneOfEleven custom firmware](https://github.com/OneOfEleven/uv-k5-firmware-custom) with [fagci spectrum analizer](https://github.com/fagci/uv-k5-firmware-fagci-mod/tree/refactor) plus my few changes.<br>
+All is a cloned and customized version of DualTachyon's open firmware found [here](https://github.com/DualTachyon/uv-k5-firmware) ... a cool achievement !
 
 > [!WARNING]  
 > Use this firmware at your own risk (entirely). There is absolutely no guarantee that it will work in any way shape or form on your radio(s), it may even brick your radio(s), in which case, you'd need to buy another radio.
@@ -19,6 +16,7 @@ Anyway, have fun.
 * [Compiler](#compiler)
 * [Building](#building)
 * [Credits](#credits)
+* [Other sources of information](#other-sources-of-information)
 * [License](#license)
 * [Example changes/updates](#example-changesupdates)
 
@@ -47,22 +45,21 @@ Anyway, have fun.
    * more configurable button functions
    * long press MENU as another configurable button
    * better DCS/CTCSS scanning in the menu (`* SCAN` while in RX DCS/CTCSS menu item)
-   * Piotr022 s-meter style
+   * Piotr022 style s-meter
    * restore initial freq/channel when scanning stopped with EXIT, remember last found transmission with MENU button
    * reordered and renamed menu entries
    * LCD interference crash fix
+   * many others...
 
  ## Manual
 
 * [Radio operation](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Radio-operation)
-
 * [Menu](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Menu)
-
 * [Button functions](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Button-functions)
-
 * [Spectrum analyzer](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Spectrum-analyzer)
-
+* [FM broadcast radio receiver](https://github.com/egzumer/uv-k5-firmware-custom/wiki/FM-broadcast-radio-receiver)
 * [Flashing the firmware](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Flashing-the-firmware)
+* [Differences from QS stock firmware](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Differences-from-QS-stock-firmware)
 
 <img src="images/main.jpg" width=300 /><img src="images/spectrum.jpg" width=300 /><img src="images/audiobar.jpg" width=300 /><img src="images/rssibar.jpg" width=300 />
 
@@ -211,6 +208,11 @@ Many thanks to various people on Telegram for putting up with me during this eff
 * [OneOfEleven](https://github.com/OneOfEleven)
 * @d1ced95
 * and others I forget
+
+## Other sources of information
+
+[ludwich66 - Quansheng UV-K5 Wiki](https://github.com/ludwich66/Quansheng_UV-K5_Wiki/wiki)<br>
+[amnemonic - tools and sources of information](https://github.com/amnemonic/Quansheng_UV-K5_Firmware)
 
 ## License
 
