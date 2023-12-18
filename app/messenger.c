@@ -1,37 +1,26 @@
 #ifdef ENABLE_MESSENGER
 
 #include <string.h>
-#include "../bsp/dp32g030/gpio.h"
-#include "../driver/keyboard.h"
-#include "../driver/gpio.h"
-#include "../driver/st7565.h"
-#include "../driver/systick.h"
-#include "../driver/bk4819.h"
-#include "../driver/crc.h"
-#include "../external/printf/printf.h"
-#include "../font.h"
-#include "functions.h"
+#include "driver/keyboard.h"
+#include "driver/st7565.h"
+#include "driver/bk4819.h"
+#include "external/printf/printf.h"
 #include "misc.h"
 #include "settings.h"
-#include "frequencies.h"
 #include "radio.h"
 #include "audio.h"
-#include "../board.h"
-#include "../helper/battery.h"
 #include "driver/system.h"
-#include "app/action.h"
 #include "app/messenger.h"
-#include "app/generic.h"
-#include "ui/inputbox.h"
-#include "ui/helper.h"
-#include "ui/main.h"
 #include "ui/ui.h"
 
-//const uint8_t BUTTON_STATE_PRESSED = 1 << 0;
+typedef enum MsgStatus {
+	READY,
+  	SENDING,
+  	RECEIVING,
+} MsgStatus;
+
 const uint8_t BUTTON_STATE_HELD = 1 << 1;
 
-//const uint8_t BUTTON_EVENT_PRESSED = BUTTON_STATE_PRESSED;
-//const uint8_t BUTTON_EVENT_HELD = BUTTON_STATE_PRESSED | BUTTON_STATE_HELD;
 const uint8_t BUTTON_EVENT_SHORT =  0;
 const uint8_t BUTTON_EVENT_LONG =  BUTTON_STATE_HELD;
 
@@ -40,6 +29,7 @@ const uint8_t BUTTON_EVENT_LONG =  BUTTON_STATE_HELD;
 char T9TableLow[9][4] = { {',', '.', '?', '!'}, {'a', 'b', 'c', '\0'}, {'d', 'e', 'f', '\0'}, {'g', 'h', 'i', '\0'}, {'j', 'k', 'l', '\0'}, {'m', 'n', 'o', '\0'}, {'p', 'q', 'r', 's'}, {'t', 'u', 'v', '\0'}, {'w', 'x', 'y', 'z'} };
 char T9TableUp[9][4] = { {',', '.', '?', '!'}, {'A', 'B', 'C', '\0'}, {'D', 'E', 'F', '\0'}, {'G', 'H', 'I', '\0'}, {'J', 'K', 'L', '\0'}, {'M', 'N', 'O', '\0'}, {'P', 'Q', 'R', 'S'}, {'T', 'U', 'V', '\0'}, {'W', 'X', 'Y', 'Z'} };
 unsigned char numberOfLettersAssignedToKey[9] = { 4, 3, 3, 3, 3, 3, 4, 3, 4 };
+
 char T9TableNum[9][4] = { {'1', '\0', '\0', '\0'}, {'2', '\0', '\0', '\0'}, {'3', '\0', '\0', '\0'}, {'4', '\0', '\0', '\0'}, {'5', '\0', '\0', '\0'}, {'6', '\0', '\0', '\0'}, {'7', '\0', '\0', '\0'}, {'8', '\0', '\0', '\0'}, {'9', '\0', '\0', '\0'} };
 unsigned char numberOfNumsAssignedToKey[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
@@ -501,17 +491,6 @@ void FSKSetupMSG(void) {
 
 // -----------------------------------------------------
 
-void insertNewLine(char (*rxMessages)[TX_MSG_LENGTH], const char* newLine) {
-    // Shift existing lines up
-    strcpy(rxMessages[0], rxMessages[1]);
-	strcpy(rxMessages[1], rxMessages[2]);
-	strcpy(rxMessages[2], rxMessages[3]);
-
-    // Insert the new line at the last position
-	memset(rxMessages[3], 0, sizeof(rxMessages[3]));
-    strcpy(rxMessages[3], newLine);
-}
-
 void moveUP(char (*rxMessages)[TX_MSG_LENGTH]) {
     // Shift existing lines up
     strcpy(rxMessages[0], rxMessages[1]);
@@ -527,8 +506,6 @@ static void sendMessage() {
 	if ( msgStatus != READY ) return;
 
 	if ( cIndex > 0 ) {
-
-		//FSKSetupMSG();
 
 		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true);
 		msgStatus = SENDING;
