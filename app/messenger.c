@@ -15,6 +15,10 @@
 #include "app/messenger.h"
 #include "ui/ui.h"
 
+#if defined(ENABLE_UART) && defined(ENABLE_UART_DEBUG)
+	#include "driver/uart.h"
+#endif
+
 typedef enum MsgStatus {
 	READY,
   	SENDING,
@@ -573,6 +577,10 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 	const bool rx_sync             = (interrupt_bits & BK4819_REG_02_FSK_RX_SYNC) ? true : false;
 	const bool rx_fifo_almost_full = (interrupt_bits & BK4819_REG_02_FSK_FIFO_ALMOST_FULL) ? true : false;
 	const bool rx_finished         = (interrupt_bits & BK4819_REG_02_FSK_RX_FINISHED) ? true : false;
+
+	//#if defined(ENABLE_UART) && defined(ENABLE_UART_DEBUG)
+	//	UART_printf("MSG %u\r\n", interrupt_bits);
+	//#endif
 
 	if (rx_sync) {
 		gFSKWriteIndex = 0;

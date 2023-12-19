@@ -11,6 +11,7 @@ ENABLE_LTO                    ?= 1
 
 # ---- STOCK QUANSHENG FERATURES ----
 ENABLE_UART                   ?= 1
+ENABLE_UART_DEBUG			  ?= 1
 ENABLE_AIRCOPY                ?= 0
 ENABLE_FMRADIO                ?= 0
 ENABLE_NOAA                   ?= 0
@@ -394,6 +395,13 @@ endif
 
 ifeq ($(ENABLE_MESSENGER),1)
 	CFLAGS  += -DENABLE_MESSENGER
+endif
+
+ifeq ($(ENABLE_UART), 0)
+	ENABLE_UART_DEBUG := 0
+endif
+ifeq ($(ENABLE_UART_DEBUG),1)
+	CFLAGS += -DENABLE_UART_DEBUG
 endif
 
 LDFLAGS =
