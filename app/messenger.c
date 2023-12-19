@@ -579,8 +579,12 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 			moveUP(rxMessage);
 			sprintf(rxMessage[3], "< %s", &msgFSKBuffer[2]);
 			
-			if ( gScreenToDisplay != DISPLAY_MSG )
+			if ( gScreenToDisplay != DISPLAY_MSG ) {
 				hasNewMessage = true;
+				gUpdateStatus   = true;
+			}
+			else
+				gUpdateDisplay = true;
 		}
 	}
 
