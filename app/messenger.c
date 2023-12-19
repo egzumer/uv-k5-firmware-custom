@@ -10,6 +10,7 @@
 #include "radio.h"
 #include "app.h"
 #include "audio.h"
+#include "functions.h"
 #include "driver/system.h"
 #include "app/messenger.h"
 #include "ui/ui.h"
@@ -539,8 +540,9 @@ static void sendMessage() {
 		memcpy(msgFSKBuffer + 2, cMessage, TX_MSG_LENGTH);
 
 		BK4819_DisableDTMF();
+		RADIO_SetTxParameters();		
 
-		RADIO_SetTxParameters();
+		SYSTEM_DelayMs(50);
 
 		msgFSKSendData();
 
