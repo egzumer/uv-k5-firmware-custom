@@ -12,6 +12,7 @@ extern bool              gScanPauseMode;
 
 #ifdef ENABLE_SCAN_RANGES
 extern uint32_t          gScanRangeStart;
+extern uint32_t          gScanRangeStop;
 #endif
 
 void CHFRSCANNER_Found(void);

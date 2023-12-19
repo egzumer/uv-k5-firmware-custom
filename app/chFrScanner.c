@@ -11,6 +11,7 @@ bool              gScanPauseMode;
 
 #ifdef ENABLE_SCAN_RANGES
 uint32_t          gScanRangeStart;
+uint32_t          gScanRangeStop;
 #endif
 
 typedef enum {
@@ -157,9 +158,7 @@ static void NextFreqChannel(void)
 {
 #ifdef ENABLE_SCAN_RANGES
 	if(gScanRangeStart) {
-		uint32_t start = gScanRangeStart;
-		uint32_t end = gEeprom.VfoInfo[(gEeprom.TX_VFO+1)%2].freq_config_RX.Frequency;
-		gRxVfo->freq_config_RX.Frequency = APP_SetFreqByStepAndLimits(gRxVfo, gScanStateDir, MIN(start, end), MAX(start, end));
+		gRxVfo->freq_config_RX.Frequency = APP_SetFreqByStepAndLimits(gRxVfo, gScanStateDir, gScanRangeStart, gScanRangeStop);
 	}
 	else
 #endif
