@@ -536,6 +536,9 @@ static void sendMessage() {
 	if ( cIndex > 0 ) {
 
 		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true);
+
+		RADIO_SetVfoState(VFO_STATE_NORMAL);
+
 		msgStatus = SENDING;
 
 		memset(msgFSKBuffer, 0, sizeof(msgFSKBuffer));		
@@ -546,7 +549,7 @@ static void sendMessage() {
 		BK4819_DisableDTMF();
 		RADIO_SetTxParameters();		
 
-		SYSTEM_DelayMs(50);
+		SYSTEM_DelayMs(500);
 
 		msgFSKSendData();
 
@@ -555,8 +558,6 @@ static void sendMessage() {
 
 		APP_EndTransmission();
 		RADIO_SetVfoState(VFO_STATE_NORMAL);
-
-		msgStatus = READY;
 
 		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
 
@@ -568,6 +569,8 @@ static void sendMessage() {
 		cIndex = 0;
 		prevKey = 0;
 		prevLetter = 0;
+
+		msgStatus = READY;
 	}
 
 }
