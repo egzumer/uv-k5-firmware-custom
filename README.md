@@ -53,15 +53,7 @@ Anyway, have fun.
 
  ## Manual
 
-* [Radio operation](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Radio-operation)
-* [Menu](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Menu)
-* [Button functions](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Button-functions)
-* [Spectrum analyzer](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Spectrum-analyzer)
-* [FM broadcast radio receiver](https://github.com/egzumer/uv-k5-firmware-custom/wiki/FM-broadcast-radio-receiver)
-* [Flashing the firmware](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Flashing-the-firmware)
-* [Differences from QS stock firmware](https://github.com/egzumer/uv-k5-firmware-custom/wiki/Differences-from-QS-stock-firmware)
-
-<img src="images/main.jpg" width=300 /><img src="images/spectrum.jpg" width=300 /><img src="images/audiobar.jpg" width=300 /><img src="images/rssibar.jpg" width=300 />
+Up to date manual is available in the [Wiki section](https://github.com/egzumer/uv-k5-firmware-custom/wiki)
 
 ## Radio performance
 
