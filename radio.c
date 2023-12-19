@@ -770,9 +770,9 @@ void RADIO_SetupRegisters(bool switchToForeground)
 
 	// enable/disable BK4819 selected interrupts
 
-#ifdef ENABLE_MESSENGER	
+#ifdef ENABLE_MESSENGER
+	MSG_EnableRX(true);
 	InterruptMask |= BK4819_REG_3F_FSK_RX_SYNC | BK4819_REG_3F_FSK_RX_FINISHED | BK4819_REG_3F_FSK_FIFO_ALMOST_FULL | BK4819_REG_3F_FSK_TX_FINISHED;
-	FSKSetupMSG();
 #endif	
 	BK4819_WriteRegister(BK4819_REG_3F, InterruptMask);
 
@@ -780,6 +780,7 @@ void RADIO_SetupRegisters(bool switchToForeground)
 
 	if (switchToForeground)
 		FUNCTION_Select(FUNCTION_FOREGROUND);
+		
 }
 
 #ifdef ENABLE_NOAA

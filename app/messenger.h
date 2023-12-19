@@ -23,8 +23,9 @@ extern char cMessage[TX_MSG_LENGTH];
 extern char rxMessage[4][TX_MSG_LENGTH];
 extern bool hasNewMessage;
 
-void FSKSetupMSG(void);
+void MSG_EnableRX(const bool enable);
 void MSG_StorePacket(const uint16_t interrupt_bits);
+void MSG_Init();
 void MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
 #endif

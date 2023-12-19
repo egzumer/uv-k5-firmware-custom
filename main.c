@@ -18,6 +18,10 @@
 #include <string.h>
 #include <stdio.h>     // NULL
 
+#ifdef ENABLE_MESSENGER
+	#include "app/messenger.h"
+#endif
+
 #ifdef ENABLE_AM_FIX
 	#include "am_fix.h"
 #endif
@@ -112,6 +116,10 @@ void Main(void)
 		BOARD_ADC_GetBatteryInfo(&gBatteryVoltages[i], &gBatteryCurrent);
 
 	BATTERY_GetReadings(false);
+
+#ifdef ENABLE_MESSENGER
+	MSG_Init();
+#endif
 
 #ifdef ENABLE_AM_FIX
 	AM_fix_init();
