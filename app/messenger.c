@@ -554,9 +554,6 @@ static void sendMessage() {
 		BK4819_ExitTxMute();
 		msgFSKSendData();
 
-		//BK4819_SetupPowerAmplifier(0, 0);
-		//BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_PA_ENABLE, false);
-
 		APP_EndTransmission();
 		RADIO_SetVfoState(VFO_STATE_NORMAL);;
 
