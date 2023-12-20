@@ -20,7 +20,7 @@ typedef enum KeyboardType {
 extern KeyboardType keyboardType;
 extern uint16_t gErrorsDuringMSG;
 extern char cMessage[TX_MSG_LENGTH];
-extern char rxMessage[4][TX_MSG_LENGTH];
+extern char rxMessage[4][TX_MSG_LENGTH + 3];
 extern bool hasNewMessage;
 
 void MSG_EnableRX(const bool enable);

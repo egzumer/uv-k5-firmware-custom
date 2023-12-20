@@ -569,7 +569,6 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 #ifdef ENABLE_MESSENGER
 		if (gWasFKeyPressed) {
 			
-			//MSG_EnableRX();
 			hasNewMessage = false;
 			gRequestDisplayScreen = DISPLAY_MSG;
 			return;

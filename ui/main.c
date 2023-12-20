@@ -733,7 +733,7 @@ void UI_DisplayMain(void)
 
 		{	// show the narrow band symbol			
 #ifdef ENABLE_SMALL_BOLD
-			const char *bwNames[3] = {"WIDE", "NARROW", ""};
+			const char *bwNames[3] = {"WIDE", "NARROW", "NARROWER"};
 			GUI_DisplaySmallest(bwNames[gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH], 68, line == 0 ? 17 : 49, false, true);
 #else
 			String[0] = '\0';

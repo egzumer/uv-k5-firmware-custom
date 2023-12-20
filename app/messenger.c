@@ -40,7 +40,7 @@ char T9TableNum[9][4] = { {'1', '\0', '\0', '\0'}, {'2', '\0', '\0', '\0'}, {'3'
 unsigned char numberOfNumsAssignedToKey[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 char cMessage[TX_MSG_LENGTH];
-char rxMessage[4][TX_MSG_LENGTH];
+char rxMessage[4][TX_MSG_LENGTH + 3];
 unsigned char cIndex = 0;
 unsigned char prevKey = 0, prevLetter = 0;
 KeyboardType keyboardType = UPPERCASE;
@@ -519,7 +519,7 @@ void MSG_EnableRX(const bool enable) {
 
 // -----------------------------------------------------
 
-void moveUP(char (*rxMessages)[TX_MSG_LENGTH]) {
+void moveUP(char (*rxMessages)[TX_MSG_LENGTH + 3]) {
     // Shift existing lines up
     strcpy(rxMessages[0], rxMessages[1]);
 	strcpy(rxMessages[1], rxMessages[2]);
@@ -599,6 +599,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 				msgFSKBuffer[gFSKWriteIndex++] = (word >> 0) & 0xff;
 			if (gFSKWriteIndex < sizeof(msgFSKBuffer))
 				msgFSKBuffer[gFSKWriteIndex++] = (word >> 8) & 0xff;
+			SYSTEM_DelayMs(5);
 		}
 
 		if (gFSKWriteIndex >= sizeof(msgFSKBuffer)) {
@@ -638,12 +639,7 @@ void MSG_Init() {
 	msgStatus = READY;
 	prevKey = 0;
     prevLetter = 0;
-}
-
-// ---------------------------------------------------------------------------------
-void cleanMSG() {
-	memset(rxMessage, 0, sizeof(rxMessage));
-	hasNewMessage = false;
+	cIndex = 0;
 }
 
 // ---------------------------------------------------------------------------------
@@ -746,8 +742,8 @@ void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 
 		switch (Key)
 		{
-			case KEY_EXIT:
-				cleanMSG();
+			case KEY_F:
+				MSG_Init();
 				break;
 			case KEY_STAR:
 				keyboardType = (KeyboardType)((keyboardType + 1) % END_TYPE_KBRD);

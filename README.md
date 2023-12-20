@@ -278,8 +278,8 @@ Keys :
 - "(Long press) *" - Change keyboard, Upper case, Lower case, Numeric.
 - "0" - Space, except in numeric mode.
 - "F" - Backspace
+- "(Long press) F" - Clear all messages
 - "M" - Transmits message in the frequency of active VFO.
-- "(Long press) Exit" - Clear all messages
 - "Exit" - Close application
 
 <p float="left">
