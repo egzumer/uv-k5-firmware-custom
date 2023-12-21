@@ -55,6 +55,7 @@ Anyway, have fun.
    * `RxOff` menu setting offsets the receive frequency by any specified amount in the range of `0-150Mhz` for use with upconverters. Allows to fine tune frequency (in `1kHz` steps) as opposed to other implementations that use hardcoded offsets. (**IMPORTANT: Make sure you set this value to 0 if not using an upconverter, when used for the first time. Otherwise it might load some random offset from EEPROM.**)
    * `ENABLE_SPECTRUM_COPY_VFO` allowing to exit the spectrum and fine tuning screen with PTT button and copy current peak frequency, modulation, step, bandwidth to VFO. Now to enter fine tuning screen in spectrum press MENU button. This allows you to save and respond to the frequencies found much faster.
    * `ENABLE_SPECTRUM_SHOW_CHANNEL_NAME` shows channel number and channel name of the peak frequency in spectrum
+   * `ENABLE_ULTRA_LOW_POWER_TX` flag allows to transmit with ultra low power (thanks to egzumer work) for local testing of communication between radios.
 
  ## Manual
 
