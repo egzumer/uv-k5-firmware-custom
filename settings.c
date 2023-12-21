@@ -76,7 +76,6 @@ void SETTINGS_SaveVfoIndices(void)
 void SETTINGS_SaveSettings(void)
 {
 	uint8_t  State[8];
-	uint32_t Password[2];
 
 	State[0] = gEeprom.CHAN_1_CALL;
 	State[1] = gEeprom.SQUELCH_LEVEL;
@@ -117,12 +116,15 @@ void SETTINGS_SaveSettings(void)
 	State[6] = gEeprom.AUTO_KEYPAD_LOCK;
 	State[7] = gEeprom.POWER_ON_DISPLAY_MODE;
 	EEPROM_WriteBuffer(0x0E90, State);
-
-	memset(Password, 0xFF, sizeof(Password));
+	
+	// 0x0E98..0x0E9F
+	memset(State, 0xFF, sizeof(State));
+	EEPROM_ReadBuffer(0x0E98, State, 8);
 	#ifdef ENABLE_PWRON_PASSWORD
-		Password[0] = gEeprom.POWER_ON_PASSWORD;
+		memcpy(&State[0], &gEeprom.POWER_ON_PASSWORD, 4);
 	#endif
-	EEPROM_WriteBuffer(0x0E98, Password);
+	memcpy(&State[4], &gEeprom.RX_OFFSET, 4);
+	EEPROM_WriteBuffer(0x0E98, State);
 
 	memset(State, 0xFF, sizeof(State));
 #ifdef ENABLE_VOICE
@@ -193,8 +195,6 @@ void SETTINGS_SaveSettings(void)
 	State[7] = (State[7] & ~(3u << 6)) | ((gSetting_backlight_on_tx_rx & 3u) << 6);
 	 
 	EEPROM_WriteBuffer(0x0F40, State);
-
-	EEPROM_WriteBuffer(RX_OFFSET_ADDR, &gEeprom.RX_OFFSET);
 }
 
 void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, uint8_t Mode)
