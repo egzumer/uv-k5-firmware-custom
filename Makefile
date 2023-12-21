@@ -21,6 +21,10 @@ ENABLE_TX1750                 := 0
 ENABLE_PWRON_PASSWORD         := 0
 ENABLE_DTMF_CALLING           := 0
 
+#---- DEBUG ----
+ENABLE_AM_FIX_SHOW_DATA           := 0
+ENABLE_ULTRA_LOW_POWER_TX         := 0
+
 # ---- CUSTOM MODS ----
 ENABLE_BIG_FREQ                   := 1
 ENABLE_SMALL_BOLD                 := 1
@@ -34,7 +38,6 @@ ENABLE_SHOW_CHARGE_LEVEL          := 1
 ENABLE_REVERSE_BAT_SYMBOL         := 0
 ENABLE_NO_CODE_SCAN_TIMEOUT       := 1
 ENABLE_AM_FIX                     := 1
-ENABLE_AM_FIX_SHOW_DATA           := 0
 ENABLE_SQUELCH_MORE_SENSITIVE     := 1
 ENABLE_FASTER_CHANNEL_SCAN        := 1
 ENABLE_RSSI_BAR                   := 1
@@ -365,6 +368,9 @@ ifeq ($(ENABLE_SPECTRUM_SHOW_CHANNEL_NAME),1)
 endif
 ifeq ($(ENABLE_DTMF_CALLING),1)
 	CFLAGS  += -DENABLE_DTMF_CALLING
+endif
+ifeq ($(ENABLE_ULTRA_LOW_POWER_TX),1)
+	CFLAGS  += -DENABLE_ULTRA_LOW_POWER_TX
 endif
 
 LDFLAGS =
