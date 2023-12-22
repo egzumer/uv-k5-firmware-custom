@@ -114,4 +114,6 @@ bool DTMF_FindContact(const char *pContact, char *pResult);
 void DTMF_HandleRequest(void);
 #endif
 
+void DTMF_SendEndOfTransmission(void);
+
 #endif

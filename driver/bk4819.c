@@ -1688,7 +1688,7 @@ void BK4819_PrepareFSKReceive(void)
 	BK4819_WriteRegister(BK4819_REG_59, 0x3068);
 }
 
-void BK4819_PlayRogerNormal(void)
+static void BK4819_PlayRogerNormal(void)
 {
 	#if 0
 		const uint32_t tone1_Hz = 500;
@@ -1698,6 +1698,7 @@ void BK4819_PlayRogerNormal(void)
 		const uint32_t tone1_Hz = 1540;
 		const uint32_t tone2_Hz = 1310;
 	#endif
+
 
 	BK4819_EnterTxMute();
 	BK4819_SetAF(BK4819_AF_MUTE);
@@ -1722,6 +1723,7 @@ void BK4819_PlayRogerNormal(void)
 	BK4819_WriteRegister(BK4819_REG_70, 0x0000);
 	BK4819_WriteRegister(BK4819_REG_30, 0xC1FE);   // 1 1 0000 0 1 1111 1 1 1 0
 }
+
 
 void BK4819_PlayRogerMDC(void)
 {
@@ -1769,6 +1771,15 @@ void BK4819_PlayRogerMDC(void)
 	BK4819_WriteRegister(BK4819_REG_59, 0x0068);
 	BK4819_WriteRegister(BK4819_REG_70, 0x0000);
 	BK4819_WriteRegister(BK4819_REG_58, 0x0000);
+}
+
+void BK4819_PlayRoger(void)
+{
+	if (gEeprom.ROGER == ROGER_MODE_ROGER) {
+		BK4819_PlayRogerNormal();
+	} else if (gEeprom.ROGER == ROGER_MODE_MDC) {
+		BK4819_PlayRogerMDC();
+	}
 }
 
 void BK4819_Enable_AfDac_DiscMode_TxDsp(void)

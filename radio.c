@@ -14,6 +14,7 @@
  *     limitations under the License.
  */
 
+#include "driver/bk4819-regs.h"
 #include <string.h>
 
 #include "am_fix.h"
@@ -1085,6 +1086,16 @@ void RADIO_EnableCxCSS(void)
 	SYSTEM_DelayMs(200);
 }
 
+void RADIO_SendEndOfTransmission(void)
+{
+	BK4819_PlayRoger();
+	DTMF_SendEndOfTransmission();
+
+	// send the CTCSS/DCS tail tone - allows the receivers to mute the usual FM squelch tail/crash
+	RADIO_EnableCxCSS();
+	RADIO_SetupRegisters(false);
+}
+
 void RADIO_PrepareCssTX(void)
 {
 	RADIO_PrepareTX();
@@ -1093,43 +1104,4 @@ void RADIO_PrepareCssTX(void)
 
 	RADIO_EnableCxCSS();
 	RADIO_SetupRegisters(true);
-}
-
-void RADIO_SendEndOfTransmission(void)
-{
-	if (gEeprom.ROGER == ROGER_MODE_ROGER)
-		BK4819_PlayRoger();
-	else if (gEeprom.ROGER == ROGER_MODE_MDC)
-		BK4819_PlayRogerMDC();
-
-	if (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_APOLLO)
-		BK4819_PlaySingleTone(2475, 250, 28, gEeprom.DTMF_SIDE_TONE);
-
-	if ((gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN || gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH)
-#ifdef ENABLE_DTMF_CALLING
-		&& gDTMF_CallState == DTMF_CALL_STATE_NONE
-#endif
-	) {	// end-of-tx
-		if (gEeprom.DTMF_SIDE_TONE)
-		{
-			AUDIO_AudioPathOn();
-			gEnableSpeaker = true;
-			SYSTEM_DelayMs(60);
-		}
-
-		BK4819_EnterDTMF_TX(gEeprom.DTMF_SIDE_TONE);
-
-		BK4819_PlayDTMFString(
-				gEeprom.DTMF_DOWN_CODE,
-				0,
-				gEeprom.DTMF_FIRST_CODE_PERSIST_TIME,
-				gEeprom.DTMF_HASH_CODE_PERSIST_TIME,
-				gEeprom.DTMF_CODE_PERSIST_TIME,
-				gEeprom.DTMF_CODE_INTERVAL_TIME);
-
-		AUDIO_AudioPathOff();
-		gEnableSpeaker = false;
-	}
-
-	BK4819_ExitDTMF_TX(true);
 }
