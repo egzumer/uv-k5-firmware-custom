@@ -7,3 +7,4 @@ firmware
 .cache
 compile_commands.json
 .vscode
+/docs
