@@ -1559,7 +1559,7 @@ static void ALARM_Off(void)
 	AUDIO_AudioPathOff();
 	gEnableSpeaker = false;
 
-	if (gAlarmState == ALARM_STATE_TXALARM) {
+	if (gAlarmState == ALARM_STATE_TXALARM || gAlarmState == ALARM_STATE_TX1750) {
 		RADIO_SendEndOfTransmission();
 	}
 
