@@ -731,14 +731,14 @@ static void CheckRadioInterrupts(void)
 }
 
 void APP_EndTransmission(void)
-{	// back to RX mode
+{
+	// back to RX mode
 	RADIO_SendEndOfTransmission();
-	// send the CTCSS/DCS tail tone - allows the receivers to mute the usual FM squelch tail/crash
-	RADIO_EnableCxCSS();
-	RADIO_SetupRegisters(false);
 
-	if (gMonitor)
-		gFlagReconfigureVfos = true; //turn the monitor back on
+	if (gMonitor) {
+		 //turn the monitor back on
+		gFlagReconfigureVfos = true;
+	}
 }
 
 #ifdef ENABLE_VOX
@@ -884,37 +884,32 @@ void APP_Update(void)
 #endif
 
 	// toggle between the VFO's if dual watch is enabled
-	if (!SCANNER_IsScanning() && gEeprom.DUAL_WATCH != DUAL_WATCH_OFF)
-	{
+	if (!SCANNER_IsScanning()
+		&& gEeprom.DUAL_WATCH != DUAL_WATCH_OFF
+		&& gScheduleDualWatch
+		&& gScanStateDir == SCAN_OFF
+		&& !gPttIsPressed
+		&& gCurrentFunction != FUNCTION_POWER_SAVE
 #ifdef ENABLE_VOICE
-		if (gScheduleDualWatch && gVoiceWriteIndex == 0)
-#else
-		if (gScheduleDualWatch)
+		&& gVoiceWriteIndex == 0
 #endif
-		{
-			if (gScanStateDir == SCAN_OFF)
-			{
-				if (!gPttIsPressed &&
 #ifdef ENABLE_FMRADIO
-					!gFmRadioMode &&
+		&& !gFmRadioMode
 #endif
 #ifdef ENABLE_DTMF_CALLING
-				    gDTMF_CallState == DTMF_CALL_STATE_NONE &&
+		&& gDTMF_CallState == DTMF_CALL_STATE_NONE
 #endif
-				    gCurrentFunction != FUNCTION_POWER_SAVE)
-				{
-					DualwatchAlternate();    // toggle between the two VFO's
+	) {
+		DualwatchAlternate();    // toggle between the two VFO's
 
-					if (gRxVfoIsActive && gScreenToDisplay == DISPLAY_MAIN)
-						GUI_SelectNextDisplay(DISPLAY_MAIN);
-
-					gRxVfoIsActive     = false;
-					gScanPauseMode     = false;
-					gRxReceptionMode   = RX_MODE_NONE;
-					gScheduleDualWatch = false;
-				}
-			}
+		if (gRxVfoIsActive && gScreenToDisplay == DISPLAY_MAIN) {
+			GUI_SelectNextDisplay(DISPLAY_MAIN);
 		}
+
+		gRxVfoIsActive     = false;
+		gScanPauseMode     = false;
+		gRxReceptionMode   = RX_MODE_NONE;
+		gScheduleDualWatch = false;
 	}
 
 #ifdef ENABLE_FMRADIO
@@ -1024,17 +1019,17 @@ void APP_Update(void)
 // called every 10ms
 static void CheckKeys(void)
 {
-
-	if (0
 #ifdef ENABLE_DTMF_CALLING
-	|| gSetting_KILLED
-#endif
-#ifdef ENABLE_AIRCOPY
-	|| (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState != AIRCOPY_READY)
-#endif
-	)
+	if(gSetting_KILLED){
 		return;
+	}
+#endif
 
+#ifdef ENABLE_AIRCOPY
+	if (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState != AIRCOPY_READY){
+		return;
+	}
+#endif
 
 // -------------------- PTT ------------------------
 	if (gPttIsPressed)
@@ -1577,7 +1572,6 @@ static void ALARM_Off(void)
 
 	if (gAlarmState == ALARM_STATE_TXALARM) {
 		RADIO_SendEndOfTransmission();
-		RADIO_EnableCxCSS();
 	}
 
 	gAlarmState = ALARM_STATE_OFF;
