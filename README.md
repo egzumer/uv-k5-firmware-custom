@@ -274,8 +274,7 @@ Video showing the AM fix working ..
 
 Keys :
 
-- "*" - New letter in the same key
-- "(Long press) *" - Change keyboard, Upper case, Lower case, Numeric.
+- "*" - Change keyboard, Upper case, Lower case, Numeric.
 - "0" - Space, except in numeric mode.
 - "F" - Backspace
 - "(Long press) F" - Clear all messages
