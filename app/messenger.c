@@ -51,7 +51,7 @@ KeyboardType keyboardType = UPPERCASE;
 
 MsgStatus msgStatus = READY;
 
-uint8_t  msgFSKBuffer[MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH];
+uint8_t msgFSKBuffer[MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH];
 
 uint16_t gErrorsDuringMSG;
 
@@ -75,7 +75,8 @@ void MSG_FSKSendData() {
 
 	// set the FM deviation level
 	const uint16_t dev_val = BK4819_ReadRegister(BK4819_REG_40);
-	/*{
+	//UART_printf("\n BANDWIDTH : 0x%.4X", dev_val);
+	{
 		uint16_t deviation = 850;
 		switch (gEeprom.VfoInfo[gEeprom.TX_VFO].CHANNEL_BANDWIDTH)
 		{
@@ -85,7 +86,7 @@ void MSG_FSKSendData() {
 		}
 		//BK4819_WriteRegister(0x40, (3u << 12) | (deviation & 0xfff));
 		BK4819_WriteRegister(BK4819_REG_40, (dev_val & 0xf000) | (deviation & 0xfff));
-	}*/
+	}
 
 	// REG_2B   0
 	//
@@ -129,10 +130,10 @@ void MSG_FSKSendData() {
 							//   6 = ???
 							//   7 = FFSK 1200/1800 RX
 							//
-		(3u << 8) |			// 0 FSK RX gain
+		(0u << 8) |			// 0 FSK RX gain
 							//   0 ~ 3
 							//
-		(3u << 6) |			// 0 ???
+		(0u << 6) |			// 0 ???
 							//   0 ~ 3
 							//
 		(0u << 4) |			// 0 FSK preamble type selection
@@ -224,7 +225,7 @@ void MSG_FSKSendData() {
 				(0u <<  0);    // 0 ~ 7   ???
 
 	// Set packet length (not including pre-amble and sync bytes that we can't seem to disable)
-	BK4819_WriteRegister(BK4819_REG_5D, ((MAX_RX_MSG_LENGTH) << 8));
+	BK4819_WriteRegister(BK4819_REG_5D, (sizeof(msgFSKBuffer) << 8));
 
 	// REG_5A
 	//
@@ -261,18 +262,19 @@ void MSG_FSKSendData() {
 	BK4819_WriteRegister(BK4819_REG_59, (1u << 15) | (1u << 14) | fsk_reg59);   // clear FIFO's
 	BK4819_WriteRegister(BK4819_REG_59, fsk_reg59);
 
-	SYSTEM_DelayMs(100);
-
 	{	// load the entire packet data into the TX FIFO buffer
 		unsigned int i;
 		const uint16_t *p = (const uint16_t *)msgFSKBuffer;
-		for (i = 0; i < (sizeof(msgFSKBuffer) / sizeof(p[0])); i++)
-			BK4819_WriteRegister(BK4819_REG_5F, p[i]);  // load 16-bits at a time
+		const uint16_t len_buff = (MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH) / sizeof(p[0]);
+		for (i = 0; i < len_buff; i++) {
+			BK4819_WriteRegister(BK4819_REG_5F, p[i]);  // load 16-bits at a time			
+		}
 	}
+	SYSTEM_DelayMs(100);
 
 	// enable FSK TX
 	BK4819_WriteRegister(BK4819_REG_59, (1u << 11) | fsk_reg59);
-
+	
 	{
 		// allow up to 310ms for the TX to complete
 		// if it takes any longer then somethings gone wrong, we shut the TX down
@@ -291,7 +293,7 @@ void MSG_FSKSendData() {
 	}
 	//BK4819_WriteRegister(BK4819_REG_02, 0);
 
-	SYSTEM_DelayMs(100);
+	//SYSTEM_DelayMs(100);
 
 	// disable FSK
 	BK4819_WriteRegister(BK4819_REG_59, fsk_reg59);
@@ -505,7 +507,7 @@ void MSG_EnableRX(const bool enable) {
 
 		{	// packet size .. sync + 14 bytes - size of a single packet
 
-			uint16_t size = sizeof(msgFSKBuffer);
+			uint16_t size = (MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH);
 			// size -= (fsk_reg59 & (1u << 3)) ? 4 : 2;
 			size = ((size + 1) / 2) * 2;             // round up to even, else FSK RX doesn't work
 			BK4819_WriteRegister(BK4819_REG_5D, ((size - 1) << 8));
@@ -514,6 +516,9 @@ void MSG_EnableRX(const bool enable) {
 		// clear FIFO's then enable RX
 		BK4819_WriteRegister(BK4819_REG_59, (1u << 15) | (1u << 14) | fsk_reg59);
 		BK4819_WriteRegister(BK4819_REG_59, (1u << 12) | fsk_reg59);
+
+		BK4819_WriteRegister(BK4819_REG_02, 0);
+
 	} else {
 		BK4819_WriteRegister(BK4819_REG_70, 0);
 		BK4819_WriteRegister(BK4819_REG_58, 0);
@@ -543,7 +548,7 @@ static void sendMessage() {
 
 		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true);
 
-		RADIO_SetVfoState(VFO_STATE_NORMAL);
+		//RADIO_SetVfoState(VFO_STATE_NORMAL);
 
 		memset(msgFSKBuffer, 0, sizeof(msgFSKBuffer));
 
@@ -557,17 +562,16 @@ static void sendMessage() {
 
 		// CRC ? ToDo
 
-		BK4819_DisableDTMF();
 		RADIO_SetTxParameters();
+
 		SYSTEM_DelayMs(1000);
-		BK4819_ExitTxMute();
 
 		MSG_FSKSendData();
 
 		SYSTEM_DelayMs(100);
 
 		APP_EndTransmission();
-		RADIO_SetVfoState(VFO_STATE_NORMAL);;
+		//RADIO_SetVfoState(VFO_STATE_NORMAL);;
 
 		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
 
@@ -602,9 +606,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 	const bool rx_fifo_almost_full = (interrupt_bits & BK4819_REG_02_FSK_FIFO_ALMOST_FULL) ? true : false;
 	const bool rx_finished         = (interrupt_bits & BK4819_REG_02_FSK_RX_FINISHED) ? true : false;
 
-	//#if defined(ENABLE_UART) && defined(ENABLE_UART_DEBUG)
-	//	UART_printf("MSG %u\r\n", interrupt_bits);
-	//#endif
+	//UART_printf("\nMSG : S%i, F%i, E%i | %i", rx_sync, rx_fifo_almost_full, rx_finished, interrupt_bits);
 
 	if (rx_sync) {
 		gFSKWriteIndex = 0;
@@ -626,6 +628,8 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 			SYSTEM_DelayMs(5);
 		}
 
+		//UART_printf("\nMSG R = C:%i | IDX:%i | BUF:%s", count, gFSKWriteIndex, msgFSKBuffer);
+
 		if (gFSKWriteIndex >= sizeof(msgFSKBuffer)) {
 
 			BK4819_WriteRegister(BK4819_REG_59, (1u << 15) | (1u << 14) | fsk_reg59);
@@ -645,6 +649,8 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 			}
 
 			snprintf(rxMessage[3] + 1, TX_MSG_LENGTH + 2, " %s", &msgFSKBuffer[MSG_HEADER_LENGTH]);
+
+			//UART_printf("\nMSG : %s", rxMessage[3]);
 
 			if ( gScreenToDisplay != DISPLAY_MSG ) {
 				hasNewMessage = true;
