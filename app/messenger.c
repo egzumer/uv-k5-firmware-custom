@@ -30,7 +30,11 @@ const uint8_t BUTTON_STATE_HELD = 1 << 1;
 const uint8_t BUTTON_EVENT_SHORT =  0;
 const uint8_t BUTTON_EVENT_LONG =  BUTTON_STATE_HELD;
 
-#define MAX_MSG_LENGTH TX_MSG_LENGTH - 1
+const uint8_t MAX_MSG_LENGTH = TX_MSG_LENGTH - 1;
+
+const uint16_t TONE2_FREQ = 0x3065; // 0x2854
+
+#define NEXT_CHAR_DELAY 100 // 10ms tick
 
 char T9TableLow[9][4] = { {',', '.', '?', '!'}, {'a', 'b', 'c', '\0'}, {'d', 'e', 'f', '\0'}, {'g', 'h', 'i', '\0'}, {'j', 'k', 'l', '\0'}, {'m', 'n', 'o', '\0'}, {'p', 'q', 'r', 's'}, {'t', 'u', 'v', '\0'}, {'w', 'x', 'y', 'z'} };
 char T9TableUp[9][4] = { {',', '.', '?', '!'}, {'A', 'B', 'C', '\0'}, {'D', 'E', 'F', '\0'}, {'G', 'H', 'I', '\0'}, {'J', 'K', 'L', '\0'}, {'M', 'N', 'O', '\0'}, {'P', 'Q', 'R', 'S'}, {'T', 'U', 'V', '\0'}, {'W', 'X', 'Y', 'Z'} };
@@ -40,22 +44,24 @@ char T9TableNum[9][4] = { {'1', '\0', '\0', '\0'}, {'2', '\0', '\0', '\0'}, {'3'
 unsigned char numberOfNumsAssignedToKey[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 char cMessage[TX_MSG_LENGTH];
-char rxMessage[4][TX_MSG_LENGTH + 3];
+char rxMessage[4][MAX_RX_MSG_LENGTH + 2];
 unsigned char cIndex = 0;
 unsigned char prevKey = 0, prevLetter = 0;
 KeyboardType keyboardType = UPPERCASE;
 
 MsgStatus msgStatus = READY;
 
-uint8_t  msgFSKBuffer[2 + TX_MSG_LENGTH];
+uint8_t  msgFSKBuffer[MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH];
 
 uint16_t gErrorsDuringMSG;
 
 bool hasNewMessage = false;
 
+uint8_t keyTickCounter = 0;
+
 // -----------------------------------------------------
 
-void msgFSKSendData(){
+void MSG_FSKSendData() {
 
 	uint16_t fsk_reg59;
 
@@ -69,7 +75,7 @@ void msgFSKSendData(){
 
 	// set the FM deviation level
 	const uint16_t dev_val = BK4819_ReadRegister(BK4819_REG_40);
-	{
+	/*{
 		uint16_t deviation = 850;
 		switch (gEeprom.VfoInfo[gEeprom.TX_VFO].CHANNEL_BANDWIDTH)
 		{
@@ -79,7 +85,7 @@ void msgFSKSendData(){
 		}
 		//BK4819_WriteRegister(0x40, (3u << 12) | (deviation & 0xfff));
 		BK4819_WriteRegister(BK4819_REG_40, (dev_val & 0xf000) | (deviation & 0xfff));
-	}
+	}*/
 
 	// REG_2B   0
 	//
@@ -123,10 +129,10 @@ void msgFSKSendData(){
 							//   6 = ???
 							//   7 = FFSK 1200/1800 RX
 							//
-		(0u << 8) |			// 0 FSK RX gain
+		(3u << 8) |			// 0 FSK RX gain
 							//   0 ~ 3
 							//
-		(0u << 6) |			// 0 ???
+		(3u << 6) |			// 0 ???
 							//   0 ~ 3
 							//
 		(0u << 4) |			// 0 FSK preamble type selection
@@ -157,7 +163,7 @@ void msgFSKSendData(){
 	//
 	// tone-2 = 1200Hz
 	//
-	BK4819_WriteRegister(BK4819_REG_72, 0x3065);
+	BK4819_WriteRegister(BK4819_REG_72, TONE2_FREQ);
 
 	// REG_70
 	//
@@ -181,7 +187,6 @@ void msgFSKSendData(){
 		( 0u <<  8) |    // 0
 		( 1u <<  7) |    // 1
 		(96u <<  0));    // 96
-//			(127u <<  0));
 
 	// REG_59
 	//
@@ -214,13 +219,12 @@ void msgFSKSendData(){
 				(0u << 10) |   // 0/1     1 = invert data when RX
 				(0u <<  9) |   // 0/1     1 = invert data when TX
 				(0u <<  8) |   // 0/1     ???
-				(0u <<  4) |   // 0 ~ 15  preamble length .. bit toggling
+				(15u <<  4) |   // 0 ~ 15  preamble length .. bit toggling
 				(1u <<  3) |   // 0/1     sync length
 				(0u <<  0);    // 0 ~ 7   ???
-	fsk_reg59 |= 15u << 4;
 
 	// Set packet length (not including pre-amble and sync bytes that we can't seem to disable)
-	BK4819_WriteRegister(BK4819_REG_5D, ((TX_MSG_LENGTH + 2) << 8));
+	BK4819_WriteRegister(BK4819_REG_5D, ((MAX_RX_MSG_LENGTH) << 8));
 
 	// REG_5A
 	//
@@ -431,7 +435,7 @@ void MSG_EnableRX(const bool enable) {
 			(96u <<  0));    // 96
 
 		// Tone2 baudrate 1200
-		BK4819_WriteRegister(BK4819_REG_72, 0x3065);
+		BK4819_WriteRegister(BK4819_REG_72, TONE2_FREQ);
 
 		BK4819_WriteRegister(BK4819_REG_58,
 			(1u << 13) |		// 1 FSK TX mode selection
@@ -497,11 +501,11 @@ void MSG_EnableRX(const bool enable) {
 		// BK4819_WriteRegister(BK4819_REG_5C, 0xAA30);   // 10101010 0 0 110000
 
 		// set the almost full threshold
-		BK4819_WriteRegister(BK4819_REG_5E, (64u << 3) | (1u << 0));  // 0 ~ 127, 0 ~ 7
+		BK4819_WriteRegister(BK4819_REG_5E, (64u << 3) | (4u << 0));  // 0 ~ 127, 0 ~ 7
 
 		{	// packet size .. sync + 14 bytes - size of a single packet
 
-			uint16_t size = 2 + TX_MSG_LENGTH;
+			uint16_t size = sizeof(msgFSKBuffer);
 			// size -= (fsk_reg59 & (1u << 3)) ? 4 : 2;
 			size = ((size + 1) / 2) * 2;             // round up to even, else FSK RX doesn't work
 			BK4819_WriteRegister(BK4819_REG_5D, ((size - 1) << 8));
@@ -519,14 +523,14 @@ void MSG_EnableRX(const bool enable) {
 
 // -----------------------------------------------------
 
-void moveUP(char (*rxMessages)[TX_MSG_LENGTH + 3]) {
+void moveUP(char (*rxMessages)[MAX_RX_MSG_LENGTH + 2]) {
     // Shift existing lines up
     strcpy(rxMessages[0], rxMessages[1]);
 	strcpy(rxMessages[1], rxMessages[2]);
 	strcpy(rxMessages[2], rxMessages[3]);
 
     // Insert the new line at the last position
-	memset(rxMessages[3], 0, sizeof(rxMessages[3]));    
+	memset(rxMessages[3], 0, sizeof(rxMessages[3]));
 }
 
 static void sendMessage() {
@@ -534,25 +538,33 @@ static void sendMessage() {
 	if ( msgStatus != READY ) return;
 
 	if ( cIndex > 0 ) {
-		
+
+		msgStatus = SENDING;
+
 		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true);
 
 		RADIO_SetVfoState(VFO_STATE_NORMAL);
 
-		msgStatus = SENDING;
+		memset(msgFSKBuffer, 0, sizeof(msgFSKBuffer));
 
-		memset(msgFSKBuffer, 0, sizeof(msgFSKBuffer));		
+		// ? ToDo
+		// first 20 byte sync, msg type and ID
 		msgFSKBuffer[0] = 'M';
 		msgFSKBuffer[1] = 'S';
-		memcpy(msgFSKBuffer + 2, cMessage, TX_MSG_LENGTH);
-		
-		RADIO_SetTxParameters();	
 
-		SYSTEM_DelayMs(1000);
+		// next 20 for msg
+		memcpy(msgFSKBuffer + 20, cMessage, strlen(cMessage));
+
+		// CRC ? ToDo
 
 		BK4819_DisableDTMF();
+		RADIO_SetTxParameters();
+		SYSTEM_DelayMs(1000);
 		BK4819_ExitTxMute();
-		msgFSKSendData();
+
+		MSG_FSKSendData();
+
+		SYSTEM_DelayMs(100);
 
 		APP_EndTransmission();
 		RADIO_SetVfoState(VFO_STATE_NORMAL);;
@@ -573,7 +585,18 @@ static void sendMessage() {
 
 }
 
+uint8_t validate_char( uint8_t rchar ) {
+	if ( rchar >= 32 && rchar <= 127 ) {
+		return rchar;
+	}
+	return 32;
+}
+
 void MSG_StorePacket(const uint16_t interrupt_bits) {
+
+	//const uint16_t rx_sync_flags   = BK4819_ReadRegister(BK4819_REG_0B);
+
+	const uint16_t fsk_reg59       = BK4819_ReadRegister(BK4819_REG_59) & ~((1u << 15) | (1u << 14) | (1u << 12) | (1u << 11));
 
 	const bool rx_sync             = (interrupt_bits & BK4819_REG_02_FSK_RX_SYNC) ? true : false;
 	const bool rx_fifo_almost_full = (interrupt_bits & BK4819_REG_02_FSK_FIFO_ALMOST_FULL) ? true : false;
@@ -587,46 +610,63 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 		gFSKWriteIndex = 0;
 		memset(msgFSKBuffer, 0, sizeof(msgFSKBuffer));
 		//memset(rxMessage, 0, sizeof(rxMessage));
+		moveUP(rxMessage);
 		msgStatus = RECEIVING;
 	}
 
 	if (rx_fifo_almost_full) {
-		const unsigned int count = BK4819_ReadRegister(BK4819_REG_5E) & (7u << 0);  // almost full threshold
+		const unsigned int count = BK4819_ReadRegister(BK4819_REG_5E) & (4u << 0);  // almost full threshold
 
 		for (unsigned int i = 0; i < count; i++) {
 			const uint16_t word = BK4819_ReadRegister(BK4819_REG_5F);
 			if (gFSKWriteIndex < sizeof(msgFSKBuffer))
-				msgFSKBuffer[gFSKWriteIndex++] = (word >> 0) & 0xff;
+				msgFSKBuffer[gFSKWriteIndex++] = validate_char((word >> 0) & 0xff);
 			if (gFSKWriteIndex < sizeof(msgFSKBuffer))
-				msgFSKBuffer[gFSKWriteIndex++] = (word >> 8) & 0xff;
+				msgFSKBuffer[gFSKWriteIndex++] = validate_char((word >> 8) & 0xff);
 			SYSTEM_DelayMs(5);
 		}
 
 		if (gFSKWriteIndex >= sizeof(msgFSKBuffer)) {
-					
+
+			BK4819_WriteRegister(BK4819_REG_59, (1u << 15) | (1u << 14) | fsk_reg59);
+			BK4819_WriteRegister(BK4819_REG_59, (1u << 12) | fsk_reg59);
+
 			gFSKWriteIndex = 0;
 			uint16_t Status = BK4819_ReadRegister(BK4819_REG_0B);
-			gErrorsDuringMSG = Status;
+			//gErrorsDuringMSG = Status;
 
 			if ((Status & 0x0010U) != 0 || msgFSKBuffer[0] != 'M' || msgFSKBuffer[1] != 'S') {
-				gErrorsDuringMSG = 9099;
-				msgStatus = READY;
-				return;
+				//gErrorsDuringMSG = 9099;
+				//msgStatus = READY;
+				//return;
+				rxMessage[3][0] = '!';
+			} else {
+				rxMessage[3][0] = '>';
 			}
 
-			moveUP(rxMessage);
-			sprintf(rxMessage[3], "< %s", &msgFSKBuffer[2]);
-			
+			snprintf(rxMessage[3] + 1, TX_MSG_LENGTH + 2, " %s", &msgFSKBuffer[MSG_HEADER_LENGTH]);
+
 			if ( gScreenToDisplay != DISPLAY_MSG ) {
 				hasNewMessage = true;
 				gUpdateStatus   = true;
 			}
 			else
 				gUpdateDisplay = true;
+
 		}
+
 	}
 
 	if (rx_finished) {
+
+		BK4819_WriteRegister(BK4819_REG_59, (1u << 15) | (1u << 14) | fsk_reg59);
+		BK4819_WriteRegister(BK4819_REG_59, (1u << 12) | fsk_reg59);
+
+		if ( rxMessage[3] == 0x00 ) {
+			snprintf(rxMessage[3], TX_MSG_LENGTH + 2, " ERROR : %i", gFSKWriteIndex);
+			gUpdateDisplay = true;
+		}
+
 		gFSKWriteIndex = 0;
 		msgStatus = READY;
 	}
@@ -647,31 +687,44 @@ void MSG_Init() {
 void insertCharInMessage(uint8_t key) {
 	if ( key == KEY_0 ) {
 		if ( keyboardType == NUMERIC ) {
-			cMessage[cIndex++] = '0';
+			cMessage[cIndex] = '0';
 		} else {
-			cMessage[cIndex++] = ' ';
+			cMessage[cIndex] = ' ';
 		}
-	} else if (prevKey == key && key != KEY_STAR)
+		if ( cIndex < MAX_MSG_LENGTH ) {
+			cIndex++;
+		}
+	} else if (prevKey == key)
 	{
 		cIndex = (cIndex > 0) ? cIndex - 1 : 0;
 		if ( keyboardType == NUMERIC ) {
-			cMessage[cIndex++] = T9TableNum[key - 1][(++prevLetter) % numberOfNumsAssignedToKey[key - 1]];
+			cMessage[cIndex] = T9TableNum[key - 1][(++prevLetter) % numberOfNumsAssignedToKey[key - 1]];
 		} else if ( keyboardType == LOWERCASE ) {
-			cMessage[cIndex++] = T9TableLow[key - 1][(++prevLetter) % numberOfLettersAssignedToKey[key - 1]];
+			cMessage[cIndex] = T9TableLow[key - 1][(++prevLetter) % numberOfLettersAssignedToKey[key - 1]];
 		} else {
-			cMessage[cIndex++] = T9TableUp[key - 1][(++prevLetter) % numberOfLettersAssignedToKey[key - 1]];
+			cMessage[cIndex] = T9TableUp[key - 1][(++prevLetter) % numberOfLettersAssignedToKey[key - 1]];
+		}
+		if ( cIndex < MAX_MSG_LENGTH ) {
+			cIndex++;
 		}
 	}
 	else
 	{
 		prevLetter = 0;
-		if ( keyboardType == NUMERIC ) {
-			cMessage[cIndex++] = T9TableNum[key - 1][prevLetter];
-		} else if ( keyboardType == LOWERCASE ) {
-			cMessage[cIndex++] = T9TableLow[key - 1][prevLetter];
-		} else {
-			cMessage[cIndex++] = T9TableUp[key - 1][prevLetter];
+		if ( cIndex >= MAX_MSG_LENGTH ) {
+			cIndex = (cIndex > 0) ? cIndex - 1 : 0;
 		}
+		if ( keyboardType == NUMERIC ) {
+			cMessage[cIndex] = T9TableNum[key - 1][prevLetter];
+		} else if ( keyboardType == LOWERCASE ) {
+			cMessage[cIndex] = T9TableLow[key - 1][prevLetter];
+		} else {
+			cMessage[cIndex] = T9TableUp[key - 1][prevLetter];
+		}
+		if ( cIndex < MAX_MSG_LENGTH ) {
+			cIndex++;
+		}
+
 	}
 	cMessage[cIndex] = '\0';
 	if ( keyboardType == NUMERIC ) {
@@ -680,11 +733,6 @@ void insertCharInMessage(uint8_t key) {
 	} else {
 		prevKey = key;
 	}
-}
-
-void processStarKey() {
-	prevKey = KEY_STAR;
-	prevLetter = 0;
 }
 
 void processBackspace() {
@@ -711,19 +759,25 @@ void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 			case KEY_7:
 			case KEY_8:
 			case KEY_9:
-				if ( cIndex < MAX_MSG_LENGTH ) {
-					insertCharInMessage(Key);
+				if ( keyTickCounter > NEXT_CHAR_DELAY) {
+					prevKey = 0;
+    				prevLetter = 0;
 				}
+				insertCharInMessage(Key);
+				keyTickCounter = 0;
 				break;
 			case KEY_STAR:
-				processStarKey();
+				keyboardType = (KeyboardType)((keyboardType + 1) % END_TYPE_KBRD);
 				break;
 			case KEY_F:
 				processBackspace();
 				break;
-			case KEY_UP:				
+			case KEY_UP:
+				memset(cMessage, 0, sizeof(cMessage));
+				strncpy(cMessage, rxMessage[3] + 2, strlen(rxMessage[3]));
+				cIndex = strlen(cMessage);
 				break;
-			case KEY_DOWN:				
+			case KEY_DOWN:
 				break;
 			case KEY_MENU:
 				// Send message

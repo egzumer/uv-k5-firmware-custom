@@ -44,8 +44,8 @@ void UI_DisplayMSG(void) {
 	uint8_t mPos = 8;
 	const uint8_t mLine = 7;
 	for (int i = 0; i < 4; ++i) {
-		sprintf(String, "%s", rxMessage[i]);
-		GUI_DisplaySmallest(String, 2, mPos, false, true);
+		//sprintf(String, "%s", rxMessage[i]);
+		GUI_DisplaySmallest(rxMessage[i], 2, mPos, false, true);
 		mPos += mLine;
     }
 

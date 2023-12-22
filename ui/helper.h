@@ -29,7 +29,6 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 #endif
 void UI_PrintStringSmallBuffer(const char *pString, uint8_t *buffer);
 void UI_DisplayFrequency(const char *string, uint8_t X, uint8_t Y, bool center);
-#endif
 
 void UI_DisplayPopup(const char *string);
 
@@ -42,3 +41,5 @@ void PutPixel(uint8_t x, uint8_t y, bool fill);
 void PutPixelStatus(uint8_t x, uint8_t y, bool fill);
 void DrawVLine(int sy, int ey, int nx, bool fill);
 void GUI_DisplaySmallest(const char *pString, uint8_t x, uint8_t y, bool statusbar, bool fill);
+
+#endif

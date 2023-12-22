@@ -15,13 +15,20 @@ typedef enum KeyboardType {
   	END_TYPE_KBRD
 } KeyboardType;
 
-#define TX_MSG_LENGTH 30
+enum { 
+	TX_MSG_LENGTH = 30,
+	MSG_HEADER_LENGTH = 20,
+	MAX_RX_MSG_LENGTH = TX_MSG_LENGTH + 2
+};
+//const uint8_t TX_MSG_LENGTH = 30;
+//const uint8_t MAX_RX_MSG_LENGTH = TX_MSG_LENGTH + 2;
 
 extern KeyboardType keyboardType;
 extern uint16_t gErrorsDuringMSG;
 extern char cMessage[TX_MSG_LENGTH];
-extern char rxMessage[4][TX_MSG_LENGTH + 3];
+extern char rxMessage[4][MAX_RX_MSG_LENGTH + 2];
 extern bool hasNewMessage;
+extern uint8_t keyTickCounter;
 
 void MSG_EnableRX(const bool enable);
 void MSG_StorePacket(const uint16_t interrupt_bits);
