@@ -42,38 +42,18 @@
 
 FUNCTION_Type_t gCurrentFunction;
 
-inline bool FUNCTION_IsRx()
+bool FUNCTION_IsRx()
 {
 	return gCurrentFunction == FUNCTION_MONITOR ||
 		   gCurrentFunction == FUNCTION_INCOMING ||
 		   gCurrentFunction == FUNCTION_RECEIVE;
 }
 
-
 void FUNCTION_Init(void)
 {
-#ifdef ENABLE_NOAA
-	if (!IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
-#endif
-	{
-		gCurrentCodeType = (gRxVfo->Modulation != MODULATION_FM) ? CODE_TYPE_OFF : gRxVfo->pRX->CodeType;
-	}
-#ifdef ENABLE_NOAA
-	else
-		gCurrentCodeType = CODE_TYPE_CONTINUOUS_TONE;
-#endif
-
-#ifdef ENABLE_DTMF_CALLING
-	DTMF_clear_RX();
-#endif
-
 	g_CxCSS_TAIL_Found = false;
 	g_CDCSS_Lost       = false;
 	g_CTCSS_Lost       = false;
-
-	#ifdef ENABLE_VOX
-		g_VOX_Lost     = false;
-	#endif
 
 	g_SquelchLost      = false;
 
@@ -85,9 +65,23 @@ void FUNCTION_Init(void)
 	gFoundCDCSSCountdown_10ms          = 0;
 	gEndOfRxDetectedMaybe              = false;
 
-	#ifdef ENABLE_NOAA
-		gNOAACountdown_10ms = 0;
-	#endif
+	gCurrentCodeType = (gRxVfo->Modulation != MODULATION_FM) ? CODE_TYPE_OFF : gRxVfo->pRX->CodeType;
+
+#ifdef ENABLE_VOX
+	g_VOX_Lost     = false;
+#endif
+
+#ifdef ENABLE_DTMF_CALLING
+	DTMF_clear_RX();
+#endif
+
+#ifdef ENABLE_NOAA
+	gNOAACountdown_10ms = 0;
+
+	if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE)) {
+		gCurrentCodeType = CODE_TYPE_CONTINUOUS_TONE;
+	}
+#endif
 
 	gUpdateStatus = true;
 }
@@ -98,6 +92,7 @@ void FUNCTION_Foreground(const FUNCTION_Type_t PreviousFunction)
 	if (gDTMF_ReplyState != DTMF_REPLY_NONE)
 		RADIO_PrepareCssTX();
 #endif
+
 	if (PreviousFunction == FUNCTION_TRANSMIT) {
 		ST7565_FixInterfGlitch();
 		gVFO_RSSI_bar_level[0] = 0;
@@ -152,7 +147,6 @@ void FUNCTION_Transmit()
 #endif
 
 	// clear the DTMF RX live decoder buffer
-	gDTMF_RX_live_timeout = 0;
 	gDTMF_RX_live_timeout = 0;
 	memset(gDTMF_RX_live, 0, sizeof(gDTMF_RX_live));
 

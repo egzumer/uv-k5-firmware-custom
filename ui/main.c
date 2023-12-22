@@ -136,7 +136,7 @@ void UI_DisplayAudioBar(void)
 		{
 			return;  // screen is in use
 		}
-				
+
 #if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 		if (gAlarmState != ALARM_STATE_OFF)
 			return;
@@ -194,21 +194,21 @@ void DisplayRSSIBar(const bool now)
 
 	if (now)
 		memset(p_line, 0, LCD_WIDTH);
-	
+
 
 	const int16_t s0_dBm   = -gEeprom.S0_LEVEL;                  // S0 .. base level
-	const int16_t rssi_dBm = 
+	const int16_t rssi_dBm =
 		BK4819_GetRSSI_dBm()
 #ifdef ENABLE_AM_FIX
 		+ ((gSetting_AM_fix && gRxVfo->Modulation == MODULATION_AM) ? AM_fix_get_gain_diff() : 0)
-#endif	
+#endif
 		+ dBmCorrTable[gRxVfo->Band];
-	
+
 	int s0_9 = gEeprom.S0_LEVEL - gEeprom.S9_LEVEL;
 	const uint8_t s_level = MIN(MAX((int32_t)(rssi_dBm - s0_dBm)*100 / (s0_9*100/9), 0), 9); // S0 - S9
 	uint8_t overS9dBm = MIN(MAX(rssi_dBm + gEeprom.S9_LEVEL, 0), 99);
 	uint8_t overS9Bars = MIN(overS9dBm/10, 4);
-	
+
 	if(overS9Bars == 0) {
 		sprintf(str, "% 4d S%d", rssi_dBm, s_level);
 	}
@@ -242,7 +242,7 @@ void DisplayRSSIBar(const bool now)
 		memset(pLine, 0, 23);
 	DrawSmallAntennaAndBars(pLine, Level);
 	if (now)
-		ST7565_BlitFullScreen();	
+		ST7565_BlitFullScreen();
 #endif
 
 }
@@ -256,7 +256,7 @@ static void PrintAGC(bool now)
 		struct {
 			uint16_t _ : 5;
 			uint16_t agcSigStrength : 7;
-			int16_t gainIdx : 3;    
+			int16_t gainIdx : 3;
 			uint16_t agcEnab : 1;
 		};
     	uint16_t __raw;
@@ -294,13 +294,9 @@ void UI_MAIN_TimeSlice500ms(void)
 		return;
 #endif
 
-		const bool rx = (gCurrentFunction == FUNCTION_RECEIVE ||
-			gCurrentFunction == FUNCTION_MONITOR ||
-			gCurrentFunction == FUNCTION_INCOMING);
-
-
-		if(rx) 
+		if(FUNCTION_IsRx()) {
 			DisplayRSSIBar(true);
+		}
 	}
 }
 
@@ -328,7 +324,7 @@ void UI_DisplayMain(void)
 		ST7565_BlitFullScreen();
 		return;
 	}
-							
+
 	unsigned int activeTxVFO = gRxVfoIsActive ? gEeprom.RX_VFO : gEeprom.TX_VFO;
 
 	for (unsigned int vfo_num = 0; vfo_num < 2; vfo_num++)
@@ -345,60 +341,57 @@ void UI_DisplayMain(void)
 		{
 #ifdef ENABLE_SCAN_RANGES
 			if(gScanRangeStart) {
-					UI_PrintString("ScnRng", 5, 0, line, 8);
-					sprintf(String, "%3u.%05u", gScanRangeStart / 100000, gScanRangeStart % 100000);
-					UI_PrintStringSmall(String, 56, 0, line);
-					sprintf(String, "%3u.%05u", gScanRangeStop / 100000, gScanRangeStop % 100000);
-					UI_PrintStringSmall(String, 56, 0, line + 1);
+				UI_PrintString("ScnRng", 5, 0, line, 8);
+				sprintf(String, "%3u.%05u", gScanRangeStart / 100000, gScanRangeStart % 100000);
+				UI_PrintStringSmall(String, 56, 0, line);
+				sprintf(String, "%3u.%05u", gScanRangeStop / 100000, gScanRangeStop % 100000);
+				UI_PrintStringSmall(String, 56, 0, line + 1);
 				continue;
 			}
 #endif
 
 
-			if (
+			if (gDTMF_InputMode
 #ifdef ENABLE_DTMF_CALLING
-				gDTMF_CallState != DTMF_CALL_STATE_NONE || gDTMF_IsTx || 
-#endif				
-				gDTMF_InputMode)
-			{	// show DTMF stuff
+				|| gDTMF_CallState != DTMF_CALL_STATE_NONE || gDTMF_IsTx
+#endif
+			) {
+				// show DTMF stuff
 #ifdef ENABLE_DTMF_CALLING
 				char Contact[16];
+				char *str_ptr = "";
+				if (!gDTMF_InputMode) {
+					if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT) {
+						str_ptr = DTMF_FindContact(gDTMF_String, Contact) ? Contact : gDTMF_String;
+					} else if (gDTMF_CallState == DTMF_CALL_STATE_RECEIVED || gDTMF_CallState == DTMF_CALL_STATE_RECEIVED_STAY){
+						str_ptr = DTMF_FindContact(gDTMF_Callee, Contact) ? Contact : gDTMF_Callee;
+					}else if (gDTMF_IsTx) {
+						str_ptr = gDTMF_String;
+					}
+				}
 
-				if (!gDTMF_InputMode)
-				{
+				UI_PrintString(str_ptr, 2, 0, 2 + (vfo_num * 3), 8);
 
-					memset(Contact, 0, sizeof(Contact));
-					if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT)
-						strcpy(String, (gDTMF_State == DTMF_STATE_CALL_OUT_RSP) ? "CALL OUT(RSP)" : "CALL OUT");
-					else
-					if (gDTMF_CallState == DTMF_CALL_STATE_RECEIVED || gDTMF_CallState == DTMF_CALL_STATE_RECEIVED_STAY)
+				str_ptr = "";
+				if (!gDTMF_InputMode) {
+					if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT) {
+						str_ptr = (gDTMF_State == DTMF_STATE_CALL_OUT_RSP) ? "CALL OUT(RSP)" : "CALL OUT";
+					} else if (gDTMF_CallState == DTMF_CALL_STATE_RECEIVED || gDTMF_CallState == DTMF_CALL_STATE_RECEIVED_STAY) {
 						sprintf(String, "CALL FRM:%s", (DTMF_FindContact(gDTMF_Caller, Contact)) ? Contact : gDTMF_Caller);
-					else
-					if (gDTMF_IsTx)
-						strcpy(String, (gDTMF_State == DTMF_STATE_TX_SUCC) ? "DTMF TX(SUCC)" : "DTMF TX");
+						str_ptr = String;
+					} else if (gDTMF_IsTx) {
+						str_ptr = (gDTMF_State == DTMF_STATE_TX_SUCC) ? "DTMF TX(SUCC)" : "DTMF TX";
+					}
 				}
 				else
-#endif				
+#endif
 				{
 					sprintf(String, ">%s", gDTMF_InputBox);
-				}
-				UI_PrintString(String, 2, 0, 0 + (vfo_num * 3), 8);
-#ifdef ENABLE_DTMF_CALLING
-				memset(String,  0, sizeof(String));
-				if (!gDTMF_InputMode) {
-					memset(Contact, 0, sizeof(Contact));
-					if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT)
-						sprintf(String, ">%s", (DTMF_FindContact(gDTMF_String, Contact)) ? Contact : gDTMF_String);
-					else
-					if (gDTMF_CallState == DTMF_CALL_STATE_RECEIVED || gDTMF_CallState == DTMF_CALL_STATE_RECEIVED_STAY)
-						sprintf(String, ">%s", (DTMF_FindContact(gDTMF_Callee, Contact)) ? Contact : gDTMF_Callee);
-					else
-					if (gDTMF_IsTx)
-						sprintf(String, ">%s", gDTMF_String);
+					str_ptr = String;
 				}
 
-				UI_PrintString(String, 2, 0, 2 + (vfo_num * 3), 8);
-#endif
+				UI_PrintString(str_ptr, 2, 0, 0 + (vfo_num * 3), 8);
+
 				center_line = CENTER_LINE_IN_USE;
 				continue;
 			}
@@ -450,7 +443,7 @@ void UI_DisplayMain(void)
 		if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 		{	// channel mode
 			const unsigned int x = 2;
-			const bool inputting = (gInputBoxIndex == 0 || gEeprom.TX_VFO != vfo_num) ? false : true;
+			const bool inputting = gInputBoxIndex != 0 && gEeprom.TX_VFO == vfo_num;
 			if (!inputting)
 				sprintf(String, "M%u", gEeprom.ScreenChannel[vfo_num] + 1);
 			else
@@ -674,7 +667,7 @@ void UI_DisplayMain(void)
 			default:
 				s = gModulationStr[mod];
 			break;
-		}		
+		}
 		UI_PrintStringSmall(s, LCD_WIDTH + 24, 0, line + 1);
 
 		if (state == VFO_STATE_NORMAL || state == VFO_STATE_ALARM)
@@ -741,7 +734,7 @@ void UI_DisplayMain(void)
 #if defined(ENABLE_AM_FIX) && defined(ENABLE_AM_FIX_SHOW_DATA)
 		if (rx && gEeprom.VfoInfo[gEeprom.RX_VFO].Modulation == MODULATION_AM && gSetting_AM_fix)
 		{
-			if (gScreenToDisplay != DISPLAY_MAIN 
+			if (gScreenToDisplay != DISPLAY_MAIN
 #ifdef ENABLE_DTMF_CALLING
 				|| gDTMF_CallState != DTMF_CALL_STATE_NONE
 #endif
@@ -776,9 +769,9 @@ void UI_DisplayMain(void)
 #endif
 						)
 						return;
-						
+
 					center_line = CENTER_LINE_DTMF_DEC;
-					
+
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX_live + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
@@ -794,7 +787,7 @@ void UI_DisplayMain(void)
 						return;
 
 					center_line = CENTER_LINE_DTMF_DEC;
-					
+
 					strcpy(String, "DTMF ");
 					strcat(String, gDTMF_RX + idx);
 					UI_PrintStringSmall(String, 2, 0, 3);
@@ -810,9 +803,9 @@ void UI_DisplayMain(void)
 #endif
 					)
 					return;
-						
+
 				center_line = CENTER_LINE_CHARGE_DATA;
-					
+
 				sprintf(String, "Charge %u.%02uV %u%%",
 					gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
 					BATTERY_VoltsToPercent(gBatteryVoltageAverage));
