@@ -423,19 +423,24 @@ static void UpdatePeakInfo() {
     UpdatePeakInfoForce();
 }
 
-static void Measure() 
-{ 
-  uint16_t rssi = scanInfo.rssi = GetRssi();
+static void SetRssiHistory(uint16_t idx, uint16_t rssi)
+{
 #ifdef ENABLE_SCAN_RANGES  
   if(scanInfo.measurementsCount > 128) {
-    uint8_t idx = (uint32_t)ARRAY_SIZE(rssiHistory) * 1000 / scanInfo.measurementsCount * scanInfo.i / 1000;
-    if(rssiHistory[idx] < rssi || isListening) 
-      rssiHistory[idx] = rssi;
-    rssiHistory[(idx+1)%128] = 0;
+    uint8_t i = (uint32_t)ARRAY_SIZE(rssiHistory) * 1000 / scanInfo.measurementsCount * idx / 1000;
+    if(rssiHistory[i] < rssi || isListening) 
+      rssiHistory[i] = rssi;
+    rssiHistory[(i+1)%128] = 0;
     return;
   }
 #endif
-  rssiHistory[scanInfo.i] = rssi;
+  rssiHistory[idx] = rssi;
+}
+
+static void Measure() 
+{ 
+  uint16_t rssi = scanInfo.rssi = GetRssi();
+  SetRssiHistory(scanInfo.i, rssi);
 }
 
 // Update things by keypress
@@ -636,7 +641,8 @@ static void Blacklist() {
 #ifdef ENABLE_SCAN_RANGES
   blacklistFreqs[blacklistFreqsIdx++ % ARRAY_SIZE(blacklistFreqs)] = peak.i;
 #endif
-  rssiHistory[peak.i] = RSSI_MAX_VALUE;
+
+  SetRssiHistory(peak.i, RSSI_MAX_VALUE);
   ResetPeak();
   ToggleRX(false);
   ResetScanStats();
