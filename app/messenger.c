@@ -34,6 +34,8 @@ const uint8_t MAX_MSG_LENGTH = TX_MSG_LENGTH - 1;
 
 const uint16_t TONE2_FREQ = 0x3065; // 0x2854
 
+#define NEXT_CHAR_DELAY 100 // 10ms tick
+
 char T9TableLow[9][4] = { {',', '.', '?', '!'}, {'a', 'b', 'c', '\0'}, {'d', 'e', 'f', '\0'}, {'g', 'h', 'i', '\0'}, {'j', 'k', 'l', '\0'}, {'m', 'n', 'o', '\0'}, {'p', 'q', 'r', 's'}, {'t', 'u', 'v', '\0'}, {'w', 'x', 'y', 'z'} };
 char T9TableUp[9][4] = { {',', '.', '?', '!'}, {'A', 'B', 'C', '\0'}, {'D', 'E', 'F', '\0'}, {'G', 'H', 'I', '\0'}, {'J', 'K', 'L', '\0'}, {'M', 'N', 'O', '\0'}, {'P', 'Q', 'R', 'S'}, {'T', 'U', 'V', '\0'}, {'W', 'X', 'Y', 'Z'} };
 unsigned char numberOfLettersAssignedToKey[9] = { 4, 3, 3, 3, 3, 3, 4, 3, 4 };
@@ -54,6 +56,8 @@ uint8_t  msgFSKBuffer[MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH];
 uint16_t gErrorsDuringMSG;
 
 bool hasNewMessage = false;
+
+uint8_t keyTickCounter = 0;
 
 // -----------------------------------------------------
 
@@ -128,7 +132,7 @@ void MSG_FSKSendData() {
 		(3u << 8) |			// 0 FSK RX gain
 							//   0 ~ 3
 							//
-		(0u << 6) |			// 0 ???
+		(3u << 6) |			// 0 ???
 							//   0 ~ 3
 							//
 		(0u << 4) |			// 0 FSK preamble type selection
@@ -285,7 +289,7 @@ void MSG_FSKSendData() {
 			}
 		}
 	}
-	BK4819_WriteRegister(BK4819_REG_02, 0);
+	//BK4819_WriteRegister(BK4819_REG_02, 0);
 
 	SYSTEM_DelayMs(100);
 
@@ -404,7 +408,7 @@ void MSG_EnableRX(const bool enable) {
 			(0u << 10) |   // 1 = invert data when RX
 			(0u <<  9) |   // 1 = invert data when TX
 			(0u <<  8) |   // ???
-			(15u <<  4) |   // 0 ~ 15 preamble length selection ..
+			(0u <<  4) |   // 0 ~ 15 preamble length selection ..
 			(1u <<  3) |   // 0/1 sync length selection
 			(0u <<  0);    // 0 ~ 7  ???
 
@@ -553,15 +557,14 @@ static void sendMessage() {
 
 		// CRC ? ToDo
 
+		BK4819_DisableDTMF();
 		RADIO_SetTxParameters();
-		//BK4819_DisableDTMF();
-		//BK4819_ExitTxMute();
-
 		SYSTEM_DelayMs(1000);
+		BK4819_ExitTxMute();
 
 		MSG_FSKSendData();
 
-		SYSTEM_DelayMs(500);
+		SYSTEM_DelayMs(100);
 
 		APP_EndTransmission();
 		RADIO_SetVfoState(VFO_STATE_NORMAL);;
@@ -691,7 +694,7 @@ void insertCharInMessage(uint8_t key) {
 		if ( cIndex < MAX_MSG_LENGTH ) {
 			cIndex++;
 		}
-	} else if (prevKey == key && key != KEY_STAR)
+	} else if (prevKey == key)
 	{
 		cIndex = (cIndex > 0) ? cIndex - 1 : 0;
 		if ( keyboardType == NUMERIC ) {
@@ -732,11 +735,6 @@ void insertCharInMessage(uint8_t key) {
 	}
 }
 
-void processStarKey() {
-	prevKey = KEY_STAR;
-	prevLetter = 0;
-}
-
 void processBackspace() {
 	cIndex = (cIndex > 0) ? cIndex - 1 : 0;
 	cMessage[cIndex] = '\0';
@@ -761,10 +759,15 @@ void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 			case KEY_7:
 			case KEY_8:
 			case KEY_9:
+				if ( keyTickCounter > NEXT_CHAR_DELAY) {
+					prevKey = 0;
+    				prevLetter = 0;
+				}
 				insertCharInMessage(Key);
+				keyTickCounter = 0;
 				break;
 			case KEY_STAR:
-				processStarKey();
+				keyboardType = (KeyboardType)((keyboardType + 1) % END_TYPE_KBRD);
 				break;
 			case KEY_F:
 				processBackspace();
