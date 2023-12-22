@@ -926,46 +926,35 @@ void APP_Update(void)
 #endif
 
 	if (gSchedulePowerSave) {
-		if (gPttIsPressed                     ||
-		    gKeyBeingHeld                     ||
-			gEeprom.BATTERY_SAVE == 0         ||
-		    gScanStateDir != SCAN_OFF         ||
-		    gCssBackgroundScan                ||
-		    gScreenToDisplay != DISPLAY_MAIN
+		if (gPttIsPressed
+			|| gKeyBeingHeld
+			|| gEeprom.BATTERY_SAVE == 0
+			|| gScanStateDir != SCAN_OFF
+			|| gCssBackgroundScan
+			|| gScreenToDisplay != DISPLAY_MAIN
 #ifdef ENABLE_FMRADIO
 			|| gFmRadioMode
 #endif
 #ifdef ENABLE_DTMF_CALLING
 			|| gDTMF_CallState != DTMF_CALL_STATE_NONE
 #endif
-		){
-			gBatterySaveCountdown_10ms   = battery_save_count_10ms;
-		}
-		else
 #ifdef ENABLE_NOAA
-		if ((!IS_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) && !IS_NOAA_CHANNEL(gEeprom.ScreenChannel[1])) || !gIsNoaaMode)
+			|| (gIsNoaaMode && (IS_NOAA_CHANNEL(gEeprom.ScreenChannel[0]) || IS_NOAA_CHANNEL(gEeprom.ScreenChannel[1])))
 #endif
-		{
-			//if (gCurrentFunction != FUNCTION_POWER_SAVE)
-				FUNCTION_Select(FUNCTION_POWER_SAVE);
-		}
-#ifdef ENABLE_NOAA
-		else
-		{
+		) {
 			gBatterySaveCountdown_10ms = battery_save_count_10ms;
+		} else {
+			FUNCTION_Select(FUNCTION_POWER_SAVE);
 		}
-#else
-		gSchedulePowerSave = false;
-#endif
-	}
 
+		gSchedulePowerSave = false;
+	}
 
 	if (gPowerSaveCountdownExpired && gCurrentFunction == FUNCTION_POWER_SAVE
 #ifdef ENABLE_VOICE
 		&& gVoiceWriteIndex == 0
 #endif
-	)
-	{
+	) {
 		static bool goToSleep;
 		// wake up, enable RX then go back to sleep
 		if (gRxIdleMode)
