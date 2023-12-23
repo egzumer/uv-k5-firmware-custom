@@ -163,7 +163,7 @@ void MSG_FSKSendData() {
 	//        = freq(Hz) * 10.48576 for XTAL 12.8M / 19.2M / 25.6M / 38.4M
 	//
 	// tone-2 = 1200Hz
-	//
+	// 18583,92
 	BK4819_WriteRegister(BK4819_REG_72, TONE2_FREQ);
 
 	// REG_70
@@ -225,7 +225,7 @@ void MSG_FSKSendData() {
 				(0u <<  0);    // 0 ~ 7   ???
 
 	// Set packet length (not including pre-amble and sync bytes that we can't seem to disable)
-	BK4819_WriteRegister(BK4819_REG_5D, (sizeof(msgFSKBuffer) << 8));
+	BK4819_WriteRegister(BK4819_REG_5D, ((MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH) << 8));
 
 	// REG_5A
 	//
@@ -509,8 +509,8 @@ void MSG_EnableRX(const bool enable) {
 
 			uint16_t size = (MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH);
 			// size -= (fsk_reg59 & (1u << 3)) ? 4 : 2;
-			size = ((size + 1) / 2) * 2;             // round up to even, else FSK RX doesn't work
-			BK4819_WriteRegister(BK4819_REG_5D, ((size - 1) << 8));
+			size = (((size + 1) / 2) * 2) + 2;             // round up to even, else FSK RX doesn't work
+			BK4819_WriteRegister(BK4819_REG_5D, (size << 8));
 		}
 
 		// clear FIFO's then enable RX
@@ -558,9 +558,15 @@ static void sendMessage() {
 		msgFSKBuffer[1] = 'S';
 
 		// next 20 for msg
-		memcpy(msgFSKBuffer + 20, cMessage, strlen(cMessage));
+		memcpy(msgFSKBuffer + 2, cMessage, TX_MSG_LENGTH);
 
 		// CRC ? ToDo
+
+		msgFSKBuffer[MAX_RX_MSG_LENGTH - 1] = '\0';
+		msgFSKBuffer[MAX_RX_MSG_LENGTH + 0] = 'I';
+		msgFSKBuffer[MAX_RX_MSG_LENGTH + 1] = 'D';
+		msgFSKBuffer[MAX_RX_MSG_LENGTH + 2] = '0';
+		msgFSKBuffer[(MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH) - 1] = '#';
 
 		RADIO_SetTxParameters();
 
@@ -617,7 +623,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 	}
 
 	if (rx_fifo_almost_full) {
-		const unsigned int count = BK4819_ReadRegister(BK4819_REG_5E) & (4u << 0);  // almost full threshold
+		const unsigned int count = BK4819_ReadRegister(BK4819_REG_5E) & (7u << 0);  // almost full threshold
 
 		for (unsigned int i = 0; i < count; i++) {
 			const uint16_t word = BK4819_ReadRegister(BK4819_REG_5F);
@@ -635,7 +641,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 			BK4819_WriteRegister(BK4819_REG_59, (1u << 15) | (1u << 14) | fsk_reg59);
 			BK4819_WriteRegister(BK4819_REG_59, (1u << 12) | fsk_reg59);
 
-			gFSKWriteIndex = 0;
+			//gFSKWriteIndex = 0;
 			uint16_t Status = BK4819_ReadRegister(BK4819_REG_0B);
 			//gErrorsDuringMSG = Status;
 
@@ -648,7 +654,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 				rxMessage[3][0] = '>';
 			}
 
-			snprintf(rxMessage[3] + 1, TX_MSG_LENGTH + 2, " %s", &msgFSKBuffer[MSG_HEADER_LENGTH]);
+			snprintf(rxMessage[3] + 1, TX_MSG_LENGTH + 2, " %s", &msgFSKBuffer[2]);
 
 			//UART_printf("\nMSG : %s", rxMessage[3]);
 
@@ -668,8 +674,8 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 		BK4819_WriteRegister(BK4819_REG_59, (1u << 15) | (1u << 14) | fsk_reg59);
 		BK4819_WriteRegister(BK4819_REG_59, (1u << 12) | fsk_reg59);
 
-		if ( rxMessage[3] == 0x00 ) {
-			snprintf(rxMessage[3], TX_MSG_LENGTH + 2, " ERROR : %i", gFSKWriteIndex);
+		if ( gFSKWriteIndex < sizeof(msgFSKBuffer) ) {
+			snprintf(rxMessage[3], TX_MSG_LENGTH + 2, "! %s", &msgFSKBuffer[2]);
 			gUpdateDisplay = true;
 		}
 
