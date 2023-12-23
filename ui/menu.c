@@ -475,9 +475,8 @@ void UI_DisplayMenu(void)
 		else
 		if (menu_index >= 0 && menu_index < (int)gMenuListCount)
 		{	// current menu item
-			strcpy(String, MenuList[menu_index].name);
 //			strcat(String, ":");
-			UI_PrintString(String, 0, 0, 0, 8);
+			UI_PrintString(MenuList[menu_index].name, 0, 0, 0, 8);
 //			UI_PrintStringSmall(String, 0, 0, 0);
 		}
 	}
@@ -675,24 +674,20 @@ void UI_DisplayMenu(void)
 				if (!gIsInSubMenu || edit_index < 0)
 				{	// show the channel name
 					SETTINGS_FetchChannelName(String, gSubMenuSelection);
-					if (String[0] == 0)
-						strcpy(String, "--");
-					UI_PrintString(String, menu_item_x1, menu_item_x2, 2, 8);
+					char *pPrintStr = String[0] ? String : "--";
+					UI_PrintString(pPrintStr, menu_item_x1, menu_item_x2, 2, 8);
 				}
 				else
 				{	// show the channel name being edited
 					UI_PrintString(edit, menu_item_x1, 0, 2, 8);
 					if (edit_index < 10)
-						UI_PrintString(     "^", menu_item_x1 + (8 * edit_index), 0, 4, 8);  // show the cursor
+						UI_PrintString("^", menu_item_x1 + (8 * edit_index), 0, 4, 8);  // show the cursor
 				}
 
 				if (!gAskForConfirmation)
 				{	// show the frequency so that the user knows the channels frequency
 					sprintf(String, "%u.%05u", frequency / 100000, frequency % 100000);
-					if (!gIsInSubMenu || edit_index < 0)
-						UI_PrintString(String, menu_item_x1, menu_item_x2, 4, 8);
-					else
-						UI_PrintString(String, menu_item_x1, menu_item_x2, 5, 8);
+					UI_PrintString(String, menu_item_x1, menu_item_x2, 4 + (gIsInSubMenu && edit_index >= 0), 8);
 				}
 			}
 
@@ -908,45 +903,34 @@ void UI_DisplayMenu(void)
 	if (UI_MENU_GetCurrentMenuId() == MENU_SLIST1 || UI_MENU_GetCurrentMenuId() == MENU_SLIST2)
 	{
 		i = (UI_MENU_GetCurrentMenuId() == MENU_SLIST1) ? 0 : 1;
+		char *pPrintStr = String;
 
-//		if (gSubMenuSelection == 0xFF)
-		if (gSubMenuSelection < 0)
-			strcpy(String, "NULL");
-		else
+		if (gSubMenuSelection < 0) {
+			pPrintStr = "NULL";
+		} else {
 			UI_GenerateChannelStringEx(String, true, gSubMenuSelection);
-
-//		if (gSubMenuSelection == 0xFF || !gEeprom.SCAN_LIST_ENABLED[i])
-		if (gSubMenuSelection < 0 || !gEeprom.SCAN_LIST_ENABLED[i])
-		{
-			// channel number
-			UI_PrintString(String, menu_item_x1, menu_item_x2, 0, 8);
-
-			// channel name
-			SETTINGS_FetchChannelName(String, gSubMenuSelection);
-			if (String[0] == 0)
-				strcpy(String, "--");
-			UI_PrintString(String, menu_item_x1, menu_item_x2, 2, 8);
+			pPrintStr = String;
 		}
-		else
-		{
-			// channel number
-			UI_PrintString(String, menu_item_x1, menu_item_x2, 0, 8);
 
-			// channel name
-			SETTINGS_FetchChannelName(String, gSubMenuSelection);
-			if (String[0] == 0)
-				strcpy(String, "--");
-			UI_PrintStringSmall(String, menu_item_x1, menu_item_x2, 2);
+		// channel number
+		UI_PrintString(pPrintStr, menu_item_x1, menu_item_x2, 0, 8);
 
-			if (IS_MR_CHANNEL(gEeprom.SCANLIST_PRIORITY_CH1[i]))
-			{
-				sprintf(String, "PRI1:%u", gEeprom.SCANLIST_PRIORITY_CH1[i] + 1);
+		SETTINGS_FetchChannelName(String, gSubMenuSelection);
+		pPrintStr = String[0] ? String : "--";
+
+		// channel name and scan-list
+		if (gSubMenuSelection < 0 || !gEeprom.SCAN_LIST_ENABLED[i]) {
+			UI_PrintString(pPrintStr, menu_item_x1, menu_item_x2, 2, 8);
+		} else {
+			UI_PrintStringSmall(pPrintStr, menu_item_x1, menu_item_x2, 2);
+
+			if (IS_MR_CHANNEL(gEeprom.SCANLIST_PRIORITY_CH1[i])) {
+				sprintf(String, "PRI%d:%u", 1, gEeprom.SCANLIST_PRIORITY_CH1[i] + 1);
 				UI_PrintString(String, menu_item_x1, menu_item_x2, 3, 8);
 			}
 
-			if (IS_MR_CHANNEL(gEeprom.SCANLIST_PRIORITY_CH2[i]))
-			{
-				sprintf(String, "PRI2:%u", gEeprom.SCANLIST_PRIORITY_CH2[i] + 1);
+			if (IS_MR_CHANNEL(gEeprom.SCANLIST_PRIORITY_CH2[i])) {
+				sprintf(String, "PRI%d:%u", 2, gEeprom.SCANLIST_PRIORITY_CH2[i] + 1);
 				UI_PrintString(String, menu_item_x1, menu_item_x2, 5, 8);
 			}
 		}
@@ -958,20 +942,18 @@ void UI_DisplayMenu(void)
 	{	// display the channel name
 		char s[11];
 		SETTINGS_FetchChannelName(s, gSubMenuSelection);
-		if (s[0] == 0)
-			strcpy(s, "--");
-		UI_PrintString(s, menu_item_x1, menu_item_x2, 2, 8);
+		char *pPrintStr = s[0] ? s : "--";
+		UI_PrintString(pPrintStr, menu_item_x1, menu_item_x2, 2, 8);
 	}
 
 	if ((UI_MENU_GetCurrentMenuId() == MENU_R_CTCS || UI_MENU_GetCurrentMenuId() == MENU_R_DCS) && gCssBackgroundScan)
 		UI_PrintString("SCAN", menu_item_x1, menu_item_x2, 4, 8);
 
 #ifdef ENABLE_DTMF_CALLING
-	if (UI_MENU_GetCurrentMenuId() == MENU_D_LIST && gIsDtmfContactValid)
-	{
+	if (UI_MENU_GetCurrentMenuId() == MENU_D_LIST && gIsDtmfContactValid) {
 		Contact[11] = 0;
 		memcpy(&gDTMF_ID, Contact + 8, 4);
-		sprintf(String, "ID:%s", Contact + 8);
+		sprintf(String, "ID:%4s", gDTMF_ID);
 		UI_PrintString(String, menu_item_x1, menu_item_x2, 4, 8);
 	}
 #endif
@@ -983,9 +965,7 @@ void UI_DisplayMenu(void)
 #ifdef ENABLE_DTMF_CALLING
 	    || UI_MENU_GetCurrentMenuId() == MENU_D_LIST
 #endif
-		)
-
-	{
+	) {
 		sprintf(String, "%2d", gSubMenuSelection);
 		UI_PrintStringSmall(String, 105, 0, 0);
 	}
@@ -995,8 +975,8 @@ void UI_DisplayMenu(void)
 	     UI_MENU_GetCurrentMenuId() == MENU_MEM_NAME ||
 	     UI_MENU_GetCurrentMenuId() == MENU_DEL_CH) && gAskForConfirmation)
 	{	// display confirmation
-		strcpy(String, (gAskForConfirmation == 1) ? "SURE?" : "WAIT!");
-		UI_PrintString(String, menu_item_x1, menu_item_x2, 5, 8);
+		char *pPrintStr = (gAskForConfirmation == 1) ? "SURE?" : "WAIT!";
+		UI_PrintString(pPrintStr, menu_item_x1, menu_item_x2, 5, 8);
 	}
 
 	ST7565_BlitFullScreen();

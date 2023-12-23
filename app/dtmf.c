@@ -138,13 +138,14 @@ bool DTMF_ValidateCodes(char *pCode, const unsigned int size)
 #ifdef ENABLE_DTMF_CALLING
 bool DTMF_GetContact(const int Index, char *pContact)
 {
-	int i = -1;
-	if (Index >= 0 && Index < MAX_DTMF_CONTACTS && pContact != NULL)
-	{
-		EEPROM_ReadBuffer(0x1C00 + (Index * 16), pContact, 16);
-		i = (int)pContact[0] - ' ';
+	if (Index < 0 || Index >= MAX_DTMF_CONTACTS || pContact == NULL) {
+		return false;
 	}
-	return (i >= 0 && i < 95);
+
+	EEPROM_ReadBuffer(0x1C00 + (Index * 16), pContact, 16);
+
+	// check whether the first character is printable or not
+	return (pContact[0] >= ' ' && pContact[0] < 127);
 }
 
 bool DTMF_FindContact(const char *pContact, char *pResult)
@@ -331,13 +332,12 @@ void DTMF_HandleRequest(void)
 
 	if (gDTMF_RX_index >= 2)
 	{	// look for ACK reply
+		char *pPrintStr = "AB";
 
-		strcpy(String, "AB");
+		Offset = gDTMF_RX_index - strlen(pPrintStr);
 
-		Offset = gDTMF_RX_index - strlen(String);
-
-		if (CompareMessage(gDTMF_RX + Offset, String, strlen(String), true))
-		{	// ends with "AB"
+		if (CompareMessage(gDTMF_RX + Offset, pPrintStr, strlen(pPrintStr), true)) {
+			// ends with "AB"
 
 			if (gDTMF_ReplyState != DTMF_REPLY_NONE)          // 1of11
 //			if (gDTMF_CallState != DTMF_CALL_STATE_NONE)      // 1of11
