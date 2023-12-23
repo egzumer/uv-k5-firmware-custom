@@ -29,18 +29,18 @@
 
 void UI_DisplayAircopy(void)
 {
-	char String[16];
+	char String[16] = {0};
+	char *pPrintStr = { 0 };
 
-	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+	if (gAircopyState == AIRCOPY_READY) {
+		pPrintStr = "AIR COPY(RDY)";
+	} else if (gAircopyState == AIRCOPY_TRANSFER) {
+		pPrintStr = "AIR COPY";
+	} else {
+		pPrintStr = "AIR COPY(CMP)";
+	}
 
-	if (gAircopyState == AIRCOPY_READY)
-		strcpy(String, "AIR COPY(RDY)");
-	else
-	if (gAircopyState == AIRCOPY_TRANSFER)
-		strcpy(String, "AIR COPY");
-	else
-		strcpy(String, "AIR COPY(CMP)");
-	UI_PrintString(String, 2, 127, 0, 8);
+	UI_PrintString(pPrintStr, 2, 127, 0, 8);
 
 	if (gInputBoxIndex == 0)
 	{

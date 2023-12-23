@@ -46,21 +46,23 @@ void UI_GenerateChannelString(char *pString, const uint8_t Channel)
 
 void UI_GenerateChannelStringEx(char *pString, const bool bShowPrefix, const uint8_t ChannelNumber)
 {
-	if (gInputBoxIndex > 0)
-	{
-		unsigned int i;
-		for (i = 0; i < 3; i++)
+	if (gInputBoxIndex > 0) {
+		for (unsigned int i = 0; i < 3; i++) {
 			pString[i] = (gInputBox[i] == 10) ? '-' : gInputBox[i] + '0';
+		}
+
+		pString[3] = 0;
 		return;
 	}
 
-	if (bShowPrefix)
+	if (bShowPrefix) {
+		// BUG here? Prefixed NULLs are allowed
 		sprintf(pString, "CH-%03u", ChannelNumber + 1);
-	else
-	if (ChannelNumber == 0xFF)
+	} else if (ChannelNumber == 0xFF) {
 		strcpy(pString, "NULL");
-	else
+	} else {
 		sprintf(pString, "%03u", ChannelNumber + 1);
+	}
 }
 
 void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Line, uint8_t Width)
@@ -112,10 +114,10 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 	{
 		const size_t Length = strlen(pString);
 		size_t       i;
-	
+
 		if (End > Start)
 			Start += (((End - Start) - (Length * 8)) + 1) / 2;
-	
+
 		const unsigned int char_width   = ARRAY_SIZE(gFontSmallBold[0]);
 		const unsigned int char_spacing = char_width + 1;
 		uint8_t            *pFb         = gFrameBuffer[Line] + Start;
@@ -171,7 +173,7 @@ void UI_DisplayFrequency(const char *string, uint8_t X, uint8_t Y, bool center)
 				*pFb1 = 0x60; pFb0++; pFb1++;
 				continue;
 			}
-			
+
 		}
 		else if (center) {
 			pFb0 -= 6;
@@ -182,7 +184,7 @@ void UI_DisplayFrequency(const char *string, uint8_t X, uint8_t Y, bool center)
 	}
 }
 
-void UI_DrawPixelBuffer(uint8_t (*buffer)[128], uint8_t x, uint8_t y, bool black) 
+void UI_DrawPixelBuffer(uint8_t (*buffer)[128], uint8_t x, uint8_t y, bool black)
 {
 	const uint8_t pattern = 1 << (y % 8);
 	if(black)
@@ -228,7 +230,7 @@ void UI_DrawRectangleBuffer(uint8_t (*buffer)[128], int16_t x1, int16_t y1, int1
 	UI_DrawLineBuffer(buffer, x1,y2, x2,y2, black);
 }
 
-void UI_DisplayPopup(const char *string) 
+void UI_DisplayPopup(const char *string)
 {
 	for(uint8_t i = 0; i < 7; i++) {
 		memset(gFrameBuffer[i], 0x00, 128);
