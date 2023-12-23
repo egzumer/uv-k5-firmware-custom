@@ -359,38 +359,38 @@ void UI_DisplayMain(void)
 				// show DTMF stuff
 #ifdef ENABLE_DTMF_CALLING
 				char Contact[16];
-				char *str_ptr = "";
+				char *pPrintStr = "";
 				if (!gDTMF_InputMode) {
 					if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT) {
-						str_ptr = DTMF_FindContact(gDTMF_String, Contact) ? Contact : gDTMF_String;
+						pPrintStr = DTMF_FindContact(gDTMF_String, Contact) ? Contact : gDTMF_String;
 					} else if (gDTMF_CallState == DTMF_CALL_STATE_RECEIVED || gDTMF_CallState == DTMF_CALL_STATE_RECEIVED_STAY){
-						str_ptr = DTMF_FindContact(gDTMF_Callee, Contact) ? Contact : gDTMF_Callee;
+						pPrintStr = DTMF_FindContact(gDTMF_Callee, Contact) ? Contact : gDTMF_Callee;
 					}else if (gDTMF_IsTx) {
-						str_ptr = gDTMF_String;
+						pPrintStr = gDTMF_String;
 					}
 				}
 
-				UI_PrintString(str_ptr, 2, 0, 2 + (vfo_num * 3), 8);
+				UI_PrintString(pPrintStr, 2, 0, 2 + (vfo_num * 3), 8);
 
-				str_ptr = "";
+				pPrintStr = "";
 				if (!gDTMF_InputMode) {
 					if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT) {
-						str_ptr = (gDTMF_State == DTMF_STATE_CALL_OUT_RSP) ? "CALL OUT(RSP)" : "CALL OUT";
+						pPrintStr = (gDTMF_State == DTMF_STATE_CALL_OUT_RSP) ? "CALL OUT(RSP)" : "CALL OUT";
 					} else if (gDTMF_CallState == DTMF_CALL_STATE_RECEIVED || gDTMF_CallState == DTMF_CALL_STATE_RECEIVED_STAY) {
 						sprintf(String, "CALL FRM:%s", (DTMF_FindContact(gDTMF_Caller, Contact)) ? Contact : gDTMF_Caller);
-						str_ptr = String;
+						pPrintStr = String;
 					} else if (gDTMF_IsTx) {
-						str_ptr = (gDTMF_State == DTMF_STATE_TX_SUCC) ? "DTMF TX(SUCC)" : "DTMF TX";
+						pPrintStr = (gDTMF_State == DTMF_STATE_TX_SUCC) ? "DTMF TX(SUCC)" : "DTMF TX";
 					}
 				}
 				else
 #endif
 				{
 					sprintf(String, ">%s", gDTMF_InputBox);
-					str_ptr = String;
+					pPrintStr = String;
 				}
 
-				UI_PrintString(str_ptr, 2, 0, 0 + (vfo_num * 3), 8);
+				UI_PrintString(pPrintStr, 2, 0, 0 + (vfo_num * 3), 8);
 
 				center_line = CENTER_LINE_IN_USE;
 				continue;
