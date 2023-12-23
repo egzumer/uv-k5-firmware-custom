@@ -149,22 +149,15 @@ bool DTMF_GetContact(const int Index, char *pContact)
 
 bool DTMF_FindContact(const char *pContact, char *pResult)
 {
-	char         Contact[16];
-	unsigned int i;
+	pResult[0] = 0;
 
-	for (i = 0; i < MAX_DTMF_CONTACTS; i++)
-	{
-		unsigned int j;
-
-		if (!DTMF_GetContact(i, Contact))
+	for (unsigned int i = 0; i < MAX_DTMF_CONTACTS; i++) {
+		char Contact[16];
+		if (!DTMF_GetContact(i, Contact)) {
 			return false;
+		}
 
-		for (j = 0; j < 3; j++)
-			if (pContact[j] != Contact[j + 8])
-				break;
-
-		if (j == 3)
-		{
+		if (memcmp(pContact, Contact + 8, 3) == 0) {
 			memcpy(pResult, Contact, 8);
 			pResult[8] = 0;
 			return true;
