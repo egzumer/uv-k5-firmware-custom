@@ -15,26 +15,27 @@
  */
 
 #include <string.h>
-#include <stdlib.h>  // abs()
+#include <stdlib.h>
 
-#include "app/dtmf.h"
-#include "app/menu.h"
-#include "bitmaps.h"
-#include "board.h"
-#include "dcs.h"
-#include "driver/backlight.h"
-#include "driver/bk4819.h"
-#include "driver/eeprom.h"   // EEPROM_ReadBuffer()
-#include "driver/st7565.h"
-#include "external/printf/printf.h"
-#include "frequencies.h"
-#include "helper/battery.h"
-#include "misc.h"
-#include "settings.h"
-#include "ui/helper.h"
-#include "ui/inputbox.h"
-#include "ui/menu.h"
-#include "ui/ui.h"
+#include "../app/dtmf.h"
+#include "../app/menu.h"
+#include "../bitmaps.h"
+#include "../board.h"
+#include "../dcs.h"
+#include "../driver/backlight.h"
+#include "../driver/bk4819.h"
+#include "../driver/eeprom.h"
+#include "../driver/st7565.h"
+#include "../external/printf/printf.h"
+#include "../frequencies.h"
+#include "../helper/battery.h"
+#include "../misc.h"
+#include "../settings.h"
+#include "helper.h"
+#include "inputbox.h"
+#include "menu.h"
+#include "ui.h"
+
 
 const t_menu_item MenuList[] =
 {
@@ -56,7 +57,7 @@ const t_menu_item MenuList[] =
 	{"ScAdd2", VOICE_ID_INVALID,                       MENU_S_ADD2        },
 	{"ChSave", VOICE_ID_MEMORY_CHANNEL,                MENU_MEM_CH        }, // was "MEM-CH"
 	{"ChDele", VOICE_ID_DELETE_CHANNEL,                MENU_DEL_CH        }, // was "DEL-CH"
-	{"ChName", VOICE_ID_INVALID,                       MENU_MEM_NAME      },	
+	{"ChName", VOICE_ID_INVALID,                       MENU_MEM_NAME      },
 
 	{"SList",  VOICE_ID_INVALID,                       MENU_S_LIST        },
 	{"SList1", VOICE_ID_INVALID,                       MENU_SLIST1        },
@@ -78,10 +79,10 @@ const t_menu_item MenuList[] =
 	{"Mic",    VOICE_ID_INVALID,                       MENU_MIC           },
 #ifdef ENABLE_AUDIO_BAR
 	{"MicBar", VOICE_ID_INVALID,                       MENU_MIC_BAR       },
-#endif		
+#endif
 	{"ChDisp", VOICE_ID_INVALID,                       MENU_MDF           }, // was "MDF"
 	{"POnMsg", VOICE_ID_INVALID,                       MENU_PONMSG        },
-	{"BatTxt", VOICE_ID_INVALID,                       MENU_BAT_TXT       },	
+	{"BatTxt", VOICE_ID_INVALID,                       MENU_BAT_TXT       },
 	{"BackLt", VOICE_ID_INVALID,                       MENU_ABR           }, // was "ABR"
 	{"BLMin",  VOICE_ID_INVALID,                       MENU_ABR_MIN       },
 	{"BLMax",  VOICE_ID_INVALID,                       MENU_ABR_MAX       },
@@ -346,13 +347,13 @@ const t_sidefunction gSubMenu_SIDEFUNCTIONS[] =
 #ifdef ENABLE_VOX
 	{"VOX",				ACTION_OPT_VOX},
 #endif
-#ifdef ENABLE_ALARM	
+#ifdef ENABLE_ALARM
 	{"ALARM",			ACTION_OPT_ALARM},
 #endif
 #ifdef ENABLE_FMRADIO
 	{"FM RADIO",		ACTION_OPT_FM},
-#endif	
-#ifdef ENABLE_TX1750	
+#endif
+#ifdef ENABLE_TX1750
 	{"1750HZ",			ACTION_OPT_1750},
 #endif
 	{"LOCK\nKEYPAD",	ACTION_OPT_KEYLOCK},
@@ -601,7 +602,7 @@ void UI_DisplayMenu(void)
 				BACKLIGHT_SetBrightness(gSubMenuSelection);
 			else if(BACKLIGHT_GetBrightness() < 4)
 				BACKLIGHT_SetBrightness(4);
-			break;	
+			break;
 
 		case MENU_AM:
 			strcpy(String, gModulationStr[gSubMenuSelection]);
@@ -838,7 +839,7 @@ void UI_DisplayMenu(void)
 
 		case MENU_BATTYP:
 			strcpy(String, gSubMenu_BATTYP[gSubMenuSelection]);
-			break;	
+			break;
 
 		case MENU_F1SHRT:
 		case MENU_F1LONG:
@@ -981,7 +982,7 @@ void UI_DisplayMenu(void)
 	    UI_MENU_GetCurrentMenuId() == MENU_T_DCS
 #ifdef ENABLE_DTMF_CALLING
 	    || UI_MENU_GetCurrentMenuId() == MENU_D_LIST
-#endif		
+#endif
 		)
 
 	{
