@@ -8,3 +8,4 @@ firmware
 compile_commands.json
 .vscode
 /docs
+k5_eeprom.raw
