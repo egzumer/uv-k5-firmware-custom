@@ -488,12 +488,10 @@ static void UpdateDBMax(bool inc) {
 }
 
 static void UpdateScanStep(bool inc) {
-  if (inc && settings.scanStepIndex < S_STEP_100_0kHz) {
-    settings.scanStepIndex++;
-  } else if (!inc && settings.scanStepIndex > 0) {
-    settings.scanStepIndex--;
+  if (inc) {
+    settings.scanStepIndex = settings.scanStepIndex != S_STEP_100_0kHz ? settings.scanStepIndex + 1 : 0;
   } else {
-    return;
+    settings.scanStepIndex = settings.scanStepIndex != 0 ? settings.scanStepIndex - 1 : S_STEP_100_0kHz;
   }
 
   settings.frequencyChangeStep = GetBW() >> 1;
