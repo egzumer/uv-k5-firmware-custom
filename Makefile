@@ -207,6 +207,11 @@ ifneq (, $(shell $(WHERE) git))
     	VERSION_STRING := $(shell git rev-parse --short HEAD)
 	endif
 endif
+# If there is still no VERSION_STRING we need to make one.
+# It is needed for the firmware packing script
+ifeq (, $(VERSION_STRING))
+	VERSION_STRING := NOGIT
+endif
 #VERSION_STRING := 230930b
 
 
