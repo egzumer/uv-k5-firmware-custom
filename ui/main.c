@@ -356,10 +356,11 @@ void UI_DisplayMain(void)
 				|| gDTMF_CallState != DTMF_CALL_STATE_NONE || gDTMF_IsTx
 #endif
 			) {
+				char *pPrintStr = "";
 				// show DTMF stuff
 #ifdef ENABLE_DTMF_CALLING
 				char Contact[16];
-				char *pPrintStr = "";
+
 				if (!gDTMF_InputMode) {
 					if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT) {
 						pPrintStr = DTMF_FindContact(gDTMF_String, Contact) ? Contact : gDTMF_String;
