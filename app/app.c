@@ -461,7 +461,7 @@ void APP_StartListening(FUNCTION_Type_t function)
 	AUDIO_AudioPathOn();
 	gEnableSpeaker = true;
 
-	if (gSetting_backlight_on_tx_rx != BACKLIGHT_ON_TR_OFF) {
+	if (gSetting_backlight_on_tx_rx & BACKLIGHT_ON_TR_RX) {
 		BACKLIGHT_TurnOn();
 	}
 
