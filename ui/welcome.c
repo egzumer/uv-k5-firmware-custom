@@ -30,7 +30,7 @@
 void UI_DisplayReleaseKeys(void)
 {
 	memset(gStatusLine,  0, sizeof(gStatusLine));
-	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+	UI_DisplayClear();
 
 	UI_PrintString("RELEASE", 0, 127, 1, 10);
 	UI_PrintString("ALL KEYS", 0, 127, 3, 10);
@@ -43,9 +43,9 @@ void UI_DisplayWelcome(void)
 {
 	char WelcomeString0[16];
 	char WelcomeString1[16];
-	
+
 	memset(gStatusLine,  0, sizeof(gStatusLine));
-	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+	UI_DisplayClear();
 
 	if (gEeprom.POWER_ON_DISPLAY_MODE == POWER_ON_DISPLAY_MODE_NONE)
 	{
@@ -83,4 +83,3 @@ void UI_DisplayWelcome(void)
 		ST7565_BlitFullScreen();
 	}
 }
-

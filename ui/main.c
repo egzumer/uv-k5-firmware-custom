@@ -309,7 +309,7 @@ void UI_DisplayMain(void)
 	center_line = CENTER_LINE_NONE;
 
 	// clear the screen
-	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+	UI_DisplayClear();
 
 	if(gLowBattery && !gLowBatteryConfirmed) {
 		UI_DisplayPopup("LOW BATTERY");

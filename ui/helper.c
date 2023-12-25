@@ -253,3 +253,8 @@ void UI_DisplayPopup(const char *string)
 	UI_PrintString(string, 9, 118, 2, 8);
 	UI_PrintStringSmall("Press EXIT", 9, 118, 6);
 }
+
+void UI_DisplayClear()
+{
+	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+}
