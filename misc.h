@@ -175,7 +175,7 @@ extern uint16_t              gEEPROM_RSSI_CALIB[7][4];
 extern uint16_t              gEEPROM_1F8A;
 extern uint16_t              gEEPROM_1F8C;
 
-typedef union { 
+typedef union {
     struct {
         uint8_t
             band : 4,
