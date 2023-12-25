@@ -39,69 +39,57 @@
 
 void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 {
-	if (gInputBoxIndex > 0)
-	{
-		if (!bKeyHeld && bKeyPressed) // short pressed
+	if (gInputBoxIndex > 0) {
+		// F key is disallowed while in input mode
+		// Beep only on the short-press key-down event
+		if (bKeyPressed && !bKeyHeld) {
 			gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+		}
 		return;
 	}
 
-	if (bKeyHeld || !bKeyPressed) // held or released
-	{
-		if (bKeyHeld || bKeyPressed) // held or pressed (cannot be held and not pressed I guess, so it checks only if HELD?)
-		{
-			if (!bKeyHeld) // won't ever pass
-				return;
-
-			if (!bKeyPressed) // won't ever pass
-				return;
-
+	if (bKeyPressed) {
+		// long press
+		if (bKeyHeld) {
 			COMMON_KeypadLockToggle();
-		}
-		else // released
-		{
-			#ifdef ENABLE_FMRADIO
-				if ((gFmRadioMode || gScreenToDisplay != DISPLAY_MAIN) && gScreenToDisplay != DISPLAY_FM)
-					return;
-			#else
-				if (gScreenToDisplay != DISPLAY_MAIN)
-					return;
-			#endif
-
-			gWasFKeyPressed = !gWasFKeyPressed; // toggle F function
-
-			if (gWasFKeyPressed)
-				gKeyInputCountdown = key_input_timeout_500ms;
-
-			#ifdef ENABLE_VOICE
-				if (!gWasFKeyPressed)
-					gAnotherVoiceID = VOICE_ID_CANCEL;
-			#endif
-
-			gUpdateStatus = true;
-		}
-	}
-	else // short pressed
-	{
-#ifdef ENABLE_FMRADIO
-		if (gScreenToDisplay != DISPLAY_FM)
-#endif
-		{
-			gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 			return;
 		}
 
-		#ifdef ENABLE_FMRADIO
-			if (gFM_ScanState == FM_SCAN_OFF) // not scanning
-			{
-				gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
-				return;
-			}
-		#endif
+		// short press -> pressing
+#ifdef ENABLE_FMRADIO
+		if (gScreenToDisplay == DISPLAY_FM) {
+			FM_Key_F();
+			return;
+		}
+#endif
+		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+		return;
+	}
 
-		gBeepToPlay     = BEEP_440HZ_500MS;
+	// short press -> key-up
+	if (!bKeyHeld && !bKeyPressed) {
+#ifdef ENABLE_FMRADIO
+		if ((gFmRadioMode || gScreenToDisplay != DISPLAY_MAIN) && gScreenToDisplay != DISPLAY_FM)
+#else
+		if (gScreenToDisplay != DISPLAY_MAIN)
+#endif
+		{
+			return;
+		}
 
-		gPttWasReleased = true;
+		gWasFKeyPressed = !gWasFKeyPressed;
+
+		if (gWasFKeyPressed) {
+			gKeyInputCountdown = key_input_timeout_500ms;
+		}
+
+#ifdef ENABLE_VOICE
+		if (!gWasFKeyPressed) {
+			gAnotherVoiceID = VOICE_ID_CANCEL;
+		}
+#endif
+		gUpdateStatus = true;
+		return;
 	}
 }
 

@@ -583,6 +583,17 @@ void FM_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	}
 }
 
+void FM_Key_F(void)
+{
+	if (gFM_ScanState == FM_SCAN_OFF) {
+		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+		return;
+	}
+
+	gBeepToPlay = BEEP_440HZ_500MS;
+	gPttWasReleased = true; //????
+}
+
 void FM_Play(void)
 {
 	if (!FM_CheckFrequencyLock(gEeprom.FM_FrequencyPlaying, gEeprom.FM_LowerLimit))

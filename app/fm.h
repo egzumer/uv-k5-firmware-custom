@@ -51,6 +51,7 @@ void    FM_PlayAndUpdate(void);
 int     FM_CheckFrequencyLock(uint16_t Frequency, uint16_t LowerLimit);
 
 void    FM_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
+void    FM_Key_F(void);
 
 void    FM_Play(void);
 void    FM_Start(void);
