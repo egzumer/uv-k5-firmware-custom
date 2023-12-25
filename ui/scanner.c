@@ -31,7 +31,7 @@ void UI_DisplayScanner(void)
 	bool bCentered;
 	uint8_t Start;
 
-	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+	UI_DisplayClear();
 
 	if (gScanSingleFrequency || (gScanCssState != SCAN_CSS_STATE_OFF && gScanCssState != SCAN_CSS_STATE_FAILED)) {
 		sprintf(String, "FREQ:%u.%05u", gScanFrequency / 100000, gScanFrequency % 100000);

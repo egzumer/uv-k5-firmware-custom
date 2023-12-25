@@ -404,7 +404,7 @@ void UI_DisplayMenu(void)
 #endif
 
 	// clear the screen buffer
-	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+	UI_DisplayClear();
 
 	#if 0
 		// original menu layout

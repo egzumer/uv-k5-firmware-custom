@@ -32,7 +32,7 @@ void UI_DisplayFM(void)
 {
 	char String[16] = {0};
 	char *pPrintStr = String;
-	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+	UI_DisplayClear();
 
 	UI_PrintString("FM", 0, 127, 0, 12);
 
