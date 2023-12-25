@@ -252,42 +252,23 @@ static void HandleReceive(void)
 		goto Skip;
 	}
 
-	switch (gCurrentCodeType)
-	{
-		default:
-		case CODE_TYPE_OFF:
-			break;
-
-		case CODE_TYPE_CONTINUOUS_TONE:
-			if (gFoundCTCSS && gFoundCTCSSCountdown_10ms == 0)
-			{
-				gFoundCTCSS = false;
-				gFoundCDCSS = false;
-				Mode        = END_OF_RX_MODE_END;
-				goto Skip;
-			}
-			break;
-
-		case CODE_TYPE_DIGITAL:
-		case CODE_TYPE_REVERSE_DIGITAL:
-			if (gFoundCDCSS && gFoundCDCSSCountdown_10ms == 0)
-			{
-				gFoundCTCSS = false;
-				gFoundCDCSS = false;
-				Mode        = END_OF_RX_MODE_END;
-				goto Skip;
-			}
-			break;
+	if (gCurrentCodeType != CODE_TYPE_OFF
+		&& ((gFoundCTCSS && gFoundCTCSSCountdown_10ms == 0)
+			|| (gFoundCDCSS && gFoundCDCSSCountdown_10ms == 0))
+	){
+		gFoundCTCSS = false;
+		gFoundCDCSS = false;
+		Mode        = END_OF_RX_MODE_END;
+		goto Skip;
 	}
 
 	if (g_SquelchLost)
 	{
-		#ifdef ENABLE_NOAA
-			if (!gEndOfRxDetectedMaybe && !IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
-		#else
-			if (!gEndOfRxDetectedMaybe)
-		#endif
-		{
+		if (!gEndOfRxDetectedMaybe
+#ifdef ENABLE_NOAA
+			&& !IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE)
+#endif
+		){
 			switch (gCurrentCodeType)
 			{
 				case CODE_TYPE_OFF:
