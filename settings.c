@@ -90,19 +90,26 @@ void SETTINGS_InitEEPROM(void)
 
 #ifdef ENABLE_FMRADIO
 	{	// 0E88..0E8F
-		struct
+	struct
 		{
 			uint16_t SelectedFrequency;
 			uint8_t  SelectedChannel;
 			uint8_t  IsMrMode;
-			uint8_t  Padding[8];
+			// added region, removed padding
+			uint8_t  Region;
 		} __attribute__((packed)) FM;
+			
+		EEPROM_ReadBuffer(0x0E88, &FM, 5); // no need to read more
+	
+		uint16_t Region_LowerLimit[] = {760,875,880,870,760}; //define ranges FULL(default),R1,R2,R3,JP
+		uint16_t Region_UpperLimit[] = {1080,950}; //only JP is different
+		if (FM.Region > 4) FM.Region = 0;
 
-		EEPROM_ReadBuffer(0x0E88, &FM, 8);
-		gEeprom.FM_LowerLimit = 760;
-		gEeprom.FM_UpperLimit = 1080;
+		gEeprom.FM_LowerLimit = Region_LowerLimit[FM.Region];
+		gEeprom.FM_UpperLimit = Region_UpperLimit[FM.Region/4];	
+
 		if (FM.SelectedFrequency < gEeprom.FM_LowerLimit || FM.SelectedFrequency > gEeprom.FM_UpperLimit)
-			gEeprom.FM_SelectedFrequency = 960;
+			gEeprom.FM_SelectedFrequency = gEeprom.FM_LowerLimit; //seems more logical to start at lower f
 		else
 			gEeprom.FM_SelectedFrequency = FM.SelectedFrequency;
 
@@ -444,10 +451,10 @@ void SETTINGS_FactoryReset(bool bIsAll)
 			uint16_t Frequency;
 			uint8_t  Channel;
 			bool     IsChannelSelected;
-			uint8_t  Padding[4];
+			//uint8_t  Padding[4]; //removed padding
 		} State;
 
-		memset(&State, 0xFF, sizeof(State));
+		//memset(&State, 0xFF, sizeof(State)); //why, not needed after factory reset
 		State.Channel           = gEeprom.FM_SelectedChannel;
 		State.Frequency         = gEeprom.FM_SelectedFrequency;
 		State.IsChannelSelected = gEeprom.FM_IsMrMode;
