@@ -409,36 +409,28 @@ Skip:
 	}
 }
 
+static void HandlePowerSave()
+{
+	if (!gRxIdleMode) {
+		CheckForIncoming();
+	}
+}
+
+static void (*HandleFunction_fn_table[])(void) = {
+	[FUNCTION_FOREGROUND] = &CheckForIncoming,
+	[FUNCTION_TRANSMIT] = &FUNCTION_NOP,
+	[FUNCTION_MONITOR] = &FUNCTION_NOP,
+	[FUNCTION_INCOMING] = &HandleIncoming,
+	[FUNCTION_RECEIVE] = &HandleReceive,
+	[FUNCTION_POWER_SAVE] = &HandlePowerSave,
+	[FUNCTION_BAND_SCOPE] = &FUNCTION_NOP,
+};
+
+static_assert(ARRAY_SIZE(HandleFunction_fn_table) == FUNCTION_N_ELEM);
+
 static void HandleFunction(void)
 {
-	switch (gCurrentFunction)
-	{
-		case FUNCTION_FOREGROUND:
-			CheckForIncoming();
-			break;
-
-		case FUNCTION_TRANSMIT:
-			break;
-
-		case FUNCTION_MONITOR:
-			break;
-
-		case FUNCTION_INCOMING:
-			HandleIncoming();
-			break;
-
-		case FUNCTION_RECEIVE:
-			HandleReceive();
-			break;
-
-		case FUNCTION_POWER_SAVE:
-			if (!gRxIdleMode)
-				CheckForIncoming();
-			break;
-
-		case FUNCTION_BAND_SCOPE:
-			break;
-	}
+	HandleFunction_fn_table[gCurrentFunction]();
 }
 
 void APP_StartListening(FUNCTION_Type_t function)
