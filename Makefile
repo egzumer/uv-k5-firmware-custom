@@ -25,6 +25,7 @@ ENABLE_FLASHLIGHT             ?= 1
 # ---- CUSTOM MODS ----
 ENABLE_BIG_FREQ               ?= 1
 ENABLE_SMALL_BOLD             ?= 1
+ENABLE_CUSTOM_MENU_LAYOUT     ?= 1
 ENABLE_KEEP_MEM_NAME          ?= 1
 ENABLE_WIDE_RX                ?= 1
 ENABLE_TX_WHEN_AM             ?= 0
@@ -372,6 +373,9 @@ ifeq ($(ENABLE_FLASHLIGHT),1)
 endif
 ifeq ($(ENABLE_UART_RW_BK_REGS),1)
 	CFLAGS  += -DENABLE_UART_RW_BK_REGS
+endif
+ifeq ($(ENABLE_CUSTOM_MENU_LAYOUT),1)
+	CFLAGS  += -DENABLE_CUSTOM_MENU_LAYOUT
 endif
 
 LDFLAGS =
