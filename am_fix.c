@@ -30,6 +30,9 @@
 #include "functions.h"
 #include "misc.h"
 #include "settings.h"
+#ifdef ENABLE_AGC_SHOW_DATA
+#include "ui/main.h"
+#endif
 
 #ifdef ENABLE_AM_FIX
 
@@ -359,6 +362,9 @@ void AM_fix_10ms(const unsigned vfo)
 		gain_table_index_prev[vfo] = index;
 		currentGainDiff = gain_table[0].gain_dB - gain_table[index].gain_dB;
 		BK4819_WriteRegister(BK4819_REG_13, gain_table[index].reg_val);
+#ifdef ENABLE_AGC_SHOW_DATA
+		UI_MAIN_PrintAGC(true);
+#endif
 	}
 
 #ifdef ENABLE_AM_FIX_SHOW_DATA

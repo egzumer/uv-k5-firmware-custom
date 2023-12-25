@@ -248,7 +248,7 @@ void DisplayRSSIBar(const bool now)
 }
 
 #ifdef ENABLE_AGC_SHOW_DATA
-static void PrintAGC(bool now)
+void UI_MAIN_PrintAGC(bool now)
 {
 	char buf[20];
 	memset(gFrameBuffer[3], 0, 128);
@@ -290,7 +290,7 @@ void UI_MAIN_TimeSlice500ms(void)
 {
 	if(gScreenToDisplay==DISPLAY_MAIN) {
 #ifdef ENABLE_AGC_SHOW_DATA
-		PrintAGC(true);
+		UI_MAIN_PrintAGC(true);
 		return;
 #endif
 
@@ -703,7 +703,7 @@ void UI_DisplayMain(void)
 
 #ifdef ENABLE_AGC_SHOW_DATA
 	center_line = CENTER_LINE_IN_USE;
-	PrintAGC(false);
+	UI_MAIN_PrintAGC(false);
 #endif
 
 	if (center_line == CENTER_LINE_NONE)
