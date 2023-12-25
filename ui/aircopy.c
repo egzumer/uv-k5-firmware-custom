@@ -47,7 +47,7 @@ void UI_DisplayAircopy(void)
 		uint32_t frequency = gRxVfo->freq_config_RX.Frequency;
 		sprintf(String, "%3u.%05u", frequency / 100000, frequency % 100000);
 		// show the remaining 2 small frequency digits
-		UI_PrintStringSmall(String + 7, 97, 0, 3);
+		UI_PrintStringSmallNormal(String + 7, 97, 0, 3);
 		String[7] = 0;
 		// show the main large frequency digits
 		UI_DisplayFrequency(String, 16, 2, false);

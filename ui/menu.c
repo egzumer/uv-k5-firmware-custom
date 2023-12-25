@@ -66,7 +66,6 @@ const t_menu_item MenuList[] =
 #ifdef ENABLE_NOAA
 	{"NOAA-S", VOICE_ID_INVALID,                       MENU_NOAA_S        },
 #endif
-
 	{"F1Shrt",    VOICE_ID_INVALID,                    MENU_F1SHRT        },
 	{"F1Long",    VOICE_ID_INVALID,                    MENU_F1LONG        },
 	{"F2Shrt",    VOICE_ID_INVALID,                    MENU_F2SHRT        },
@@ -372,8 +371,8 @@ uint8_t gMenuCursor;
 int UI_MENU_GetCurrentMenuId() {
 	if(gMenuCursor < ARRAY_SIZE(MenuList))
 		return MenuList[gMenuCursor].menu_id;
-	else
-		return MenuList[ARRAY_SIZE(MenuList)-1].menu_id;
+
+	return MenuList[ARRAY_SIZE(MenuList)-1].menu_id;
 }
 
 uint8_t UI_MENU_GetMenuIdx(uint8_t id)
@@ -403,7 +402,6 @@ void UI_DisplayMenu(void)
 	char               Contact[16];
 #endif
 
-	// clear the screen buffer
 	UI_DisplayClear();
 
 	#if 0
@@ -431,7 +429,8 @@ void UI_DisplayMenu(void)
 
 		// draw the menu index number/count
 		sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
-		UI_PrintStringSmall(String, 2, 0, 6);
+
+		UI_PrintStringSmallNormal(String, 2, 0, 6);
 
 	#else
 	{	// new menu layout .. experimental & unfinished
@@ -445,10 +444,10 @@ void UI_DisplayMenu(void)
 			{	// leading menu items - small text
 				const int k = menu_index + i - 2;
 				if (k < 0)
-					UI_PrintStringSmall(MenuList[gMenuListCount + k].name, 0, 0, i);  // wrap-a-round
+					UI_PrintStringSmallNormal(MenuList[gMenuListCount + k].name, 0, 0, i);  // wrap-a-round
 				else
 				if (k >= 0 && k < (int)gMenuListCount)
-					UI_PrintStringSmall(MenuList[k].name, 0, 0, i);
+					UI_PrintStringSmallNormal(MenuList[k].name, 0, 0, i);
 				i++;
 			}
 
@@ -461,23 +460,23 @@ void UI_DisplayMenu(void)
 			{	// trailing menu item - small text
 				const int k = menu_index + i - 2;
 				if (k >= 0 && k < (int)gMenuListCount)
-					UI_PrintStringSmall(MenuList[k].name, 0, 0, 1 + i);
+					UI_PrintStringSmallNormal(MenuList[k].name, 0, 0, 1 + i);
 				else
 				if (k >= (int)gMenuListCount)
-					UI_PrintStringSmall(MenuList[gMenuListCount - k].name, 0, 0, 1 + i);  // wrap-a-round
+					UI_PrintStringSmallNormal(MenuList[gMenuListCount - k].name, 0, 0, 1 + i);  // wrap-a-round
 				i++;
 			}
 
 			// draw the menu index number/count
 			sprintf(String, "%2u.%u", 1 + gMenuCursor, gMenuListCount);
-			UI_PrintStringSmall(String, 2, 0, 6);
+			UI_PrintStringSmallNormal(String, 2, 0, 6);
 		}
 		else
 		if (menu_index >= 0 && menu_index < (int)gMenuListCount)
 		{	// current menu item
 //			strcat(String, ":");
 			UI_PrintString(MenuList[menu_index].name, 0, 0, 0, 8);
-//			UI_PrintStringSmall(String, 0, 0, 0);
+//			UI_PrintStringSmallNormal(String, 0, 0, 0);
 		}
 	}
 	#endif
@@ -883,7 +882,7 @@ void UI_DisplayMenu(void)
 			for (i = 0; i < len && lines > 0; lines--)
 			{
 				if (small)
-					UI_PrintStringSmall(String + i, menu_item_x1, menu_item_x2, y);
+					UI_PrintStringSmallNormal(String + i, menu_item_x1, menu_item_x2, y);
 				else
 					UI_PrintString(String + i, menu_item_x1, menu_item_x2, y, 8);
 
@@ -922,7 +921,7 @@ void UI_DisplayMenu(void)
 		if (gSubMenuSelection < 0 || !gEeprom.SCAN_LIST_ENABLED[i]) {
 			UI_PrintString(pPrintStr, menu_item_x1, menu_item_x2, 2, 8);
 		} else {
-			UI_PrintStringSmall(pPrintStr, menu_item_x1, menu_item_x2, 2);
+			UI_PrintStringSmallNormal(pPrintStr, menu_item_x1, menu_item_x2, 2);
 
 			if (IS_MR_CHANNEL(gEeprom.SCANLIST_PRIORITY_CH1[i])) {
 				sprintf(String, "PRI%d:%u", 1, gEeprom.SCANLIST_PRIORITY_CH1[i] + 1);
@@ -967,7 +966,7 @@ void UI_DisplayMenu(void)
 #endif
 	) {
 		sprintf(String, "%2d", gSubMenuSelection);
-		UI_PrintStringSmall(String, 105, 0, 0);
+		UI_PrintStringSmallNormal(String, 105, 0, 0);
 	}
 
 	if ((UI_MENU_GetCurrentMenuId() == MENU_RESET    ||
