@@ -57,68 +57,48 @@ const char gModulationStr[MODULATION_UKNOWN][4] = {
 
 
 bool RADIO_CheckValidChannel(uint16_t Channel, bool bCheckScanList, uint8_t VFO)
-{	// return true if the channel appears valid
-
-	ChannelAttributes_t att;
-	uint8_t PriorityCh1;
-	uint8_t PriorityCh2;
-
-	if (!IS_MR_CHANNEL(Channel))
+{
+	// return true if the channel appears valid
+	if (!IS_MR_CHANNEL(Channel)) {
 		return false;
-
-	att = gMR_ChannelAttributes[Channel];
-
-	if (att.band > BAND7_470MHz)
-		return false;
-
-	if (bCheckScanList) {
-		switch (VFO) {
-			case 0:
-				if (!att.scanlist1)
-					return false;
-
-				PriorityCh1 = gEeprom.SCANLIST_PRIORITY_CH1[0];
-				PriorityCh2 = gEeprom.SCANLIST_PRIORITY_CH2[0];
-				break;
-
-			case 1:
-				if (!att.scanlist2)
-					return false;
-
-				PriorityCh1 = gEeprom.SCANLIST_PRIORITY_CH1[1];
-				PriorityCh2 = gEeprom.SCANLIST_PRIORITY_CH2[1];
-				break;
-
-			default:
-				return true;
-		}
-
-		if (PriorityCh1 == Channel)
-			return false;
-
-		if (PriorityCh2 == Channel)
-			return false;
 	}
 
-	return true;
+	const ChannelAttributes_t att = gMR_ChannelAttributes[Channel];
+
+	if (att.band > BAND7_470MHz) {
+		return false;
+	}
+
+	if (!bCheckScanList) {
+		return true;
+	}
+
+	if (VFO >= 2) {
+		return true;
+	}
+
+	if (!att.scanlist1) {
+		return false;
+	}
+
+	const uint8_t PriorityCh1 = gEeprom.SCANLIST_PRIORITY_CH1[VFO];
+	const uint8_t PriorityCh2 = gEeprom.SCANLIST_PRIORITY_CH2[VFO];
+
+	return PriorityCh1 != Channel && PriorityCh2 != Channel;
 }
 
 uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScanList, uint8_t VFO)
 {
-	unsigned int i;
-
-	for (i = 0; IS_MR_CHANNEL(i); i++)
-	{
-		if (Channel == 0xFF)
+	for (unsigned int i = 0; IS_MR_CHANNEL(i); i++, Channel += Direction) {
+		if (Channel == 0xFF) {
 			Channel = MR_CHANNEL_LAST;
-		else
-		if (!IS_MR_CHANNEL(Channel))
+		} else if (!IS_MR_CHANNEL(Channel)) {
 			Channel = MR_CHANNEL_FIRST;
+		}
 
-		if (RADIO_CheckValidChannel(Channel, bCheckScanList, VFO))
+		if (RADIO_CheckValidChannel(Channel, bCheckScanList, VFO)) {
 			return Channel;
-
-		Channel += Direction;
+		}
 	}
 
 	return 0xFF;
