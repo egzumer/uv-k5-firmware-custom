@@ -166,7 +166,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 	if (IS_VALID_CHANNEL(channel)) {
 #ifdef ENABLE_NOAA
-		if (channel >= NOAA_CHANNEL_FIRST)
+		if (IS_NOAA_CHANNEL(channel))
 		{
 			RADIO_InitInfo(pVfo, gEeprom.ScreenChannel[VFO], NoaaFrequencyTable[channel - NOAA_CHANNEL_FIRST]);
 
@@ -805,7 +805,7 @@ void RADIO_SetupRegisters(bool switchToForeground)
 				return;
 			}
 
-			if (gRxVfo->CHANNEL_SAVE >= NOAA_CHANNEL_FIRST)
+			if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
 			{
 				gIsNoaaMode          = true;
 				gNoaaChannel         = gRxVfo->CHANNEL_SAVE - NOAA_CHANNEL_FIRST;

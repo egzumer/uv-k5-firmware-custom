@@ -78,10 +78,10 @@ void SETTINGS_InitEEPROM(void)
 	gEeprom.MrChannel[1]       = IS_MR_CHANNEL(Data[4])    ? Data[4] : MR_CHANNEL_FIRST;
 	gEeprom.FreqChannel[0]     = IS_FREQ_CHANNEL(Data[2])  ? Data[2] : (FREQ_CHANNEL_FIRST + BAND6_400MHz);
 	gEeprom.FreqChannel[1]     = IS_FREQ_CHANNEL(Data[5])  ? Data[5] : (FREQ_CHANNEL_FIRST + BAND6_400MHz);
-	#ifdef ENABLE_NOAA
-		gEeprom.NoaaChannel[0] = IS_NOAA_CHANNEL(Data[6])  ? Data[6] : NOAA_CHANNEL_FIRST;
-		gEeprom.NoaaChannel[1] = IS_NOAA_CHANNEL(Data[7])  ? Data[7] : NOAA_CHANNEL_FIRST;
-	#endif
+#ifdef ENABLE_NOAA
+	gEeprom.NoaaChannel[0] = IS_NOAA_CHANNEL(Data[6])  ? Data[6] : NOAA_CHANNEL_FIRST;
+	gEeprom.NoaaChannel[1] = IS_NOAA_CHANNEL(Data[7])  ? Data[7] : NOAA_CHANNEL_FIRST;
+#endif
 
 #ifdef ENABLE_FMRADIO
 	{	// 0E88..0E8F
@@ -593,62 +593,60 @@ void SETTINGS_SaveSettings(void)
 
 void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, uint8_t Mode)
 {
-	#ifdef ENABLE_NOAA
-		if (!IS_NOAA_CHANNEL(Channel))
-	#endif
-	{
-		uint16_t OffsetVFO = Channel * 16;
-
-		if (!IS_MR_CHANNEL(Channel))
-		{	// it's a VFO, not a channel
-			OffsetVFO  = (VFO == 0) ? 0x0C80 : 0x0C90;
-			OffsetVFO += (Channel - FREQ_CHANNEL_FIRST) * 32;
-		}
-
-		if (Mode >= 2 || !IS_MR_CHANNEL(Channel))
-		{	// copy VFO to a channel
-
-			union {
-				uint8_t _8[8];
-				uint32_t _32[2];
-			} State;
-
-			State._32[0] = pVFO->freq_config_RX.Frequency;
-			State._32[1] = pVFO->TX_OFFSET_FREQUENCY;
-			EEPROM_WriteBuffer(OffsetVFO + 0, State._32);
-
-			State._8[0] =  pVFO->freq_config_RX.Code;
-			State._8[1] =  pVFO->freq_config_TX.Code;
-			State._8[2] = (pVFO->freq_config_TX.CodeType << 4) | pVFO->freq_config_RX.CodeType;
-			State._8[3] = (pVFO->Modulation << 4) | pVFO->TX_OFFSET_FREQUENCY_DIRECTION;
-			State._8[4] = 0
-				| (pVFO->BUSY_CHANNEL_LOCK << 4)
-				| (pVFO->OUTPUT_POWER      << 2)
-				| (pVFO->CHANNEL_BANDWIDTH << 1)
-				| (pVFO->FrequencyReverse  << 0);
-			State._8[5] = ((pVFO->DTMF_PTT_ID_TX_MODE & 7u) << 1)
-#ifdef ENABLE_DTMF_CALLING
-				| ((pVFO->DTMF_DECODING_ENABLE & 1u) << 0)
+#ifdef ENABLE_NOAA
+	if (IS_NOAA_CHANNEL(Channel))
+		return;
 #endif
-			;
-			State._8[6] =  pVFO->STEP_SETTING;
-			State._8[7] =  pVFO->SCRAMBLING_TYPE;
-			EEPROM_WriteBuffer(OffsetVFO + 8, State._8);
 
-			SETTINGS_UpdateChannel(Channel, pVFO, true);
+	uint16_t OffsetVFO = Channel * 16;
 
-			if (IS_MR_CHANNEL(Channel)) {
-				#ifndef ENABLE_KEEP_MEM_NAME
-					// clear/reset the channel name
-					SETTINGS_SaveChannelName(Channel, "");
-				#else
-					if (Mode >= 3) {
-						SETTINGS_SaveChannelName(Channel, pVFO->Name);
-					}
-				#endif
+	if (IS_FREQ_CHANNEL(Channel)) { // it's a VFO, not a channel
+		OffsetVFO  = (VFO == 0) ? 0x0C80 : 0x0C90;
+		OffsetVFO += (Channel - FREQ_CHANNEL_FIRST) * 32;
+	}
+
+	if (Mode >= 2 || IS_FREQ_CHANNEL(Channel)) { // copy VFO to a channel
+		union {
+			uint8_t _8[8];
+			uint32_t _32[2];
+		} State;
+
+		State._32[0] = pVFO->freq_config_RX.Frequency;
+		State._32[1] = pVFO->TX_OFFSET_FREQUENCY;
+		EEPROM_WriteBuffer(OffsetVFO + 0, State._32);
+
+		State._8[0] =  pVFO->freq_config_RX.Code;
+		State._8[1] =  pVFO->freq_config_TX.Code;
+		State._8[2] = (pVFO->freq_config_TX.CodeType << 4) | pVFO->freq_config_RX.CodeType;
+		State._8[3] = (pVFO->Modulation << 4) | pVFO->TX_OFFSET_FREQUENCY_DIRECTION;
+		State._8[4] = 0
+			| (pVFO->BUSY_CHANNEL_LOCK << 4)
+			| (pVFO->OUTPUT_POWER      << 2)
+			| (pVFO->CHANNEL_BANDWIDTH << 1)
+			| (pVFO->FrequencyReverse  << 0);
+		State._8[5] = ((pVFO->DTMF_PTT_ID_TX_MODE & 7u) << 1)
+#ifdef ENABLE_DTMF_CALLING
+			| ((pVFO->DTMF_DECODING_ENABLE & 1u) << 0)
+#endif
+		;
+		State._8[6] =  pVFO->STEP_SETTING;
+		State._8[7] =  pVFO->SCRAMBLING_TYPE;
+		EEPROM_WriteBuffer(OffsetVFO + 8, State._8);
+
+		SETTINGS_UpdateChannel(Channel, pVFO, true);
+
+		if (IS_MR_CHANNEL(Channel)) {
+#ifndef ENABLE_KEEP_MEM_NAME
+			// clear/reset the channel name
+			SETTINGS_SaveChannelName(Channel, "");
+#else
+			if (Mode >= 3) {
+				SETTINGS_SaveChannelName(Channel, pVFO->Name);
 			}
+#endif
 		}
 	}
+
 }
 
 void SETTINGS_SaveBatteryCalibration(const uint16_t * batteryCalibration)

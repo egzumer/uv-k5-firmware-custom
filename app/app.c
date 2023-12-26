@@ -553,7 +553,7 @@ static void DualwatchAlternate(void)
 
 			gRxVfo = &gEeprom.VfoInfo[gEeprom.RX_VFO];
 
-			if (gEeprom.VfoInfo[0].CHANNEL_SAVE >= NOAA_CHANNEL_FIRST)
+			if (IS_NOAA_CHANNEL(gEeprom.VfoInfo[0].CHANNEL_SAVE))
 				NOAA_IncreaseChannel();
 		}
 		else
