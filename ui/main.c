@@ -639,13 +639,14 @@ void UI_DisplayMain(void)
 		// ************
 
 		String[0] = '\0';
+		const VFO_Info_t *vfoInfo = &gEeprom.VfoInfo[vfo_num];
 
 		// show the modulation symbol
 		const char * s = "";
-		const ModulationMode_t mod = gEeprom.VfoInfo[vfo_num].Modulation;
+		const ModulationMode_t mod = vfoInfo->Modulation;
 		switch (mod){
 			case MODULATION_FM: {
-				const FREQ_Config_t *pConfig = (mode == VFO_MODE_TX) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
+				const FREQ_Config_t *pConfig = (mode == VFO_MODE_TX) ? vfoInfo->pTX : vfoInfo->pRX;
 				const unsigned int code_type = pConfig->CodeType;
 				const char *code_list[] = {"", "CT", "DCS", "DCR"};
 				if (code_type < ARRAY_SIZE(code_list))
@@ -660,44 +661,33 @@ void UI_DisplayMain(void)
 
 		if (state == VFO_STATE_NORMAL || state == VFO_STATE_ALARM)
 		{	// show the TX power
-			const char pwr_list[] = "LMH";
-			const unsigned int i = gEeprom.VfoInfo[vfo_num].OUTPUT_POWER;
-			String[0] = (i < ARRAY_SIZE(pwr_list)) ? pwr_list[i] : '\0';
-			String[1] = '\0';
-			UI_PrintStringSmallNormal(String, LCD_WIDTH + 46, 0, line + 1);
+			const char pwr_list[][2] = {"L","M","H"};
+			int i = vfoInfo->OUTPUT_POWER % 3;
+			UI_PrintStringSmallNormal(pwr_list[i], LCD_WIDTH + 46, 0, line + 1);
 		}
 
-		if (gEeprom.VfoInfo[vfo_num].freq_config_RX.Frequency != gEeprom.VfoInfo[vfo_num].freq_config_TX.Frequency)
+		if (vfoInfo->freq_config_RX.Frequency != vfoInfo->freq_config_TX.Frequency)
 		{	// show the TX offset symbol
-			const char dir_list[] = "\0+-";
-			const unsigned int i = gEeprom.VfoInfo[vfo_num].TX_OFFSET_FREQUENCY_DIRECTION;
-			String[0] = (i < sizeof(dir_list)) ? dir_list[i] : '?';
-			String[1] = '\0';
-			UI_PrintStringSmallNormal(String, LCD_WIDTH + 54, 0, line + 1);
+			const char dir_list[][2] = {"", "+", "-"};
+			int i = vfoInfo->TX_OFFSET_FREQUENCY_DIRECTION % 3;
+			UI_PrintStringSmallNormal(dir_list[i], LCD_WIDTH + 54, 0, line + 1);
 		}
 
 		// show the TX/RX reverse symbol
-		if (gEeprom.VfoInfo[vfo_num].FrequencyReverse)
+		if (vfoInfo->FrequencyReverse)
 			UI_PrintStringSmallNormal("R", LCD_WIDTH + 62, 0, line + 1);
 
-		{	// show the narrow band symbol
-			String[0] = '\0';
-			if (gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH == BANDWIDTH_NARROW)
-			{
-				String[0] = 'N';
-				String[1] = '\0';
-			}
-			UI_PrintStringSmallNormal(String, LCD_WIDTH + 70, 0, line + 1);
-		}
+		if (vfoInfo->CHANNEL_BANDWIDTH == BANDWIDTH_NARROW)
+			UI_PrintStringSmallNormal("N", LCD_WIDTH + 70, 0, line + 1);
 
 #ifdef ENABLE_DTMF_CALLING
 		// show the DTMF decoding symbol
-		if (gEeprom.VfoInfo[vfo_num].DTMF_DECODING_ENABLE || gSetting_KILLED)
+		if (vfoInfo->DTMF_DECODING_ENABLE || gSetting_KILLED)
 			UI_PrintStringSmallNormal("DTMF", LCD_WIDTH + 78, 0, line + 1);
 #endif
 
 		// show the audio scramble symbol
-		if (gEeprom.VfoInfo[vfo_num].SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
+		if (vfoInfo->SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
 			UI_PrintStringSmallNormal("SCR", LCD_WIDTH + 106, 0, line + 1);
 	}
 
