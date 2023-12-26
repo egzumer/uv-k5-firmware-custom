@@ -392,16 +392,8 @@ static void Key_EXIT(uint8_t state)
 		{
 			gInputBox[--gInputBoxIndex] = 10;
 
-			if (gInputBoxIndex)
-			{
-				if (gInputBoxIndex != 1)
-				{
-					gRequestDisplayScreen = DISPLAY_FM;
-					return;
-				}
-
-				if (gInputBox[0] != 0)
-				{
+			if (gInputBoxIndex) {
+				if (gInputBoxIndex != 1 || gInputBox[0] != 0) {
 					gRequestDisplayScreen = DISPLAY_FM;
 					return;
 				}

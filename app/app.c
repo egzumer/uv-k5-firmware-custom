@@ -1113,9 +1113,7 @@ void APP_TimeSlice10ms(void)
 #endif
 	}
 
-	if (gUpdateDisplay)
-	{
-		gUpdateDisplay = false;
+	if (gUpdateDisplay) {
 		GUI_DisplayScreen();
 	}
 

@@ -63,6 +63,7 @@ static_assert(ARRAY_SIZE(UI_DisplayFunctions) == DISPLAY_N_ELEM);
 
 void GUI_DisplayScreen(void)
 {
+	gUpdateDisplay = false;
 	if (gScreenToDisplay != DISPLAY_INVALID) {
 		UI_DisplayFunctions[gScreenToDisplay]();
 	}

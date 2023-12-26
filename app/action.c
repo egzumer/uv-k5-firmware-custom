@@ -193,6 +193,8 @@ void ACTION_Scan(bool bRestart)
 
 	GUI_SelectNextDisplay(DISPLAY_MAIN);
 
+	gUpdateStatus = true;
+
 	if (gScanStateDir != SCAN_OFF) {
 		// already scanning
 
@@ -227,7 +229,6 @@ void ACTION_Scan(bool bRestart)
 		gDualWatchActive = false;
 	}
 
-	gUpdateStatus = true;
 }
 
 
@@ -291,22 +292,26 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			break;
 	}
 
-	if (!bKeyHeld && bKeyPressed) // button pushed
-	{
+	if (bKeyPressed && !bKeyHeld) {
+		// button pushed
+		return;
+	}
+
+	if (!bKeyPressed && bKeyHeld) {
+		//ignore release if held
 		return;
 	}
 
 	// held or released beyond this point
 
-	if(!(bKeyHeld && !bKeyPressed)) // don't beep on released after hold
+	if(bKeyPressed || !bKeyHeld) {
+		// don't beep on released after hold
 		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
+	}
 
-	if (bKeyHeld || bKeyPressed) // held
-	{
+	if (bKeyPressed || bKeyHeld) {
+		// held
 		funcShort = funcLong;
-
-		if (!bKeyPressed) //ignore release if held
-			return;
 	}
 
 	// held or released after short press beyond this point
@@ -318,31 +323,33 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 #ifdef ENABLE_FMRADIO
 void ACTION_FM(void)
 {
-	if (gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_MONITOR)
-	{
-		gInputBoxIndex = 0;
+	if (gCurrentFunction == FUNCTION_TRANSMIT || gCurrentFunction == FUNCTION_MONITOR) {
+		return;
+	}
 
-		if (gFmRadioMode) {
-			FM_TurnOff();
-			gFlagReconfigureVfos  = true;
-			gRequestDisplayScreen = DISPLAY_MAIN;
+	gInputBoxIndex = 0;
+
+	if (gFmRadioMode) {
+		FM_TurnOff();
+		gFlagReconfigureVfos  = true;
+		gRequestDisplayScreen = DISPLAY_MAIN;
 
 #ifdef ENABLE_VOX
-			gVoxResumeCountdown = 80;
+		gVoxResumeCountdown = 80;
 #endif
-			return;
-		}
-
-		gMonitor = false;
-
-		RADIO_SelectVfos();
-		RADIO_SetupRegisters(true);
-
-		FM_Start();
-
-		gRequestDisplayScreen = DISPLAY_FM;
+		return;
 	}
+
+	gMonitor = false;
+
+	RADIO_SelectVfos();
+	RADIO_SetupRegisters(true);
+
+	FM_Start();
+
+	gRequestDisplayScreen = DISPLAY_FM;
 }
+
 
 static void ACTION_Scan_FM(bool bRestart)
 {
@@ -363,17 +370,14 @@ static void ACTION_Scan_FM(bool bRestart)
 		return;
 	}
 
+	gFM_ChannelPosition = 0;
+	gFM_AutoScan = bRestart;
 	uint16_t Frequency;
-
 	if (bRestart) {
-		gFM_AutoScan        = true;
-		gFM_ChannelPosition = 0;
 		FM_EraseChannels();
-		Frequency           = gEeprom.FM_LowerLimit;
+		Frequency = gEeprom.FM_LowerLimit;
 	} else {
-		gFM_AutoScan        = false;
-		gFM_ChannelPosition = 0;
-		Frequency           = gEeprom.FM_FrequencyPlaying;
+		Frequency = gEeprom.FM_FrequencyPlaying;
 	}
 
 	BK1080_GetFrequencyDeviation(Frequency);
