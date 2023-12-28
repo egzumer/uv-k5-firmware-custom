@@ -38,7 +38,7 @@ enum BK4819_AF_Type_t
 	BK4819_AF_UNKNOWN5  = 11u,  // distorted
 	BK4819_AF_UNKNOWN6  = 12u,  // distorted
 	BK4819_AF_UNKNOWN7  = 13u,  // interesting
-	BK4819_AF_UNKNOWN8  = 14u,  // interesting 
+	BK4819_AF_UNKNOWN8  = 14u,  // interesting
 	BK4819_AF_UNKNOWN9  = 15u   // not a lot
 };
 
@@ -166,10 +166,9 @@ void     BK4819_PlayRoger(const int roger);
 void     BK4819_PlayRogerMDC(void);
 	    
 void     BK4819_Enable_AfDac_DiscMode_TxDsp(void);
-	    
+
 void     BK4819_GetVoxAmp(uint16_t *pResult);
 void     BK4819_SetScrambleFrequencyControlWord(uint32_t Frequency);
 void     BK4819_PlayDTMFEx(bool bLocalLoopback, char Code);
 
 #endif
-

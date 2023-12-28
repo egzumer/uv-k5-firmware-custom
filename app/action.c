@@ -131,7 +131,7 @@ void ACTION_Monitor(void)
 	if (gCurrentFunction != FUNCTION_MONITOR) { // enable the monitor
 		RADIO_SelectVfos();
 #ifdef ENABLE_NOAA
-		if (gRxVfo->CHANNEL_SAVE >= NOAA_CHANNEL_FIRST && gIsNoaaMode)
+		if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE) && gIsNoaaMode)
 			gNoaaChannel = gRxVfo->CHANNEL_SAVE - NOAA_CHANNEL_FIRST;
 #endif
 		RADIO_SetupRegisters(true);

@@ -50,6 +50,7 @@ ENABLE_SCAN_RANGES            ?= 0
 # ---- DEBUGGING ----
 ENABLE_AM_FIX_SHOW_DATA       ?= 0
 ENABLE_AGC_SHOW_DATA          ?= 0
+ENABLE_UART_RW_BK_REGS        ?= 0
 
 # ----
 # Work in progress
@@ -199,7 +200,7 @@ else # unix
     RM = rm -f
     FixPath = $1
     WHERE = which
-    NULL_OUTPUT = /dev/null	
+    NULL_OUTPUT = /dev/null
 endif
 
 AS = arm-none-eabi-gcc
@@ -227,6 +228,11 @@ ifneq (, $(shell $(WHERE) git))
 	ifeq (, $(VERSION_STRING))
     	VERSION_STRING := $(shell git rev-parse --short HEAD)
 	endif
+endif
+# If there is still no VERSION_STRING we need to make one.
+# It is needed for the firmware packing script
+ifeq (, $(VERSION_STRING))
+	VERSION_STRING := NOGIT
 endif
 #VERSION_STRING := 230930b
 
@@ -388,6 +394,9 @@ endif
 ifeq ($(ENABLE_FLASHLIGHT),1)
 	CFLAGS  += -DENABLE_FLASHLIGHT
 endif
+ifeq ($(ENABLE_UART_RW_BK_REGS),1)
+	CFLAGS  += -DENABLE_UART_RW_BK_REGS
+endif
 
 ifeq ($(ENABLE_PMR_MODE),1)
 	CFLAGS  += -DENABLE_PMR_MODE
@@ -482,3 +491,6 @@ clean:
 # don't clean target build
 #	$(RM) $(call FixPath, $(TARGET).bin $(TARGET).packed.bin $(TARGET) $(OBJS) $(DEPS))
 	$(RM) $(call FixPath, $(OBJS) $(DEPS))
+
+doxygen:
+	doxygen

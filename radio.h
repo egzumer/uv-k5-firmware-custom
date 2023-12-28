@@ -168,5 +168,4 @@ void     RADIO_EnableCxCSS(void);
 void     RADIO_PrepareCssTX(void);
 void     RADIO_SendEndOfTransmission(void);
 
-
 #endif

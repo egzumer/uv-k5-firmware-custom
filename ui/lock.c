@@ -35,10 +35,9 @@ static void Render(void)
 	char         String[7];
 
 	memset(gStatusLine,  0, sizeof(gStatusLine));
-	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+	UI_DisplayClear();
 
-	strcpy(String, "LOCK");
-	UI_PrintString(String, 0, 127, 1, 10);
+	UI_PrintString("LOCK", 0, 127, 1, 10);
 	for (i = 0; i < 6; i++)
 		String[i] = (gInputBox[i] == 10) ? '-' : '*';
 	String[6] = 0;

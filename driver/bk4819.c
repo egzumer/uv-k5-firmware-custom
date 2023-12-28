@@ -14,7 +14,10 @@
  *     limitations under the License.
  */
 
-#include <stdio.h>   // NULL
+#include <stdint.h>
+#include <stdio.h>
+
+#include "settings.h"
 
 #include "../audio.h"
 #include "../bsp/dp32g030/gpio.h"
@@ -243,7 +246,7 @@ void BK4819_SetAGC(bool enable)
 	if(!(regVal & (1 << 15)) == enable)
 		return;
 
-	BK4819_WriteRegister(BK4819_REG_7E, (regVal & ~(1 << 15) & ~(0b111 << 12)) 
+	BK4819_WriteRegister(BK4819_REG_7E, (regVal & ~(1 << 15) & ~(0b111 << 12))
 		| (!enable << 15)   // 0  AGC fix mode
 		| (3u << 12)       // 3  AGC fix index
 	);
@@ -272,7 +275,7 @@ void BK4819_InitAGC(bool amModulation)
 	//
 	// <15:10> ???
 	//
-	// <9:8>   LNA Gain Short 
+	// <9:8>   LNA Gain Short
 	//         3 =   0dB  <<<		1o11				read from spectrum			reference manual
 	//         2 = 					-24dB  				-19     					 -11
 	//         1 = 					-30dB  				-24     					 -16
@@ -310,12 +313,12 @@ void BK4819_InitAGC(bool amModulation)
 	BK4819_WriteRegister(BK4819_REG_11, 0x027B);  // 0x027B / 000000 10 011 11 011 / -43dB
 	BK4819_WriteRegister(BK4819_REG_10, 0x007A);  // 0x007A / 000000 00 011 11 010 / -58dB
 	if(amModulation) {
-		BK4819_WriteRegister(BK4819_REG_14, 0x0000); 
+		BK4819_WriteRegister(BK4819_REG_14, 0x0000);
 		BK4819_WriteRegister(BK4819_REG_49, (0 << 14) | (50 << 7) | (32 << 0));
 	}
 	else{
 		BK4819_WriteRegister(BK4819_REG_14, 0x0019);  // 0x0019 / 000000 00 000 11 001 / -79dB
-		BK4819_WriteRegister(BK4819_REG_49, (0 << 14) | (84 << 7) | (56 << 0)); //0x2A38 / 00 1010100 0111000 / 84, 56		
+		BK4819_WriteRegister(BK4819_REG_49, (0 << 14) | (84 << 7) | (56 << 0)); //0x2A38 / 00 1010100 0111000 / 84, 56
 	}
 
 	BK4819_WriteRegister(BK4819_REG_7B, 0x8420);
@@ -338,7 +341,7 @@ int8_t BK4819_GetRxGain_dB(void)
 		struct {
 			uint16_t _ : 5;
 			uint16_t agcSigStrength : 7;
-			int16_t gainIdx : 3;    
+			int16_t gainIdx : 3;
 			uint16_t agcEnab : 1;
 		};
     	uint16_t __raw;
@@ -605,89 +608,54 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 	//
 	// <1:0>   0 ???
 
-	uint16_t val;
-
+	uint16_t val = 0;
 	switch (Bandwidth)
 	{
 		default:
 		case BK4819_FILTER_BW_WIDE:	// 25kHz
-			if (weak_no_different)
-			{	// make the RX bandwidth the same with weak signals
-				val =
-					(0u << 15) |     //  0
-					(4u << 12) |     // *3 RF filter bandwidth
-					(4u <<  9) |     // *0 RF filter bandwidth when signal is weak
-					(6u <<  6) |     // *0 AFTxLPF2 filter Band Width
-					(2u <<  4) |     //  2 BW Mode Selection
-					(1u <<  3) |     //  1
-					(0u <<  2) |     //  0 Gain after FM Demodulation
-					(0u <<  0);      //  0
+			val = (4u << 12) |     // *3 RF filter bandwidth
+				  (6u <<  6) |     // *0 AFTxLPF2 filter Band Width
+				  (2u <<  4) |     //  2 BW Mode Selection
+				  (1u <<  3) |     //  1
+				  (0u <<  2);     //  0 Gain after FM Demodulation
+
+			if (weak_no_different) {
+				// make the RX bandwidth the same with weak signals
+				val |= (4u <<  9);     // *0 RF filter bandwidth when signal is weak
+			} else {
+				/// with weak RX signals the RX bandwidth is reduced
+				val |= (2u <<  9);     // *0 RF filter bandwidth when signal is weak
 			}
-			else
-			{	// with weak RX signals the RX bandwidth is reduced
-				val =                // 0x3028);         // 0 011 000 000 10 1 0 00
-					(0u << 15) |     //  0
-					(4u << 12) |     // *3 RF filter bandwidth
-					(2u <<  9) |     // *0 RF filter bandwidth when signal is weak
-					(6u <<  6) |     // *0 AFTxLPF2 filter Band Width
-					(2u <<  4) |     //  2 BW Mode Selection
-					(1u <<  3) |     //  1
-					(0u <<  2) |     //  0 Gain after FM Demodulation
-					(0u <<  0);      //  0
-			}
+
 			break;
 
 		case BK4819_FILTER_BW_NARROW:	// 12.5kHz
-			if (weak_no_different)
-			{
-				val =
-					(0u << 15) |     //  0
-					(4u << 12) |     // *4 RF filter bandwidth
-					(4u <<  9) |     // *0 RF filter bandwidth when signal is weak
-					(0u <<  6) |     // *1 AFTxLPF2 filter Band Width
-					(0u <<  4) |     //  0 BW Mode Selection
-					(1u <<  3) |     //  1
-					(0u <<  2) |     //  0 Gain after FM Demodulation
-					(0u <<  0);      //  0
+			val = (4u << 12) |     // *4 RF filter bandwidth
+				  (0u <<  6) |     // *1 AFTxLPF2 filter Band Width
+				  (0u <<  4) |     //  0 BW Mode Selection
+				  (1u <<  3) |     //  1
+				  (0u <<  2);      //  0 Gain after FM Demodulation
+
+			if (weak_no_different) {
+				val |= (4u <<  9);     // *0 RF filter bandwidth when signal is weak
+			} else {
+				val |= (2u <<  9);
 			}
-			else
-			{
-				val =                // 0x4048);        // 0 100 000 001 00 1 0 00
-					(0u << 15) |     //  0
-					(4u << 12) |     // *4 RF filter bandwidth
-					(2u <<  9) |     // *0 RF filter bandwidth when signal is weak
-					(0u <<  6) |     // *1 AFTxLPF2 filter Band Width
-					(0u <<  4) |     //  0 BW Mode Selection
-					(1u <<  3) |     //  1
-					(0u <<  2) |     //  0 Gain after FM Demodulation
-					(0u <<  0);      //  0
-			}
+
 			break;
 
 		case BK4819_FILTER_BW_NARROWER:	// 6.25kHz
-			if (weak_no_different)
-			{
-				val =
-					(0u << 15) |     //  0
-					(3u << 12) |     //  3 RF filter bandwidth
-					(3u <<  9) |     // *0 RF filter bandwidth when signal is weak
-					(1u <<  6) |     //  1 AFTxLPF2 filter Band Width
-					(1u <<  4) |     //  1 BW Mode Selection
-					(1u <<  3) |     //  1
-					(0u <<  2) |     //  0 Gain after FM Demodulation
-					(0u <<  0);      //  0
-			}
-			else
-			{
-				val =
-					(0u << 15) |     //  0
-					(3u << 12) |     //  3 RF filter bandwidth
-					(0u <<  9) |     //  0 RF filter bandwidth when signal is weak
-					(1u <<  6) |     //  1 AFTxLPF2 filter Band Width
-					(1u <<  4) |     //  1 BW Mode Selection
-					(1u <<  3) |     //  1
-					(0u <<  2) |     //  1 Gain after FM Demodulation
-					(0u <<  0);      //  0
+			val = (3u << 12) |     //  3 RF filter bandwidth
+				  (3u <<  9) |     // *0 RF filter bandwidth when signal is weak
+				  (1u <<  6) |     //  1 AFTxLPF2 filter Band Width
+				  (1u <<  4) |     //  1 BW Mode Selection
+				  (1u <<  3) |     //  1
+				  (0u <<  2);      //  0 Gain after FM Demodulation
+
+			if (weak_no_different) {
+				val |= (3u <<  9);
+			} else {
+				val |= (0u <<  9);     //  0 RF filter bandwidth when signal is weak
 			}
 			break;
 	}
@@ -843,7 +811,7 @@ void BK4819_RX_TurnOn(void)
 	BK4819_WriteRegister(BK4819_REG_30, 0);
 
 
-	BK4819_WriteRegister(BK4819_REG_30, 
+	BK4819_WriteRegister(BK4819_REG_30,
 		BK4819_REG_30_ENABLE_VCO_CALIB |
 		BK4819_REG_30_DISABLE_UNKNOWN |
 		BK4819_REG_30_ENABLE_RX_LINK |
@@ -1024,7 +992,7 @@ void BK4819_PlayTone(uint16_t Frequency, bool bTuningGainSwitch)
 void BK4819_PlaySingleTone(const unsigned int tone_Hz, const unsigned int delay, const unsigned int level, const bool play_speaker)
 {
 	BK4819_EnterTxMute();
-	
+
 	if (play_speaker)
 	{
 		AUDIO_AudioPathOn();
@@ -1033,7 +1001,7 @@ void BK4819_PlaySingleTone(const unsigned int tone_Hz, const unsigned int delay,
 	else
 		BK4819_SetAF(BK4819_AF_MUTE);
 
-	
+
 	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | ((level & 0x7f) << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
 
 	BK4819_EnableTXLink();
@@ -1050,7 +1018,7 @@ void BK4819_PlaySingleTone(const unsigned int tone_Hz, const unsigned int delay,
 		AUDIO_AudioPathOff();
 		BK4819_SetAF(BK4819_AF_MUTE);
 	}
-	
+
 	BK4819_WriteRegister(BK4819_REG_70, 0x0000);
 	BK4819_WriteRegister(BK4819_REG_30, 0xC1FE);
 	BK4819_ExitTxMute();
@@ -1150,7 +1118,7 @@ void BK4819_ExitBypass(void)
 	uint16_t regVal = BK4819_ReadRegister(BK4819_REG_7E);
 
 	// 0x302E / 0 011 000000 101 110
-	BK4819_WriteRegister(BK4819_REG_7E, (regVal & ~(0b111 << 3)) 
+	BK4819_WriteRegister(BK4819_REG_7E, (regVal & ~(0b111 << 3))
 
 		| (5u <<  3)       // 5  DC Filter band width for Tx (MIC In)
 
@@ -1266,33 +1234,46 @@ void BK4819_EnableTXLink(void)
 
 void BK4819_PlayDTMF(char Code)
 {
-	uint16_t tone1 = 0;
-	uint16_t tone2 = 0;
 
+	struct DTMF_TonePair {
+		uint16_t tone1;
+		uint16_t tone2;
+	};
+
+	const struct DTMF_TonePair tones[] = {
+		{941, 1336},
+		{697, 1209},
+		{697, 1336},
+		{697, 1477},
+		{770, 1209},
+		{770, 1336},
+		{770, 1477},
+		{852, 1209},
+		{852, 1336},
+		{852, 1477},
+		{697, 1633},
+		{770, 1633},
+		{852, 1633},
+		{941, 1633},
+		{941, 1209},
+		{941, 1477},
+	};
+
+
+	const struct DTMF_TonePair *pSelectedTone = NULL;
 	switch (Code)
 	{
-		case '0': tone1 = 941; tone2 = 1336; break;
-		case '1': tone1 = 697; tone2 = 1209; break;
-		case '2': tone1 = 697; tone2 = 1336; break;
-		case '3': tone1 = 697; tone2 = 1477; break;
-		case '4': tone1 = 770; tone2 = 1209; break;
-		case '5': tone1 = 770; tone2 = 1336; break;
-		case '6': tone1 = 770; tone2 = 1477; break;
-		case '7': tone1 = 852; tone2 = 1209; break;
-		case '8': tone1 = 852; tone2 = 1336; break;
-		case '9': tone1 = 852; tone2 = 1477; break;
-		case 'A': tone1 = 697; tone2 = 1633; break;
-		case 'B': tone1 = 770; tone2 = 1633; break;
-		case 'C': tone1 = 852; tone2 = 1633; break;
-		case 'D': tone1 = 941; tone2 = 1633; break;
-		case '*': tone1 = 941; tone2 = 1209; break;
-		case '#': tone1 = 941; tone2 = 1477; break;
+		case '0'...'9': pSelectedTone = &tones[0  + Code - '0']; break;
+		case 'A'...'D': pSelectedTone = &tones[10 + Code - 'A']; break;
+		case '*': pSelectedTone = &tones[14]; break;
+		case '#': pSelectedTone = &tones[15]; break;
+		default: pSelectedTone = NULL;
 	}
 
-	if (tone1 > 0)
-		BK4819_WriteRegister(BK4819_REG_71, (((uint32_t)tone1 * 103244) + 5000) / 10000);   // with rounding
-	if (tone2 > 0)
-		BK4819_WriteRegister(BK4819_REG_72, (((uint32_t)tone2 * 103244) + 5000) / 10000);   // with rounding
+	if (pSelectedTone) {
+		BK4819_WriteRegister(BK4819_REG_71, (((uint32_t)pSelectedTone->tone1 * 103244) + 5000) / 10000);   // with rounding
+		BK4819_WriteRegister(BK4819_REG_72, (((uint32_t)pSelectedTone->tone2 * 103244) + 5000) / 10000);   // with rounding
+	}
 }
 
 void BK4819_PlayDTMFString(const char *pString, bool bDelayFirst, uint16_t FirstCodePersistTime, uint16_t HashCodePersistTime, uint16_t CodePersistTime, uint16_t CodeInternalTime)
@@ -1728,6 +1709,7 @@ void BK4819_PlayRoger(const int roger)
 		const uint32_t tone2_Hz = 1310;
 	#endif*/
 
+
 	BK4819_EnterTxMute();
 	BK4819_SetAF(BK4819_AF_MUTE);
 
@@ -1802,30 +1784,41 @@ void BK4819_PlayRoger(const int roger)
 	BK4819_WriteRegister(BK4819_REG_30, 0xC1FE);   // 1 1 0000 0 1 1111 1 1 1 0
 }
 
+
 void BK4819_PlayRogerMDC(void)
 {
-	unsigned int i;
+	struct reg_value {
+		BK4819_REGISTER_t reg;
+		uint16_t value;
+	};
+
+	struct reg_value RogerMDC_Configuration [] = {
+		{ BK4819_REG_58, 0x37C3 },	// FSK Enable,
+										// RX Bandwidth FFSK 1200/1800
+										// 0xAA or 0x55 Preamble
+										// 11 RX Gain,
+										// 101 RX Mode
+										// TX FFSK 1200/1800
+		{ BK4819_REG_72, 0x3065 },	// Set Tone-2 to 1200Hz
+		{ BK4819_REG_70, 0x00E0 },	// Enable Tone-2 and Set Tone2 Gain
+		{ BK4819_REG_5D, 0x0D00 },	// Set FSK data length to 13 bytes
+		{ BK4819_REG_59, 0x8068 },	// 4 byte sync length, 6 byte preamble, clear TX FIFO
+		{ BK4819_REG_59, 0x0068 },	// Same, but clear TX FIFO is now unset (clearing done)
+		{ BK4819_REG_5A, 0x5555 },	// First two sync bytes
+		{ BK4819_REG_5B, 0x55AA },	// End of sync bytes. Total 4 bytes: 555555aa
+		{ BK4819_REG_5C, 0xAA30 },	// Disable CRC
+	};
 
 	BK4819_SetAF(BK4819_AF_MUTE);
 
-	BK4819_WriteRegister(BK4819_REG_58, 0x37C3);   // FSK Enable,
-	                                               // RX Bandwidth FFSK 1200/1800
-	                                               // 0xAA or 0x55 Preamble
-	                                               // 11 RX Gain,
-	                                               // 101 RX Mode
-	                                               // TX FFSK 1200/1800
-	BK4819_WriteRegister(BK4819_REG_72, 0x3065);   // Set Tone-2 to 1200Hz
-	BK4819_WriteRegister(BK4819_REG_70, 0x00E0);   // Enable Tone-2 and Set Tone2 Gain
-	BK4819_WriteRegister(BK4819_REG_5D, 0x0D00);   // Set FSK data length to 13 bytes
-	BK4819_WriteRegister(BK4819_REG_59, 0x8068);   // 4 byte sync length, 6 byte preamble, clear TX FIFO
-	BK4819_WriteRegister(BK4819_REG_59, 0x0068);   // Same, but clear TX FIFO is now unset (clearing done)
-	BK4819_WriteRegister(BK4819_REG_5A, 0x5555);   // First two sync bytes
-	BK4819_WriteRegister(BK4819_REG_5B, 0x55AA);   // End of sync bytes. Total 4 bytes: 555555aa
-	BK4819_WriteRegister(BK4819_REG_5C, 0xAA30);   // Disable CRC
+	for (unsigned int i = 0; i < ARRAY_SIZE(RogerMDC_Configuration); i++) {
+		BK4819_WriteRegister(RogerMDC_Configuration[i].reg, RogerMDC_Configuration[i].value);
+	}
 
 	// Send the data from the roger table
-	for (i = 0; i < 7; i++)
+	for (unsigned int i = 0; i < ARRAY_SIZE(FSK_RogerTable); i++) {
 		BK4819_WriteRegister(BK4819_REG_5F, FSK_RogerTable[i]);
+	}
 
 	SYSTEM_DelayMs(20);
 
@@ -1838,6 +1831,15 @@ void BK4819_PlayRogerMDC(void)
 	BK4819_WriteRegister(BK4819_REG_59, 0x0068);
 	BK4819_WriteRegister(BK4819_REG_70, 0x0000);
 	BK4819_WriteRegister(BK4819_REG_58, 0x0000);
+}
+
+void BK4819_PlayRoger(void)
+{
+	if (gEeprom.ROGER == ROGER_MODE_ROGER) {
+		BK4819_PlayRogerNormal();
+	} else if (gEeprom.ROGER == ROGER_MODE_MDC) {
+		BK4819_PlayRogerMDC();
+	}
 }
 
 void BK4819_Enable_AfDac_DiscMode_TxDsp(void)

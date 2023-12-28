@@ -16,6 +16,7 @@
 #include "app/spectrum.h"
 #include "am_fix.h"
 #include "audio.h"
+#include "misc.h"
 
 #ifdef ENABLE_SCAN_RANGES
 #include "chFrScanner.h"
@@ -37,13 +38,6 @@ struct FrequencyBandInfo {
 #define F_MAX frequencyBandTable[BAND_N_ELEM - 1].upper
 
 const uint16_t RSSI_MAX_VALUE = 65535;
-
-//static uint16_t R30, R37, R3D, R43, R47, R48, R7E;
-
-static uint16_t registersBackup[11];
-static const uint8_t registersToBackup[] = {
-	BK4819_REG_13, BK4819_REG_30, BK4819_REG_31, BK4819_REG_37, BK4819_REG_3D, BK4819_REG_40, BK4819_REG_43, BK4819_REG_47, BK4819_REG_48, BK4819_REG_7D, BK4819_REG_7E,
-};
 
 static uint32_t initialFreq;
 static char String[32];
@@ -193,33 +187,29 @@ static void ToggleAFBit(bool on) {
   BK4819_WriteRegister(BK4819_REG_47, reg);
 }
 
-static void BackupRegisters() {
-  /*R30 = BK4819_ReadRegister(BK4819_REG_30);
-  R37 = BK4819_ReadRegister(BK4819_REG_37);
-  R3D = BK4819_ReadRegister(BK4819_REG_3D);
-  R43 = BK4819_ReadRegister(BK4819_REG_43);
-  R47 = BK4819_ReadRegister(BK4819_REG_47);
-  R48 = BK4819_ReadRegister(BK4819_REG_48);
-  R7E = BK4819_ReadRegister(BK4819_REG_7E);*/
+static const BK4819_REGISTER_t registers_to_save[] ={
+  BK4819_REG_30,
+  BK4819_REG_37,
+  BK4819_REG_3D,
+  BK4819_REG_43,
+  BK4819_REG_47,
+  BK4819_REG_48,
+  BK4819_REG_7E,
+};
 
-  for (uint8_t i = 0; i < ARRAY_SIZE(registersToBackup); ++i) {
-		uint8_t regNum = registersToBackup[i];
-		registersBackup[regNum] = BK4819_ReadRegister(regNum);
-	}
+static uint16_t registers_stack [sizeof(registers_to_save)];
+
+static void BackupRegisters() {
+  for (uint32_t i = 0; i < ARRAY_SIZE(registers_to_save); i++){
+    registers_stack[i] = BK4819_ReadRegister(registers_to_save[i]);
+  }
 }
 
 static void RestoreRegisters() {
-  /*BK4819_WriteRegister(BK4819_REG_30, R30);
-  BK4819_WriteRegister(BK4819_REG_37, R37);
-  BK4819_WriteRegister(BK4819_REG_3D, R3D);
-  BK4819_WriteRegister(BK4819_REG_43, R43);
-  BK4819_WriteRegister(BK4819_REG_47, R47);
-  BK4819_WriteRegister(BK4819_REG_48, R48);
-  BK4819_WriteRegister(BK4819_REG_7E, R7E);*/
-  for (uint8_t i = 0; i < ARRAY_SIZE(registersToBackup); ++i) {
-		uint8_t regNum = registersToBackup[i];
-		BK4819_WriteRegister(regNum, registersBackup[regNum]);
-	}
+
+  for (uint32_t i = 0; i < ARRAY_SIZE(registers_to_save); i++){
+    BK4819_WriteRegister(registers_to_save[i], registers_stack[i]);
+  }
 }
 
 static void ToggleAFDAC(bool on) {
@@ -253,8 +243,8 @@ bool IsCenterMode() { return settings.scanStepIndex < S_STEP_2_5kHz; }
 // scan step in 0.01khz
 uint16_t GetScanStep() { return scanStepValues[settings.scanStepIndex]; }
 
-uint16_t GetStepsCount() 
-{ 
+uint16_t GetStepsCount()
+{
 #ifdef ENABLE_SCAN_RANGES
   if(gScanRangeStart) {
     return (gScanRangeStop - gScanRangeStart) / GetScanStep();
@@ -426,10 +416,10 @@ static void UpdatePeakInfo() {
 
 static void SetRssiHistory(uint16_t idx, uint16_t rssi)
 {
-#ifdef ENABLE_SCAN_RANGES  
+#ifdef ENABLE_SCAN_RANGES
   if(scanInfo.measurementsCount > 128) {
     uint8_t i = (uint32_t)ARRAY_SIZE(rssiHistory) * 1000 / scanInfo.measurementsCount * idx / 1000;
-    if(rssiHistory[i] < rssi || isListening) 
+    if(rssiHistory[i] < rssi || isListening)
       rssiHistory[i] = rssi;
     rssiHistory[(i+1)%128] = 0;
     return;
@@ -438,8 +428,8 @@ static void SetRssiHistory(uint16_t idx, uint16_t rssi)
   rssiHistory[idx] = rssi;
 }
 
-static void Measure() 
-{ 
+static void Measure()
+{
   uint16_t rssi = scanInfo.rssi = GetRssi();
   SetRssiHistory(scanInfo.i, rssi);
 }
@@ -523,13 +513,12 @@ static void UpdateDBMax(bool inc) {
 }
 
 static void UpdateScanStep(bool inc) {
-  if (inc && settings.scanStepIndex < S_STEP_100_0kHz) {
-    ++settings.scanStepIndex;
-  } else if (!inc && settings.scanStepIndex > 0) {
-    --settings.scanStepIndex;
+  if (inc) {
+    settings.scanStepIndex = settings.scanStepIndex != S_STEP_100_0kHz ? settings.scanStepIndex + 1 : 0;
   } else {
-    return;
+    settings.scanStepIndex = settings.scanStepIndex != 0 ? settings.scanStepIndex - 1 : S_STEP_100_0kHz;
   }
+
   settings.frequencyChangeStep = GetBW() >> 1;
   RelaunchScan();
   ResetBlacklist();
@@ -926,7 +915,7 @@ static void OnKeyDown(uint8_t key) {
   case KEY_5:
 #ifdef ENABLE_SCAN_RANGES
     if(!gScanRangeStart)
-#endif  
+#endif
       FreqInput();
     break;
   case KEY_0:
@@ -1155,7 +1144,7 @@ static void RenderStill() {
 }
 
 static void Render() {
-  memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+  UI_DisplayClear();
 
   switch (currentState) {
   case SPECTRUM:
@@ -1230,7 +1219,7 @@ static void UpdateScan() {
   }
 
   if(scanInfo.measurementsCount < 128)
-    memset(&rssiHistory[scanInfo.measurementsCount], 0, 
+    memset(&rssiHistory[scanInfo.measurementsCount], 0,
       sizeof(rssiHistory) - scanInfo.measurementsCount*sizeof(rssiHistory[0]));
 
   redrawScreen = true;

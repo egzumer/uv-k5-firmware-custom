@@ -14,6 +14,7 @@
  *     limitations under the License.
  */
 
+#include "driver/bk4819-regs.h"
 #include <string.h>
 
 #include "am_fix.h"
@@ -168,7 +169,7 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 
 	if (IS_VALID_CHANNEL(channel)) {
 #ifdef ENABLE_NOAA
-		if (channel >= NOAA_CHANNEL_FIRST)
+		if (IS_NOAA_CHANNEL(channel))
 		{
 			RADIO_InitInfo(pVfo, gEeprom.ScreenChannel[VFO], NoaaFrequencyTable[channel - NOAA_CHANNEL_FIRST]);
 
@@ -814,7 +815,7 @@ void RADIO_SetupRegisters(bool switchToForeground)
 				return;
 			}
 
-			if (gRxVfo->CHANNEL_SAVE >= NOAA_CHANNEL_FIRST)
+			if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
 			{
 				gIsNoaaMode          = true;
 				gNoaaChannel         = gRxVfo->CHANNEL_SAVE - NOAA_CHANNEL_FIRST;
@@ -1094,6 +1095,16 @@ void RADIO_EnableCxCSS(void)
 	}
 
 	SYSTEM_DelayMs(200);
+}
+
+void RADIO_SendEndOfTransmission(void)
+{
+	BK4819_PlayRoger();
+	DTMF_SendEndOfTransmission();
+
+	// send the CTCSS/DCS tail tone - allows the receivers to mute the usual FM squelch tail/crash
+	RADIO_EnableCxCSS();
+	RADIO_SetupRegisters(false);
 }
 
 void RADIO_PrepareCssTX(void)

@@ -78,6 +78,41 @@ void DTMF_clear_RX(void)
 }
 #endif
 
+void DTMF_SendEndOfTransmission(void)
+{
+	if (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_APOLLO) {
+		BK4819_PlaySingleTone(2475, 250, 28, gEeprom.DTMF_SIDE_TONE);
+	}
+
+	if ((gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN || gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_BOTH)
+#ifdef ENABLE_DTMF_CALLING
+		&& gDTMF_CallState == DTMF_CALL_STATE_NONE
+#endif
+	) {	// end-of-tx
+		if (gEeprom.DTMF_SIDE_TONE)
+		{
+			AUDIO_AudioPathOn();
+			gEnableSpeaker = true;
+			SYSTEM_DelayMs(60);
+		}
+
+		BK4819_EnterDTMF_TX(gEeprom.DTMF_SIDE_TONE);
+
+		BK4819_PlayDTMFString(
+				gEeprom.DTMF_DOWN_CODE,
+				0,
+				gEeprom.DTMF_FIRST_CODE_PERSIST_TIME,
+				gEeprom.DTMF_HASH_CODE_PERSIST_TIME,
+				gEeprom.DTMF_CODE_PERSIST_TIME,
+				gEeprom.DTMF_CODE_INTERVAL_TIME);
+
+		AUDIO_AudioPathOff();
+		gEnableSpeaker = false;
+	}
+
+	BK4819_ExitDTMF_TX(true);
+}
+
 bool DTMF_ValidateCodes(char *pCode, const unsigned int size)
 {
 	unsigned int i;
@@ -103,33 +138,27 @@ bool DTMF_ValidateCodes(char *pCode, const unsigned int size)
 #ifdef ENABLE_DTMF_CALLING
 bool DTMF_GetContact(const int Index, char *pContact)
 {
-	int i = -1;
-	if (Index >= 0 && Index < MAX_DTMF_CONTACTS && pContact != NULL)
-	{
-		EEPROM_ReadBuffer(0x1C00 + (Index * 16), pContact, 16);
-		i = (int)pContact[0] - ' ';
+	if (Index < 0 || Index >= MAX_DTMF_CONTACTS || pContact == NULL) {
+		return false;
 	}
-	return (i >= 0 && i < 95);
+
+	EEPROM_ReadBuffer(0x1C00 + (Index * 16), pContact, 16);
+
+	// check whether the first character is printable or not
+	return (pContact[0] >= ' ' && pContact[0] < 127);
 }
 
 bool DTMF_FindContact(const char *pContact, char *pResult)
 {
-	char         Contact[16];
-	unsigned int i;
+	pResult[0] = 0;
 
-	for (i = 0; i < MAX_DTMF_CONTACTS; i++)
-	{
-		unsigned int j;
-
-		if (!DTMF_GetContact(i, Contact))
+	for (unsigned int i = 0; i < MAX_DTMF_CONTACTS; i++) {
+		char Contact[16];
+		if (!DTMF_GetContact(i, Contact)) {
 			return false;
+		}
 
-		for (j = 0; j < 3; j++)
-			if (pContact[j] != Contact[j + 8])
-				break;
-
-		if (j == 3)
-		{
+		if (memcmp(pContact, Contact + 8, 3) == 0) {
 			memcpy(pResult, Contact, 8);
 			pResult[8] = 0;
 			return true;
@@ -303,13 +332,12 @@ void DTMF_HandleRequest(void)
 
 	if (gDTMF_RX_index >= 2)
 	{	// look for ACK reply
+		char *pPrintStr = "AB";
 
-		strcpy(String, "AB");
+		Offset = gDTMF_RX_index - strlen(pPrintStr);
 
-		Offset = gDTMF_RX_index - strlen(String);
-
-		if (CompareMessage(gDTMF_RX + Offset, String, strlen(String), true))
-		{	// ends with "AB"
+		if (CompareMessage(gDTMF_RX + Offset, pPrintStr, strlen(pPrintStr), true)) {
+			// ends with "AB"
 
 			if (gDTMF_ReplyState != DTMF_REPLY_NONE)          // 1of11
 //			if (gDTMF_CallState != DTMF_CALL_STATE_NONE)      // 1of11
@@ -410,7 +438,7 @@ void DTMF_Reply(void)
 				sprintf(String, "%s%c%s", gDTMF_String, gEeprom.DTMF_SEPARATE_CODE, gEeprom.ANI_DTMF_ID);
 				pString = String;
 			}
-			else 
+			else
 #endif
 			{
 				pString = gDTMF_String;
