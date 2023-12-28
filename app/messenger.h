@@ -27,7 +27,7 @@ extern KeyboardType keyboardType;
 extern uint16_t gErrorsDuringMSG;
 extern char cMessage[TX_MSG_LENGTH];
 extern char rxMessage[4][MAX_RX_MSG_LENGTH + 2];
-extern bool hasNewMessage;
+extern uint8_t hasNewMessage;
 extern uint8_t keyTickCounter;
 
 void MSG_EnableRX(const bool enable);

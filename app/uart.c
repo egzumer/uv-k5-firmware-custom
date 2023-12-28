@@ -22,7 +22,7 @@
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
-#ifdef ENABLE_MESSENGER
+#if defined(ENABLE_MESSENGER) || defined(ENABLE_MESSENGER_UART)
 	#include "app/messenger.h"
   	#include "external/printf/printf.h"
 #endif
@@ -438,14 +438,6 @@ static void CMD_052F(const uint8_t *pBuffer)
 	SendVersion();
 }
 
-#ifdef ENABLE_MESSENGER
-void remove(char cstring[], char letter) {
-    for(int i = 0; cstring[i] != '\0'; i++) {
-        if(cstring[i] == letter) cstring[i] = '\0';
-    } 
-}
-#endif
-
 #ifdef ENABLE_UART_RW_BK_REGS
 static void CMD_0601_ReadBK4819Reg(const uint8_t *pBuffer)
 {
@@ -484,6 +476,14 @@ static void CMD_0602_WriteBK4819Reg(const uint8_t *pBuffer)
 }
 #endif
 
+#if defined(ENABLE_MESSENGER) || defined(ENABLE_MESSENGER_UART)
+void remove(char cstring[], char letter) {
+    for(int i = 0; cstring[i] != '\0'; i++) {
+        if(cstring[i] == letter) cstring[i] = '\0';
+    } 
+}
+#endif
+
 bool UART_IsCommandAvailable(void)
 {
 	uint16_t Index;
@@ -498,7 +498,7 @@ bool UART_IsCommandAvailable(void)
 		if (gUART_WriteIndex == DmaLength)
 			return false;
 
-#ifdef ENABLE_MESSENGER
+#if defined(ENABLE_MESSENGER) || defined(ENABLE_MESSENGER_UART)
 
 		if ( UART_DMA_Buffer[gUART_WriteIndex] == 'S' && UART_DMA_Buffer[gUART_WriteIndex + 1] == 'M' && UART_DMA_Buffer[ gUART_WriteIndex + 2] == 'S' && UART_DMA_Buffer[gUART_WriteIndex + 3] == ':') {
 		

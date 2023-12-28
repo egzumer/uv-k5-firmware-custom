@@ -68,8 +68,9 @@ void UI_DisplayStatus()
 #endif
 
 #ifdef ENABLE_MESSENGER
-	if (hasNewMessage) { // New Message indicator
-		memcpy(line + x, BITMAP_NEWMSG, sizeof(BITMAP_NEWMSG));
+	if (hasNewMessage > 0) { // New Message indicator
+		if (hasNewMessage == 1)
+			memcpy(line + x, BITMAP_NEWMSG, sizeof(BITMAP_NEWMSG));
 		x1 = x + sizeof(BITMAP_NEWMSG);
 	}
 	x += sizeof(BITMAP_NEWMSG);

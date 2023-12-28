@@ -33,7 +33,7 @@
 	#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #endif
 
-static const uint16_t FSK_RogerTable[7] = {0xF1A2, 0x7446, 0x61A4, 0x6544, 0x4E8A, 0xE044, 0xEA84};
+//static const uint16_t FSK_RogerTable[7] = {0xF1A2, 0x7446, 0x61A4, 0x6544, 0x4E8A, 0xE044, 0xEA84};
 
 static const uint8_t DTMF_TONE1_GAIN = 65;
 static const uint8_t DTMF_TONE2_GAIN = 93;
@@ -1711,7 +1711,7 @@ void BK4819_PlayRogerNormal(const int roger)
 
 
 	BK4819_EnterTxMute();
-	BK4819_SetAF(BK4819_AF_MUTE);
+  	BK4819_SetAF(BK4819_AF_MUTE);
 
 	BK4819_WriteRegister(BK4819_REG_70, BK4819_REG_70_ENABLE_TONE1 | (66u << BK4819_REG_70_SHIFT_TONE1_TUNING_GAIN));
 
@@ -1756,10 +1756,15 @@ void BK4819_PlayRogerNormal(const int roger)
 			BK4819_PlayBeep(1742, 80); 	
 			break;
 
+		case 98: // 
+			BK4819_PlayBeep(1200, 100);
+			BK4819_PlayBeep(2400, 100);			
+			break;
+
 		case 99: // 
-			BK4819_PlayBeep(1200, 300);  // Frequency and duration can be adjusted
-			BK4819_PlayBeep(2400, 300);
-			//BK4819_PlayBeep(1000, 200);
+			BK4819_PlayBeep(800, 200);  // Frequency and duration can be adjusted
+      		BK4819_PlayBeep(600, 200);
+      		BK4819_PlayBeep(1000, 200);
 			break;
 
 		default: // DEFAULT
@@ -1767,24 +1772,11 @@ void BK4819_PlayRogerNormal(const int roger)
 			BK4819_PlayBeep(700, 80);
 	}	
 
-	/*BK4819_WriteRegister(BK4819_REG_71, scale_freq(tone1_Hz));
-
-	BK4819_ExitTxMute();
-	SYSTEM_DelayMs(80);
-	BK4819_EnterTxMute();
-
-	BK4819_WriteRegister(BK4819_REG_71, scale_freq(tone2_Hz));
-
-	BK4819_ExitTxMute();
-	SYSTEM_DelayMs(80);
-	BK4819_EnterTxMute();*/
-
-
 	BK4819_WriteRegister(BK4819_REG_70, 0x0000);
 	BK4819_WriteRegister(BK4819_REG_30, 0xC1FE);   // 1 1 0000 0 1 1111 1 1 1 0
 }
 
-
+/*
 void BK4819_PlayRogerMDC(void)
 {
 	struct reg_value {
@@ -1832,13 +1824,15 @@ void BK4819_PlayRogerMDC(void)
 	BK4819_WriteRegister(BK4819_REG_70, 0x0000);
 	BK4819_WriteRegister(BK4819_REG_58, 0x0000);
 }
+*/
 
 void BK4819_PlayRoger(void)
 {
 
-	if (gEeprom.ROGER == ROGER_MODE_MDC)
+	/*if (gEeprom.ROGER == ROGER_MODE_MDC)
 		BK4819_PlayRogerMDC();
-	else if (gEeprom.ROGER != ROGER_MODE_OFF) {
+	else */
+	if (gEeprom.ROGER != ROGER_MODE_OFF) {
 		BK4819_PlayRogerNormal(gEeprom.ROGER - 1);
 	}
 }

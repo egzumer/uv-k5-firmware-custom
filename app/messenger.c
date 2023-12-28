@@ -56,7 +56,7 @@ uint8_t msgFSKBuffer[MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH];
 
 uint16_t gErrorsDuringMSG;
 
-bool hasNewMessage = false;
+uint8_t hasNewMessage = 0;
 
 uint8_t keyTickCounter = 0;
 
@@ -268,14 +268,14 @@ void MSG_FSKSendData() {
 		const uint16_t *p = (const uint16_t *)msgFSKBuffer;
 		const uint16_t len_buff = (MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH) / sizeof(p[0]);
 		for (i = 0; i < len_buff; i++) {
-			BK4819_WriteRegister(BK4819_REG_5F, p[i]);  // load 16-bits at a time			
+			BK4819_WriteRegister(BK4819_REG_5F, p[i]);  // load 16-bits at a time
 		}
 	}
 	SYSTEM_DelayMs(100);
 
 	// enable FSK TX
 	BK4819_WriteRegister(BK4819_REG_59, (1u << 11) | fsk_reg59);
-	
+
 	{
 		// allow up to 310ms for the TX to complete
 		// if it takes any longer then somethings gone wrong, we shut the TX down
@@ -572,7 +572,7 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH]) {
 		RADIO_SetTxParameters();
 
 		SYSTEM_DelayMs(500);
-		BK4819_PlayRogerNormal(99);
+		BK4819_PlayRogerNormal(98);
 		SYSTEM_DelayMs(200);
 		BK4819_ExitTxMute();
 		MSG_FSKSendData();
@@ -646,24 +646,35 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 			moveUP(rxMessage);
 
 			if (msgFSKBuffer[0] != 'M' || msgFSKBuffer[1] != 'S') {
-				rxMessage[3][0] = '!';
+				snprintf(rxMessage[3], TX_MSG_LENGTH + 2, "? unknown msg format!");
 			} else {
-				rxMessage[3][0] = '<';
-			}
+				snprintf(rxMessage[3], TX_MSG_LENGTH + 2, "< %s", &msgFSKBuffer[2]);
 
-			snprintf(rxMessage[3] + 1, TX_MSG_LENGTH + 2, " %s", &msgFSKBuffer[2]);
+			#ifdef ENABLE_MESSENGER_UART
+				UART_printf("SMS<%s\r\n", &msgFSKBuffer[2]);
+			#endif
 
-			UART_printf("SMS<%s\r\n", &msgFSKBuffer[2]);
-			
-			if ( gScreenToDisplay != DISPLAY_MSG ) {
-				hasNewMessage = true;
-				gUpdateStatus = true;
-				gUpdateDisplay = true;				
-			}
-			else {
-				gUpdateDisplay = true;
-			}
+			#ifdef ENABLE_MESSENGER_DELIVERY_NOTIFICATION
+				BK4819_DisableDTMF();
+				RADIO_SetTxParameters();
+				SYSTEM_DelayMs(500);
+				BK4819_ExitTxMute();
+				BK4819_PlayRogerNormal(99);
+				BK4819_EnterTxMute();
+			#endif
 
+				if ( gScreenToDisplay != DISPLAY_MSG ) {
+					hasNewMessage = 1;
+					gUpdateStatus = true;
+					gUpdateDisplay = true;
+			#ifdef ENABLE_MESSENGER_NOTIFICATION
+					gPlayMSGRing = true;
+			#endif
+				}
+				else {
+					gUpdateDisplay = true;
+				}
+			}
 		}
 
 		gFSKWriteIndex = 0;
@@ -674,7 +685,7 @@ void MSG_Init() {
 	memset(rxMessage, 0, sizeof(rxMessage));
 	memset(cMessage, 0, sizeof(cMessage));
 	memset(lastcMessage, 0, sizeof(lastcMessage));
-	hasNewMessage = false;
+	hasNewMessage = 0;
 	msgStatus = READY;
 	prevKey = 0;
     prevLetter = 0;
@@ -791,10 +802,10 @@ void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 				break;
 
 			default:
-				if (!bKeyHeld && bKeyPressed)
-					gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+				AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 				break;
 		}
+
 	} else if (state == BUTTON_EVENT_LONG) {
 
 		switch (Key)
@@ -803,8 +814,7 @@ void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 				MSG_Init();
 				break;
 			default:
-				if (!bKeyHeld && bKeyPressed)
-					gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+				AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 				break;
 		}
 	}

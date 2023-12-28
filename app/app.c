@@ -78,6 +78,11 @@
 #include "ui/status.h"
 #include "ui/ui.h"
 
+#ifdef ENABLE_MESSENGER_NOTIFICATION
+bool gPlayMSGRing = false;
+uint8_t gPlayMSGRingCount = 0;
+#endif
+
 static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
 
@@ -1318,6 +1323,26 @@ void APP_TimeSlice500ms(void)
 {
 	gNextTimeslice_500ms = false;
 	bool exit_menu = false;
+#ifdef ENABLE_MESSENGER_NOTIFICATION
+	if (gPlayMSGRing) {
+		gPlayMSGRingCount = 5;
+		gPlayMSGRing = false;
+	}
+	if (gPlayMSGRingCount > 0) {
+		AUDIO_PlayBeep(BEEP_880HZ_200MS);
+		gPlayMSGRingCount--;
+	}
+#endif
+
+#ifdef ENABLE_MESSENGER
+	if (hasNewMessage > 0) {
+		if (hasNewMessage == 1) {
+			hasNewMessage = 2;
+		} else if (hasNewMessage == 2) {
+			hasNewMessage = 1;
+		}
+	}
+#endif
 
 	// Skipped authentic device check
 
