@@ -572,7 +572,7 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH]) {
 		RADIO_SetTxParameters();
 
 		SYSTEM_DelayMs(500);
-		BK4819_PlayRoger(99);
+		BK4819_PlayRogerNormal(99);
 		SYSTEM_DelayMs(200);
 		BK4819_ExitTxMute();
 		MSG_FSKSendData();
