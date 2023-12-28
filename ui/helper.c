@@ -265,7 +265,7 @@ void UI_DisplayPopup(const char *string)
 	// }
 	// DrawRectangle(9,9, 118,38, true);
 	UI_PrintString(string, 9, 118, 2, 8);
-	UI_PrintStringSmall("Press EXIT", 9, 118, 6);
+	UI_PrintStringSmallNormal("Press EXIT", 9, 118, 6);
 }
 
 // GUI functions

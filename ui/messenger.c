@@ -22,7 +22,7 @@ void UI_DisplayMSG(void) {
 	memset(String, 0, sizeof(String));
 
 	//UI_PrintStringSmallBold("MESSENGER", 0, 127, 0);
-	UI_PrintStringSmall("Messenger", 1, 127, 0);
+	UI_PrintStringSmallNormal("Messenger", 1, 127, 0);
 
 	UI_DrawDottedLineBuffer(gFrameBuffer, 2, 3, 26, 3, true, 2);
 	UI_DrawDottedLineBuffer(gFrameBuffer, 100, 3, 126, 3, true, 2);

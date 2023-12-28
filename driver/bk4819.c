@@ -1698,7 +1698,7 @@ void BK4819_PlayBeep(const uint16_t freq, const int delay)
   	BK4819_EnterTxMute();
 }
 
-void BK4819_PlayRoger(const int roger)
+void BK4819_PlayRogerNormal(const int roger)
 {
 	/*#if 0
 		const uint32_t tone1_Hz = 500;
@@ -1835,10 +1835,11 @@ void BK4819_PlayRogerMDC(void)
 
 void BK4819_PlayRoger(void)
 {
-	if (gEeprom.ROGER == ROGER_MODE_ROGER) {
-		BK4819_PlayRogerNormal();
-	} else if (gEeprom.ROGER == ROGER_MODE_MDC) {
+
+	if (gEeprom.ROGER == ROGER_MODE_MDC)
 		BK4819_PlayRogerMDC();
+	else if (gEeprom.ROGER != ROGER_MODE_OFF) {
+		BK4819_PlayRogerNormal(gEeprom.ROGER - 1);
 	}
 }
 
