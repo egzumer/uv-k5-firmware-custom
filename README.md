@@ -278,6 +278,7 @@ Keys :
 - "0" - Space, except in numeric mode.
 - "F" - Backspace
 - "(Long press) F" - Clear all messages
+- "UP" - Recalls last sent message
 - "M" - Transmits message in the frequency of active VFO.
 - "Exit" - Close application
 
