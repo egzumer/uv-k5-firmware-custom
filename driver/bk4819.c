@@ -1709,16 +1709,24 @@ void BK4819_PrepareFSKReceive(void)
 	BK4819_WriteRegister(BK4819_REG_59, 0x3068);
 }
 
-void BK4819_PlayRoger(void)
+void BK4819_PlayBeep(const uint16_t freq, const int delay)
 {
-	#if 0
+	BK4819_WriteRegister(BK4819_REG_71, scale_freq(freq));
+	BK4819_ExitTxMute();
+	SYSTEM_DelayMs(delay);
+  	BK4819_EnterTxMute();
+}
+
+void BK4819_PlayRoger(const int roger)
+{
+	/*#if 0
 		const uint32_t tone1_Hz = 500;
 		const uint32_t tone2_Hz = 700;
 	#else
 		// motorola type
 		const uint32_t tone1_Hz = 1540;
 		const uint32_t tone2_Hz = 1310;
-	#endif
+	#endif*/
 
 	BK4819_EnterTxMute();
 	BK4819_SetAF(BK4819_AF_MUTE);
@@ -1728,7 +1736,56 @@ void BK4819_PlayRoger(void)
 	BK4819_EnableTXLink();
 	SYSTEM_DelayMs(50);
 
-	BK4819_WriteRegister(BK4819_REG_71, scale_freq(tone1_Hz));
+	switch (roger) {
+
+		case 1: // MOTOTRBO
+			BK4819_PlayBeep(1540, 80);
+			BK4819_PlayBeep(1310, 80);
+			break;
+		case 2: // MOTOROLA APX6000 TPT
+			BK4819_PlayBeep(910, 25);
+			BK4819_PlayBeep(0, 25);
+			BK4819_PlayBeep(910, 25);
+			BK4819_PlayBeep(0, 25);
+			BK4819_PlayBeep(910, 50);
+			break;
+		case 3: // MOTOROLA T40
+			BK4819_PlayBeep(2000, 80);
+			BK4819_PlayBeep(2200, 80);
+			BK4819_PlayBeep(2000, 80);
+			BK4819_PlayBeep(2200, 80);
+			BK4819_PlayBeep(2000, 80);
+			BK4819_PlayBeep(2200, 80);	  
+			break;	
+		case 4: // MOTOROLA TLKRT80
+			BK4819_PlayBeep(1190, 80);
+			BK4819_PlayBeep(992, 80);
+			BK4819_PlayBeep(807, 80);
+			BK4819_PlayBeep(1190, 80);
+			BK4819_PlayBeep(992, 80);
+			BK4819_PlayBeep(807, 80);
+			BK4819_PlayBeep(1190, 80);
+			BK4819_PlayBeep(992, 80);
+			BK4819_PlayBeep(807, 80);	  
+			break; 
+		case 5: // MOTOROLA CobraAM845
+			BK4819_PlayBeep(435, 80);
+			BK4819_PlayBeep(872, 80);
+			BK4819_PlayBeep(1742, 80); 	
+			break;
+
+		case 99: // 
+			BK4819_PlayBeep(1200, 300);  // Frequency and duration can be adjusted
+			BK4819_PlayBeep(2400, 300);
+			//BK4819_PlayBeep(1000, 200);
+			break;
+
+		default: // DEFAULT
+			BK4819_PlayBeep(500, 80);
+			BK4819_PlayBeep(700, 80);
+	}	
+
+	/*BK4819_WriteRegister(BK4819_REG_71, scale_freq(tone1_Hz));
 
 	BK4819_ExitTxMute();
 	SYSTEM_DelayMs(80);
@@ -1738,7 +1795,8 @@ void BK4819_PlayRoger(void)
 
 	BK4819_ExitTxMute();
 	SYSTEM_DelayMs(80);
-	BK4819_EnterTxMute();
+	BK4819_EnterTxMute();*/
+
 
 	BK4819_WriteRegister(BK4819_REG_70, 0x0000);
 	BK4819_WriteRegister(BK4819_REG_30, 0xC1FE);   // 1 1 0000 0 1 1111 1 1 1 0

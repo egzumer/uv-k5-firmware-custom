@@ -1108,10 +1108,11 @@ void RADIO_PrepareCssTX(void)
 
 void RADIO_SendEndOfTransmission(void)
 {
-	if (gEeprom.ROGER == ROGER_MODE_ROGER)
-		BK4819_PlayRoger();
-	else if (gEeprom.ROGER == ROGER_MODE_MDC)
+	if (gEeprom.ROGER == ROGER_MODE_MDC)
 		BK4819_PlayRogerMDC();
+	else if (gEeprom.ROGER != ROGER_MODE_OFF) {
+		BK4819_PlayRoger(gEeprom.ROGER - 1);
+	}		
 
 	if (gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_APOLLO)
 		BK4819_PlaySingleTone(2475, 250, 28, gEeprom.DTMF_SIDE_TONE);

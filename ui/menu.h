@@ -153,7 +153,7 @@ extern const char        gSubMenu_D_RSP[4][11];
 #endif
 extern const char*       gSubMenu_PTT_ID[5];
 extern const char        gSubMenu_PONMSG[4][8];
-extern const char        gSubMenu_ROGER[3][6];
+extern const char        gSubMenu_ROGER[8][11];
 extern const char        gSubMenu_RESET[2][4];
 extern const char*       gSubMenu_F_LOCK[F_LOCK_LEN];
 extern const char        gSubMenu_BACKLIGHT[8][7];

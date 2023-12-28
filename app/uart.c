@@ -22,6 +22,10 @@
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
+#ifdef ENABLE_MESSENGER
+	#include "app/messenger.h"
+  	#include "external/printf/printf.h"
+#endif
 #include "app/uart.h"
 #include "board.h"
 #include "bsp/dp32g030/dma.h"
@@ -429,6 +433,14 @@ static void CMD_052F(const uint8_t *pBuffer)
 	SendVersion();
 }
 
+#ifdef ENABLE_MESSENGER
+void remove(char cstring[], char letter) {
+    for(int i = 0; cstring[i] != '\0'; i++) {
+        if(cstring[i] == letter) cstring[i] = '\0';
+    } 
+}
+#endif
+
 bool UART_IsCommandAvailable(void)
 {
 	uint16_t Index;
@@ -443,6 +455,26 @@ bool UART_IsCommandAvailable(void)
 		if (gUART_WriteIndex == DmaLength)
 			return false;
 
+#ifdef ENABLE_MESSENGER
+
+		if ( UART_DMA_Buffer[gUART_WriteIndex] == 'S' && UART_DMA_Buffer[gUART_WriteIndex + 1] == 'M' && UART_DMA_Buffer[ gUART_WriteIndex + 2] == 'S' && UART_DMA_Buffer[gUART_WriteIndex + 3] == ':') {
+		
+		char txMessage[TX_MSG_LENGTH + 4];
+		memset(txMessage, 0, sizeof(txMessage));
+		snprintf(txMessage, (TX_MSG_LENGTH + 4), "%s", &UART_DMA_Buffer[gUART_WriteIndex + 4]);
+
+		remove(txMessage, '\n');
+		remove(txMessage, '\r');      
+
+		if (strlen(txMessage) > 0) {        
+			MSG_Send(txMessage);
+			UART_printf("SMS>%s\r\n", txMessage);
+			gUpdateDisplay = true;
+		}      
+		
+		}
+  
+#endif  
 		while (gUART_WriteIndex != DmaLength && UART_DMA_Buffer[gUART_WriteIndex] != 0xABU)
 			gUART_WriteIndex = DMA_INDEX(gUART_WriteIndex, 1);
 

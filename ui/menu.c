@@ -265,10 +265,15 @@ const char gSubMenu_PONMSG[][8] =
 	"NONE"
 };
 
-const char gSubMenu_ROGER[][6] =
+const char gSubMenu_ROGER[][11] =
 {
 	"OFF",
-	"ROGER",
+	"DEFAULT",
+	"MOTOTRBO",
+    "MOTO TPT",
+	"MOTO T40",
+	"MOTO T80",
+	"C.AM845",
 	"MDC"
 };
 
