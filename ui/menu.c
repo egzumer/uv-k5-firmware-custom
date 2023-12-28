@@ -667,8 +667,7 @@ void UI_DisplayMenu(void)
 				if (!gIsInSubMenu || edit_index < 0)
 				{	// show the channel name
 					SETTINGS_FetchChannelName(String, gSubMenuSelection);
-					char *pPrintStr = String[0] ? String : "--";
-					UI_PrintString(pPrintStr, menu_item_x1, menu_item_x2, 2, 8);
+					UI_PrintString(String[0] ? String : "--", menu_item_x1, menu_item_x2, 2, 8);
 				}
 				else
 				{	// show the channel name being edited
@@ -935,8 +934,7 @@ void UI_DisplayMenu(void)
 	{	// display the channel name
 		char s[11];
 		SETTINGS_FetchChannelName(s, gSubMenuSelection);
-		char *pPrintStr = s[0] ? s : "--";
-		UI_PrintString(pPrintStr, menu_item_x1, menu_item_x2, 2, 8);
+		UI_PrintString(s[0] ? s : "--", menu_item_x1, menu_item_x2, 2, 8);
 	}
 
 	if ((UI_MENU_GetCurrentMenuId() == MENU_R_CTCS || UI_MENU_GetCurrentMenuId() == MENU_R_DCS) && gCssBackgroundScan)
@@ -968,8 +966,7 @@ void UI_DisplayMenu(void)
 	     UI_MENU_GetCurrentMenuId() == MENU_MEM_NAME ||
 	     UI_MENU_GetCurrentMenuId() == MENU_DEL_CH) && gAskForConfirmation)
 	{	// display confirmation
-		char *pPrintStr = (gAskForConfirmation == 1) ? "SURE?" : "WAIT!";
-		UI_PrintString(pPrintStr, menu_item_x1, menu_item_x2, 5, 8);
+		UI_PrintString((gAskForConfirmation == 1) ? "SURE?" : "WAIT!", menu_item_x1, menu_item_x2, 5, 8);
 	}
 
 	ST7565_BlitFullScreen();
