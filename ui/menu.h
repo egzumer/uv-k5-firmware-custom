@@ -135,24 +135,24 @@ extern const char        gSubMenu_W_N[2][7];
 extern const char        gSubMenu_OFF_ON[2][4];
 extern const char        gSubMenu_SAVE[5][4];
 extern const char        gSubMenu_TOT[11][7];
-extern const char*        gSubMenu_RXMode[4];
+extern const char* const gSubMenu_RXMode[4];
 
 #ifdef ENABLE_VOICE
 	extern const char    gSubMenu_VOICE[3][4];
 #endif
 extern const char        gSubMenu_SC_REV[3][8];
-extern const char*       gSubMenu_MDF[4];
+extern const char* const gSubMenu_MDF[4];
 #ifdef ENABLE_ALARM
 	extern const char    gSubMenu_AL_MOD[2][5];
 #endif
 #ifdef ENABLE_DTMF_CALLING
 extern const char        gSubMenu_D_RSP[4][11];
 #endif
-extern const char*       gSubMenu_PTT_ID[5];
+extern const char* const gSubMenu_PTT_ID[5];
 extern const char        gSubMenu_PONMSG[4][8];
 extern const char        gSubMenu_ROGER[3][6];
 extern const char        gSubMenu_RESET[2][4];
-extern const char*       gSubMenu_F_LOCK[F_LOCK_LEN];
+extern const char* const gSubMenu_F_LOCK[F_LOCK_LEN];
 extern const char        gSubMenu_BACKLIGHT[8][7];
 extern const char        gSubMenu_RX_TX[4][6];
 extern const char        gSubMenu_BAT_TXT[3][8];
