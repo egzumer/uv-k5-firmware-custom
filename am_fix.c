@@ -30,6 +30,9 @@
 #include "functions.h"
 #include "misc.h"
 #include "settings.h"
+#ifdef ENABLE_AGC_SHOW_DATA
+#include "ui/main.h"
+#endif
 
 #ifdef ENABLE_AM_FIX
 
@@ -120,7 +123,7 @@ static const t_gain_table gain_table[] =
 	{0x003E,-50},   // 20 .. 0 1 3 6 .. -28dB -19dB  0dB  -3dB .. -50dB
 	{0x003F,-47},   // 21 .. 0 1 3 7 .. -28dB -19dB  0dB   0dB .. -47dB
 	{0x005E,-45},   // 22 .. 0 2 3 6 .. -28dB -14dB  0dB  -3dB .. -45dB
-	{0x005F,-42},   // 23 .. 0 2 3 7 .. -28dB -14dB  0dB   0dB .. -42dB              
+	{0x005F,-42},   // 23 .. 0 2 3 7 .. -28dB -14dB  0dB   0dB .. -42dB
 	{0x007E,-40},   // 24 .. 0 3 3 6 .. -28dB  -9dB  0dB  -3dB .. -40dB
 	{0x007F,-37},   // 25 .. 0 3 3 7 .. -28dB  -9dB  0dB   0dB .. -37dB
 	{0x009F,-34},   // 26 .. 0 4 3 7 .. -28dB  -6dB  0dB   0dB .. -34dB
@@ -140,8 +143,8 @@ static const t_gain_table gain_table[] =
 	{0x03BF,-4},    // 40 .. 3 5 3 7 ..   0dB  -4dB  0dB   0dB ..  -4dB
 	{0x03DF,-2},    // 41 .. 3 6 3 7 ..   0dB - 2dB  0dB   0dB ..  -2dB
 	{0x03FF,0}      // 42 .. 3 7 3 7 ..   0dB   0dB  0dB   0dB ..   0dB
-	
 };
+
 const uint8_t gain_table_size = ARRAY_SIZE(gain_table);
 #else
 
@@ -260,22 +263,11 @@ void AM_fix_10ms(const unsigned vfo)
 	if(!gSetting_AM_fix || !enabled || vfo > 1 )
 		return;
 
-	switch (gCurrentFunction)
-	{
-		case FUNCTION_TRANSMIT:
-		case FUNCTION_BAND_SCOPE:
-		case FUNCTION_POWER_SAVE:
+	if (gCurrentFunction != FUNCTION_FOREGROUND && !FUNCTION_IsRx()) {
 #ifdef ENABLE_AM_FIX_SHOW_DATA
-			counter = display_update_rate;  // queue up a display update as soon as we switch to RX mode
+		counter = display_update_rate;  // queue up a display update as soon as we switch to RX mode
 #endif
-			return;
-
-		// only adjust stuff if we're in one of these modes
-		case FUNCTION_FOREGROUND:
-		case FUNCTION_RECEIVE:
-		case FUNCTION_MONITOR:
-		case FUNCTION_INCOMING:
-			break;
+		return;
 	}
 
 #ifdef ENABLE_AM_FIX_SHOW_DATA
@@ -304,11 +296,11 @@ void AM_fix_10ms(const unsigned vfo)
 #ifdef ENABLE_AM_FIX_SHOW_DATA
 	{
 		static int16_t lastRssi;
-		
+
 		if (lastRssi != rssi) { // rssi changed
 			lastRssi = rssi;
 
-			if (counter == 0) {	
+			if (counter == 0) {
 				counter        = 1;
 				gUpdateDisplay = true; // trigger a display update
 			}
@@ -370,6 +362,9 @@ void AM_fix_10ms(const unsigned vfo)
 		gain_table_index_prev[vfo] = index;
 		currentGainDiff = gain_table[0].gain_dB - gain_table[index].gain_dB;
 		BK4819_WriteRegister(BK4819_REG_13, gain_table[index].reg_val);
+#ifdef ENABLE_AGC_SHOW_DATA
+		UI_MAIN_PrintAGC(true);
+#endif
 	}
 
 #ifdef ENABLE_AM_FIX_SHOW_DATA

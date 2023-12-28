@@ -44,6 +44,7 @@ char T9TableNum[9][4] = { {'1', '\0', '\0', '\0'}, {'2', '\0', '\0', '\0'}, {'3'
 unsigned char numberOfNumsAssignedToKey[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 char cMessage[TX_MSG_LENGTH];
+char lastcMessage[TX_MSG_LENGTH];
 char rxMessage[4][MAX_RX_MSG_LENGTH + 2];
 unsigned char cIndex = 0;
 unsigned char prevKey = 0, prevLetter = 0;
@@ -55,7 +56,7 @@ uint8_t msgFSKBuffer[MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH];
 
 uint16_t gErrorsDuringMSG;
 
-bool hasNewMessage = false;
+uint8_t hasNewMessage = 0;
 
 uint8_t keyTickCounter = 0;
 
@@ -267,14 +268,14 @@ void MSG_FSKSendData() {
 		const uint16_t *p = (const uint16_t *)msgFSKBuffer;
 		const uint16_t len_buff = (MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH) / sizeof(p[0]);
 		for (i = 0; i < len_buff; i++) {
-			BK4819_WriteRegister(BK4819_REG_5F, p[i]);  // load 16-bits at a time			
+			BK4819_WriteRegister(BK4819_REG_5F, p[i]);  // load 16-bits at a time
 		}
 	}
 	SYSTEM_DelayMs(100);
 
 	// enable FSK TX
 	BK4819_WriteRegister(BK4819_REG_59, (1u << 11) | fsk_reg59);
-	
+
 	{
 		// allow up to 310ms for the TX to complete
 		// if it takes any longer then somethings gone wrong, we shut the TX down
@@ -503,7 +504,7 @@ void MSG_EnableRX(const bool enable) {
 		// BK4819_WriteRegister(BK4819_REG_5C, 0xAA30);   // 10101010 0 0 110000
 
 		// set the almost full threshold
-		BK4819_WriteRegister(BK4819_REG_5E, (64u << 3) | (4u << 0));  // 0 ~ 127, 0 ~ 7
+		BK4819_WriteRegister(BK4819_REG_5E, (64u << 3) | (1u << 0));  // 0 ~ 127, 0 ~ 7
 
 		{	// packet size .. sync + 14 bytes - size of a single packet
 
@@ -538,11 +539,11 @@ void moveUP(char (*rxMessages)[MAX_RX_MSG_LENGTH + 2]) {
 	memset(rxMessages[3], 0, sizeof(rxMessages[3]));
 }
 
-static void sendMessage() {
+void MSG_Send(const char txMessage[TX_MSG_LENGTH]) {
 
 	if ( msgStatus != READY ) return;
 
-	if ( cIndex > 0 ) {
+	if ( strlen(txMessage) > 0 ) {
 
 		msgStatus = SENDING;
 
@@ -558,7 +559,7 @@ static void sendMessage() {
 		msgFSKBuffer[1] = 'S';
 
 		// next 20 for msg
-		memcpy(msgFSKBuffer + 2, cMessage, TX_MSG_LENGTH);
+		memcpy(msgFSKBuffer + 2, txMessage, TX_MSG_LENGTH);
 
 		// CRC ? ToDo
 
@@ -570,8 +571,10 @@ static void sendMessage() {
 
 		RADIO_SetTxParameters();
 
-		SYSTEM_DelayMs(1000);
-
+		SYSTEM_DelayMs(500);
+		BK4819_PlayRogerNormal(98);
+		SYSTEM_DelayMs(200);
+		BK4819_ExitTxMute();
 		MSG_FSKSendData();
 
 		SYSTEM_DelayMs(100);
@@ -584,15 +587,12 @@ static void sendMessage() {
 		MSG_EnableRX(true);
 
 		moveUP(rxMessage);
-		sprintf(rxMessage[3], "> %s", cMessage);
-		memset(cMessage, 0, sizeof(cMessage));
-		cIndex = 0;
-		prevKey = 0;
-		prevLetter = 0;
-
+		sprintf(rxMessage[3], "> %s", txMessage);
+		memset(lastcMessage, 0, sizeof(lastcMessage));
+		memcpy(lastcMessage, txMessage, TX_MSG_LENGTH);
 		msgStatus = READY;
-	}
 
+	}
 }
 
 uint8_t validate_char( uint8_t rchar ) {
@@ -606,8 +606,6 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 
 	//const uint16_t rx_sync_flags   = BK4819_ReadRegister(BK4819_REG_0B);
 
-	const uint16_t fsk_reg59       = BK4819_ReadRegister(BK4819_REG_59) & ~((1u << 15) | (1u << 14) | (1u << 12) | (1u << 11));
-
 	const bool rx_sync             = (interrupt_bits & BK4819_REG_02_FSK_RX_SYNC) ? true : false;
 	const bool rx_fifo_almost_full = (interrupt_bits & BK4819_REG_02_FSK_FIFO_ALMOST_FULL) ? true : false;
 	const bool rx_finished         = (interrupt_bits & BK4819_REG_02_FSK_RX_FINISHED) ? true : false;
@@ -617,77 +615,77 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 	if (rx_sync) {
 		gFSKWriteIndex = 0;
 		memset(msgFSKBuffer, 0, sizeof(msgFSKBuffer));
-		//memset(rxMessage, 0, sizeof(rxMessage));
-		moveUP(rxMessage);
 		msgStatus = RECEIVING;
 	}
 
-	if (rx_fifo_almost_full) {
-		const unsigned int count = BK4819_ReadRegister(BK4819_REG_5E) & (7u << 0);  // almost full threshold
+	if (rx_fifo_almost_full && msgStatus == RECEIVING) {
 
-		for (unsigned int i = 0; i < count; i++) {
+		const uint16_t count = BK4819_ReadRegister(BK4819_REG_5E) & (7u << 0);  // almost full threshold
+		for (uint16_t i = 0; i < count; i++) {
 			const uint16_t word = BK4819_ReadRegister(BK4819_REG_5F);
 			if (gFSKWriteIndex < sizeof(msgFSKBuffer))
 				msgFSKBuffer[gFSKWriteIndex++] = validate_char((word >> 0) & 0xff);
 			if (gFSKWriteIndex < sizeof(msgFSKBuffer))
 				msgFSKBuffer[gFSKWriteIndex++] = validate_char((word >> 8) & 0xff);
-			SYSTEM_DelayMs(5);
 		}
 
-		//UART_printf("\nMSG R = C:%i | IDX:%i | BUF:%s", count, gFSKWriteIndex, msgFSKBuffer);
-
-		if (gFSKWriteIndex >= sizeof(msgFSKBuffer)) {
-
-			BK4819_WriteRegister(BK4819_REG_59, (1u << 15) | (1u << 14) | fsk_reg59);
-			BK4819_WriteRegister(BK4819_REG_59, (1u << 12) | fsk_reg59);
-
-			//gFSKWriteIndex = 0;
-			uint16_t Status = BK4819_ReadRegister(BK4819_REG_0B);
-			//gErrorsDuringMSG = Status;
-
-			if ((Status & 0x0010U) != 0 || msgFSKBuffer[0] != 'M' || msgFSKBuffer[1] != 'S') {
-				//gErrorsDuringMSG = 9099;
-				//msgStatus = READY;
-				//return;
-				rxMessage[3][0] = '!';
-			} else {
-				rxMessage[3][0] = '>';
-			}
-
-			snprintf(rxMessage[3] + 1, TX_MSG_LENGTH + 2, " %s", &msgFSKBuffer[2]);
-
-			//UART_printf("\nMSG : %s", rxMessage[3]);
-
-			if ( gScreenToDisplay != DISPLAY_MSG ) {
-				hasNewMessage = true;
-				gUpdateStatus   = true;
-			}
-			else
-				gUpdateDisplay = true;
-
-		}
+		SYSTEM_DelayMs(10);
 
 	}
 
 	if (rx_finished) {
 
+		const uint16_t fsk_reg59 = BK4819_ReadRegister(BK4819_REG_59) & ~((1u << 15) | (1u << 14) | (1u << 12) | (1u << 11));
+
 		BK4819_WriteRegister(BK4819_REG_59, (1u << 15) | (1u << 14) | fsk_reg59);
 		BK4819_WriteRegister(BK4819_REG_59, (1u << 12) | fsk_reg59);
+		msgStatus = READY;
 
-		if ( gFSKWriteIndex < sizeof(msgFSKBuffer) ) {
-			snprintf(rxMessage[3], TX_MSG_LENGTH + 2, "! %s", &msgFSKBuffer[2]);
-			gUpdateDisplay = true;
+		if (gFSKWriteIndex > 2) {
+
+			moveUP(rxMessage);
+
+			if (msgFSKBuffer[0] != 'M' || msgFSKBuffer[1] != 'S') {
+				snprintf(rxMessage[3], TX_MSG_LENGTH + 2, "? unknown msg format!");
+			} else {
+				snprintf(rxMessage[3], TX_MSG_LENGTH + 2, "< %s", &msgFSKBuffer[2]);
+
+			#ifdef ENABLE_MESSENGER_UART
+				UART_printf("SMS<%s\r\n", &msgFSKBuffer[2]);
+			#endif
+
+			#ifdef ENABLE_MESSENGER_DELIVERY_NOTIFICATION
+				BK4819_DisableDTMF();
+				RADIO_SetTxParameters();
+				SYSTEM_DelayMs(500);
+				BK4819_ExitTxMute();
+				BK4819_PlayRogerNormal(99);
+				BK4819_EnterTxMute();
+			#endif
+
+				if ( gScreenToDisplay != DISPLAY_MSG ) {
+					hasNewMessage = 1;
+					gUpdateStatus = true;
+					gUpdateDisplay = true;
+			#ifdef ENABLE_MESSENGER_NOTIFICATION
+					gPlayMSGRing = true;
+			#endif
+				}
+				else {
+					gUpdateDisplay = true;
+				}
+			}
 		}
 
 		gFSKWriteIndex = 0;
-		msgStatus = READY;
 	}
 }
 
 void MSG_Init() {
 	memset(rxMessage, 0, sizeof(rxMessage));
 	memset(cMessage, 0, sizeof(cMessage));
-	hasNewMessage = false;
+	memset(lastcMessage, 0, sizeof(lastcMessage));
+	hasNewMessage = 0;
 	msgStatus = READY;
 	prevKey = 0;
     prevLetter = 0;
@@ -786,24 +784,28 @@ void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 				break;
 			case KEY_UP:
 				memset(cMessage, 0, sizeof(cMessage));
-				strncpy(cMessage, rxMessage[3] + 2, strlen(rxMessage[3]));
+				memcpy(cMessage, lastcMessage, TX_MSG_LENGTH);
 				cIndex = strlen(cMessage);
 				break;
-			case KEY_DOWN:
-				break;
+			/*case KEY_DOWN:
+				break;*/
 			case KEY_MENU:
 				// Send message
-				sendMessage();
+				MSG_Send(cMessage);
+				memset(cMessage, 0, sizeof(cMessage));
+				cIndex = 0;
+				prevKey = 0;
+				prevLetter = 0;
 				break;
 			case KEY_EXIT:
 				gRequestDisplayScreen = DISPLAY_MAIN;
 				break;
 
 			default:
-				if (!bKeyHeld && bKeyPressed)
-					gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+				AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 				break;
 		}
+
 	} else if (state == BUTTON_EVENT_LONG) {
 
 		switch (Key)
@@ -811,12 +813,8 @@ void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 			case KEY_F:
 				MSG_Init();
 				break;
-			case KEY_STAR:
-				keyboardType = (KeyboardType)((keyboardType + 1) % END_TYPE_KBRD);
-				break;
 			default:
-				if (!bKeyHeld && bKeyPressed)
-					gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
+				AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 				break;
 		}
 	}

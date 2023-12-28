@@ -22,6 +22,10 @@
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
+#if defined(ENABLE_MESSENGER) || defined(ENABLE_MESSENGER_UART)
+	#include "app/messenger.h"
+  	#include "external/printf/printf.h"
+#endif
 #include "app/uart.h"
 #include "board.h"
 #include "bsp/dp32g030/dma.h"
@@ -395,6 +399,11 @@ static void CMD_052D(const uint8_t *pBuffer)
 	SendReply(&Reply, sizeof(Reply));
 }
 
+// session init, sends back version info and state
+// timestamp is a session id really
+// this command also disables dual watch, crossband, 
+// DTMF side tones, freq reverse, PTT ID, DTMF decoding, frequency offset
+// exits power save, sets main VFO to upper,
 static void CMD_052F(const uint8_t *pBuffer)
 {
 	const CMD_052F_t *pCmd = (const CMD_052F_t *)pBuffer;
@@ -429,6 +438,52 @@ static void CMD_052F(const uint8_t *pBuffer)
 	SendVersion();
 }
 
+#ifdef ENABLE_UART_RW_BK_REGS
+static void CMD_0601_ReadBK4819Reg(const uint8_t *pBuffer)
+{
+	typedef struct  __attribute__((__packed__)) {
+		Header_t header;
+		uint8_t reg;
+	} CMD_0601_t;
+
+	CMD_0601_t *cmd = (CMD_0601_t*) pBuffer;
+
+	struct  __attribute__((__packed__)) {
+		Header_t header;
+		struct {
+			uint8_t reg;
+			uint16_t value;
+		} data;
+	} reply;
+
+	reply.header.ID = 0x0601;
+	reply.header.Size = sizeof(reply.data);
+	reply.data.reg = cmd->reg;
+	reply.data.value = BK4819_ReadRegister(cmd->reg);
+	SendReply(&reply, sizeof(reply));
+}
+
+static void CMD_0602_WriteBK4819Reg(const uint8_t *pBuffer)
+{
+	typedef struct  __attribute__((__packed__)) {
+		Header_t header;
+		uint8_t reg;
+		uint16_t value;
+	} CMD_0602_t;
+
+	CMD_0602_t *cmd = (CMD_0602_t*) pBuffer;
+	BK4819_WriteRegister(cmd->reg, cmd->value);
+}
+#endif
+
+#if defined(ENABLE_MESSENGER) || defined(ENABLE_MESSENGER_UART)
+void remove(char cstring[], char letter) {
+    for(int i = 0; cstring[i] != '\0'; i++) {
+        if(cstring[i] == letter) cstring[i] = '\0';
+    } 
+}
+#endif
+
 bool UART_IsCommandAvailable(void)
 {
 	uint16_t Index;
@@ -443,6 +498,26 @@ bool UART_IsCommandAvailable(void)
 		if (gUART_WriteIndex == DmaLength)
 			return false;
 
+#if defined(ENABLE_MESSENGER) || defined(ENABLE_MESSENGER_UART)
+
+		if ( UART_DMA_Buffer[gUART_WriteIndex] == 'S' && UART_DMA_Buffer[gUART_WriteIndex + 1] == 'M' && UART_DMA_Buffer[ gUART_WriteIndex + 2] == 'S' && UART_DMA_Buffer[gUART_WriteIndex + 3] == ':') {
+		
+		char txMessage[TX_MSG_LENGTH + 4];
+		memset(txMessage, 0, sizeof(txMessage));
+		snprintf(txMessage, (TX_MSG_LENGTH + 4), "%s", &UART_DMA_Buffer[gUART_WriteIndex + 4]);
+
+		remove(txMessage, '\n');
+		remove(txMessage, '\r');      
+
+		if (strlen(txMessage) > 0) {        
+			MSG_Send(txMessage);
+			UART_printf("SMS>%s\r\n", txMessage);
+			gUpdateDisplay = true;
+		}      
+		
+		}
+  
+#endif  
 		while (gUART_WriteIndex != DmaLength && UART_DMA_Buffer[gUART_WriteIndex] != 0xABU)
 			gUART_WriteIndex = DMA_INDEX(gUART_WriteIndex, 1);
 
@@ -567,5 +642,15 @@ void UART_HandleCommand(void)
 				NVIC_SystemReset();
 			#endif
 			break;
+			
+#ifdef ENABLE_UART_RW_BK_REGS
+		case 0x0601:
+			CMD_0601_ReadBK4819Reg(UART_Command.Buffer);
+			break;
+		
+		case 0x0602:
+			CMD_0602_WriteBK4819Reg(UART_Command.Buffer);
+			break;
+#endif
 	}
 }

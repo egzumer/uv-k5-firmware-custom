@@ -50,12 +50,16 @@ ENABLE_SCAN_RANGES            ?= 0
 # ---- DEBUGGING ----
 ENABLE_AM_FIX_SHOW_DATA       ?= 0
 ENABLE_AGC_SHOW_DATA          ?= 0
+ENABLE_UART_RW_BK_REGS        ?= 0
 
 # ----
 # Work in progress
 ENABLE_PMR_MODE               ?= 0
 # Work in progress
-ENABLE_MESSENGER              ?= 1
+ENABLE_MESSENGER              			?= 1
+ENABLE_MESSENGER_DELIVERY_NOTIFICATION	?= 1
+ENABLE_MESSENGER_NOTIFICATION			?= 1
+ENABLE_MESSENGER_UART					?= 1
 
 #############################################################
 
@@ -199,7 +203,7 @@ else # unix
     RM = rm -f
     FixPath = $1
     WHERE = which
-    NULL_OUTPUT = /dev/null	
+    NULL_OUTPUT = /dev/null
 endif
 
 AS = arm-none-eabi-gcc
@@ -227,6 +231,11 @@ ifneq (, $(shell $(WHERE) git))
 	ifeq (, $(VERSION_STRING))
     	VERSION_STRING := $(shell git rev-parse --short HEAD)
 	endif
+endif
+# If there is still no VERSION_STRING we need to make one.
+# It is needed for the firmware packing script
+ifeq (, $(VERSION_STRING))
+	VERSION_STRING := NOGIT
 endif
 #VERSION_STRING := 230930b
 
@@ -266,7 +275,7 @@ CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DAUTHOR_STRING=\"$(AUTHOR_STRING)\" -DVERSION_STRING=\"$(VERSION_STRING)\"
 
 ifeq ($(ENABLE_SPECTRUM),1)
-CFLAGS += -DENABLE_SPECTRUM
+	CFLAGS += -DENABLE_SPECTRUM
 endif
 ifeq ($(ENABLE_SWD),1)
 	CFLAGS += -DENABLE_SWD
@@ -388,21 +397,38 @@ endif
 ifeq ($(ENABLE_FLASHLIGHT),1)
 	CFLAGS  += -DENABLE_FLASHLIGHT
 endif
+ifeq ($(ENABLE_UART_RW_BK_REGS),1)
+	CFLAGS  += -DENABLE_UART_RW_BK_REGS
+endif
 
 ifeq ($(ENABLE_PMR_MODE),1)
 	CFLAGS  += -DENABLE_PMR_MODE
 endif
 
+ifeq ($(ENABLE_UART), 0)
+	ENABLE_UART_DEBUG := 0
+	ENABLE_MESSENGER_UART := 0
+endif
+
 ifeq ($(ENABLE_MESSENGER),1)
 	CFLAGS  += -DENABLE_MESSENGER
 endif
-
-ifeq ($(ENABLE_UART), 0)
-	ENABLE_UART_DEBUG := 0
+ifeq ($(ENABLE_MESSENGER_DELIVERY_NOTIFICATION),1)
+	CFLAGS += -DENABLE_MESSENGER_DELIVERY_NOTIFICATION
 endif
+ifeq ($(ENABLE_MESSENGER_NOTIFICATION),1)
+	CFLAGS += -DENABLE_MESSENGER_NOTIFICATION
+endif
+ifeq ($(ENABLE_MESSENGER_UART),1)
+	CFLAGS += -DENABLE_MESSENGER_UART
+endif
+
+
 ifeq ($(ENABLE_UART_DEBUG),1)
 	CFLAGS += -DENABLE_UART_DEBUG
 endif
+
+
 
 LDFLAGS =
 LDFLAGS += -z noexecstack -mcpu=cortex-m0 -nostartfiles -Wl,-T,firmware.ld -Wl,--gc-sections
@@ -482,3 +508,6 @@ clean:
 # don't clean target build
 #	$(RM) $(call FixPath, $(TARGET).bin $(TARGET).packed.bin $(TARGET) $(OBJS) $(DEPS))
 	$(RM) $(call FixPath, $(OBJS) $(DEPS))
+
+doxygen:
+	doxygen

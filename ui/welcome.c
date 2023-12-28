@@ -30,7 +30,7 @@
 void UI_DisplayReleaseKeys(void)
 {
 	memset(gStatusLine,  0, sizeof(gStatusLine));
-	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+	UI_DisplayClear();
 
 	UI_PrintString("RELEASE", 0, 127, 1, 10);
 	UI_PrintString("ALL KEYS", 0, 127, 3, 10);
@@ -43,21 +43,13 @@ void UI_DisplayWelcome(void)
 {
 	char WelcomeString0[16];
 	char WelcomeString1[16];
-	
-	memset(gStatusLine,  0, sizeof(gStatusLine));
-	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 
-	if (gEeprom.POWER_ON_DISPLAY_MODE == POWER_ON_DISPLAY_MODE_NONE)
-	{
+	memset(gStatusLine,  0, sizeof(gStatusLine));
+	UI_DisplayClear();
+
+	if (gEeprom.POWER_ON_DISPLAY_MODE == POWER_ON_DISPLAY_MODE_NONE || gEeprom.POWER_ON_DISPLAY_MODE == POWER_ON_DISPLAY_MODE_FULL_SCREEN) {
 		ST7565_FillScreen(0xFF);
-	}
-	else
-	if (gEeprom.POWER_ON_DISPLAY_MODE == POWER_ON_DISPLAY_MODE_FULL_SCREEN)
-	{
-		ST7565_FillScreen(0xFF);
-	}
-	else
-	{
+	} else {
 		memset(WelcomeString0, 0, sizeof(WelcomeString0));
 		memset(WelcomeString1, 0, sizeof(WelcomeString1));
 
@@ -78,10 +70,9 @@ void UI_DisplayWelcome(void)
 		UI_PrintString(WelcomeString0, 0, 127, 0, 10);
 		UI_PrintString(WelcomeString1, 0, 127, 2, 10);
 		UI_PrintStringSmallBold(Version, 0, 127, 4);
-		UI_PrintStringSmall(__DATE__, 0, 127, 6);
+		UI_PrintStringSmallNormal(__DATE__, 0, 127, 6);
 
 		ST7565_BlitStatusLine();  // blank status line
 		ST7565_BlitFullScreen();
 	}
 }
-

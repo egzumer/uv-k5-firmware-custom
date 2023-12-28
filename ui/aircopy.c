@@ -29,41 +29,41 @@
 
 void UI_DisplayAircopy(void)
 {
-	char String[16];
+	char String[16] = { 0 };
+	char *pPrintStr = { 0 };
 
-	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+	UI_DisplayClear();
 
-	if (gAircopyState == AIRCOPY_READY)
-		strcpy(String, "AIR COPY(RDY)");
-	else
-	if (gAircopyState == AIRCOPY_TRANSFER)
-		strcpy(String, "AIR COPY");
-	else
-		strcpy(String, "AIR COPY(CMP)");
-	UI_PrintString(String, 2, 127, 0, 8);
+	if (gAircopyState == AIRCOPY_READY) {
+		pPrintStr = "AIR COPY(RDY)";
+	} else if (gAircopyState == AIRCOPY_TRANSFER) {
+		pPrintStr = "AIR COPY";
+	} else {
+		pPrintStr = "AIR COPY(CMP)";
+	}
 
-	if (gInputBoxIndex == 0)
-	{
+	UI_PrintString(pPrintStr, 2, 127, 0, 8);
+
+	if (gInputBoxIndex == 0) {
 		uint32_t frequency = gRxVfo->freq_config_RX.Frequency;
 		sprintf(String, "%3u.%05u", frequency / 100000, frequency % 100000);
 		// show the remaining 2 small frequency digits
-		UI_PrintStringSmall(String + 7, 97, 0, 3);
+		UI_PrintStringSmallNormal(String + 7, 97, 0, 3);
 		String[7] = 0;
 		// show the main large frequency digits
 		UI_DisplayFrequency(String, 16, 2, false);
-	}
-	else {
-		const char * ascii = INPUTBOX_GetAscii();
-		sprintf(String, "%.3s.%.3s",ascii, ascii + 3);
+	} else {
+		const char *ascii = INPUTBOX_GetAscii();
+		sprintf(String, "%.3s.%.3s", ascii, ascii + 3);
 		UI_DisplayFrequency(String, 16, 2, false);
 	}
 
 	memset(String, 0, sizeof(String));
-	if (gAirCopyIsSendMode == 0)
+	if (gAirCopyIsSendMode == 0) {
 		sprintf(String, "RCV:%u E:%u", gAirCopyBlockNumber, gErrorsDuringAirCopy);
-	else
-	if (gAirCopyIsSendMode == 1)
+	} else if (gAirCopyIsSendMode == 1) {
 		sprintf(String, "SND:%u", gAirCopyBlockNumber);
+	}
 	UI_PrintString(String, 2, 127, 4, 8);
 
 	ST7565_BlitFullScreen();
