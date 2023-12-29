@@ -427,7 +427,7 @@ else ifneq (,$(HAS_CRCMOD))
 	$(info )
 endif
 
-.PHONY: all clean
+.PHONY: all clean clean-all
 
 # Default target - first one defined
 all: $(BUILD) $(BIN) $(BUILD)/$(PROJECT_NAME).out $(BIN)/$(PROJECT_NAME).bin
@@ -447,6 +447,9 @@ $(BIN):
 	@$(call MKDIR,$@)
 
 clean:
+	@$(RM) $(call FixPath,$(BUILD))
+
+clean-all:
 	@$(RM) $(call FixPath,$(BUILD))
 	@$(RM) $(call FixPath,$(BIN))
 
