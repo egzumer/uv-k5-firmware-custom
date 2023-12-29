@@ -1,10 +1,6 @@
 *.d
 *.o
-firmware
-/firmware.packed.bin
-/firmware.bin
-/compiled-firmware
-/build/firmware
+_build
 .cache
 compile_commands.json
 .vscode
