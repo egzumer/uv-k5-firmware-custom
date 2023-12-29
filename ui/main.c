@@ -654,6 +654,7 @@ void UI_DisplayMain(void)
 		const VFO_Info_t *vfoInfo = &gEeprom.VfoInfo[vfo_num];
 
 		// show the modulation symbol
+		uint8_t ModPos = 0;
 		const char * s = "";
 		const ModulationMode_t mod = vfoInfo->Modulation;
 		switch (mod){

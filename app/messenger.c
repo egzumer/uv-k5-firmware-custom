@@ -579,7 +579,7 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH]) {
 
 		SYSTEM_DelayMs(100);
 
-		APP_EndTransmission();
+		APP_EndTransmission(true);
 		//RADIO_SetVfoState(VFO_STATE_NORMAL);;
 
 		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
