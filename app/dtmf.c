@@ -357,7 +357,7 @@ void DTMF_HandleRequest(void)
 	    gDTMF_RX_index >= 9)
 	{	// waiting for a reply
 
-		sprintf(String, "%s%c%s", gDTMF_String, gEeprom.DTMF_SEPARATE_CODE, "AAAAA");
+		sprintf(String, "%s%cAAAAA", gDTMF_String, gEeprom.DTMF_SEPARATE_CODE);
 
 		Offset = gDTMF_RX_index - strlen(String);
 
@@ -369,57 +369,61 @@ void DTMF_HandleRequest(void)
 		}
 	}
 
-	if (gSetting_KILLED || gDTMF_CallState != DTMF_CALL_STATE_NONE)
-	{	// we've been killed or expecting a reply
+	if (gSetting_KILLED || gDTMF_CallState != DTMF_CALL_STATE_NONE) {
+		// we've been killed or expecting a reply
 		return;
 	}
 
-	if (gDTMF_RX_index >= 7)
-	{	// see if we're being called
+	// see if we're being called. A call has format XXX*XXX so a call string is 7 characters long.
+	if (gDTMF_RX_index < 7) {
+		return;
+	}
 
-		gDTMF_IsGroupCall = false;
+	gDTMF_IsGroupCall = false;
 
-		sprintf(String, "%s%c", gEeprom.ANI_DTMF_ID, gEeprom.DTMF_SEPARATE_CODE);
+	sprintf(String, "%s%c", gEeprom.ANI_DTMF_ID, gEeprom.DTMF_SEPARATE_CODE);
 
-		Offset = gDTMF_RX_index - strlen(String) - 3;
+	Offset = gDTMF_RX_index - strlen(String) - 3;
 
-		if (CompareMessage(gDTMF_RX + Offset, String, strlen(String), true))
-		{	// it's for us !
+	// check the callee
+	if (!CompareMessage(gDTMF_RX + Offset, String, strlen(String), true)) {
+		return;
+	}
 
-			gDTMF_CallState = DTMF_CALL_STATE_RECEIVED;
+	// it's for us!
+	gDTMF_CallState = DTMF_CALL_STATE_RECEIVED;
 
-			memset(gDTMF_Callee, 0, sizeof(gDTMF_Callee));
-			memset(gDTMF_Caller, 0, sizeof(gDTMF_Caller));
-			memcpy(gDTMF_Callee, gDTMF_RX + Offset + 0, 3);
-			memcpy(gDTMF_Caller, gDTMF_RX + Offset + 4, 3);
+	memcpy(gDTMF_Callee, gDTMF_RX + Offset + 0, 3);
+	memcpy(gDTMF_Caller, gDTMF_RX + Offset + 4, 3);
+	gDTMF_Callee[sizeof(gDTMF_Callee) - 1] = 0;
+	gDTMF_Caller[sizeof(gDTMF_Caller) - 1] = 0;
 
-			DTMF_clear_RX();
+	DTMF_clear_RX();
 
-			gUpdateDisplay = true;
+	gUpdateDisplay = true;
 
-			switch (gEeprom.DTMF_DECODE_RESPONSE)
-			{
-				case DTMF_DEC_RESPONSE_BOTH:
-					gDTMF_DecodeRingCountdown_500ms = DTMF_decode_ring_countdown_500ms;
-					[[fallthrough]];
-				case DTMF_DEC_RESPONSE_REPLY:
-					gDTMF_ReplyState = DTMF_REPLY_AAAAA;
-					break;
-				case DTMF_DEC_RESPONSE_RING:
-					gDTMF_DecodeRingCountdown_500ms = DTMF_decode_ring_countdown_500ms;
-					break;
-				default:
-				case DTMF_DEC_RESPONSE_NONE:
-					gDTMF_DecodeRingCountdown_500ms = 0;
-					gDTMF_ReplyState = DTMF_REPLY_NONE;
-					break;
-			}
+	switch (gEeprom.DTMF_DECODE_RESPONSE) {
+		case DTMF_DEC_RESPONSE_BOTH:
+			gDTMF_DecodeRingCountdown_500ms = DTMF_decode_ring_countdown_500ms;
+			[[fallthrough]];
+		case DTMF_DEC_RESPONSE_REPLY:
+			gDTMF_ReplyState = DTMF_REPLY_AAAAA;
+			break;
+		case DTMF_DEC_RESPONSE_RING:
+			gDTMF_DecodeRingCountdown_500ms = DTMF_decode_ring_countdown_500ms;
+			break;
+		default:
+		case DTMF_DEC_RESPONSE_NONE:
+			gDTMF_DecodeRingCountdown_500ms = 0;
+			gDTMF_ReplyState = DTMF_REPLY_NONE;
+			break;
+	}
 
-			if (gDTMF_IsGroupCall)
-				gDTMF_ReplyState = DTMF_REPLY_NONE;
-		}
+	if (gDTMF_IsGroupCall) {
+		gDTMF_ReplyState = DTMF_REPLY_NONE;
 	}
 }
+
 #endif
 
 void DTMF_Reply(void)
