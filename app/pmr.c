@@ -17,36 +17,17 @@
 #include "ui/ui.h"
 
 
-const uint8_t BUTTON_STATE_PRESSED = 1 << 0;
-const uint8_t BUTTON_STATE_HELD = 1 << 1;
 
-const uint8_t BUTTON_EVENT_PRESSED = BUTTON_STATE_PRESSED;
-const uint8_t BUTTON_EVENT_HELD = BUTTON_STATE_PRESSED | BUTTON_STATE_HELD;
-const uint8_t BUTTON_EVENT_SHORT =  0;
-const uint8_t BUTTON_EVENT_LONG =  BUTTON_STATE_HELD;
-
-
-static void Key_DIGITS(KEY_Code_t Key, uint8_t state)
+static void PMR_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 {
-
-	if (state == BUTTON_EVENT_SHORT && !gWasFKeyPressed) {
-		INPUTBOX_Append(Key);
-	}
-
-}
-
-
-static void Key_EXIT(uint8_t state)
-{
-	if (state != BUTTON_EVENT_SHORT)
+	if (bKeyHeld || !bKeyPressed) {
 		return;
-
+	}
 	gRequestDisplayScreen = DISPLAY_MAIN;
 }
 
-void PMR_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
-{
-	uint8_t state = bKeyPressed + 2 * bKeyHeld;
+void PMR_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
+
 
 	switch (Key)
 	{
@@ -60,25 +41,19 @@ void PMR_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		case KEY_7:
 		case KEY_8:
 		case KEY_9:
-			Key_DIGITS(Key, state);
 			break;
 		case KEY_STAR:
-			//Key_FUNC(Key, state);
 			break;
 		case KEY_MENU:
-			//Key_MENU(state);
 			break;
 		case KEY_UP:
-			//Key_UP_DOWN(state, 1);
 			break;
 		case KEY_DOWN:
-			//Key_UP_DOWN(state, -1);
-			break;;
+			break;
 		case KEY_EXIT:
-			Key_EXIT(state);
+			PMR_Key_EXIT(bKeyPressed, bKeyHeld);
 			break;
 		case KEY_F:
-			//GENERIC_Key_F(bKeyPressed, bKeyHeld);
 			break;
 		case KEY_PTT:
 			GENERIC_Key_PTT(bKeyPressed);
@@ -89,6 +64,5 @@ void PMR_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			break;
 	}
 }
-
 
 #endif

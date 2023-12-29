@@ -53,13 +53,13 @@ ENABLE_AGC_SHOW_DATA          ?= 0
 ENABLE_UART_RW_BK_REGS        ?= 0
 
 # ----
-# Work in progress
-ENABLE_PMR_MODE               ?= 0
-# Work in progress
 ENABLE_MESSENGER              			?= 1
 ENABLE_MESSENGER_DELIVERY_NOTIFICATION	?= 1
 ENABLE_MESSENGER_NOTIFICATION			?= 1
 ENABLE_MESSENGER_UART					?= 1
+
+# Work in progress
+ENABLE_PMR_MODE               ?= 0
 
 #------------------------------------------------------------------------------
 AUTHOR_STRING ?= JOAQUIM
@@ -87,18 +87,27 @@ SIZE    = $(CROSS_COMPILE)size
 
 # Set make directory command, Windows tries to create a directory named "-p" if that flag is there.
 ifeq ($(OS), Windows_NT) # windows
-  MKDIR = mkdir $(subst /,\,$(1)) > nul 2>&1 || (exit 0)
-  RM = rmdir /s /q
-  FixPath = $(subst /,\,$1)
-  WHERE = where
+	MKDIR = mkdir $(subst /,\,$(1)) > nul 2>&1 || (exit 0)
+	RM = rmdir /s /q
+	FixPath = $(subst /,\,$1)
+	WHERE = where
+	DEL = del /q
 else
-  MKDIR = mkdir -p $(1)
-  RM = rm -f
-  FixPath = $1
-  WHERE = which
+	MKDIR = mkdir -p $(1)
+	RM = rm -f
+	FixPath = $1
+	WHERE = which
+	DEL = del
 endif
 
 CP = cp
+
+#------------------------------------------------------------------------------
+#ENABLE_AIRCOPY
+#ENABLE_PMR_MODE
+ifeq ($(ENABLE_AIRCOPY)$(ENABLE_PMR_MODE),11)
+$(error !!!!!!! CANNOT HAVE PMR MODE AND AIRCOPY ENABLED AT SAME TIME)
+endif
 
 #------------------------------------------------------------------------------
 
@@ -229,6 +238,9 @@ IPATH += \
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DAUTHOR_STRING=\"$(AUTHOR_STRING)\" -DVERSION_STRING=\"$(VERSION_STRING)\"
 
+ifeq ($(ENABLE_PMR_MODE),1)
+	CFLAGS  += -DENABLE_PMR_MODE
+endif
 ifeq ($(ENABLE_SPECTRUM),1)
 	CFLAGS += -DENABLE_SPECTRUM
 endif
@@ -358,9 +370,6 @@ endif
 ifeq ($(ENABLE_CUSTOM_MENU_LAYOUT),1)
 	CFLAGS  += -DENABLE_CUSTOM_MENU_LAYOUT
 endif
-ifeq ($(ENABLE_PMR_MODE),1)
-	CFLAGS  += -DENABLE_PMR_MODE
-endif
 ifeq ($(ENABLE_UART), 0)
 	ENABLE_UART_DEBUG := 0
 	ENABLE_MESSENGER_UART := 0
@@ -390,13 +399,16 @@ CFLAGS += -Wextra
 ASFLAGS += -mcpu=cortex-m0
 
 # Linker flags
-LDFLAGS += 
+LDFLAGS +=
 LDFLAGS += -z noexecstack -mcpu=cortex-m0 -nostartfiles -Wl,-L,linker -Wl,-T,$(LD_FILE) -Wl,--gc-sections
 
 # Use newlib-nano instead of newlib
 LDFLAGS += --specs=nano.specs
 
-LIBS = 
+#show size
+LDFLAGS += -Wl,--print-memory-usage
+
+LIBS =
 
 C_OBJECTS = $(addprefix $(BUILD)/, $(C_SRC:.c=.o) )
 ASM_OBJECTS = $(addprefix $(BUILD)/, $(ASM_SRC:.S=.o) )
@@ -407,13 +419,13 @@ OBJECTS = $(C_OBJECTS) $(ASM_OBJECTS)
 INC_PATHS = $(addprefix -I,$(IPATH))
 
 ifneq (, $(shell $(WHERE) python))
-    MY_PYTHON := python
+	MY_PYTHON := python
 else ifneq (, $(shell $(WHERE) python3))
-    MY_PYTHON := python3
+	MY_PYTHON := python3
 endif
 
 ifdef MY_PYTHON
-    HAS_CRCMOD := $(shell $(MY_PYTHON) -c "import crcmod" 2>&1)
+	HAS_CRCMOD := $(shell $(MY_PYTHON) -c "import crcmod" 2>&1)
 endif
 
 ifndef MY_PYTHON
@@ -430,7 +442,7 @@ endif
 .PHONY: all clean clean-all
 
 # Default target - first one defined
-all: $(BUILD) $(BIN) $(BUILD)/$(PROJECT_NAME).out $(BIN)/$(PROJECT_NAME).bin
+all: $(BUILD) $(BUILD)/$(PROJECT_NAME).out $(BIN)
 
 # Print out the value of a make variable.
 # https://stackoverflow.com/questions/16467718/how-to-print-out-a-variable-in-makefile
@@ -447,11 +459,11 @@ $(BIN):
 	@$(call MKDIR,$@)
 
 clean:
-	@$(RM) $(call FixPath,$(BUILD))
+	@-$(RM) $(call FixPath,$(BUILD))
 
 clean-all:
-	@$(RM) $(call FixPath,$(BUILD))
-	@$(RM) $(call FixPath,$(BIN))
+	@-$(RM) $(call FixPath,$(BUILD))
+	@-$(DEL) $(call FixPath,$(BIN)/*)
 
 # Create objects from C SRC files
 $(BUILD)/%.o: %.c
@@ -470,17 +482,12 @@ $(BUILD)/%.o: %.S
 $(BUILD)/$(PROJECT_NAME).out: $(OBJECTS)
 	@echo LD $@
 	@$(CC) $(LDFLAGS) $^ -o $@ $(LIBS)
-	@$(SIZE) $@
-
-#------------------- Binary generator -------------------
-
-# Create bin file
-$(BIN)/$(PROJECT_NAME).bin:
+#	@$(SIZE) $@
+#------------------- Binary generator -------------------	
 	@echo Create $(notdir $@)
 	@$(OBJCOPY) -O binary $(BUILD)/$(PROJECT_NAME).out $(BIN)/$(PROJECT_NAME).bin
 	@echo Create $(PROJECT_NAME).packed.bin
 	@-$(MY_PYTHON) fw-pack.py $(BIN)/$(PROJECT_NAME).bin $(AUTHOR_STRING) $(VERSION_STRING) $(BIN)/$(PROJECT_NAME).packed.bin
-
 
 
 

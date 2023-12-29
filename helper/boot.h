@@ -27,6 +27,9 @@ enum BOOT_Mode_t
 	#ifdef ENABLE_AIRCOPY
 		BOOT_MODE_AIRCOPY
 	#endif
+	#ifdef ENABLE_PMR_MODE
+		BOOT_MODE_PMR
+	#endif
 };
 
 typedef enum BOOT_Mode_t BOOT_Mode_t;

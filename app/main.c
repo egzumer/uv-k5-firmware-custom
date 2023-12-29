@@ -93,14 +93,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 	{
 		case KEY_0:
 			#ifdef ENABLE_FMRADIO
-				ACTION_FM();
-			#else
-
-
-			#ifdef ENABLE_PMR_MODE
-				ACTION_PMR();
-			#endif
-			
+				ACTION_FM();		
 			#endif
 			break;
 
