@@ -96,11 +96,12 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 void GENERIC_Key_PTT(bool bKeyPressed)
 {
 	gInputBoxIndex = 0;
+	gPttIsPressed = bKeyPressed;
 
-	if (!bKeyPressed || SerialConfigInProgress())
-	{	// PTT released
-		if (gCurrentFunction == FUNCTION_TRANSMIT)
-		{	// we are transmitting .. stop
+	if (!bKeyPressed || SerialConfigInProgress()) {
+		// PTT released
+		if (gCurrentFunction == FUNCTION_TRANSMIT) {
+			// we are transmitting .. stop
 			APP_EndTransmission(SerialConfigInProgress());
 
 #ifdef ENABLE_VOX
@@ -109,8 +110,10 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 
 			RADIO_SetVfoState(VFO_STATE_NORMAL);
 
-			if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+			if (gScreenToDisplay != DISPLAY_MENU) {
+			     // 1of11 .. don't close the menu
 				gRequestDisplayScreen = DISPLAY_MAIN;
+			}
 		}
 
 		return;
@@ -118,6 +121,11 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 
 	// PTT pressed
 
+	if (gCurrentFunction == FUNCTION_TRANSMIT && gRTTECountdown == 0)
+	{	// already transmitting
+		gInputBoxIndex = 0;
+		return;
+	}
 
 	if (SCANNER_IsScanning())
 	{	// CTCSS/CDCSS scanning .. stop
@@ -131,64 +139,55 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 		goto cancel_tx;
 	}
 
-
-
 #ifdef ENABLE_FMRADIO
 	if (gFM_ScanState != FM_SCAN_OFF)
 	{	// FM radio is scanning .. stop
 		FM_PlayAndUpdate();
-		#ifdef ENABLE_VOICE
+#ifdef ENABLE_VOICE
 			gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
-		#endif
+#endif
 		gRequestDisplayScreen = DISPLAY_FM;
 		goto cancel_tx;
 	}
-#endif
 
-#ifdef ENABLE_FMRADIO
-	if (gScreenToDisplay == DISPLAY_FM)
+	if (gScreenToDisplay == DISPLAY_FM) {
 		goto start_tx;	// listening to the FM radio .. start TX'ing
+	}
 #endif
 
-	if (gCurrentFunction == FUNCTION_TRANSMIT && gRTTECountdown == 0)
-	{	// already transmitting
-		gInputBoxIndex = 0;
-		return;
+	if (gScreenToDisplay != DISPLAY_MENU) {
+	     // 1of11 .. don't close the menu
+		gRequestDisplayScreen = DISPLAY_MAIN;
 	}
 
-	if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
-		gRequestDisplayScreen = DISPLAY_MAIN;
+	// im DTMF input and we have either a new or a previous string
+	if (!gDTMF_InputMode || (gDTMF_InputBox_Index == 0 && gDTMF_PreviousIndex == 0)) {
+		goto start_tx;
+	}
 
-
-	if (!gDTMF_InputMode && gDTMF_InputBox_Index == 0)
-		goto start_tx;	// wasn't entering a DTMF code .. start TX'ing (maybe)
-
-	// was entering a DTMF string
-
-	if (gDTMF_InputBox_Index > 0 || gDTMF_PreviousIndex > 0)
-	{	// going to transmit a DTMF string
-
-		if (gDTMF_InputBox_Index == 0 && gDTMF_PreviousIndex > 0)
-			gDTMF_InputBox_Index = gDTMF_PreviousIndex;           // use the previous DTMF string
-
-		if (gDTMF_InputBox_Index < sizeof(gDTMF_InputBox))
-			gDTMF_InputBox[gDTMF_InputBox_Index] = 0;             // NULL term the string
+	// going to transmit a DTMF string
+	if (gDTMF_InputBox_Index == 0) {
+		//  we dont have one, use the previous
+		gDTMF_InputBox_Index = gDTMF_PreviousIndex;
+	}
 
 #ifdef ENABLE_DTMF_CALLING
-		// append our DTMF ID to the inputted DTMF code -
-		//  IF the user inputted code is exactly 3 digits long and D-DCD is enabled
-		if (gDTMF_InputBox_Index == 3 && gTxVfo->DTMF_DECODING_ENABLE > 0)
-			gDTMF_CallMode = DTMF_CheckGroupCall(gDTMF_InputBox, 3);
-		else
-			gDTMF_CallMode = DTMF_CALL_MODE_DTMF;
-
-		gDTMF_State      = DTMF_STATE_0;
-#endif
-		// remember the DTMF string
-		gDTMF_PreviousIndex = gDTMF_InputBox_Index;
-		strcpy(gDTMF_String, gDTMF_InputBox);
-		gDTMF_ReplyState = DTMF_REPLY_ANI;
+	// append our DTMF ID to the inputted DTMF code
+	//  IF the user inputted code is exactly 3 digits long and D-DCD is enabled
+	if (gDTMF_InputBox_Index == 3 && gTxVfo->DTMF_DECODING_ENABLE > 0) {
+		gDTMF_CallMode = DTMF_CheckGroupCall(gDTMF_InputBox, 3);
+	} else {
+		gDTMF_CallMode = DTMF_CALL_MODE_DTMF;
 	}
+
+	gDTMF_State = DTMF_STATE_0;
+#endif
+
+	// remember the DTMF string
+	gDTMF_PreviousIndex = gDTMF_InputBox_Index;
+	strcpy(gDTMF_String, gDTMF_InputBox);
+	gDTMF_ReplyState = DTMF_REPLY_ANI;
+
 
 	DTMF_clear_input_box();
 
@@ -198,13 +197,12 @@ start_tx:
 	goto done;
 
 cancel_tx:
-	if (gPttIsPressed)
-	{
+	if (gPttIsPressed) {
 		gPttWasPressed = true;
 	}
 
 done:
-	gPttDebounceCounter = 0;
+
 	if (gScreenToDisplay != DISPLAY_MENU
 #ifdef ENABLE_FMRADIO
 		&& gRequestDisplayScreen != DISPLAY_FM
