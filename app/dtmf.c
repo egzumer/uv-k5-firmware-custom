@@ -43,6 +43,7 @@ uint8_t           gDTMF_PreviousIndex  = 0;
 
 char              gDTMF_RX_live[20];
 uint8_t           gDTMF_RX_live_timeout = 0;
+DTMF_ReplyState_t gDTMF_ReplyState;
 
 #ifdef ENABLE_DTMF_CALLING
 char              gDTMF_RX[17];
@@ -65,17 +66,6 @@ bool              gDTMF_IsTx;
 
 uint8_t           gDTMF_TxStopCountdown_500ms;
 bool              gDTMF_IsGroupCall;
-#endif
-DTMF_ReplyState_t gDTMF_ReplyState;
-
-#ifdef ENABLE_DTMF_CALLING
-void DTMF_clear_RX(void)
-{
-	gDTMF_RX_timeout = 0;
-	gDTMF_RX_index   = 0;
-	gDTMF_RX_pending = false;
-	memset(gDTMF_RX, 0, sizeof(gDTMF_RX));
-}
 #endif
 
 void DTMF_SendEndOfTransmission(void)
@@ -133,7 +123,146 @@ bool DTMF_ValidateCodes(char *pCode, const unsigned int size)
 	return true;
 }
 
+char DTMF_GetCharacter(const unsigned int code)
+{
+	switch (code)
+	{
+		case KEY_0:    return '0';
+		case KEY_1:    return '1';
+		case KEY_2:    return '2';
+		case KEY_3:    return '3';
+		case KEY_4:    return '4';
+		case KEY_5:    return '5';
+		case KEY_6:    return '6';
+		case KEY_7:    return '7';
+		case KEY_8:    return '8';
+		case KEY_9:    return '9';
+		case KEY_MENU: return 'A';
+		case KEY_UP:   return 'B';
+		case KEY_DOWN: return 'C';
+		case KEY_EXIT: return 'D';
+		case KEY_STAR: return '*';
+		case KEY_F:    return '#';
+		default:       return 0xff;
+	}
+}
+
+void DTMF_clear_input_box(void)
+{
+	memset(gDTMF_InputBox, 0, sizeof(gDTMF_InputBox));
+	gDTMF_InputBox_Index = 0;
+	gDTMF_InputMode      = false;
+}
+
+void DTMF_Append(const char code)
+{
+	if (gDTMF_InputBox_Index == 0) {
+		memset(gDTMF_InputBox, '-', sizeof(gDTMF_InputBox) - 1);
+		gDTMF_InputBox[sizeof(gDTMF_InputBox) - 1] = 0;
+	}
+
+	if (gDTMF_InputBox_Index < (sizeof(gDTMF_InputBox) - 1)) {
+		gDTMF_InputBox[gDTMF_InputBox_Index++] = code;
+		gDTMF_InputBox[gDTMF_InputBox_Index] = 0;
+	}
+
+}
+
+
+void DTMF_Reply(void)
+{
+	uint16_t    Delay;
 #ifdef ENABLE_DTMF_CALLING
+	char        String[23];
+#endif
+	const char *pString = NULL;
+
+	switch (gDTMF_ReplyState)
+	{
+		case DTMF_REPLY_ANI:
+#ifdef ENABLE_DTMF_CALLING
+			if (gDTMF_CallMode != DTMF_CALL_MODE_DTMF)
+			{	// append our ID code onto the end of the DTMF code to send
+				sprintf(String, "%s%c%s", gDTMF_String, gEeprom.DTMF_SEPARATE_CODE, gEeprom.ANI_DTMF_ID);
+				pString = String;
+			}
+			else
+#endif
+			{
+				pString = gDTMF_String;
+			}
+
+			break;
+#ifdef ENABLE_DTMF_CALLING
+		case DTMF_REPLY_AB:
+			pString = "AB";
+			break;
+
+		case DTMF_REPLY_AAAAA:
+			sprintf(String, "%s%c%s", gEeprom.ANI_DTMF_ID, gEeprom.DTMF_SEPARATE_CODE, "AAAAA");
+			pString = String;
+			break;
+#endif
+		default:
+		case DTMF_REPLY_NONE:
+			if (
+#ifdef ENABLE_DTMF_CALLING
+				gDTMF_CallState != DTMF_CALL_STATE_NONE           ||
+#endif
+			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_APOLLO ||
+			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_OFF    ||
+			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN)
+			{
+				gDTMF_ReplyState = DTMF_REPLY_NONE;
+				return;
+			}
+
+			// send TX-UP DTMF
+			pString = gEeprom.DTMF_UP_CODE;
+			break;
+	}
+
+	gDTMF_ReplyState = DTMF_REPLY_NONE;
+
+	if (pString == NULL)
+		return;
+
+	Delay = (gEeprom.DTMF_PRELOAD_TIME < 200) ? 200 : gEeprom.DTMF_PRELOAD_TIME;
+
+	if (gEeprom.DTMF_SIDE_TONE)
+	{	// the user will also hear the transmitted tones
+		AUDIO_AudioPathOn();
+		gEnableSpeaker = true;
+	}
+
+	SYSTEM_DelayMs(Delay);
+
+	BK4819_EnterDTMF_TX(gEeprom.DTMF_SIDE_TONE);
+
+	BK4819_PlayDTMFString(
+		pString,
+		1,
+		gEeprom.DTMF_FIRST_CODE_PERSIST_TIME,
+		gEeprom.DTMF_HASH_CODE_PERSIST_TIME,
+		gEeprom.DTMF_CODE_PERSIST_TIME,
+		gEeprom.DTMF_CODE_INTERVAL_TIME);
+
+	AUDIO_AudioPathOff();
+
+	gEnableSpeaker = false;
+
+	BK4819_ExitDTMF_TX(false);
+}
+
+#ifdef ENABLE_DTMF_CALLING
+void DTMF_clear_RX(void)
+{
+	gDTMF_RX_timeout = 0;
+	gDTMF_RX_index   = 0;
+	gDTMF_RX_pending = false;
+	memset(gDTMF_RX, 0, sizeof(gDTMF_RX));
+}
+
 bool DTMF_GetContact(const int Index, char *pContact)
 {
 	if (Index < 0 || Index >= MAX_DTMF_CONTACTS || pContact == NULL) {
@@ -166,32 +295,6 @@ bool DTMF_FindContact(const char *pContact, char *pResult)
 	return false;
 }
 
-#endif
-
-char DTMF_GetCharacter(const unsigned int code)
-{
-	switch (code)
-	{
-		case KEY_0:    return '0';
-		case KEY_1:    return '1';
-		case KEY_2:    return '2';
-		case KEY_3:    return '3';
-		case KEY_4:    return '4';
-		case KEY_5:    return '5';
-		case KEY_6:    return '6';
-		case KEY_7:    return '7';
-		case KEY_8:    return '8';
-		case KEY_9:    return '9';
-		case KEY_MENU: return 'A';
-		case KEY_UP:   return 'B';
-		case KEY_DOWN: return 'C';
-		case KEY_EXIT: return 'D';
-		case KEY_STAR: return '*';
-		case KEY_F:    return '#';
-		default:       return 0xff;
-	}
-}
-#ifdef ENABLE_DTMF_CALLING
 static bool CompareMessage(const char *pMsg, const char *pTemplate, const unsigned int size, const bool bCheckGroup)
 {
 	unsigned int i;
@@ -218,30 +321,7 @@ DTMF_CallMode_t DTMF_CheckGroupCall(const char *pMsg, const unsigned int size)
 
 	return DTMF_CALL_MODE_NOT_GROUP;
 }
-#endif
 
-void DTMF_clear_input_box(void)
-{
-	memset(gDTMF_InputBox, 0, sizeof(gDTMF_InputBox));
-	gDTMF_InputBox_Index = 0;
-	gDTMF_InputMode      = false;
-}
-
-void DTMF_Append(const char code)
-{
-	if (gDTMF_InputBox_Index == 0) {
-		memset(gDTMF_InputBox, '-', sizeof(gDTMF_InputBox) - 1);
-		gDTMF_InputBox[sizeof(gDTMF_InputBox) - 1] = 0;
-	}
-
-	if (gDTMF_InputBox_Index < (sizeof(gDTMF_InputBox) - 1)) {
-		gDTMF_InputBox[gDTMF_InputBox_Index++] = code;
-		gDTMF_InputBox[gDTMF_InputBox_Index] = 0;
-	}
-
-}
-
-#ifdef ENABLE_DTMF_CALLING
 void DTMF_HandleRequest(void)
 {	// proccess the RX'ed DTMF characters
 
@@ -425,88 +505,3 @@ void DTMF_HandleRequest(void)
 }
 
 #endif
-
-void DTMF_Reply(void)
-{
-	uint16_t    Delay;
-#ifdef ENABLE_DTMF_CALLING
-	char        String[23];
-#endif
-	const char *pString = NULL;
-
-	switch (gDTMF_ReplyState)
-	{
-		case DTMF_REPLY_ANI:
-#ifdef ENABLE_DTMF_CALLING
-			if (gDTMF_CallMode != DTMF_CALL_MODE_DTMF)
-			{	// append our ID code onto the end of the DTMF code to send
-				sprintf(String, "%s%c%s", gDTMF_String, gEeprom.DTMF_SEPARATE_CODE, gEeprom.ANI_DTMF_ID);
-				pString = String;
-			}
-			else
-#endif
-			{
-				pString = gDTMF_String;
-			}
-
-			break;
-#ifdef ENABLE_DTMF_CALLING
-		case DTMF_REPLY_AB:
-			pString = "AB";
-			break;
-
-		case DTMF_REPLY_AAAAA:
-			sprintf(String, "%s%c%s", gEeprom.ANI_DTMF_ID, gEeprom.DTMF_SEPARATE_CODE, "AAAAA");
-			pString = String;
-			break;
-#endif
-		default:
-		case DTMF_REPLY_NONE:
-			if (
-#ifdef ENABLE_DTMF_CALLING
-				gDTMF_CallState != DTMF_CALL_STATE_NONE           ||
-#endif
-			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_APOLLO ||
-			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_OFF    ||
-			    gCurrentVfo->DTMF_PTT_ID_TX_MODE == PTT_ID_TX_DOWN)
-			{
-				gDTMF_ReplyState = DTMF_REPLY_NONE;
-				return;
-			}
-
-			// send TX-UP DTMF
-			pString = gEeprom.DTMF_UP_CODE;
-			break;
-	}
-
-	gDTMF_ReplyState = DTMF_REPLY_NONE;
-
-	if (pString == NULL)
-		return;
-
-	Delay = (gEeprom.DTMF_PRELOAD_TIME < 200) ? 200 : gEeprom.DTMF_PRELOAD_TIME;
-
-	if (gEeprom.DTMF_SIDE_TONE)
-	{	// the user will also hear the transmitted tones
-		AUDIO_AudioPathOn();
-		gEnableSpeaker = true;
-	}
-
-	SYSTEM_DelayMs(Delay);
-
-	BK4819_EnterDTMF_TX(gEeprom.DTMF_SIDE_TONE);
-
-	BK4819_PlayDTMFString(
-		pString,
-		1,
-		gEeprom.DTMF_FIRST_CODE_PERSIST_TIME,
-		gEeprom.DTMF_HASH_CODE_PERSIST_TIME,
-		gEeprom.DTMF_CODE_PERSIST_TIME,
-		gEeprom.DTMF_CODE_INTERVAL_TIME);
-
-	AUDIO_AudioPathOff();
-
-	gEnableSpeaker = false;
-
-	BK4819_ExitDTMF_TX(false);
-}
