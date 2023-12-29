@@ -4,7 +4,6 @@
 # 1 = enable
 
 # ---- COMPILER/LINKER OPTIONS ----
-ENABLE_CLANG                  ?= 0
 ENABLE_SWD                    ?= 0
 ENABLE_OVERLAY                ?= 0
 ENABLE_LTO                    ?= 1
