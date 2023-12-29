@@ -109,7 +109,7 @@ extern bool              gDTMF_IsTx;
 extern uint8_t           gDTMF_TxStopCountdown_500ms;
 
 void DTMF_clear_RX(void);
-DTMF_CallMode_t DTMF_CheckGroupCall(const char *pDTMF, const unsigned int size);
+DTMF_CallMode_t DTMF_CheckGroupCall(const char *pMsg, const unsigned int size);
 bool DTMF_GetContact(const int Index, char *pContact);
 bool DTMF_FindContact(const char *pContact, char *pResult);
 void DTMF_HandleRequest(void);

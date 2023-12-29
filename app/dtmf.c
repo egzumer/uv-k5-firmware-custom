@@ -115,12 +115,10 @@ void DTMF_SendEndOfTransmission(void)
 
 bool DTMF_ValidateCodes(char *pCode, const unsigned int size)
 {
-	unsigned int i;
-
 	if (pCode[0] == 0xFF || pCode[0] == 0)
 		return false;
 
-	for (i = 0; i < size; i++)
+	for (unsigned int i = 0; i < size; i++)
 	{
 		if (pCode[i] == 0xFF || pCode[i] == 0)
 		{
@@ -212,10 +210,11 @@ static bool CompareMessage(const char *pMsg, const char *pTemplate, const unsign
 
 DTMF_CallMode_t DTMF_CheckGroupCall(const char *pMsg, const unsigned int size)
 {
-	for (unsigned int i = 0; i < size; i++)
+	for (unsigned int i = 0; i < size; i++) {
 		if (pMsg[i] == gEeprom.DTMF_GROUP_CALL_CODE) {
 			return DTMF_CALL_MODE_GROUP;
 		}
+	}
 
 	return DTMF_CALL_MODE_NOT_GROUP;
 }
@@ -230,14 +229,16 @@ void DTMF_clear_input_box(void)
 
 void DTMF_Append(const char code)
 {
-	if (gDTMF_InputBox_Index == 0)
-	{
+	if (gDTMF_InputBox_Index == 0) {
 		memset(gDTMF_InputBox, '-', sizeof(gDTMF_InputBox) - 1);
 		gDTMF_InputBox[sizeof(gDTMF_InputBox) - 1] = 0;
 	}
 
-	if (gDTMF_InputBox_Index < (sizeof(gDTMF_InputBox) - 1))
+	if (gDTMF_InputBox_Index < (sizeof(gDTMF_InputBox) - 1)) {
 		gDTMF_InputBox[gDTMF_InputBox_Index++] = code;
+		gDTMF_InputBox[gDTMF_InputBox_Index] = 0;
+	}
+
 }
 
 #ifdef ENABLE_DTMF_CALLING
