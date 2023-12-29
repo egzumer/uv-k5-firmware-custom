@@ -478,3 +478,6 @@ $(BIN)/$(PROJECT_NAME).bin:
 	@echo Create $(PROJECT_NAME).packed.bin
 	@-$(MY_PYTHON) fw-pack.py $(BIN)/$(PROJECT_NAME).bin $(AUTHOR_STRING) $(VERSION_STRING) $(BIN)/$(PROJECT_NAME).packed.bin
 
+
+
+

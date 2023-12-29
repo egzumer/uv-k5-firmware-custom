@@ -1,8 +1,7 @@
 *.d
 *.o
-_build
+_build/*
 .cache
 compile_commands.json
 .vscode
-/docs
 k5_eeprom.raw

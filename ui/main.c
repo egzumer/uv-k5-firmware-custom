@@ -651,14 +651,15 @@ void UI_DisplayMain(void)
 		// ************
 
 		String[0] = '\0';
+		const VFO_Info_t *vfoInfo = &gEeprom.VfoInfo[vfo_num];
 
 		// show the modulation symbol
-		const char * s = "";
-		const ModulationMode_t mod = gEeprom.VfoInfo[vfo_num].Modulation;
 		uint8_t ModPos = 0;
+		const char * s = "";
+		const ModulationMode_t mod = vfoInfo->Modulation;
 		switch (mod){
 			case MODULATION_FM: {
-				const FREQ_Config_t *pConfig = (mode == VFO_MODE_TX) ? gEeprom.VfoInfo[vfo_num].pTX : gEeprom.VfoInfo[vfo_num].pRX;
+				const FREQ_Config_t *pConfig = (mode == VFO_MODE_TX) ? vfoInfo->pTX : vfoInfo->pRX;
 				const unsigned int code_type = pConfig->CodeType;
 				const char *code_list[] = {"FM", "(FM)CT", "(FM)DCS", "(FM)DCR"};
 				if (code_type < ARRAY_SIZE(code_list))
@@ -678,20 +679,20 @@ void UI_DisplayMain(void)
 #endif		
 
 		if (state == VFO_STATE_NORMAL || state == VFO_STATE_ALARM)
-		{	// show the TX power			
+		{	// show the TX power
+			int i = vfoInfo->OUTPUT_POWER % 3;
+
 #ifdef ENABLE_SMALL_BOLD
 			const char *powerNames[] = {"LOW", "MID", "HIGH"};
-			GUI_DisplaySmallest(powerNames[gEeprom.VfoInfo[vfo_num].OUTPUT_POWER], 34, line == 0 ? 17 : 49, false, true);
+			GUI_DisplaySmallest(powerNames[i], 34, line == 0 ? 17 : 49, false, true);
 #else
-			const char pwr_list[] = "LMH";
-			const unsigned int i = gEeprom.VfoInfo[vfo_num].OUTPUT_POWER;
-			String[0] = (i < ARRAY_SIZE(pwr_list)) ? pwr_list[i] : '\0';
-			String[1] = '\0';
-			UI_PrintStringSmall(String, LCD_WIDTH + 46, 0, line + 1);
+			const char pwr_list[][2] = {"L","M","H"};			
+			UI_PrintStringSmallNormal(pwr_list[i], LCD_WIDTH + 46, 0, line + 1);
 #endif				
+
 		}
 
-		if (gEeprom.VfoInfo[vfo_num].freq_config_RX.Frequency != gEeprom.VfoInfo[vfo_num].freq_config_TX.Frequency)
+		if (vfoInfo->freq_config_RX.Frequency != vfoInfo->freq_config_TX.Frequency)
 		{	// show the TX offset symbol
 			const char dir_list[] = "\0+-";
 			const unsigned int i = gEeprom.VfoInfo[vfo_num].TX_OFFSET_FREQUENCY_DIRECTION;

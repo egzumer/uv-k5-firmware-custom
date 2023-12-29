@@ -212,12 +212,12 @@ static bool CompareMessage(const char *pMsg, const char *pTemplate, const unsign
 
 DTMF_CallMode_t DTMF_CheckGroupCall(const char *pMsg, const unsigned int size)
 {
-	unsigned int i;
-	for (i = 0; i < size; i++)
-		if (pMsg[i] == gEeprom.DTMF_GROUP_CALL_CODE)
-			break;
+	for (unsigned int i = 0; i < size; i++)
+		if (pMsg[i] == gEeprom.DTMF_GROUP_CALL_CODE) {
+			return DTMF_CALL_MODE_GROUP;
+		}
 
-	return (i < size) ? DTMF_CALL_MODE_GROUP : DTMF_CALL_MODE_NOT_GROUP;
+	return DTMF_CALL_MODE_NOT_GROUP;
 }
 #endif
 
