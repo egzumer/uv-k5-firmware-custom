@@ -104,7 +104,7 @@ void MENU_CssScanFound(void)
 void MENU_StopCssScan(void)
 {
 	gCssBackgroundScan = false;
-	
+
 #ifdef ENABLE_VOICE
 	gAnotherVoiceID       = VOICE_ID_SCANNING_STOP;
 #endif
@@ -134,7 +134,7 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 		case MENU_ABR_MIN:
 			*pMin = 0;
 			*pMax = 9;
-			break;				
+			break;
 
 		case MENU_ABR_MAX:
 			*pMin = 1;
@@ -309,7 +309,7 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 			*pMin = 0;
 			*pMax = 2;
 			break;
-			
+
 #ifdef ENABLE_DTMF_CALLING
 		case MENU_D_RSP:
 			*pMin = 0;
@@ -506,7 +506,7 @@ void MENU_AcceptSetting(void)
 					break;
 				edit[i] = ' ';
 			}
-			
+
 			SETTINGS_SaveChannelName(gSubMenuSelection, edit);
 			return;
 
@@ -846,9 +846,9 @@ void MENU_ShowCurrentSetting(void)
 
 		case MENU_RESET:
 			gSubMenuSelection = 0;
-			break;			
+			break;
 
-		case MENU_R_DCS: 
+		case MENU_R_DCS:
 		case MENU_R_CTCS:
 		{
 			DCS_CodeType_t type = gTxVfo->freq_config_RX.CodeType;
@@ -1148,7 +1148,7 @@ void MENU_ShowCurrentSetting(void)
 
 		case MENU_BATTYP:
 			gSubMenuSelection = gEeprom.BATTERY_TYPE;
-			break;			
+			break;
 
 		case MENU_F1SHRT:
 		case MENU_F1LONG:
@@ -1169,7 +1169,7 @@ void MENU_ShowCurrentSetting(void)
 					gSubMenuSelection = i;
 					break;
 				}
-					
+
 			}
 			break;
 		}
@@ -1271,17 +1271,17 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		#ifdef ENABLE_VOICE
 			gAnotherVoiceID = (VOICE_ID_t)Key;
 		#endif
-		
+
 		Frequency = StrToUL(INPUTBOX_GetAscii())*100;
 		gSubMenuSelection = FREQUENCY_RoundToStep(Frequency, gTxVfo->StepFrequency);
 
 		gInputBoxIndex = 0;
 		return;
 	}
-	
-	if (UI_MENU_GetCurrentMenuId() == MENU_MEM_CH || 
-		UI_MENU_GetCurrentMenuId() == MENU_DEL_CH || 
-		UI_MENU_GetCurrentMenuId() == MENU_1_CALL || 
+
+	if (UI_MENU_GetCurrentMenuId() == MENU_MEM_CH ||
+		UI_MENU_GetCurrentMenuId() == MENU_DEL_CH ||
+		UI_MENU_GetCurrentMenuId() == MENU_1_CALL ||
 		UI_MENU_GetCurrentMenuId() == MENU_MEM_NAME)
 	{	// enter 3-digit channel number
 
@@ -1467,16 +1467,11 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 				return;	// next char
 
 			// exit
-			if (memcmp(edit_original, edit, sizeof(edit_original)) == 0)
-			{	// no change - drop it
-				gFlagAcceptSetting  = false;
-				gIsInSubMenu        = false;
-				gAskForConfirmation = 0;
-			}
-			else
-			{
-				gFlagAcceptSetting  = false;
-				gAskForConfirmation = 0;
+			gFlagAcceptSetting  = false;
+			gAskForConfirmation = 0;
+			if (memcmp(edit_original, edit, sizeof(edit_original)) == 0) {
+				// no change - drop it
+				gIsInSubMenu = false;
 			}
 		}
 	}
