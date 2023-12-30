@@ -386,7 +386,14 @@ void UI_DisplayMain(void)
 				else
 #endif
 				{
-					sprintf(String, ">%s", gDTMF_InputBox);
+					int StringLen = sprintf(String, ">%s", gDTMF_InputBox);
+					uint32_t padding = sizeof(gDTMF_InputBox) - StringLen;
+					if (gDTMF_InputBox_Index) {
+						// add padding only if inputting a new string.
+						memset(String + StringLen, '-', padding);
+						String[StringLen + padding + 1] = 0;
+					}
+
 					pPrintStr = String;
 				}
 

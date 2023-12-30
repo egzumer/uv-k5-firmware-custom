@@ -83,7 +83,8 @@ extern DTMF_ReplyState_t gDTMF_ReplyState;
 bool DTMF_ValidateCodes(char *pCode, const unsigned int size);
 char DTMF_GetCharacter(const unsigned int code);
 void DTMF_clear_input_box(void);
-void DTMF_Append(const char code);
+void DTMF_StringAppend(const char code);
+void DTMF_StringDeleteOne();
 void DTMF_Reply(void);
 void DTMF_SendEndOfTransmission(void);
 

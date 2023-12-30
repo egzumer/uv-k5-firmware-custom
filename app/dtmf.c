@@ -149,23 +149,24 @@ char DTMF_GetCharacter(const unsigned int code)
 
 void DTMF_clear_input_box(void)
 {
-	memset(gDTMF_InputBox, 0, sizeof(gDTMF_InputBox));
+	gDTMF_InputBox[0] = 0;
 	gDTMF_InputBox_Index = 0;
-	gDTMF_InputMode      = false;
+	gDTMF_InputMode = false;
 }
 
-void DTMF_Append(const char code)
+void DTMF_StringAppend(const char code)
 {
-	if (gDTMF_InputBox_Index == 0) {
-		memset(gDTMF_InputBox, '-', sizeof(gDTMF_InputBox) - 1);
-		gDTMF_InputBox[sizeof(gDTMF_InputBox) - 1] = 0;
-	}
-
 	if (gDTMF_InputBox_Index < (sizeof(gDTMF_InputBox) - 1)) {
 		gDTMF_InputBox[gDTMF_InputBox_Index++] = code;
 		gDTMF_InputBox[gDTMF_InputBox_Index] = 0;
 	}
+}
 
+void DTMF_StringDeleteOne()
+{
+	if (gDTMF_InputBox_Index > 0) {
+		gDTMF_InputBox[--gDTMF_InputBox_Index] = 0;
+	}
 }
 
 

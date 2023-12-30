@@ -266,7 +266,10 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		}
 
 		// DTMF codes are in the input box
-		gDTMF_InputBox[--gDTMF_InputBox_Index] = '-'; // delete one code
+		DTMF_StringDeleteOne();
+		// this probably should go up the line, upon any key press
+		gKeyInputCountdown = key_input_timeout_500ms;
+
 
 #ifdef ENABLE_VOICE
 		gAnotherVoiceID   = VOICE_ID_CANCEL;
