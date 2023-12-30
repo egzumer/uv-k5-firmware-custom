@@ -80,12 +80,7 @@ You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) .
 
 |Build option | Description |
 | --- | ---- |
-|----- **COMPILER/LINKER OPTIONS**||
-| ENABLE_CLANG | **experimental, builds with clang instead of gcc (LTO will be disabled if you enable this) |
-| ENABLE_SWD | only needed if using CPU's SWD port (debugging/programming) |
-| ENABLE_OVERLAY | cpu FLASH stuff, not needed |
-| ENABLE_LTO | reduces size of compiled firmware but might break EEPROM reads (OVERLAY will be disabled if you enable this) |
-|----- **STOCK QUANSHENG FERATURES**||
+|🧰 **STOCK QUANSHENG FERATURES**||
 | ENABLE_UART | without this you can't configure radio via PC ! |
 | ENABLE_AIRCOPY | easier to just enter frequency with butts |
 | ENABLE_FMRADIO | WBFM VHF broadcast band receiver |
@@ -97,7 +92,7 @@ You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) .
 | ENABLE_PWRON_PASSWORD | power-on password stuff |
 | ENABLE_DTMF_CALLING | DTMF calling fuctionality, sending calls, receiving calls, group calls, contacts list etc. |
 | ENABLE_FLASHLIGHT | enable top flashlight LED (on, blink, SOS) |
-|----- **CUSTOM MODS**||
+|🧰 **CUSTOM MODS**||
 | ENABLE_BIG_FREQ | big font frequencies (like original QS firmware) |
 | ENABLE_SMALL_BOLD | bold channel name/no. (when name + freq channel display mode) |
 | ENABLE_CUSTOM_MENU_LAYOUT | changes how the menu looks like |
@@ -122,11 +117,15 @@ You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) .
 | ENABLE_BYP_RAW_DEMODULATORS | additional BYP (bypass?) and RAW demodulation options, proved not to be very useful, but it is there if you want to experiment |
 | ENABLE_BLMIN_TMP_OFF | additional function for configurable buttons that toggles `BLMin` on and off wihout saving it to the EEPROM |
 | ENABLE_SCAN_RANGES | scan range mode for frequency scanning, see wiki for instructions (radio operation -> frequency scanning) |
-|----- **DEBUGGING** ||
+|🧰 **DEBUGGING** ||
 | ENABLE_AM_FIX_SHOW_DATA| displays settings used by  AM-fix when AM transmission is received |
 | ENABLE_AGC_SHOW_DATA | displays AGC settings |
 | ENABLE_UART_RW_BK_REGS | adds 2 extra commands that allow to read and write BK4819 registers |
-
+|🧰 **COMPILER/LINKER OPTIONS**||
+| ENABLE_CLANG | **experimental, builds with clang instead of gcc (LTO will be disabled if you enable this) |
+| ENABLE_SWD | only needed if using CPU's SWD port (debugging/programming) |
+| ENABLE_OVERLAY | cpu FLASH stuff, not needed |
+| ENABLE_LTO | reduces size of compiled firmware but might break EEPROM reads (OVERLAY will be disabled if you enable this) |
 
 ## Compiler
 
