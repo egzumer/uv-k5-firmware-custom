@@ -444,9 +444,9 @@ static void CMD_0601_ReadBK4819Reg(const uint8_t *pBuffer)
 
 	CMD_0601_t *cmd = (CMD_0601_t*) pBuffer;
 
-	struct  __attribute__((__packed__)) {
+	struct __attribute__((__packed__)) {
 		Header_t header;
-		struct {
+		struct __attribute__((__packed__)) {
 			uint8_t reg;
 			uint16_t value;
 		} data;
@@ -461,7 +461,7 @@ static void CMD_0601_ReadBK4819Reg(const uint8_t *pBuffer)
 
 static void CMD_0602_WriteBK4819Reg(const uint8_t *pBuffer)
 {
-	typedef struct  __attribute__((__packed__)) {
+	typedef struct __attribute__((__packed__)) {
 		Header_t header;
 		uint8_t reg;
 		uint16_t value;
