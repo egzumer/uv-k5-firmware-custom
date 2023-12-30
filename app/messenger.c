@@ -11,6 +11,7 @@
 #include "app.h"
 #include "audio.h"
 #include "functions.h"
+#include "frequencies.h"
 #include "driver/system.h"
 #include "app/messenger.h"
 #include "ui/ui.h"
@@ -543,7 +544,7 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH]) {
 
 	if ( msgStatus != READY ) return;
 
-	if ( strlen(txMessage) > 0 ) {
+	if ( strlen(txMessage) > 0 && (TX_freq_check(gCurrentVfo->pTX->Frequency) == 0) ) {
 
 		msgStatus = SENDING;
 
@@ -591,7 +592,13 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH]) {
 		memset(lastcMessage, 0, sizeof(lastcMessage));
 		memcpy(lastcMessage, txMessage, TX_MSG_LENGTH);
 		msgStatus = READY;
+		memset(cMessage, 0, sizeof(cMessage));
+		cIndex = 0;
+		prevKey = 0;
+		prevLetter = 0;
 
+	} else {
+		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
 	}
 }
 
@@ -792,10 +799,6 @@ void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 			case KEY_MENU:
 				// Send message
 				MSG_Send(cMessage);
-				memset(cMessage, 0, sizeof(cMessage));
-				cIndex = 0;
-				prevKey = 0;
-				prevLetter = 0;
 				break;
 			case KEY_EXIT:
 				gRequestDisplayScreen = DISPLAY_MAIN;
