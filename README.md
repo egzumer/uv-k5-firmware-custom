@@ -133,8 +133,12 @@ You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) .
 | ENABLE_OVERLAY | cpu FLASH stuff, not needed |
 | ENABLE_LTO | reduces size of compiled firmware but might break EEPROM reads (OVERLAY will be disabled if you enable this) |
 |🤖 **joaquim.org** ||
+| ENABLE_MESSENGER | send and receive short text messages ( key = F + MENU ) |
+| ENABLE_MESSENGER_DELIVERY_NOTIFICATION | send notification to sender if message received |
+| ENABLE_MESSENGER_NOTIFICATION | play sound when message received |
+| ENABLE_MESSENGER_UART | send and receive short text messages via UART (to send write «SMS:Text to send») |
 | ENABLE_PMR_MODE | set the radio in PMR only operation ( work in progress ) |
-| ENABLE_MESSENGER | send and receive short text messages  ( work in progress ) ( key = F + MENU ) |
+
 ## Compiler
 
 arm-none-eabi GCC version 10.3.1 is recommended, which is the current version on Ubuntu 22.04.03 LTS.
