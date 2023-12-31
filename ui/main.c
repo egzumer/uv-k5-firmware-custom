@@ -181,7 +181,7 @@ void DisplayRSSIBar(const bool now)
 		0b00011000,
 	};
 
-	if (gEeprom.KEY_LOCK && gKeypadLocked > 0)
+	if ((gEeprom.KEY_LOCK && gKeypadLocked > 0) || center_line != CENTER_LINE_RSSI)
 		return;     // display is in use
 
 	if (gCurrentFunction == FUNCTION_TRANSMIT ||
