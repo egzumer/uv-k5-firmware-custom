@@ -21,6 +21,7 @@
 #endif
 #ifdef ENABLE_PMR_MODE
 	#include "app/pmr.h"
+	#include "frequencies.h"
 #endif
 #include "bsp/dp32g030/gpio.h"
 #include "driver/bk4819.h"
@@ -41,8 +42,18 @@ BOOT_Mode_t BOOT_GetMode(void)
 
 	for (i = 0; i < 2; i++)
 	{
-		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))
-			return BOOT_MODE_NORMAL;   // PTT not pressed
+		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT)) {
+			// PTT not pressed
+		#ifdef ENABLE_PMR_MODE		
+			if ( gPMR_Mode_Active ) {
+				return BOOT_MODE_PMR;
+			} else {
+				return BOOT_MODE_NORMAL;
+			}
+		#else
+			return BOOT_MODE_NORMAL;
+		#endif
+		}
 		Keys[i] = KEYBOARD_Poll();
 		SYSTEM_DelayMs(20);
 	}
@@ -62,12 +73,31 @@ BOOT_Mode_t BOOT_GetMode(void)
 			return BOOT_MODE_AIRCOPY;
 	#endif
 	#ifdef ENABLE_PMR_MODE
-		if (Keys[0] == KEY_SIDE2)
-			return BOOT_MODE_PMR;
+		// if PMR Mode, boots in normal
+		if (Keys[0] == KEY_SIDE2) {
+			if ( gPMR_Mode_Active ) {
+				gPMR_Mode_Active = false;
+				SETTINGS_SavePMR();
+				return BOOT_MODE_NORMAL;
+			} else {
+				gPMR_Mode_Active = true;
+				SETTINGS_SavePMR();
+				return BOOT_MODE_PMR;
+			}
+		}
 	#endif
 	}
 
-	return BOOT_MODE_NORMAL;
+	#ifdef ENABLE_PMR_MODE
+		if ( gPMR_Mode_Active ) {
+			return BOOT_MODE_PMR;
+		} else {
+			return BOOT_MODE_NORMAL;
+		}
+	#else
+		return BOOT_MODE_NORMAL;
+	#endif
+	
 }
 
 void BOOT_ProcessMode(BOOT_Mode_t Mode)
@@ -91,7 +121,7 @@ void BOOT_ProcessMode(BOOT_Mode_t Mode)
 		gEeprom.KEY_2_LONG_PRESS_ACTION  = ACTION_OPT_NONE;
 		gEeprom.KEY_M_LONG_PRESS_ACTION  = ACTION_OPT_NONE;
 
-		RADIO_InitInfo(gRxVfo, FREQ_CHANNEL_LAST - 1, 44600625);
+		RADIO_InitInfo(gRxVfo, FREQ_CHANNEL_LAST - 1, PMRFrequencyTable[gPMR_Channel - 1]);
 
 		gRxVfo->CHANNEL_BANDWIDTH        = BANDWIDTH_NARROW;
 		gRxVfo->OUTPUT_POWER             = OUTPUT_POWER_LOW;

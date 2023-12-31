@@ -32,6 +32,7 @@
 #endif
 #ifdef ENABLE_PMR_MODE
 	#include "ui/pmr.h"
+	#include "app/pmr.h"
 #endif
 #ifdef ENABLE_MESSENGER
 	#include "ui/messenger.h"
@@ -86,6 +87,12 @@ void GUI_SelectNextDisplay(GUI_DisplayType_t Display)
 {
 	if (Display == DISPLAY_INVALID)
 		return;
+
+	#ifdef ENABLE_PMR_MODE
+	if ( Display == DISPLAY_MAIN && gPMR_Mode_Active) {
+		Display = DISPLAY_PMR;
+	}
+	#endif
 
 	if (gScreenToDisplay != Display)
 	{

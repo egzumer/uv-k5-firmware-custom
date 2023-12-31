@@ -3,11 +3,6 @@
 # 0 = disable
 # 1 = enable
 
-# ---- COMPILER/LINKER OPTIONS ----
-ENABLE_SWD                    ?= 0
-ENABLE_OVERLAY                ?= 0
-ENABLE_LTO                    ?= 1
-
 # ---- STOCK QUANSHENG FERATURES ----
 ENABLE_UART                   ?= 1
 ENABLE_UART_DEBUG			  ?= 1
@@ -52,7 +47,15 @@ ENABLE_AM_FIX_SHOW_DATA       ?= 0
 ENABLE_AGC_SHOW_DATA          ?= 0
 ENABLE_UART_RW_BK_REGS        ?= 0
 
-# ----
+# ---- COMPILER/LINKER OPTIONS ----
+ENABLE_CLANG                  ?= 0
+ENABLE_SWD                    ?= 0
+ENABLE_OVERLAY                ?= 0
+ENABLE_LTO                    ?= 1
+
+#############################################################
+
+# --- joaquim.org
 ENABLE_MESSENGER              			?= 1
 ENABLE_MESSENGER_DELIVERY_NOTIFICATION	?= 1
 ENABLE_MESSENGER_NOTIFICATION			?= 1
@@ -63,8 +66,8 @@ ENABLE_PMR_MODE               ?= 0
 
 #------------------------------------------------------------------------------
 AUTHOR_STRING ?= JOAQUIM
-VERSION_STRING ?= V0.1
-PROJECT_NAME := cfw_joaquimorg_oefw_V0.1
+VERSION_STRING ?= V0.2d
+PROJECT_NAME := cfw_joaquimorg_oefw_V0.2d
 
 BUILD := _build
 BIN := firmware
@@ -92,12 +95,14 @@ ifeq ($(OS), Windows_NT) # windows
 	FixPath = $(subst /,\,$1)
 	WHERE = where
 	DEL = del /q
+	K5PROG = utils/k5prog/k5prog.exe -F -YYY -p /dev/com3 -b
 else
 	MKDIR = mkdir -p $(1)
 	RM = rm -f
 	FixPath = $1
 	WHERE = which
 	DEL = del
+	K5PROG = utils/k5prog/k5prog -F -YYY -p /dev/ttyUSB3 -b
 endif
 
 CP = cp
@@ -439,7 +444,7 @@ else ifneq (,$(HAS_CRCMOD))
 	$(info )
 endif
 
-.PHONY: all clean clean-all
+.PHONY: all clean clean-all prog
 
 # Default target - first one defined
 all: $(BUILD) $(BUILD)/$(PROJECT_NAME).out $(BIN)
@@ -490,4 +495,5 @@ $(BUILD)/$(PROJECT_NAME).out: $(OBJECTS)
 	@-$(MY_PYTHON) fw-pack.py $(BIN)/$(PROJECT_NAME).bin $(AUTHOR_STRING) $(VERSION_STRING) $(BIN)/$(PROJECT_NAME).packed.bin
 
 
-
+prog: all
+	$(K5PROG) $(BIN)/$(PROJECT_NAME).bin
