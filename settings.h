@@ -90,7 +90,6 @@ enum ACTION_OPT_t {
 	ACTION_OPT_ALARM,
 	ACTION_OPT_1750,
 	ACTION_OPT_BLMIN_TMP_OFF, //BackLight Minimum Temporay OFF
-	ACTION_OPT_PMR,
 	ACTION_OPT_MSG,
 	ACTION_OPT_LEN
 };
@@ -264,6 +263,10 @@ typedef struct {
 } EEPROM_Config_t;
 
 extern EEPROM_Config_t gEeprom;
+
+#ifdef ENABLE_PMR_MODE
+	void SETTINGS_SavePMR();
+#endif
 
 void     SETTINGS_InitEEPROM(void);
 void     SETTINGS_LoadCalibration(void);

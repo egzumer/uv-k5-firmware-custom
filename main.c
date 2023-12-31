@@ -144,7 +144,12 @@ void Main(void)
 	// wait for user to release all butts before moving on
 	if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) ||
 	     KEYBOARD_Poll() != KEY_INVALID ||
-		 BootMode != BOOT_MODE_NORMAL)
+		#ifdef ENABLE_PMR_MODE
+			(BootMode != BOOT_MODE_NORMAL && BootMode != BOOT_MODE_PMR)
+		#else
+			BootMode != BOOT_MODE_NORMAL
+		#endif		 		 
+	)
 	{	// keys are pressed
 		UI_DisplayReleaseKeys();
 		BACKLIGHT_TurnOn();

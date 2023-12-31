@@ -59,12 +59,12 @@ ENABLE_MESSENGER_NOTIFICATION			?= 1
 ENABLE_MESSENGER_UART					?= 1
 
 # Work in progress
-ENABLE_PMR_MODE               ?= 0
+ENABLE_PMR_MODE               ?= 1
 
 #------------------------------------------------------------------------------
 AUTHOR_STRING ?= JOAQUIM
-VERSION_STRING ?= V0.1
-PROJECT_NAME := cfw_joaquimorg_oefw_V0.1
+VERSION_STRING ?= V0.2d
+PROJECT_NAME := cfw_joaquimorg_oefw_V0.2d
 
 BUILD := _build
 BIN := firmware

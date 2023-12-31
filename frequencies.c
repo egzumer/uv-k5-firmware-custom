@@ -61,6 +61,28 @@ const freq_band_table_t frequencyBandTable[] =
 	};
 #endif
 
+#ifdef ENABLE_PMR_MODE
+	const uint32_t PMRFrequencyTable[16] =
+	{
+		44600625,
+		44601875,
+		44603125,
+		44604375,
+		44605625,
+		44606875,
+		44608125,
+		44609375,
+		44610625,
+		44611875,
+		44613125,
+		44614375,
+		44615625,
+		44616875,
+		44618125,
+		44619375
+	};
+#endif
+
 
 // this order of steps has to be preserved for backwards compatibility with other/stock firmwares
 const uint16_t gStepFrequencyTable[] = {

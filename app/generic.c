@@ -19,11 +19,12 @@
 #include "app/app.h"
 #include "app/chFrScanner.h"
 #include "app/common.h"
-
 #ifdef ENABLE_FMRADIO
 	#include "app/fm.h"
 #endif
-
+#ifdef ENABLE_PMR_MODE
+	#include "app/pmr.h"
+#endif
 #include "app/generic.h"
 #include "app/menu.h"
 #include "app/scanner.h"
@@ -60,13 +61,19 @@ void GENERIC_Key_F(bool bKeyPressed, bool bKeyHeld)
 		}
 		else // released
 		{
-			#ifdef ENABLE_FMRADIO
-				if ((gFmRadioMode || gScreenToDisplay != DISPLAY_MAIN) && gScreenToDisplay != DISPLAY_FM)
-					return;
-			#else
-				if (gScreenToDisplay != DISPLAY_MAIN)
-					return;
+
+			#ifdef ENABLE_PMR_MODE
+				if ( !gPMR_Mode_Active ) {
+				#ifdef ENABLE_FMRADIO
+					if ((gFmRadioMode || gScreenToDisplay != DISPLAY_MAIN) && gScreenToDisplay != DISPLAY_FM)
+						return;
+				#else
+					if (gScreenToDisplay != DISPLAY_MAIN)
+						return;
+				#endif
+				}
 			#endif
+
 
 			gWasFKeyPressed = !gWasFKeyPressed; // toggle F function
 
@@ -124,10 +131,8 @@ void GENERIC_Key_PTT(bool bKeyPressed)
 
 			RADIO_SetVfoState(VFO_STATE_NORMAL);
 			
-			#ifndef ENABLE_PMR_MODE // && gRequestDisplayScreen != DISPLAY_PMR
 			if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
 				gRequestDisplayScreen = DISPLAY_MAIN;
-			#endif
 		}
 
 		return;
@@ -227,14 +232,12 @@ cancel_tx:
 
 done:
 	gPttDebounceCounter = 0;
-	#ifndef ENABLE_PMR_MODE //  && gRequestDisplayScreen != DISPLAY_PMR
-		#ifdef ENABLE_FMRADIO
-			if (gScreenToDisplay != DISPLAY_MENU && gRequestDisplayScreen != DISPLAY_FM)     // 1of11 .. don't close the menu
-				gRequestDisplayScreen = DISPLAY_MAIN;
-		#else
-			if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
-				gRequestDisplayScreen = DISPLAY_MAIN;
-		#endif
+	#ifdef ENABLE_FMRADIO
+		if (gScreenToDisplay != DISPLAY_MENU && gRequestDisplayScreen != DISPLAY_FM)     // 1of11 .. don't close the menu
+			gRequestDisplayScreen = DISPLAY_MAIN;
+	#else
+		if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
+			gRequestDisplayScreen = DISPLAY_MAIN;
 	#endif
 	gUpdateStatus  = true;
 	gUpdateDisplay = true;
