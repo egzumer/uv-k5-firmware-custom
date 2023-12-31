@@ -95,12 +95,14 @@ ifeq ($(OS), Windows_NT) # windows
 	FixPath = $(subst /,\,$1)
 	WHERE = where
 	DEL = del /q
+	K5PROG = utils/k5prog/k5prog.exe -F -YYY -p /dev/com3 -b
 else
 	MKDIR = mkdir -p $(1)
 	RM = rm -f
 	FixPath = $1
 	WHERE = which
 	DEL = del
+	K5PROG = utils/k5prog/k5prog -F -YYY -p /dev/ttyUSB3 -b
 endif
 
 CP = cp
@@ -442,7 +444,7 @@ else ifneq (,$(HAS_CRCMOD))
 	$(info )
 endif
 
-.PHONY: all clean clean-all
+.PHONY: all clean clean-all prog
 
 # Default target - first one defined
 all: $(BUILD) $(BUILD)/$(PROJECT_NAME).out $(BIN)
@@ -493,4 +495,5 @@ $(BUILD)/$(PROJECT_NAME).out: $(OBJECTS)
 	@-$(MY_PYTHON) fw-pack.py $(BIN)/$(PROJECT_NAME).bin $(AUTHOR_STRING) $(VERSION_STRING) $(BIN)/$(PROJECT_NAME).packed.bin
 
 
-
+prog: all
+	$(K5PROG) $(BIN)/$(PROJECT_NAME).bin
