@@ -56,35 +56,27 @@ const char gModulationStr[MODULATION_UKNOWN][4] = {
 
 
 
-bool RADIO_CheckValidChannel(uint16_t Channel, bool bCheckScanList, uint8_t VFO)
+bool RADIO_CheckValidChannel(uint16_t channel, bool checkScanList, uint8_t scanList)
 {
 	// return true if the channel appears valid
-	if (!IS_MR_CHANNEL(Channel)) {
+	if (!IS_MR_CHANNEL(channel))
 		return false;
-	}
 
-	const ChannelAttributes_t att = gMR_ChannelAttributes[Channel];
+	const ChannelAttributes_t att = gMR_ChannelAttributes[channel];
 
-	if (att.band > BAND7_470MHz) {
+	if (att.band > BAND7_470MHz)
 		return false;
-	}
 
-	if (!bCheckScanList) {
+	if (!checkScanList || scanList > 1)
 		return true;
-	}
 
-	if (VFO >= 2) {
-		return true;
-	}
-
-	if (!att.scanlist1) {
+	if (scanList ? !att.scanlist2 : !att.scanlist1)
 		return false;
-	}
 
-	const uint8_t PriorityCh1 = gEeprom.SCANLIST_PRIORITY_CH1[VFO];
-	const uint8_t PriorityCh2 = gEeprom.SCANLIST_PRIORITY_CH2[VFO];
+	const uint8_t PriorityCh1 = gEeprom.SCANLIST_PRIORITY_CH1[scanList];
+	const uint8_t PriorityCh2 = gEeprom.SCANLIST_PRIORITY_CH2[scanList];
 
-	return PriorityCh1 != Channel && PriorityCh2 != Channel;
+	return PriorityCh1 != channel && PriorityCh2 != channel;
 }
 
 uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScanList, uint8_t VFO)
