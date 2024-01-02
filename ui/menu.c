@@ -273,7 +273,8 @@ const char gSubMenu_ROGER[][11] =
     "MOTO TPT",
 	"MOTO T40",
 	"MOTO T80",
-	"C.AM845"
+	"C.AM845",
+	"POLIZIA"
 	//"MDC"
 };
 
