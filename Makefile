@@ -66,8 +66,8 @@ ENABLE_PMR_MODE               ?= 0
 
 #------------------------------------------------------------------------------
 AUTHOR_STRING ?= JOAQUIM
-VERSION_STRING ?= V0.2.1
-PROJECT_NAME := cfw_joaquimorg_oefw_V0.2.1
+VERSION_STRING ?= V0.2.2
+PROJECT_NAME := cfw_joaquimorg_oefw_V0.2.2
 
 BUILD := _build
 BIN := firmware
