@@ -264,15 +264,14 @@ void MSG_FSKSendData() {
 	BK4819_WriteRegister(BK4819_REG_59, (1u << 15) | (1u << 14) | fsk_reg59);   // clear FIFO's
 	BK4819_WriteRegister(BK4819_REG_59, fsk_reg59);
 
-	{	// load the entire packet data into the TX FIFO buffer
-		unsigned int i;
-		const uint16_t *p = (const uint16_t *)msgFSKBuffer;
-		const uint16_t len_buff = (MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH) / sizeof(p[0]);
-		for (i = 0; i < len_buff; i++) {
-			BK4819_WriteRegister(BK4819_REG_5F, p[i]);  // load 16-bits at a time
-		}
-	}
 	SYSTEM_DelayMs(100);
+
+	{	// load the entire packet data into the TX FIFO buffer
+		const uint16_t len_buff = (MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH);
+		for (size_t i = 0, j = 0; i < len_buff; i += 2, j++) {
+        	BK4819_WriteRegister(BK4819_REG_5F, (msgFSKBuffer[i + 1] << 8) | msgFSKBuffer[i]);
+    	}
+	}
 
 	// enable FSK TX
 	BK4819_WriteRegister(BK4819_REG_59, (1u << 11) | fsk_reg59);
@@ -295,7 +294,7 @@ void MSG_FSKSendData() {
 	}
 	//BK4819_WriteRegister(BK4819_REG_02, 0);
 
-	//SYSTEM_DelayMs(100);
+	SYSTEM_DelayMs(100);
 
 	// disable FSK
 	BK4819_WriteRegister(BK4819_REG_59, fsk_reg59);
@@ -548,9 +547,8 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH]) {
 
 		msgStatus = SENDING;
 
+		RADIO_SetVfoState(VFO_STATE_NORMAL);
 		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true);
-
-		//RADIO_SetVfoState(VFO_STATE_NORMAL);
 
 		memset(msgFSKBuffer, 0, sizeof(msgFSKBuffer));
 
@@ -570,18 +568,22 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH]) {
 		msgFSKBuffer[MAX_RX_MSG_LENGTH + 2] = '0';
 		msgFSKBuffer[(MSG_HEADER_LENGTH + MAX_RX_MSG_LENGTH) - 1] = '#';
 
-		RADIO_SetTxParameters();
+		BK4819_DisableDTMF();
 
-		SYSTEM_DelayMs(500);
+		//RADIO_SetTxParameters();
+		FUNCTION_Select(FUNCTION_TRANSMIT);
+		//SYSTEM_DelayMs(500);
 		BK4819_PlayRogerNormal(98);
-		SYSTEM_DelayMs(200);
-		BK4819_ExitTxMute();
-		MSG_FSKSendData();
-
 		SYSTEM_DelayMs(100);
 
+		BK4819_ExitTxMute();
+		
+		MSG_FSKSendData();
+
+		//SYSTEM_DelayMs(100);
+
 		APP_EndTransmission(true);
-		//RADIO_SetVfoState(VFO_STATE_NORMAL);;
+		RADIO_SetVfoState(VFO_STATE_NORMAL);
 
 		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
 

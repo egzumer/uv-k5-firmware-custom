@@ -470,6 +470,8 @@ clean-all:
 	@-$(RM) $(call FixPath,$(BUILD))
 	@-$(DEL) $(call FixPath,$(BIN)/*)
 
+-include $(OBJECTS:.o=.d)
+
 # Create objects from C SRC files
 $(BUILD)/%.o: %.c
 	@echo CC $<

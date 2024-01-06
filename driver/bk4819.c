@@ -1767,8 +1767,9 @@ void BK4819_PlayRogerNormal(const int roger)
 			break;
 			
 		case 98: // 
-			BK4819_PlayBeep(1200, 100);
-			BK4819_PlayBeep(2400, 100);			
+			/*BK4819_PlayBeep(1200, 100);
+			BK4819_PlayBeep(2400, 100);*/
+			BK4819_PlayBeep(2525, 250);
 			break;
 
 		case 99: // 
@@ -1836,12 +1837,13 @@ void BK4819_PlayRogerMDC(void)
 }
 */
 
+
 void BK4819_PlayRoger(void)
 {
 
 	/*if (gEeprom.ROGER == ROGER_MODE_MDC)
 		BK4819_PlayRogerMDC();
-	else */
+	else*/
 	if (gEeprom.ROGER != ROGER_MODE_OFF) {
 		BK4819_PlayRogerNormal(gEeprom.ROGER - 1);
 	}

@@ -5,3 +5,4 @@ _build/*
 compile_commands.json
 .vscode
 k5_eeprom.raw
+k5prog.exe.stackdump
