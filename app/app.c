@@ -634,7 +634,8 @@ static void CheckRadioInterrupts(void)
 						gDTMF_RX[gDTMF_RX_index]   = 0;
 						gDTMF_RX_timeout           = DTMF_RX_timeout_500ms;  // time till we delete it
 						gDTMF_RX_pending           = true;
-
+						
+						SYSTEM_DelayMs(3);//fix DTMF not reply@Yurisu
 						DTMF_HandleRequest();
 					}
 #endif
