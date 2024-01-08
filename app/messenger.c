@@ -26,10 +26,10 @@ typedef enum MsgStatus {
   	RECEIVING,
 } MsgStatus;
 
-const uint8_t BUTTON_STATE_HELD = 1 << 1;
+const uint8_t MSG_BUTTON_STATE_HELD = 1 << 1;
 
-const uint8_t BUTTON_EVENT_SHORT =  0;
-const uint8_t BUTTON_EVENT_LONG =  BUTTON_STATE_HELD;
+const uint8_t MSG_BUTTON_EVENT_SHORT =  0;
+const uint8_t MSG_BUTTON_EVENT_LONG =  MSG_BUTTON_STATE_HELD;
 
 const uint8_t MAX_MSG_LENGTH = TX_MSG_LENGTH - 1;
 
@@ -764,7 +764,7 @@ void processBackspace() {
 void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 	uint8_t state = bKeyPressed + 2 * bKeyHeld;
 
-	if (state == BUTTON_EVENT_SHORT) {
+	if (state == MSG_BUTTON_EVENT_SHORT) {
 
 		switch (Key)
 		{
@@ -811,7 +811,7 @@ void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 				break;
 		}
 
-	} else if (state == BUTTON_EVENT_LONG) {
+	} else if (state == MSG_BUTTON_EVENT_LONG) {
 
 		switch (Key)
 		{
