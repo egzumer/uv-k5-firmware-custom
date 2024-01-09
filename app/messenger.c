@@ -539,7 +539,7 @@ void moveUP(char (*rxMessages)[MAX_RX_MSG_LENGTH + 2]) {
 	memset(rxMessages[3], 0, sizeof(rxMessages[3]));
 }
 
-void MSG_Send(const char txMessage[TX_MSG_LENGTH]) {
+void MSG_Send(const char txMessage[TX_MSG_LENGTH], bool bServiceMessage) {
 
 	if ( msgStatus != READY ) return;
 
@@ -588,16 +588,17 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH]) {
 		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
 
 		MSG_EnableRX(true);
-
-		moveUP(rxMessage);
-		sprintf(rxMessage[3], "> %s", txMessage);
-		memset(lastcMessage, 0, sizeof(lastcMessage));
-		memcpy(lastcMessage, txMessage, TX_MSG_LENGTH);
+		if (!bServiceMessage) {
+			moveUP(rxMessage);
+			sprintf(rxMessage[3], "> %s", txMessage);
+			memset(lastcMessage, 0, sizeof(lastcMessage));
+			memcpy(lastcMessage, txMessage, TX_MSG_LENGTH);
+			cIndex = 0;
+			prevKey = 0;
+			prevLetter = 0;
+			memset(cMessage, 0, sizeof(cMessage));
+		}
 		msgStatus = READY;
-		memset(cMessage, 0, sizeof(cMessage));
-		cIndex = 0;
-		prevKey = 0;
-		prevLetter = 0;
 
 	} else {
 		AUDIO_PlayBeep(BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL);
@@ -605,7 +606,7 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH]) {
 }
 
 uint8_t validate_char( uint8_t rchar ) {
-	if ( rchar >= 32 && rchar <= 127 ) {
+	if ( (rchar == 0x1b) || (rchar >= 32 && rchar <= 127) ) {
 		return rchar;
 	}
 	return 32;
@@ -652,24 +653,29 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 
 		if (gFSKWriteIndex > 2) {
 
-			moveUP(rxMessage);
-
-			if (msgFSKBuffer[0] != 'M' || msgFSKBuffer[1] != 'S') {
-				snprintf(rxMessage[3], TX_MSG_LENGTH + 2, "? unknown msg format!");
+			// If there's three 0x1b bytes, then it's a service message
+			if (msgFSKBuffer[2] == 0x1b && msgFSKBuffer[3] == 0x1b && msgFSKBuffer[4] == 0x1b) {
+			#ifdef ENABLE_MESSENGER_DELIVERY_NOTIFICATION
+				// If the next 4 bytes are "RCVD", then it's a delivery notification
+				if (msgFSKBuffer[5] == 'R' && msgFSKBuffer[6] == 'C' && msgFSKBuffer[7] == 'V' && msgFSKBuffer[8] == 'D') {
+					UART_printf("SVC<RCPT\r\n");
+					rxMessage[3][strlen(rxMessage[3])] = '+';
+					gUpdateStatus = true;
+					gUpdateDisplay = true;
+				}
+			#endif
 			} else {
-				snprintf(rxMessage[3], TX_MSG_LENGTH + 2, "< %s", &msgFSKBuffer[2]);
+				moveUP(rxMessage);
+				if (msgFSKBuffer[0] != 'M' || msgFSKBuffer[1] != 'S') {
+					snprintf(rxMessage[3], TX_MSG_LENGTH + 2, "? unknown msg format!");
+				}
+				else
+				{
+					snprintf(rxMessage[3], TX_MSG_LENGTH + 2, "< %s", &msgFSKBuffer[2]);
+				}
 
 			#ifdef ENABLE_MESSENGER_UART
 				UART_printf("SMS<%s\r\n", &msgFSKBuffer[2]);
-			#endif
-
-			#ifdef ENABLE_MESSENGER_DELIVERY_NOTIFICATION
-				BK4819_DisableDTMF();
-				RADIO_SetTxParameters();
-				SYSTEM_DelayMs(500);
-				BK4819_ExitTxMute();
-				BK4819_PlayRogerNormal(99);
-				BK4819_EnterTxMute();
 			#endif
 
 				if ( gScreenToDisplay != DISPLAY_MSG ) {
@@ -687,6 +693,10 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 		}
 
 		gFSKWriteIndex = 0;
+		// Transmit a message to the sender that we have received the message (Unless it's a service message)
+		if (msgFSKBuffer[0] == 'M' && msgFSKBuffer[1] == 'S' && msgFSKBuffer[2] != 0x1b) {
+			MSG_Send("\x1b\x1b\x1bRCVD                       ", true);
+		}
 	}
 }
 
@@ -800,7 +810,7 @@ void  MSG_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) {
 				break;*/
 			case KEY_MENU:
 				// Send message
-				MSG_Send(cMessage);
+				MSG_Send(cMessage, false);
 				break;
 			case KEY_EXIT:
 				gRequestDisplayScreen = DISPLAY_MAIN;
