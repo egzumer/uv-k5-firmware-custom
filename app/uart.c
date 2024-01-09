@@ -510,7 +510,7 @@ bool UART_IsCommandAvailable(void)
 		remove(txMessage, '\r');      
 
 		if (strlen(txMessage) > 0) {        
-			MSG_Send(txMessage);
+			MSG_Send(txMessage, false);
 			UART_printf("SMS>%s\r\n", txMessage);
 			gUpdateDisplay = true;
 		}      
