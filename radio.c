@@ -416,56 +416,37 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 		EEPROM_ReadBuffer(Base + 0x40, &pInfo->SquelchCloseGlitchThresh, 1);  //  90    90
 		EEPROM_ReadBuffer(Base + 0x50, &pInfo->SquelchOpenGlitchThresh,  1);  // 100   100
 
-		uint16_t rssi_open    = pInfo->SquelchOpenRSSIThresh;
-		uint16_t rssi_close   = pInfo->SquelchCloseRSSIThresh;
+
 		uint16_t noise_open   = pInfo->SquelchOpenNoiseThresh;
 		uint16_t noise_close  = pInfo->SquelchCloseNoiseThresh;
+
+#if ENABLE_SQUELCH_MORE_SENSITIVE
+		uint16_t rssi_open    = pInfo->SquelchOpenRSSIThresh;
+		uint16_t rssi_close   = pInfo->SquelchCloseRSSIThresh;
 		uint16_t glitch_open  = pInfo->SquelchOpenGlitchThresh;
 		uint16_t glitch_close = pInfo->SquelchCloseGlitchThresh;
-
-		#if ENABLE_SQUELCH_MORE_SENSITIVE
-			// make squelch a little more sensitive
-			//
-			// getting the best setting here is still experimental, bare with me
-			//
-			// note that 'noise' and 'glitch' values are inverted compared to 'rssi' values
-
-			#if 0
-				rssi_open   = (rssi_open   * 8) / 9;
-				noise_open  = (noise_open  * 9) / 8;
-				glitch_open = (glitch_open * 9) / 8;
-			#else
-				// even more sensitive .. use when RX bandwidths are fixed (no weak signal auto adjust)
-				rssi_open   = (rssi_open   * 1) / 2;
-				noise_open  = (noise_open  * 2) / 1;
-				glitch_open = (glitch_open * 2) / 1;
-			#endif
-
-		#else
-			// more sensitive .. use when RX bandwidths are fixed (no weak signal auto adjust)
-			rssi_open   = (rssi_open   * 3) / 4;
-			noise_open  = (noise_open  * 4) / 3;
-			glitch_open = (glitch_open * 4) / 3;
-		#endif
-
-		rssi_close   = (rssi_open   *  9) / 10;
-		noise_close  = (noise_open  * 10) / 9;
-		glitch_close = (glitch_open * 10) / 9;
+		// make squelch more sensitive
+		// note that 'noise' and 'glitch' values are inverted compared to 'rssi' values
+		rssi_open   = (rssi_open   * 1) / 2;
+		noise_open  = (noise_open  * 2) / 1;
+		glitch_open = (glitch_open * 2) / 1;
 
 		// ensure the 'close' threshold is lower than the 'open' threshold
-		if (rssi_close   == rssi_open   && rssi_close   >= 2)
+		if (rssi_close == rssi_open && rssi_close >= 2)
 			rssi_close -= 2;
-		if (noise_close  == noise_open  && noise_close  <= 125)
+		if (noise_close == noise_open && noise_close  <= 125)
 			noise_close += 2;
 		if (glitch_close == glitch_open && glitch_close <= 253)
 			glitch_close += 2;
 
 		pInfo->SquelchOpenRSSIThresh    = (rssi_open    > 255) ? 255 : rssi_open;
 		pInfo->SquelchCloseRSSIThresh   = (rssi_close   > 255) ? 255 : rssi_close;
-		pInfo->SquelchOpenNoiseThresh   = (noise_open   > 127) ? 127 : noise_open;
-		pInfo->SquelchCloseNoiseThresh  = (noise_close  > 127) ? 127 : noise_close;
 		pInfo->SquelchOpenGlitchThresh  = (glitch_open  > 255) ? 255 : glitch_open;
 		pInfo->SquelchCloseGlitchThresh = (glitch_close > 255) ? 255 : glitch_close;
+#endif
+
+		pInfo->SquelchOpenNoiseThresh   = (noise_open   > 127) ? 127 : noise_open;
+		pInfo->SquelchCloseNoiseThresh  = (noise_close  > 127) ? 127 : noise_close;
 	}
 
 	// *******************************
