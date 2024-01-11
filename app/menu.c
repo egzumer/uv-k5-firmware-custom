@@ -1404,7 +1404,8 @@ static void MENU_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 			if (UI_MENU_GetCurrentMenuId() != MENU_SCR)
 				gAnotherVoiceID = MenuList[gMenuCursor].voice_id;
 		#endif
-
+        if (UI_MENU_GetCurrentMenuId() == MENU_ANI_ID || UI_MENU_GetCurrentMenuId() == MENU_UPCODE|| UI_MENU_GetCurrentMenuId() == MENU_DWCODE)
+            return;
 		#if 1
 			if (UI_MENU_GetCurrentMenuId() == MENU_DEL_CH || UI_MENU_GetCurrentMenuId() == MENU_MEM_NAME)
 				if (!RADIO_CheckValidChannel(gSubMenuSelection, false, 0))
