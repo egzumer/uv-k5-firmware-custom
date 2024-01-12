@@ -267,6 +267,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 	gSchedulePowerSave         = false;
 
 #if defined(ENABLE_FMRADIO)
-	gFM_RestoreCountdown_10ms = 0;
+	if(Function != FUNCTION_INCOMING)
+		gFM_RestoreCountdown_10ms = 0;
 #endif
 }
