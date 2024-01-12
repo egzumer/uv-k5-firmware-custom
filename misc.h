@@ -260,9 +260,6 @@ extern bool                  gFlagPrepareTX;
 extern bool                  gFlagAcceptSetting;   // accept menu setting
 extern bool                  gFlagRefreshSetting;  // refresh menu display
 
-extern bool                  gFlagSaveVfo;
-extern bool                  gFlagSaveSettings;
-extern bool                  gFlagSaveChannel;
 #ifdef ENABLE_FMRADIO
 	extern bool              gFlagSaveFM;
 #endif

@@ -181,9 +181,6 @@ bool              gFlagPrepareTX;
 bool              gFlagAcceptSetting;
 bool              gFlagRefreshSetting;
 
-bool              gFlagSaveVfo;
-bool              gFlagSaveSettings;
-bool              gFlagSaveChannel;
 #ifdef ENABLE_FMRADIO
 	bool          gFlagSaveFM;
 #endif

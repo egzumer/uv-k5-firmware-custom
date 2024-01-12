@@ -156,7 +156,7 @@ void ACTION_Monitor(void)
 	}
 	else
 #endif
-	gRequestDisplayScreen = gScreenToDisplay;
+		gRequestDisplayScreen = gScreenToDisplay;
 }
 
 void ACTION_Scan(bool bRestart)
