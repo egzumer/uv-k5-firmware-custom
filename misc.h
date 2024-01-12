@@ -207,9 +207,6 @@ extern volatile bool         gTxTimeoutReached;
 
 extern volatile uint16_t     gTailNoteEliminationCountdown_10ms;
 
-#ifdef ENABLE_FMRADIO
-	extern volatile uint16_t gFmPlayCountdown_10ms;
-#endif
 #ifdef ENABLE_NOAA
 	extern volatile uint16_t gNOAA_Countdown_10ms;
 #endif

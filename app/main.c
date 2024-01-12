@@ -459,9 +459,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 {
-	if (!bKeyHeld && bKeyPressed)
-	{	// exit key pressed
-
+	if (!bKeyHeld && bKeyPressed) { // exit key pressed
 		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 
 #ifdef ENABLE_DTMF_CALLING
@@ -473,47 +471,42 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 		}
 #endif
 
-		#ifdef ENABLE_FMRADIO
-			if (!gFmRadioMode)
-		#endif
+#ifdef ENABLE_FMRADIO
+		if (!gFmRadioMode)
+#endif
 		{
-			if (gScanStateDir == SCAN_OFF)
-			{
+			if (gScanStateDir == SCAN_OFF) {
 				if (gInputBoxIndex == 0)
 					return;
 				gInputBox[--gInputBoxIndex] = 10;
 
 				gKeyInputCountdown = key_input_timeout_500ms;
 
-				#ifdef ENABLE_VOICE
-					if (gInputBoxIndex == 0)
-						gAnotherVoiceID = VOICE_ID_CANCEL;
-				#endif
+#ifdef ENABLE_VOICE
+				if (gInputBoxIndex == 0)
+					gAnotherVoiceID = VOICE_ID_CANCEL;
+#endif
 			}
-			else
-			{
+			else {
 				gScanKeepResult = false;
 				CHFRSCANNER_Stop();
 
-				#ifdef ENABLE_VOICE
-					gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
-				#endif
+#ifdef ENABLE_VOICE
+				gAnotherVoiceID = VOICE_ID_SCANNING_STOP;
+#endif
 			}
 
 			gRequestDisplayScreen = DISPLAY_MAIN;
 			return;
 		}
 
-		#ifdef ENABLE_FMRADIO
-			ACTION_FM();
-		#endif
-
+#ifdef ENABLE_FMRADIO
+		ACTION_FM();
+#endif
 		return;
 	}
 
-	if (bKeyHeld && bKeyPressed)
-	{	// exit key held down
-
+	if (bKeyHeld && bKeyPressed) { // exit key held down
 		if (gInputBoxIndex > 0 || gDTMF_InputBox_Index > 0 || gDTMF_InputMode)
 		{	// cancel key input mode (channel/frequency entry)
 			gDTMF_InputMode       = false;

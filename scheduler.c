@@ -53,8 +53,7 @@ void SystickHandler(void)
 	
 	gNextTimeslice = true;
 
-	if ((gGlobalSysTickCounter % 50) == 0)
-	{
+	if ((gGlobalSysTickCounter % 50) == 0) {
 		gNextTimeslice_500ms = true;
 		
 		DECREMENT_AND_TRIGGER(gTxTimerCountdown_500ms, gTxTimeoutReached);
@@ -64,9 +63,9 @@ void SystickHandler(void)
 	if ((gGlobalSysTickCounter & 3) == 0)
 		gNextTimeslice40ms = true;
 
-	#ifdef ENABLE_NOAA
-		DECREMENT(gNOAACountdown_10ms);
-	#endif
+#ifdef ENABLE_NOAA
+	DECREMENT(gNOAACountdown_10ms);
+#endif
 
 	DECREMENT(gFoundCDCSSCountdown_10ms);
 
@@ -82,12 +81,12 @@ void SystickHandler(void)
 		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE)
 			DECREMENT_AND_TRIGGER(gDualWatchCountdown_10ms, gScheduleDualWatch);
 
-	#ifdef ENABLE_NOAA
-		if (gScanStateDir == SCAN_OFF && !gCssBackgroundScan && gEeprom.DUAL_WATCH == DUAL_WATCH_OFF)
-			if (gIsNoaaMode && gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
-				if (gCurrentFunction != FUNCTION_RECEIVE)
-					DECREMENT_AND_TRIGGER(gNOAA_Countdown_10ms, gScheduleNOAA);
-	#endif
+#ifdef ENABLE_NOAA
+	if (gScanStateDir == SCAN_OFF && !gCssBackgroundScan && gEeprom.DUAL_WATCH == DUAL_WATCH_OFF)
+		if (gIsNoaaMode && gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
+			if (gCurrentFunction != FUNCTION_RECEIVE)
+				DECREMENT_AND_TRIGGER(gNOAA_Countdown_10ms, gScheduleNOAA);
+#endif
 
 	if (gScanStateDir != SCAN_OFF)
 		if (gCurrentFunction != FUNCTION_MONITOR && gCurrentFunction != FUNCTION_TRANSMIT)
@@ -95,19 +94,19 @@ void SystickHandler(void)
 
 	DECREMENT_AND_TRIGGER(gTailNoteEliminationCountdown_10ms, gFlagTailNoteEliminationComplete);
 
-	#ifdef ENABLE_VOICE
-		DECREMENT_AND_TRIGGER(gCountdownToPlayNextVoice_10ms, gFlagPlayQueuedVoice);
-	#endif
-	
-	#ifdef ENABLE_FMRADIO
-		if (gFM_ScanState != FM_SCAN_OFF && gCurrentFunction != FUNCTION_MONITOR)
-			if (gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE)
-				DECREMENT_AND_TRIGGER(gFmPlayCountdown_10ms, gScheduleFM);
-	#endif
+#ifdef ENABLE_VOICE
+	DECREMENT_AND_TRIGGER(gCountdownToPlayNextVoice_10ms, gFlagPlayQueuedVoice);
+#endif
 
-	#ifdef ENABLE_VOX
-		DECREMENT(gVoxStopCountdown_10ms);
-	#endif
+#ifdef ENABLE_FMRADIO
+	if (gFM_ScanState != FM_SCAN_OFF && gCurrentFunction != FUNCTION_MONITOR)
+		if (gCurrentFunction != FUNCTION_TRANSMIT && gCurrentFunction != FUNCTION_RECEIVE)
+			DECREMENT_AND_TRIGGER(gFmPlayCountdown_10ms, gScheduleFM);
+#endif
+
+#ifdef ENABLE_VOX
+	DECREMENT(gVoxStopCountdown_10ms);
+#endif
 
 	DECREMENT(boot_counter_10ms);
 }
