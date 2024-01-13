@@ -64,10 +64,14 @@ ENABLE_MESSENGER_UART					?= 1
 # Work in progress
 ENABLE_PMR_MODE               ?= 0
 
+# --- https://github.com/nicsure/quansheng-dock-fw
+# --- https://github.com/nicsure/QuanshengDock
+ENABLE_DOCK                   ?= 1
+
 #------------------------------------------------------------------------------
 AUTHOR_STRING ?= JOAQUIM
-VERSION_STRING ?= V0.2.5
-PROJECT_NAME := cfw_joaquimorg_oefw_V0.2.5
+VERSION_STRING ?= V0.3.0
+PROJECT_NAME := cfw_joaquimorg_oefw_V0.3.0
 
 BUILD := _build
 BIN := firmware
@@ -243,6 +247,9 @@ IPATH += \
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DAUTHOR_STRING=\"$(AUTHOR_STRING)\" -DVERSION_STRING=\"$(VERSION_STRING)\"
 
+ifeq ($(ENABLE_DOCK),1)
+	CFLAGS += -DENABLE_DOCK
+endif
 ifeq ($(ENABLE_PMR_MODE),1)
 	CFLAGS  += -DENABLE_PMR_MODE
 endif

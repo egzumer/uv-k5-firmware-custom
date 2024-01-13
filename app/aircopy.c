@@ -191,7 +191,7 @@ static void AIRCOPY_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 		gInputBox[--gInputBoxIndex] = 10;
 	}
 
-	gRequestDisplayScreen = DISPLAY_MSG;
+	gRequestDisplayScreen = DISPLAY_AIRCOPY;
 }
 
 static void AIRCOPY_Key_MENU(bool bKeyPressed, bool bKeyHeld)

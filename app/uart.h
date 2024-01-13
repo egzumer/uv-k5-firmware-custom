@@ -21,6 +21,9 @@
 
 bool UART_IsCommandAvailable(void);
 void UART_HandleCommand(void);
+#ifdef ENABLE_DOCK
+    void UART_SendUiElement(uint8_t type, uint32_t value1, uint32_t value2, uint32_t value3, uint32_t Length, const void* data);
+#endif
 
 #endif
 

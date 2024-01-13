@@ -37,6 +37,10 @@ static void Render(void)
 	memset(gStatusLine,  0, sizeof(gStatusLine));
 	UI_DisplayClear();
 
+	#ifdef ENABLE_DOCK 
+		UART_SendUiElement(5, 0, 0, 0, 0, NULL);
+	#endif	
+
 	UI_PrintString("LOCK", 0, 127, 1, 10);
 	for (i = 0; i < 6; i++)
 		String[i] = (gInputBox[i] == 10) ? '-' : '*';

@@ -22,6 +22,13 @@
 #include "driver/i2c.h"
 #include "misc.h"
 
+#ifdef ENABLE_DOCK
+	KEY_Code_t gSimulateKey     = KEY_INVALID;
+	KEY_Code_t gSimulateHold     = KEY_INVALID;
+	uint8_t gDebounceDefeat = 0;
+	uint8_t gPttCounter = 0;
+#endif
+
 KEY_Code_t gKeyReading0     = KEY_INVALID;
 KEY_Code_t gKeyReading1     = KEY_INVALID;
 uint16_t   gDebounceCounter = 0;
@@ -94,6 +101,27 @@ static const struct {
 
 KEY_Code_t KEYBOARD_Poll(void)
 {
+	#ifdef ENABLE_DOCK
+		if(gSimulateKey != KEY_INVALID)
+		{
+			const KEY_Code_t temp = gSimulateKey;
+			if(gDebounceDefeat++ >= 5)
+				gSimulateKey = KEY_INVALID;
+			return temp;		
+		}
+		if(gSimulateHold != KEY_INVALID)
+		{
+			if(gSimulateHold == KEY_PTT)
+			{
+				if(gPttCounter == 0)
+					gSimulateHold = KEY_INVALID;
+				else
+					gPttCounter--;
+			}
+			return gSimulateHold;
+		}
+	#endif
+	
 	KEY_Code_t Key = KEY_INVALID;
 
 //	if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT))

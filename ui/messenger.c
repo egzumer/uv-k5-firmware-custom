@@ -13,12 +13,16 @@
 #include "ui/helper.h"
 #include "ui/inputbox.h"
 #include "ui/ui.h"
+#ifdef ENABLE_DOCK
+	#include "app/uart.h"
+#endif
 
 void UI_DisplayMSG(void) {
-	
+
 	static char String[37];
 
-	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+	//memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+	UI_DisplayClear();
 	memset(String, 0, sizeof(String));
 
 	//UI_PrintStringSmallBold("MESSENGER", 0, 127, 0);
@@ -40,34 +44,44 @@ void UI_DisplayMSG(void) {
 	//GUI_DisplaySmallest("RX", 4, 34, false, true);
 
 	memset(String, 0, sizeof(String));
-	
+
 	uint8_t mPos = 8;
 	const uint8_t mLine = 7;
 	for (int i = 0; i < 4; ++i) {
 		//sprintf(String, "%s", rxMessage[i]);
 		GUI_DisplaySmallest(rxMessage[i], 2, mPos, false, true);
+		#ifdef ENABLE_DOCK
+			UART_SendUiElement(1, 2, (mPos / 6), 4, strlen(rxMessage[i]), rxMessage[i]);
+		#endif
 		mPos += mLine;
     }
 
 	// TX Screen
-	
+
 	UI_DrawDottedLineBuffer(gFrameBuffer, 14, 40, 126, 40, true, 4);
 	memset(String, 0, sizeof(String));
 	if ( keyboardType == NUMERIC ) {
 		strcpy(String, "2");
-	} else if ( keyboardType == UPPERCASE ) {		
+	} else if ( keyboardType == UPPERCASE ) {
 		strcpy(String, "B");
-	} else {		
+	} else {
 		strcpy(String, "b");
 	}
 
 	UI_DrawRectangleBuffer(gFrameBuffer, 2, 36, 10, 44, true);
 	GUI_DisplaySmallest(String, 5, 38, false, true);
+	#ifdef ENABLE_DOCK
+		UART_SendUiElement(2, 5, (32 / 6), 4, strlen(String), String);
+	#endif
 
 	memset(String, 0, sizeof(String));
 	sprintf(String, "%s_", cMessage);
 	//UI_PrintStringSmall(String, 3, 0, 6);
 	GUI_DisplaySmallest(String, 5, 48, false, true);
+	#ifdef ENABLE_DOCK
+		UART_SendUiElement(2, 5, (38 / 6), 4, strlen(String), String);
+	#endif
+
 
 	// debug msg
 	/*memset(String, 0, sizeof(String));
@@ -78,7 +92,7 @@ void UI_DisplayMSG(void) {
 	for (uint8_t i = 0; i < 19; i++) {
 		sprintf(&String[i*2], "%02X", rxMessage[i]);
 	}
-	
+
 	GUI_DisplaySmallest(String, 20, 34, false, true);*/
 
 	ST7565_BlitFullScreen();

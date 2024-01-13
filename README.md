@@ -4,7 +4,13 @@ This repository is a merge of [OneOfEleven custom firmware](https://github.com/O
 All is a cloned and customized version of DualTachyon's open firmware found [here](https://github.com/DualTachyon/uv-k5-firmware) ... a cool achievement !
 
 > [!WARNING]  
-> Use this firmware at your own risk (entirely). There is absolutely no guarantee that it will work in any way shape or form on your radio(s), it may even brick your radio(s), in which case, you'd need to buy another radio.
+> *Use this firmware at your own risk (entirely). There is absolutely no guarantee that it will work in any way shape or form on your radio(s), it may even brick your radio(s), in which case, you'd need to buy another radio.*
+
+To use the Quansheng Dock from *nicsure* you need this : https://github.com/nicsure/QuanshengDock
+
+> [***WARNING***]
+> *After some unfortunate incidents by users I'm going to put this warning and disclaimer up. DO NOT attempt to transmit without the proper precautions in place. Transmitting 5W of RF energy centimetres away from a PC can LITERALLY destroy it, it's almost like an EMP at that distance. Get your antenna away from the PC.*
+
 Anyway, have fun.
 
 ## Table of Contents
@@ -138,6 +144,8 @@ You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) .
 | ENABLE_MESSENGER_NOTIFICATION | play sound when message received |
 | ENABLE_MESSENGER_UART | send and receive short text messages via UART (to send write «SMS:Text to send») |
 | ENABLE_PMR_MODE | set the radio in PMR only operation ( work in progress ) |
+|🎛️ **nicsure** ||
+| ENABLE_DOCK | Enables the features required for remote operation with Quansheng Dock |
 
 ## Compiler
 
