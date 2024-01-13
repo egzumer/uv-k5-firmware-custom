@@ -71,7 +71,7 @@ ENABLE_DOCK                   ?= 1
 #------------------------------------------------------------------------------
 AUTHOR_STRING ?= JOAQUIM
 VERSION_STRING ?= V0.3.0
-PROJECT_NAME := cfw_joaquimorg_oefw_V0.3.0
+PROJECT_NAME := cfw_joaquimorg_oefw_V0.3.0_dock
 
 BUILD := _build
 BIN := firmware
