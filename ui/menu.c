@@ -198,7 +198,7 @@ const char gSubMenu_TOT[][7] =
 	"15 min"
 };
 
-const char* const gSubMenu_RXMode[] =
+const char gSubMenu_RXMode[][17] =
 {
 	"MAIN\nONLY", 		// TX and RX on main only
 	"DUAL RX\nRESPOND", // Watch both and respond
@@ -222,7 +222,7 @@ const char gSubMenu_SC_REV[][8] =
 	"STOP"
 };
 
-const char* const gSubMenu_MDF[] =
+const char gSubMenu_MDF[][16] =
 {
 	"FREQ",
 	"CHANNEL\nNUMBER",
@@ -248,7 +248,7 @@ const char gSubMenu_D_RSP[][11] =
 };
 #endif
 
-const char* const gSubMenu_PTT_ID[] =
+const char gSubMenu_PTT_ID[][16] =
 {
 	"OFF",
 	"UP CODE",
@@ -284,7 +284,7 @@ const char gSubMenu_RESET[][4] =
 	"ALL"
 };
 
-const char * const gSubMenu_F_LOCK[] =
+const char gSubMenu_F_LOCK[][27] =
 {
 	"DEFAULT+\n137-174\n400-470",
 	"FCC HAM\n144-148\n420-450",

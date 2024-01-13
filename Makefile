@@ -95,14 +95,14 @@ ifeq ($(OS), Windows_NT) # windows
 	FixPath = $(subst /,\,$1)
 	WHERE = where
 	DEL = del /q
-	K5PROG = utils/k5prog/k5prog.exe -F -YYY -p /dev/com3 -b
+	K5PROG = utils/k5prog/k5prog.exe -D -F -YYY -p /dev/com3 -b
 else
 	MKDIR = mkdir -p $(1)
 	RM = rm -f
 	FixPath = $1
 	WHERE = which
 	DEL = del
-	K5PROG = utils/k5prog/k5prog -F -YYY -p /dev/ttyUSB3 -b
+	K5PROG = utils/k5prog/k5prog -D -F -YYY -p /dev/ttyUSB3 -b
 endif
 
 CP = cp
