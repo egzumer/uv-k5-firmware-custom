@@ -240,15 +240,13 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 
 	gCurrentFunction = Function;
 
-	if (bWasPowerSave && Function != FUNCTION_POWER_SAVE)
-	{
+	if (bWasPowerSave && Function != FUNCTION_POWER_SAVE) {
 		BK4819_Conditional_RX_TurnOn_and_GPIO6_Enable();
 		gRxIdleMode = false;
 		UI_DisplayStatus();
 	}
 
-	switch (Function)
-	{
+	switch (Function) {
 		case FUNCTION_FOREGROUND:
 			FUNCTION_Foreground(PreviousFunction);
 			return;
@@ -276,6 +274,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 	gSchedulePowerSave         = false;
 
 #if defined(ENABLE_FMRADIO)
-	gFM_RestoreCountdown_10ms = 0;
+	if(Function != FUNCTION_INCOMING)
+		gFM_RestoreCountdown_10ms = 0;
 #endif
 }
