@@ -66,12 +66,12 @@ ENABLE_PMR_MODE               ?= 0
 
 # --- https://github.com/nicsure/quansheng-dock-fw
 # --- https://github.com/nicsure/QuanshengDock
-ENABLE_DOCK                   ?= 1
+ENABLE_DOCK                   ?= 0
 
 #------------------------------------------------------------------------------
 AUTHOR_STRING ?= JOAQUIM
 VERSION_STRING ?= V0.3.0
-PROJECT_NAME := cfw_joaquimorg_oefw_V0.3.0_dock
+PROJECT_NAME := cfw_joaquimorg_oefw_V0.3.0
 
 BUILD := _build
 BIN := firmware
