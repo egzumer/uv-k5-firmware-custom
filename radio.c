@@ -698,24 +698,8 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	// RX expander
 	BK4819_SetCompander((gRxVfo->Modulation == MODULATION_FM && gRxVfo->Compander >= 2) ? gRxVfo->Compander : 0);
 
-#if 0
-	if (!gRxVfo->DTMF_DECODING_ENABLE && !gSetting_KILLED)
-	{
-		BK4819_DisableDTMF();
-	}
-	else
-	{
-		BK4819_EnableDTMF();
-		InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
-	}
-#else
-	BK4819_DisableDTMF();
-
-	if (gCurrentFunction != FUNCTION_TRANSMIT) {
-		BK4819_EnableDTMF();
-		InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
-	}
-#endif
+	BK4819_EnableDTMF();
+	InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
 
 	RADIO_SetupAGC(gRxVfo->Modulation == MODULATION_AM, false);
 
