@@ -1590,10 +1590,9 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			SETTINGS_SaveChannel(gTxVfo->CHANNEL_SAVE, gEeprom.TX_VFO, gTxVfo, flagSaveChannel);
 			flagSaveChannel = false;
 
-			RADIO_ConfigureChannel(gEeprom.TX_VFO, VFO_CONFIGURE);
-			RADIO_SetupRegisters(true);
-
-			GUI_SelectNextDisplay(DISPLAY_MAIN);
+			if (!SCANNER_IsScanning() && gVfoConfigureMode == VFO_CONFIGURE_NONE)
+				// gVfoConfigureMode is so as we don't wipe out previously setting this variable elsewhere
+				gVfoConfigureMode = VFO_CONFIGURE;
 		}
 	}
 	else { // key pressed or held
