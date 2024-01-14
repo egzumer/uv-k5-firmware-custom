@@ -16,7 +16,7 @@
 #include "app/messenger.h"
 #include "ui/ui.h"
 
-#if defined(ENABLE_UART) && defined(ENABLE_UART_DEBUG)
+#if defined(ENABLE_UART)
 	#include "driver/uart.h"
 #endif
 

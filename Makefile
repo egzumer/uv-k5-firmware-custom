@@ -5,7 +5,6 @@
 
 # ---- STOCK QUANSHENG FERATURES ----
 ENABLE_UART                   ?= 1
-ENABLE_UART_DEBUG			  ?= 1
 ENABLE_AIRCOPY                ?= 0
 ENABLE_FMRADIO                ?= 0
 ENABLE_NOAA                   ?= 0
@@ -21,7 +20,7 @@ ENABLE_FLASHLIGHT             ?= 0
 ENABLE_BIG_FREQ               ?= 1
 ENABLE_SMALL_BOLD             ?= 1
 ENABLE_CUSTOM_MENU_LAYOUT     ?= 0
-ENABLE_KEEP_MEM_NAME          ?= 1
+ENABLE_KEEP_MEM_NAME          ?= 0
 ENABLE_WIDE_RX                ?= 1
 ENABLE_TX_WHEN_AM             ?= 0
 ENABLE_F_CAL_MENU             ?= 0
@@ -383,7 +382,6 @@ ifeq ($(ENABLE_CUSTOM_MENU_LAYOUT),1)
 	CFLAGS  += -DENABLE_CUSTOM_MENU_LAYOUT
 endif
 ifeq ($(ENABLE_UART), 0)
-	ENABLE_UART_DEBUG := 0
 	ENABLE_MESSENGER_UART := 0
 endif
 ifeq ($(ENABLE_MESSENGER),1)
@@ -397,9 +395,6 @@ ifeq ($(ENABLE_MESSENGER_NOTIFICATION),1)
 endif
 ifeq ($(ENABLE_MESSENGER_UART),1)
 	CFLAGS += -DENABLE_MESSENGER_UART
-endif
-ifeq ($(ENABLE_UART_DEBUG),1)
-	CFLAGS += -DENABLE_UART_DEBUG
 endif
 
 # C flags common to all targets

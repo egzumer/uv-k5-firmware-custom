@@ -90,9 +90,9 @@ void UI_PrintString(const char *pString, uint8_t Start, uint8_t End, uint8_t Lin
 	if (End > Start)
 		Start += (((End - Start) - (Length * Width)) + 1) / 2;
 
-	#ifdef ENABLE_DOCK
-		UART_SendUiElement(0, Start, Line, Width, Length, pString);
-	#endif
+#ifdef ENABLE_DOCK
+	UART_SendUiElement(0, Start, Line, Width, Length, pString);
+#endif
 
 	for (i = 0; i < Length; i++)
 	{
@@ -115,9 +115,9 @@ void UI_PrintStringSmall(const char *pString, uint8_t Start, uint8_t End, uint8_
 		Start += (((End - Start) - Length * char_spacing) + 1) / 2;
 	}
 
-	#ifdef ENABLE_DOCK
-		UART_SendUiElement(font == (uint8_t *)gFontSmall ? 1 : 2, Start, Line, char_width, Length, pString);
-	#endif
+#ifdef ENABLE_DOCK
+	UART_SendUiElement(font == (uint8_t *)gFontSmall ? 1 : 2, Start, Line, char_width, Length, pString);
+#endif
 
 	UI_PrintStringBuffer(pString, gFrameBuffer[Line] + Start, char_width, font);
 }
@@ -165,9 +165,9 @@ void UI_DisplayFrequency(const char *string, uint8_t X, uint8_t Y, bool center)
 	bool               bCanDisplay = false;
 
 	uint8_t len = strlen(string);
-	#ifdef ENABLE_DOCK
-		UART_SendUiElement(3, X, Y, center, len, string);
-	#endif	
+#ifdef ENABLE_DOCK
+	UART_SendUiElement(3, X, Y, center, len, string);
+#endif	
 	for(int i = 0; i < len; i++) {
 		char c = string[i];
 		if(c=='-') c = '9' + 1;
@@ -215,9 +215,9 @@ static void sort(int16_t *a, int16_t *b)
 
 void UI_DrawLineBuffer(uint8_t (*buffer)[128], int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black)
 {
-	#ifdef ENABLE_DOCK
-		UART_SendUiElement(4, x1|(y1<<8), x2|(y2<<8), 0, 0, &black);
-	#endif
+#ifdef ENABLE_DOCK
+	UART_SendUiElement(4, x1|(y1<<8), x2|(y2<<8), 0, 0, &black);
+#endif
 	if(x2==x1) {
 		sort(&y1, &y2);
 		for(int16_t i = y1; i <= y2; i++) {
@@ -238,9 +238,9 @@ void UI_DrawLineBuffer(uint8_t (*buffer)[128], int16_t x1, int16_t y1, int16_t x
 
 void UI_DrawDottedLineBuffer(uint8_t (*buffer)[128], int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool black, int dotSpacing)
 {
-	#ifdef ENABLE_DOCK
-		UART_SendUiElement(4, x1|(y1<<8), x2|(y2<<8), 0, 0, &black);
-	#endif
+#ifdef ENABLE_DOCK
+	UART_SendUiElement(4, x1|(y1<<8), x2|(y2<<8), 0, 0, &black);
+#endif
     if (x2 == x1) {
         sort(&y1, &y2);
         for (int16_t i = y1; i <= y2; i += dotSpacing) {
@@ -338,8 +338,8 @@ void GUI_DisplaySmallest(const char *pString, uint8_t x, uint8_t y,
 
 void UI_DisplayClear()
 {
-	#ifdef ENABLE_DOCK
-		UART_SendUiElement(5, 1, 7, 0, 0, &gFrameBuffer);
-	#endif
+#ifdef ENABLE_DOCK
+	UART_SendUiElement(5, 1, 7, 0, 0, &gFrameBuffer);
+#endif
 	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
 }
