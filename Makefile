@@ -68,7 +68,7 @@ ENABLE_PMR_MODE               ?= 0
 ENABLE_DOCK                   ?= 0
 
 #### INTERNAL USE ####
-ENABLE_SCREEN_DUMP			  ?= 1
+ENABLE_SCREEN_DUMP			  ?= 0
 
 #------------------------------------------------------------------------------
 AUTHOR_STRING ?= JOAQUIM
