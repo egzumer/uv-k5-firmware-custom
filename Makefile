@@ -67,6 +67,9 @@ ENABLE_PMR_MODE               ?= 0
 # --- https://github.com/nicsure/QuanshengDock
 ENABLE_DOCK                   ?= 0
 
+#### INTERNAL USE ####
+ENABLE_SCREEN_DUMP			  ?= 1
+
 #------------------------------------------------------------------------------
 AUTHOR_STRING ?= JOAQUIM
 VERSION_STRING ?= V0.3.0
@@ -246,6 +249,9 @@ IPATH += \
 CFLAGS += -DPRINTF_INCLUDE_CONFIG_H
 CFLAGS += -DAUTHOR_STRING=\"$(AUTHOR_STRING)\" -DVERSION_STRING=\"$(VERSION_STRING)\"
 
+ifeq ($(ENABLE_SCREEN_DUMP),1)
+	CFLAGS += -DENABLE_SCREEN_DUMP
+endif
 ifeq ($(ENABLE_DOCK),1)
 	CFLAGS += -DENABLE_DOCK
 endif
@@ -383,6 +389,7 @@ ifeq ($(ENABLE_CUSTOM_MENU_LAYOUT),1)
 endif
 ifeq ($(ENABLE_UART), 0)
 	ENABLE_MESSENGER_UART := 0
+	ENABLE_SCREEN_DUMP := 0
 endif
 ifeq ($(ENABLE_MESSENGER),1)
 	CFLAGS  += -DENABLE_MESSENGER

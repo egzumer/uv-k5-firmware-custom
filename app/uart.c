@@ -49,8 +49,10 @@
 #ifdef ENABLE_DOCK
 	#include "audio.h"
 	#include "driver/keyboard.h"
-	#include "driver/st7565.h"
 	#include "driver/systick.h"
+#endif
+#ifdef ENABLE_SCREEN_DUMP
+	#include "driver/st7565.h"
 #endif
 
 #define DMA_INDEX(x, y) (((x) + (y)) % sizeof(UART_DMA_Buffer))
@@ -654,14 +656,7 @@ static void CMD_052F(const uint8_t *pBuffer)
 				gPttCounter = 40;
 		}
 		gSimulateHold = click ? KEY_INVALID : key;
-	}
-
-	static void CMD_0803() // dumps the LCD screen memory to the PC. Not used in the Dock, is just for debug purposes
-	{
-		const uint8_t screenDumpIdByte = 0xEF;
-		UART_Send(&screenDumpIdByte, 1);
-		UART_Send(gStatusLine, 1024);
-	}
+	}	
 
 	// scan, this command is blocking, it will continue to run until another serial command is receieved
 	static void CMD_0808(const uint8_t *pBuffer)
@@ -771,6 +766,16 @@ static void CMD_052F(const uint8_t *pBuffer)
 			UART_Send(data, Length);
 		}
 	}
+#endif
+
+#ifdef ENABLE_SCREEN_DUMP
+static void CMD_0803() // dumps the LCD screen memory to the PC. Not used in the Dock, is just for debug purposes
+{
+	const uint16_t screenDumpIdByte = 0xEFAB;
+	UART_Send(&screenDumpIdByte, 2);
+	UART_Send(gStatusLine, 128);
+	UART_Send(gFrameBuffer, 896);
+}
 #endif
 
 #ifdef ENABLE_UART_RW_BK_REGS
@@ -987,14 +992,14 @@ void UART_HandleCommand(void)
 			CMD_0602_WriteBK4819Reg(UART_Command.Buffer);
 			break;
 #endif
-
+#ifdef ENABLE_SCREEN_DUMP
+		case 0x0803: // screen dump
+			CMD_0803();
+			break;
+#endif
 #ifdef ENABLE_DOCK
 		case 0x0801: // simulate key press
 			CMD_0801(UART_Command.Buffer);
-			break;
-
-		case 0x0803: // screen dump
-			CMD_0803();
 			break;
 
 		case 0x0808: // scan
