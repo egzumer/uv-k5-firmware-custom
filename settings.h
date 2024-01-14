@@ -128,9 +128,9 @@ typedef struct {
 	uint8_t               ScreenChannel[2]; // current channels set in the radio (memory or frequency channels)
 	uint8_t               FreqChannel[2]; // last frequency channels used
 	uint8_t               MrChannel[2]; // last memory channels used
-	#ifdef ENABLE_NOAA
-		uint8_t           NoaaChannel[2];
-	#endif
+#ifdef ENABLE_NOAA
+	uint8_t           NoaaChannel[2];
+#endif
 
 	// The actual VFO index (0-upper/1-lower) that is now used for RX, 
 	// It is being alternated by dual watch, and flipped by crossband
@@ -143,23 +143,23 @@ typedef struct {
 	uint8_t               field7_0xa;
 	uint8_t               field8_0xb;
 
-	#ifdef ENABLE_FMRADIO
-		uint16_t          FM_SelectedFrequency;
-		uint8_t           FM_SelectedChannel;
-		bool              FM_IsMrMode;
-		uint16_t          FM_FrequencyPlaying;
-		uint16_t          FM_LowerLimit;
-		uint16_t          FM_UpperLimit;
-	#endif
+#ifdef ENABLE_FMRADIO
+	uint16_t          FM_SelectedFrequency;
+	uint8_t           FM_SelectedChannel;
+	bool              FM_IsMrMode;
+	uint16_t          FM_FrequencyPlaying;
+	uint16_t          FM_LowerLimit;
+	uint16_t          FM_UpperLimit;
+#endif
 
 	uint8_t               SQUELCH_LEVEL;
 	uint8_t               TX_TIMEOUT_TIMER;
 	bool                  KEY_LOCK;
 	bool                  VOX_SWITCH;
 	uint8_t               VOX_LEVEL;
-	#ifdef ENABLE_VOICE
-		VOICE_Prompt_t    VOICE_PROMPT;
-	#endif
+#ifdef ENABLE_VOICE
+	VOICE_Prompt_t    VOICE_PROMPT;
+#endif
 	bool                  BEEP_CONTROL;
 	uint8_t               CHANNEL_DISPLAY_MODE;
 	bool                  TAIL_TONE_ELIMINATION;
@@ -181,9 +181,9 @@ typedef struct {
 	uint8_t               field38_0x33;
 
 	bool                  AUTO_KEYPAD_LOCK;
-	#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
-		ALARM_Mode_t      ALARM_MODE;
-	#endif
+#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
+	ALARM_Mode_t      ALARM_MODE;
+#endif
 	POWER_OnDisplayMode_t POWER_ON_DISPLAY_MODE;
 	ROGER_Mode_t          ROGER;
 	uint8_t               REPEATER_TAIL_TONE_ELIMINATION;
@@ -225,9 +225,9 @@ typedef struct {
 	bool                  PERMIT_REMOTE_KILL;
 #endif
 	int16_t               BK4819_XTAL_FREQ_LOW;
-	#ifdef ENABLE_NOAA
-		bool              NOAA_AUTO_SCAN;
-	#endif
+#ifdef ENABLE_NOAA
+	bool              NOAA_AUTO_SCAN;
+#endif
 	uint8_t               VOLUME_GAIN;
 	uint8_t               DAC_GAIN;
 

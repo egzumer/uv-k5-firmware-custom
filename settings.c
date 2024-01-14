@@ -87,22 +87,19 @@ void SETTINGS_InitEEPROM(void)
 	{	// 0E88..0E8F
 		struct
 		{
-			uint16_t SelectedFrequency;
-			uint8_t  SelectedChannel;
-			uint8_t  IsMrMode;
-			uint8_t  Padding[8];
-		} __attribute__((packed)) FM;
+			uint16_t selFreq;
+			uint8_t  selChn;
+			uint8_t  isMrMode;
+		} __attribute__((packed)) fmCfg;
+		EEPROM_ReadBuffer(0x0E88, &fmCfg, 4);
 
-		EEPROM_ReadBuffer(0x0E88, &FM, 8);
 		gEeprom.FM_LowerLimit = 760;
 		gEeprom.FM_UpperLimit = 1080;
-		if (FM.SelectedFrequency < gEeprom.FM_LowerLimit || FM.SelectedFrequency > gEeprom.FM_UpperLimit)
-			gEeprom.FM_SelectedFrequency = 960;
-		else
-			gEeprom.FM_SelectedFrequency = FM.SelectedFrequency;
-
-		gEeprom.FM_SelectedChannel = FM.SelectedChannel;
-		gEeprom.FM_IsMrMode        = (FM.IsMrMode < 2) ? FM.IsMrMode : false;
+		gEeprom.FM_SelectedFrequency = 
+			(fmCfg.selFreq >= gEeprom.FM_LowerLimit && fmCfg.selFreq <= gEeprom.FM_UpperLimit) ? fmCfg.selFreq : 960;
+			
+		gEeprom.FM_SelectedChannel = fmCfg.selChn;
+		gEeprom.FM_IsMrMode        = (fmCfg.isMrMode < 2) ? fmCfg.isMrMode : false;
 	}
 
 	// 0E40..0E67

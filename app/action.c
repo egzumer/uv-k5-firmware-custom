@@ -346,9 +346,8 @@ void ACTION_FM(void)
 
 static void ACTION_Scan_FM(bool bRestart)
 {
-	if (FUNCTION_IsRx()) {
+	if (FUNCTION_IsRx())
 		return;
-	}
 
 	GUI_SelectNextDisplay(DISPLAY_FM);
 
@@ -363,21 +362,21 @@ static void ACTION_Scan_FM(bool bRestart)
 		return;
 	}
 
-	uint16_t Frequency;
+	uint16_t freq;
 
 	if (bRestart) {
-		gFM_AutoScan        = true;
+		gFM_AutoScan = true;
 		gFM_ChannelPosition = 0;
 		FM_EraseChannels();
-		Frequency           = gEeprom.FM_LowerLimit;
+		freq = gEeprom.FM_LowerLimit;
 	} else {
-		gFM_AutoScan        = false;
+		gFM_AutoScan = false;
 		gFM_ChannelPosition = 0;
-		Frequency           = gEeprom.FM_FrequencyPlaying;
+		freq = gEeprom.FM_FrequencyPlaying;
 	}
 
-	BK1080_GetFrequencyDeviation(Frequency);
-	FM_Tune(Frequency, 1, bRestart);
+	BK1080_GetFrequencyDeviation(freq);
+	FM_Tune(freq, 1, bRestart);
 
 #ifdef ENABLE_VOICE
 	gAnotherVoiceID = VOICE_ID_SCANNING_BEGIN;
