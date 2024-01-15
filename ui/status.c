@@ -85,7 +85,8 @@ void UI_DisplayStatus()
 				switch(gEeprom.SCAN_LIST_DEFAULT) {
 					case 0: s = "1"; break;
 					case 1: s = "2"; break;
-					case 2: s = "*"; break;
+					case 2: s = "C"; break;
+					case 3: s = "L"; break;
 				}
 			}
 			else {	// frequency mode

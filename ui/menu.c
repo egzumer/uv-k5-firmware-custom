@@ -724,10 +724,23 @@ void UI_DisplayMenu(void)
 			break;
 
 		case MENU_S_LIST:
-			if (gSubMenuSelection < 2)
-				sprintf(String, "LIST%u", 1 + gSubMenuSelection);
-			else
-				strcpy(String, "ALL");
+			switch (gSubMenuSelection)
+			{
+				case 0:
+					strcpy(String, "LIST1");
+					break;
+				case 1:
+					strcpy(String, "LIST2");
+					break;			
+				case 2:
+					strcpy(String, "ALL\nCHANNELS");
+					break;
+				case 3:
+					strcpy(String, "ALL\nLISTS");
+					break;
+				default:
+					break;
+			}
 			break;
 
 		#ifdef ENABLE_ALARM

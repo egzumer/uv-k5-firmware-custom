@@ -301,7 +301,7 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 
 		case MENU_S_LIST:
 			*pMin = 0;
-			*pMax = 2;
+			*pMax = 3;
 			break;
 
 #ifdef ENABLE_DTMF_CALLING

@@ -67,16 +67,20 @@ bool RADIO_CheckValidChannel(uint16_t channel, bool checkScanList, uint8_t scanL
 	if (att.band > BAND7_470MHz)
 		return false;
 
-	if (!checkScanList || scanList > 1)
+	if (scanList == VAL_SCAN_All_CHANNELS || !checkScanList) // If we're scanning all channels, or don't check if the channel is in a list
 		return true;
+	if ((scanList == VAL_SCAN_LIST1 && att.scanlist1) || (scanList == VAL_SCAN_LIST2 && att.scanlist2)) // If the channel is in the current scanList
+		return true;
+	if (scanList == VAL_SCAN_All_LISTS && (att.scanlist1 || att.scanlist2)) // If the channel is in any scanList and we're scanning all lists
+		return true;
+	return false; // It's not a channel to scan
 
-	if (scanList ? !att.scanlist2 : !att.scanlist1)
-		return false;
-
-	const uint8_t PriorityCh1 = gEeprom.SCANLIST_PRIORITY_CH1[scanList];
-	const uint8_t PriorityCh2 = gEeprom.SCANLIST_PRIORITY_CH2[scanList];
-
-	return PriorityCh1 != channel && PriorityCh2 != channel;
+	// We're not using priority channels, and this checks that the current channel isn't one of the priority channels, but when the
+	// priority channels are called through NextMemChannel(), they set the checkScanList to $false, which will be picked up above anyway
+	// Perhaps these don't need to be used now?
+	//const uint8_t PriorityCh1 = gEeprom.SCANLIST_PRIORITY_CH1[scanList];
+	//const uint8_t PriorityCh2 = gEeprom.SCANLIST_PRIORITY_CH2[scanList];
+	//return PriorityCh1 != channel && PriorityCh2 != channel;
 }
 
 uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScanList, uint8_t VFO)
