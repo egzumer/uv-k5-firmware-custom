@@ -368,7 +368,7 @@ static void ACTION_Scan_FM(bool bRestart)
 		gFM_AutoScan = true;
 		gFM_ChannelPosition = 0;
 		FM_EraseChannels();
-		freq = gEeprom.FM_LowerLimit;
+		freq = BK1080_GetFreqLoLimit(gEeprom.FM_Band);
 	} else {
 		gFM_AutoScan = false;
 		gFM_ChannelPosition = 0;

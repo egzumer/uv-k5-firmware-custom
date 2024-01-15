@@ -447,7 +447,7 @@ void APP_StartListening(FUNCTION_Type_t function)
 
 #ifdef ENABLE_FMRADIO
 	if (gFmRadioMode)
-		BK1080_Init(0, false);
+		BK1080_Init0();
 #endif
 
 	// clear the other vfo's rssi level (to hide the antenna symbol)

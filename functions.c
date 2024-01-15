@@ -152,7 +152,7 @@ void FUNCTION_Transmit()
 
 #if defined(ENABLE_FMRADIO)
 	if (gFmRadioMode)
-		BK1080_Init(0, false);
+		BK1080_Init0();
 #endif
 
 #ifdef ENABLE_ALARM
