@@ -87,6 +87,7 @@ void UI_DisplayStatus()
 					case 1: s = "2"; break;
 					case 2: s = "C"; break;
 					case 3: s = "L"; break;
+					case 4: s = "N"; break;
 				}
 			}
 			else {	// frequency mode
