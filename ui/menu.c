@@ -738,6 +738,9 @@ void UI_DisplayMenu(void)
 				case 3:
 					strcpy(String, "ALL\nLISTS");
 					break;
+				case 4:
+					strcpy(String, "NO\nLISTS");
+					break;
 				default:
 					break;
 			}

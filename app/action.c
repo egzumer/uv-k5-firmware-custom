@@ -205,14 +205,15 @@ void ACTION_Scan(bool bRestart)
 		}
 
 		// channel mode. Keep scanning but toggle between scan lists
-		gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) % 4;
+		gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) % 5;
 		/*
 		This is the toggle to change the scan level while it is currently scanning
-		SCAN_LIST_DEFAULT + 1 can be L1:0+1=1 or L2:1+1=2, or ALL CHANNELS:2+1=3, or the new ALL LISTS:3+1=4
+		SCAN_LIST_DEFAULT + 1 can be L1:0+1=1 or L2:1+1=2, or ALL CHANNELS:2+1=3, or the new ALL LISTS:3+1=4, and NO LISTS:4+1=5
 		If it is L1(0), it will return 1 [L2]
 		If it is L2(1), it will return 2 [ALL CHANNELS]
 		If it is ALL CHANNELS(2), it'll return 3 [ALL LISTS]
-		If it is ALL LISTS(3), it'll return 0 (L1)
+		If it is ALL LISTS(3), it'll return 4 [NO LISTS]
+		If it is NO LISTS(4), it'll return 0 (L1)
 		*/
 
 		// jump to the next channel

@@ -219,8 +219,8 @@ void SETTINGS_InitEEPROM(void)
 
 	// 0F18..0F1F
 	EEPROM_ReadBuffer(0x0F18, Data, 8);
-	// Data[0] <4 contains 0, 1, 2 - One for each 0 = LIST1, 1 = LIST2, 2 = All CHANNELS, 3 = ALL LISTS
-	gEeprom.SCAN_LIST_DEFAULT = (Data[0] <= 4) ? Data[0] : 2;  // 0 = LIST1, 1 = LIST2, 2 = All CHANNELS, 3 = ALL LISTS, Default = 2
+	// Data[0] <4 contains 0, 1, 2 - One for each 0 = LIST1, 1 = LIST2, 2 = All CHANNELS, 3 = ALL LISTS, 4 = NO LISTS
+	gEeprom.SCAN_LIST_DEFAULT = (Data[0] < 5) ? Data[0] : 2;  // 0 = LIST1, 1 = LIST2, 2 = All CHANNELS, 3 = ALL LISTS, 4 = NO LISTS, Default = 2
 	/*
 	Why would Data[1] or [Data4] be anything other than 0 or 1? - It an on/off bool toggle
 	I can't see anywhere in the code or menus where Priority Scan is implemented

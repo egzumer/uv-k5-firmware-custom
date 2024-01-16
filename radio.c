@@ -73,6 +73,8 @@ bool RADIO_CheckValidChannel(uint16_t channel, bool checkScanList, uint8_t scanL
 		return true;
 	if (scanList == VAL_SCAN_All_LISTS && (att.scanlist1 || att.scanlist2)) // If the channel is in any scanList and we're scanning all lists
 		return true;
+	if (scanList == VAL_SCAN_NO_LISTS && !att.scanlist1 && !att.scanlist2) // If the channel is not in any scanList and we're scanning no lists
+		return true;
 	return false; // It's not a channel to scan
 
 	// We're not using priority channels, and this checks that the current channel isn't one of the priority channels, but when the
