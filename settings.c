@@ -23,6 +23,7 @@
 #ifdef ENABLE_PMR_MODE
 	#include "app/pmr.h"
 #endif
+#include "driver/bk1080.h"
 #include "driver/bk4819.h"
 #include "driver/eeprom.h"
 #include "misc.h"
@@ -113,22 +114,22 @@ void SETTINGS_InitEEPROM(void)
 	{	// 0E88..0E8F
 		struct
 		{
-			uint16_t SelectedFrequency;
-			uint8_t  SelectedChannel;
-			uint8_t  IsMrMode;
-			uint8_t  Padding[8];
-		} __attribute__((packed)) FM;
+			uint16_t selFreq;
+			uint8_t  selChn;
+			uint8_t  isMrMode:1;
+			uint8_t  band:2;
+			//uint8_t  space:2;
+		} __attribute__((packed)) fmCfg;
+		EEPROM_ReadBuffer(0x0E88, &fmCfg, 4);
 
-		EEPROM_ReadBuffer(0x0E88, &FM, 8);
-		gEeprom.FM_LowerLimit = 760;
-		gEeprom.FM_UpperLimit = 1080;
-		if (FM.SelectedFrequency < gEeprom.FM_LowerLimit || FM.SelectedFrequency > gEeprom.FM_UpperLimit)
-			gEeprom.FM_SelectedFrequency = 960;
-		else
-			gEeprom.FM_SelectedFrequency = FM.SelectedFrequency;
-
-		gEeprom.FM_SelectedChannel = FM.SelectedChannel;
-		gEeprom.FM_IsMrMode        = (FM.IsMrMode < 2) ? FM.IsMrMode : false;
+		gEeprom.FM_Band = fmCfg.band;
+		//gEeprom.FM_Space = fmCfg.space;
+		gEeprom.FM_SelectedFrequency = 
+			(fmCfg.selFreq >= BK1080_GetFreqLoLimit(gEeprom.FM_Band) && fmCfg.selFreq <= BK1080_GetFreqHiLimit(gEeprom.FM_Band)) ? 
+				fmCfg.selFreq : BK1080_GetFreqLoLimit(gEeprom.FM_Band);
+			
+		gEeprom.FM_SelectedChannel = fmCfg.selChn;
+		gEeprom.FM_IsMrMode        = fmCfg.isMrMode;
 	}
 
 	// 0E40..0E67
@@ -446,25 +447,28 @@ void SETTINGS_FactoryReset(bool bIsAll)
 }
 
 #ifdef ENABLE_FMRADIO
-	void SETTINGS_SaveFM(void)
+void SETTINGS_SaveFM(void)
 	{
-		unsigned int i;
+		union {
+			struct {
+				uint16_t selFreq;
+				uint8_t  selChn;
+				uint8_t  isMrMode:1;
+				uint8_t  band:2;
+				//uint8_t  space:2;
+			};
+			uint8_t __raw[8];
+		} __attribute__((packed)) fmCfg;
 
-		struct
-		{
-			uint16_t Frequency;
-			uint8_t  Channel;
-			bool     IsChannelSelected;
-			uint8_t  Padding[4];
-		} State;
+		memset(fmCfg.__raw, 0xFF, sizeof(fmCfg.__raw));
+		fmCfg.selChn   = gEeprom.FM_SelectedChannel;
+		fmCfg.selFreq  = gEeprom.FM_SelectedFrequency;
+		fmCfg.isMrMode = gEeprom.FM_IsMrMode;
+		fmCfg.band     = gEeprom.FM_Band;
+		//fmCfg.space    = gEeprom.FM_Space;
+		EEPROM_WriteBuffer(0x0E88, fmCfg.__raw);
 
-		memset(&State, 0xFF, sizeof(State));
-		State.Channel           = gEeprom.FM_SelectedChannel;
-		State.Frequency         = gEeprom.FM_SelectedFrequency;
-		State.IsChannelSelected = gEeprom.FM_IsMrMode;
-
-		EEPROM_WriteBuffer(0x0E88, &State);
-		for (i = 0; i < 5; i++)
+		for (unsigned i = 0; i < 5; i++)
 			EEPROM_WriteBuffer(0x0E40 + (i * 8), &gFM_Channels[i * 4]);
 	}
 #endif

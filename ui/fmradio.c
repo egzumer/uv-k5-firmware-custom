@@ -19,6 +19,7 @@
 #include <string.h>
 
 #include "app/fm.h"
+#include "driver/bk1080.h"
 #include "driver/st7565.h"
 #include "external/printf/printf.h"
 #include "misc.h"
@@ -34,7 +35,19 @@ void UI_DisplayFM(void)
 	char *pPrintStr = String;
 	UI_DisplayClear();
 
-	UI_PrintString("FM", 0, 127, 0, 12);
+	UI_PrintString("FM", 2, 0, 0, 8);
+
+	sprintf(String, "%d%s-%dM", 
+		BK1080_GetFreqLoLimit(gEeprom.FM_Band)/10,
+		gEeprom.FM_Band == 0 ? ".5" : "",
+		BK1080_GetFreqHiLimit(gEeprom.FM_Band)/10
+		);
+	
+	UI_PrintStringSmallNormal(String, 1, 0, 6);
+
+	//uint8_t spacings[] = {20,10,5};
+	//sprintf(String, "%d0k", spacings[gEeprom.FM_Space % 3]);
+	//UI_PrintStringSmallNormal(String, 127 - 4*7, 0, 6);
 
 	if (gAskToSave) {
 		pPrintStr = "SAVE?";
@@ -61,7 +74,7 @@ void UI_DisplayFM(void)
 		pPrintStr = "M-SCAN";
 	}
 
-	UI_PrintString(pPrintStr, 0, 127, 2, 10);
+	UI_PrintString(pPrintStr, 0, 127, 3, 10); // memory, vfo, scan
 
 	memset(String, 0, sizeof(String));
 	if (gAskToSave || (gEeprom.FM_IsMrMode && gInputBoxIndex > 0)) {
@@ -76,12 +89,12 @@ void UI_DisplayFM(void)
 			sprintf(String, "%.3s.%.1s",ascii, ascii + 3);
 		}
 
-		UI_DisplayFrequency(String, 32, 4, gInputBoxIndex == 0);
+		UI_DisplayFrequency(String, 36, 1, gInputBoxIndex == 0);  // frequency
 		ST7565_BlitFullScreen();
 		return;
 	}
 
-	UI_PrintString(String, 0, 127, 4, 10);
+	UI_PrintString(String, 0, 127, 1, 10);
 
 	ST7565_BlitFullScreen();
 }

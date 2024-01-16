@@ -137,18 +137,13 @@ int I2C_ReadBuffer(void *pBuffer, uint8_t Size)
 	uint8_t *pData = (uint8_t *)pBuffer;
 	uint8_t i;
 
-	if (Size == 1) {
-		*pData = I2C_Read(true);
-		return 1;
-	}
-
 	for (i = 0; i < Size - 1; i++) {
 		SYSTICK_DelayUs(1);
 		pData[i] = I2C_Read(false);
 	}
 
 	SYSTICK_DelayUs(1);
-	pData[i++] = I2C_Read(true);
+	pData[i] = I2C_Read(true);
 
 	return Size;
 }

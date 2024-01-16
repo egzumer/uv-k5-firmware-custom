@@ -495,7 +495,7 @@ void BOARD_Init(void)
 	BOARD_ADC_Init();
 	ST7565_Init();
 #ifdef ENABLE_FMRADIO
-		BK1080_Init(0, false);
+	BK1080_Init0();
 #endif
 
 #if defined(ENABLE_UART) || defined(ENABLED_AIRCOPY)
