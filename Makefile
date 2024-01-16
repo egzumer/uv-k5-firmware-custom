@@ -417,7 +417,7 @@ LDFLAGS +=
 LDFLAGS += -z noexecstack -mcpu=cortex-m0 -nostartfiles -Wl,-L,linker -Wl,-T,$(LD_FILE) -Wl,--gc-sections
 
 # Use newlib-nano instead of newlib
-LDFLAGS += --specs=nano.specs
+LDFLAGS += --specs=nosys.specs --specs=nano.specs 
 
 #show size
 LDFLAGS += -Wl,--print-memory-usage
