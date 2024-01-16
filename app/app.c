@@ -728,7 +728,7 @@ static void CheckRadioInterrupts(void)
 #endif
 
 #ifdef ENABLE_MESSENGER
-		MSG_StorePacket(interrupt_status_bits);
+		MSG_StorePacket(interrupts.__raw);
 #endif
 	}
 }

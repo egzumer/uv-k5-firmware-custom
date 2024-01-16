@@ -72,8 +72,8 @@ ENABLE_SCREEN_DUMP			  ?= 0
 
 #------------------------------------------------------------------------------
 AUTHOR_STRING ?= JOAQUIM
-VERSION_STRING ?= V0.3.0
-PROJECT_NAME := cfw_joaquimorg_oefw_V0.3.0
+VERSION_STRING ?= V0.3.1
+PROJECT_NAME := cfw_joaquimorg_oefw_V0.3.1
 
 BUILD := _build
 BIN := firmware
