@@ -101,7 +101,7 @@ ifeq ($(OS), Windows_NT) # windows
 	FixPath = $(subst /,\,$1)
 	WHERE = where
 	DEL = del /q
-	K5PROG = utils/k5prog/k5prog.exe -D -F -YYY -p /dev/com3 -b
+	K5PROG = utils/k5prog/k5prog.exe -D -F -YYYYY -p /dev/com3 -b
 else
 	MKDIR = mkdir -p $(1)
 	RM = rm -f
