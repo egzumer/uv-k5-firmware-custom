@@ -104,7 +104,7 @@ ifeq ($(OS), Windows_NT) # windows
 	K5PROG = utils/k5prog/k5prog.exe -D -F -YYYYY -p /dev/com3 -b
 else
 	MKDIR = mkdir -p $(1)
-	RM = rm -f
+	RM = rm -rf
 	FixPath = $1
 	WHERE = which
 	DEL = del
