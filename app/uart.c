@@ -152,6 +152,13 @@ typedef struct {
 	uint32_t Timestamp;
 } CMD_052F_t;
 
+#ifdef ENABLE_SCREEN_DUMP
+	typedef struct {
+		Header_t Header;
+		uint32_t Timestamp;
+	} CMD_0803_t; // request screen memory
+#endif
+
 #ifdef ENABLE_DOCK
 	typedef struct {
 		Header_t Header;
@@ -159,11 +166,6 @@ typedef struct {
 		uint8_t Padding;
 		uint32_t Timestamp;
 	} CMD_0801_t; // simulate key press
-
-	typedef struct {
-		Header_t Header;
-		uint32_t Timestamp;
-	} CMD_0803_t; // request screen memory
 
 	typedef struct {
 		Header_t Header;
