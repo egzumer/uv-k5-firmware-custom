@@ -89,8 +89,7 @@ void DTMF_SendEndOfTransmission(void)
 		&& gDTMF_CallState == DTMF_CALL_STATE_NONE
 #endif
 	) {	// end-of-tx
-		if (gEeprom.DTMF_SIDE_TONE)
-		{
+		if (gEeprom.DTMF_SIDE_TONE) {
 			AUDIO_AudioPathOn();
 			gEnableSpeaker = true;
 			SYSTEM_DelayMs(60);
