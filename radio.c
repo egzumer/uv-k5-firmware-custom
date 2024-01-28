@@ -317,7 +317,8 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 #ifdef ENABLE_DTMF_CALLING
 			pVfo->DTMF_DECODING_ENABLE = ((data[5] >> 0) & 1u) ? true : false;
 #endif
-			pVfo->DTMF_PTT_ID_TX_MODE  = ((data[5] >> 1) & 7u);
+			uint8_t pttId = ((data[5] >> 1) & 7u);
+			pVfo->DTMF_PTT_ID_TX_MODE  = pttId < ARRAY_SIZE(gSubMenu_PTT_ID) ? pttId : PTT_ID_OFF;
 		}
 
 		// ***************
@@ -1007,7 +1008,7 @@ void RADIO_PrepareTX(void)
 
 	gTxTimeoutReached    = false;
 	gFlagEndTransmission = false;
-	gRTTECountdown       = 0;
+	gRTTECountdown_10ms  = 0;
 
 #ifdef ENABLE_DTMF_CALLING
 	gDTMF_ReplyState     = DTMF_REPLY_NONE;

@@ -505,7 +505,7 @@ void SCANNER_TimeSlice500ms(void)
 {
 	if (SCANNER_IsScanning() && gScannerSaveState == SCAN_SAVE_NO_PROMPT && gScanCssState < SCAN_CSS_STATE_FOUND) {
 		gScanProgressIndicator++;
-#ifdef ENABLE_NO_CODE_SCAN_TIMEOUT
+#ifndef ENABLE_NO_CODE_SCAN_TIMEOUT
 		if (gScanProgressIndicator > 32) {
 			if (gScanCssState == SCAN_CSS_STATE_SCANNING && !gScanSingleFrequency)
 				gScanCssState = SCAN_CSS_STATE_FOUND;
