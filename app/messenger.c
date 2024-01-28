@@ -573,14 +573,14 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH], bool bServiceMessage) {
 		//RADIO_SetTxParameters();
 		FUNCTION_Select(FUNCTION_TRANSMIT);
 		//SYSTEM_DelayMs(500);
-		BK4819_PlayRogerNormal(98);
+		//BK4819_PlayRogerNormal(98);
 		SYSTEM_DelayMs(100);
 
 		BK4819_ExitTxMute();
 		
 		MSG_FSKSendData();
 
-		//SYSTEM_DelayMs(100);
+		SYSTEM_DelayMs(100);
 
 		APP_EndTransmission(true);
 		RADIO_SetVfoState(VFO_STATE_NORMAL);

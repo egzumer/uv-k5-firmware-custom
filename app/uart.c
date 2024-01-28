@@ -837,19 +837,18 @@ bool UART_IsCommandAvailable(void)
 
 		if ( UART_DMA_Buffer[gUART_WriteIndex] == 'S' && UART_DMA_Buffer[gUART_WriteIndex + 1] == 'M' && UART_DMA_Buffer[ gUART_WriteIndex + 2] == 'S' && UART_DMA_Buffer[gUART_WriteIndex + 3] == ':') {
 		
-		char txMessage[TX_MSG_LENGTH + 4];
-		memset(txMessage, 0, sizeof(txMessage));
-		snprintf(txMessage, (TX_MSG_LENGTH + 4), "%s", &UART_DMA_Buffer[gUART_WriteIndex + 4]);
+			char txMessage[TX_MSG_LENGTH + 4];
+			memset(txMessage, 0, sizeof(txMessage));
+			snprintf(txMessage, (TX_MSG_LENGTH + 4), "%s", &UART_DMA_Buffer[gUART_WriteIndex + 4]);
 
-		remove(txMessage, '\n');
-		remove(txMessage, '\r');      
+			remove(txMessage, '\n');
+			remove(txMessage, '\r');      
 
-		if (strlen(txMessage) > 0) {        
-			MSG_Send(txMessage, false);
-			UART_printf("SMS>%s\r\n", txMessage);
-			gUpdateDisplay = true;
-		}      
-		
+			if (strlen(txMessage) > 0) {        
+				MSG_Send(txMessage, false);
+				UART_printf("SMS>%s\r\n", txMessage);
+				gUpdateDisplay = true;
+			}			
 		}
   
 #endif  

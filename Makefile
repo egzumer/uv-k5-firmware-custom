@@ -56,7 +56,7 @@ ENABLE_LTO                    ?= 1
 
 # --- joaquim.org
 ENABLE_MESSENGER              			?= 1
-ENABLE_MESSENGER_DELIVERY_NOTIFICATION	?= 1
+ENABLE_MESSENGER_DELIVERY_NOTIFICATION	?= 0
 ENABLE_MESSENGER_NOTIFICATION			?= 1
 ENABLE_MESSENGER_UART					?= 1
 
@@ -101,7 +101,7 @@ ifeq ($(OS), Windows_NT) # windows
 	FixPath = $(subst /,\,$1)
 	WHERE = where
 	DEL = del /q
-	K5PROG = utils/k5prog/k5prog.exe -D -F -YYYYY -p /dev/com4 -b
+	K5PROG = utils/k5prog/k5prog.exe -D -F -YYYYY -p /dev/com3 -b
 else
 	MKDIR = mkdir -p $(1)
 	RM = rm -rf
