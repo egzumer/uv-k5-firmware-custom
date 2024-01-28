@@ -1471,7 +1471,7 @@ void APP_TimeSlice500ms(void)
 #endif
 
 			if (disp == DISPLAY_INVALID
-#ifndef ENABLE_NO_CODE_SCAN_TIMEOUT
+#ifdef ENABLE_NO_CODE_SCAN_TIMEOUT
 				&& !SCANNER_IsScanning()
 #endif
 			) {
