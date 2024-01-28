@@ -750,21 +750,19 @@ static void HandleVox(void)
 		return;
 #endif
 
-	if (gVoxResumeCountdown == 0)
-	{
+	if (gVoxResumeCountdown == 0) {
 		if (gVoxPauseCountdown)
 			return;
 	}
-	else
-	{
+	else {
 		g_VOX_Lost         = false;
 		gVoxPauseCountdown = 0;
 	}
 
-	#ifdef ENABLE_FMRADIO
-		if (gFmRadioMode)
-			return;
-	#endif
+#ifdef ENABLE_FMRADIO
+	if (gFmRadioMode)
+		return;
+#endif
 
 	if (gCurrentFunction == FUNCTION_RECEIVE || gCurrentFunction == FUNCTION_MONITOR)
 		return;
@@ -772,31 +770,26 @@ static void HandleVox(void)
 	if (gScanStateDir != SCAN_OFF)
 		return;
 
-	if (gVOX_NoiseDetected)
-	{
+	if (gVOX_NoiseDetected) {
 		if (g_VOX_Lost)
 			gVoxStopCountdown_10ms = vox_stop_count_down_10ms;
 		else if (gVoxStopCountdown_10ms == 0)
 			gVOX_NoiseDetected = false;
 
-		if (gCurrentFunction == FUNCTION_TRANSMIT && !gPttIsPressed && !gVOX_NoiseDetected)
-		{
-			if (gFlagEndTransmission)
-			{
+		if (gCurrentFunction == FUNCTION_TRANSMIT && !gPttIsPressed && !gVOX_NoiseDetected) {
+			if (gFlagEndTransmission) {
 				//if (gCurrentFunction != FUNCTION_FOREGROUND)
 					FUNCTION_Select(FUNCTION_FOREGROUND);
 			}
-			else
-			{
+			else {
 				APP_EndTransmission();
 
-				if (gEeprom.REPEATER_TAIL_TONE_ELIMINATION == 0)
-				{
+				if (gEeprom.REPEATER_TAIL_TONE_ELIMINATION == 0) {
 					//if (gCurrentFunction != FUNCTION_FOREGROUND)
 						FUNCTION_Select(FUNCTION_FOREGROUND);
 				}
 				else
-					gRTTECountdown = gEeprom.REPEATER_TAIL_TONE_ELIMINATION * 10;
+					gRTTECountdown_10ms = gEeprom.REPEATER_TAIL_TONE_ELIMINATION * 10;
 			}
 
 			gUpdateStatus        = true;
@@ -806,15 +799,13 @@ static void HandleVox(void)
 		return;
 	}
 
-	if (g_VOX_Lost)
-	{
+	if (g_VOX_Lost) {
 		gVOX_NoiseDetected = true;
 
 		if (gCurrentFunction == FUNCTION_POWER_SAVE)
 			FUNCTION_Select(FUNCTION_FOREGROUND);
 
-		if (gCurrentFunction != FUNCTION_TRANSMIT && !SerialConfigInProgress())
-		{
+		if (gCurrentFunction != FUNCTION_TRANSMIT && !SerialConfigInProgress()) {
 #ifdef ENABLE_DTMF_CALLING
 			gDTMF_ReplyState = DTMF_REPLY_NONE;
 #endif
@@ -1156,8 +1147,7 @@ void APP_TimeSlice10ms(void)
 #endif
 	}
 
-	if (gUpdateDisplay)
-	{
+	if (gUpdateDisplay) {
 		gUpdateDisplay = false;
 		GUI_DisplayScreen();
 	}
@@ -1184,65 +1174,56 @@ void APP_TimeSlice10ms(void)
 		gVoxPauseCountdown--;
 #endif
 
-	if (gCurrentFunction == FUNCTION_TRANSMIT)
-	{
-		#ifdef ENABLE_ALARM
-			if (gAlarmState == ALARM_STATE_TXALARM || gAlarmState == ALARM_STATE_SITE_ALARM)
-			{
-				uint16_t Tone;
+	if (gCurrentFunction == FUNCTION_TRANSMIT) {
+#ifdef ENABLE_ALARM
+		if (gAlarmState == ALARM_STATE_TXALARM || gAlarmState == ALARM_STATE_SITE_ALARM) {
+			uint16_t Tone;
 
-				gAlarmRunningCounter++;
-				gAlarmToneCounter++;
+			gAlarmRunningCounter++;
+			gAlarmToneCounter++;
 
-				Tone = 500 + (gAlarmToneCounter * 25);
-				if (Tone > 1500)
-				{
-					Tone              = 500;
+			Tone = 500 + (gAlarmToneCounter * 25);
+			if (Tone > 1500) {
+				Tone              = 500;
+				gAlarmToneCounter = 0;
+			}
+
+			BK4819_SetScrambleFrequencyControlWord(Tone);
+
+			if (gEeprom.ALARM_MODE == ALARM_MODE_TONE && gAlarmRunningCounter == 512) {
+				gAlarmRunningCounter = 0;
+
+				if (gAlarmState == ALARM_STATE_TXALARM) {
+					gAlarmState = ALARM_STATE_SITE_ALARM;
+
+					RADIO_EnableCxCSS();
+					BK4819_SetupPowerAmplifier(0, 0);
+					BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_PA_ENABLE, false);
+					BK4819_Enable_AfDac_DiscMode_TxDsp();
+					BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
+
+					GUI_DisplayScreen();
+				}
+				else {
+					gAlarmState = ALARM_STATE_TXALARM;
+
+					GUI_DisplayScreen();
+
+					BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true);
+					RADIO_SetTxParameters();
+					BK4819_TransmitTone(true, 500);
+					SYSTEM_DelayMs(2);
+					AUDIO_AudioPathOn();
+
+					gEnableSpeaker    = true;
 					gAlarmToneCounter = 0;
 				}
-
-				BK4819_SetScrambleFrequencyControlWord(Tone);
-
-				if (gEeprom.ALARM_MODE == ALARM_MODE_TONE && gAlarmRunningCounter == 512)
-				{
-					gAlarmRunningCounter = 0;
-
-					if (gAlarmState == ALARM_STATE_TXALARM)
-					{
-						gAlarmState = ALARM_STATE_SITE_ALARM;
-
-						RADIO_EnableCxCSS();
-						BK4819_SetupPowerAmplifier(0, 0);
-						BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_PA_ENABLE, false);
-						BK4819_Enable_AfDac_DiscMode_TxDsp();
-						BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
-
-						GUI_DisplayScreen();
-					}
-					else
-					{
-						gAlarmState = ALARM_STATE_TXALARM;
-
-						GUI_DisplayScreen();
-
-						BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true);
-						RADIO_SetTxParameters();
-						BK4819_TransmitTone(true, 500);
-						SYSTEM_DelayMs(2);
-						AUDIO_AudioPathOn();
-
-						gEnableSpeaker    = true;
-						gAlarmToneCounter = 0;
-					}
-				}
 			}
-		#endif
-
+		}
+#endif
 		// repeater tail tone elimination
-		if (gRTTECountdown > 0)
-		{
-			if (--gRTTECountdown == 0)
-			{
+		if (gRTTECountdown_10ms > 0) {
+			if (--gRTTECountdown_10ms == 0) {
 				//if (gCurrentFunction != FUNCTION_FOREGROUND)
 					FUNCTION_Select(FUNCTION_FOREGROUND);
 
@@ -1253,11 +1234,9 @@ void APP_TimeSlice10ms(void)
 	}
 
 #ifdef ENABLE_FMRADIO
-	if (gFmRadioMode && gFM_RestoreCountdown_10ms > 0)
-	{
-		if (--gFM_RestoreCountdown_10ms == 0)
-		{	// switch back to FM radio mode
-			FM_Start();
+	if (gFmRadioMode && gFM_RestoreCountdown_10ms > 0) {
+		if (--gFM_RestoreCountdown_10ms == 0) {	
+			FM_Start(); // switch back to FM radio mode
 			GUI_SelectNextDisplay(DISPLAY_FM);
 		}
 	}
@@ -1267,8 +1246,7 @@ void APP_TimeSlice10ms(void)
 	SCANNER_TimeSlice10ms();
 
 #ifdef ENABLE_AIRCOPY
-	if (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState == AIRCOPY_TRANSFER && gAirCopyIsSendMode == 1)
-	{
+	if (gScreenToDisplay == DISPLAY_AIRCOPY && gAircopyState == AIRCOPY_TRANSFER && gAirCopyIsSendMode == 1) {
 		if (!AIRCOPY_SendMessage()) {
 			GUI_DisplayScreen();
 		}
@@ -1471,7 +1449,7 @@ void APP_TimeSlice500ms(void)
 #endif
 
 			if (disp == DISPLAY_INVALID
-#ifndef ENABLE_NO_CODE_SCAN_TIMEOUT
+#ifdef ENABLE_NO_CODE_SCAN_TIMEOUT
 				&& !SCANNER_IsScanning()
 #endif
 			) {
@@ -1780,7 +1758,7 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			if (gEeprom.REPEATER_TAIL_TONE_ELIMINATION == 0)
 				FUNCTION_Select(FUNCTION_FOREGROUND);
 			else
-				gRTTECountdown = gEeprom.REPEATER_TAIL_TONE_ELIMINATION * 10;
+				gRTTECountdown_10ms = gEeprom.REPEATER_TAIL_TONE_ELIMINATION * 10;
 
 			if (Key == KEY_PTT)
 				gPttWasPressed  = true;
