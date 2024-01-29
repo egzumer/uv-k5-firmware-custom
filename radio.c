@@ -500,11 +500,6 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 			break;
 	}
 
-	if (Frequency < frequencyBandTable[0].lower)
-		Frequency = frequencyBandTable[0].lower;
-	else if (Frequency > frequencyBandTable[BAND_N_ELEM - 1].upper)
-		Frequency = frequencyBandTable[BAND_N_ELEM - 1].upper;
-
 	pInfo->freq_config_TX.Frequency = Frequency;
 }
 
