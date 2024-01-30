@@ -13,9 +13,6 @@
 #include "ui/helper.h"
 #include "ui/inputbox.h"
 #include "ui/ui.h"
-#ifdef ENABLE_DOCK
-	#include "app/uart.h"
-#endif
 
 void UI_DisplayMSG(void) {
 
@@ -50,9 +47,6 @@ void UI_DisplayMSG(void) {
 	for (int i = 0; i < 4; ++i) {
 		//sprintf(String, "%s", rxMessage[i]);
 		GUI_DisplaySmallest(rxMessage[i], 2, mPos, false, true);
-		#ifdef ENABLE_DOCK
-			UART_SendUiElement(1, 2, (mPos / 6), 4, strlen(rxMessage[i]), rxMessage[i]);
-		#endif
 		mPos += mLine;
     }
 
@@ -70,18 +64,11 @@ void UI_DisplayMSG(void) {
 
 	UI_DrawRectangleBuffer(gFrameBuffer, 2, 36, 10, 44, true);
 	GUI_DisplaySmallest(String, 5, 38, false, true);
-	#ifdef ENABLE_DOCK
-		UART_SendUiElement(2, 5, (32 / 6), 4, strlen(String), String);
-	#endif
 
 	memset(String, 0, sizeof(String));
 	sprintf(String, "%s_", cMessage);
 	//UI_PrintStringSmall(String, 3, 0, 6);
 	GUI_DisplaySmallest(String, 5, 48, false, true);
-	#ifdef ENABLE_DOCK
-		UART_SendUiElement(2, 5, (38 / 6), 4, strlen(String), String);
-	#endif
-
 
 	// debug msg
 	/*memset(String, 0, sizeof(String));

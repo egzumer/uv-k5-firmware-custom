@@ -36,19 +36,11 @@
 #include "ui/helper.h"
 #include "ui/ui.h"
 #include "ui/status.h"
-#ifdef ENABLE_DOCK
-	#include "app/uart.h"
-#endif
 
 void UI_DisplayStatus()
 {
 	gUpdateStatus = false;
 	memset(gStatusLine, 0, sizeof(gStatusLine));
-	#ifdef ENABLE_DOCK
-		uint8_t val1=0;
-		uint8_t val2=0;	
-		uint8_t val3=0;	
-	#endif
 
 	uint8_t     *line = gStatusLine;
 	unsigned int x    = 0;
@@ -56,24 +48,12 @@ void UI_DisplayStatus()
 
 	// POWER-SAVE indicator
 	if (gCurrentFunction == FUNCTION_TRANSMIT) {
-		#ifdef ENABLE_DOCK
-			// -nicsure- bit 0 of val1 is TX
-			val1 |= 0b00000001;
-		#endif
 		memcpy(line + x, BITMAP_TX, sizeof(BITMAP_TX));
 	}
 	else if (FUNCTION_IsRx()) {
-		#ifdef ENABLE_DOCK
-			// -nicsure- bit 1 of val1 is RX
-			val1 |= 0b00000010;
-		#endif
 		memcpy(line + x, BITMAP_RX, sizeof(BITMAP_RX));
 	}
 	else if (gCurrentFunction == FUNCTION_POWER_SAVE) {
-		#ifdef ENABLE_DOCK
-			// -nicsure- bit 2 of val1 is PowerSave
-			val1 |= 0b00000100;
-		#endif
 		memcpy(line + x, BITMAP_POWERSAVE, sizeof(BITMAP_POWERSAVE));
 	}
 	x += 8;
@@ -81,10 +61,6 @@ void UI_DisplayStatus()
 
 #ifdef ENABLE_NOAA
 	if (gIsNoaaMode) { // NOASS SCAN indicator
-		#ifdef ENABLE_DOCK
-			// -nicsure- bit 3 of val1 is NOAA
-			val1 |= 0b00001000;
-		#endif
 		memcpy(line + x, BITMAP_NOAA, sizeof(BITMAP_NOAA));
 		x1 = x + sizeof(BITMAP_NOAA);
 	}
@@ -102,10 +78,6 @@ void UI_DisplayStatus()
 
 #ifdef ENABLE_DTMF_CALLING
 	if (gSetting_KILLED) {
-		#ifdef ENABLE_DOCK
-			// -nicsure- bit 4 of val1 is DTMF
-			val1 |= 0b00010000;
-		#endif
 		memset(line + x, 0xFF, 10);
 		x1 = x + 10;
 	}
@@ -113,10 +85,6 @@ void UI_DisplayStatus()
 #endif
 #ifdef ENABLE_FMRADIO
 	if (gFmRadioMode) { // FM indicator
-		#ifdef ENABLE_DOCK
-			// -nicsure- bit 5 of val1 is FM
-			val1 |= 0b00100000;
-		#endif
 		memcpy(line + x, BITMAP_FM, sizeof(BITMAP_FM));
 		x1 = x + sizeof(BITMAP_FM);
 	}
@@ -135,10 +103,6 @@ void UI_DisplayStatus()
 			else {	// frequency mode
 				s = "S";
 			}
-			#ifdef ENABLE_DOCK
-				// -nicsure- val3 is the scan indicator
-				val3 = *s;
-			#endif
 			UI_PrintStringSmallBufferNormal(s, line + x + 1);
 			x1 = x + 10;
 		}
@@ -148,10 +112,6 @@ void UI_DisplayStatus()
 #ifdef ENABLE_VOICE
 	// VOICE indicator
 	if (gEeprom.VOICE_PROMPT != VOICE_PROMPT_OFF){
-		#ifdef ENABLE_DOCK
-			// -nicsure- bit 6 of val1 is voice prompt
-			val1 |= 0b01000000;
-		#endif
 		memcpy(line + x, BITMAP_VoicePrompt, sizeof(BITMAP_VoicePrompt));
 		x1 = x + sizeof(BITMAP_VoicePrompt);
 	}
@@ -162,24 +122,12 @@ void UI_DisplayStatus()
 		uint8_t dw = (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF) + (gEeprom.CROSS_BAND_RX_TX != CROSS_BAND_OFF) * 2;
 		if(dw == 1 || dw == 3) { // DWR - dual watch + respond
 			if(gDualWatchActive) {
-				#ifdef ENABLE_DOCK
-					// -nicsure- bit 7 of val1 is tdr1
-					val1 |= 0b10000000;
-				#endif
 				memcpy(line + x + (dw==1?0:2), BITMAP_TDR1, sizeof(BITMAP_TDR1) - (dw==1?0:5));
 			} else {
-				#ifdef ENABLE_DOCK
-					// -nicsure- bit 0 of val2 is tdr2
-					val2 |= 0b00000001;
-				#endif
 				memcpy(line + x + 3, BITMAP_TDR2, sizeof(BITMAP_TDR2));
 			}
 		}
 		else if(dw == 2) { // XB - crossband
-			#ifdef ENABLE_DOCK
-				// -nicsure- bit 1 of val2 is xb
-				val2 |= 0b00000010;
-			#endif
 			memcpy(line + x + 2, BITMAP_XB, sizeof(BITMAP_XB));
 		}
 	}
@@ -188,10 +136,6 @@ void UI_DisplayStatus()
 #ifdef ENABLE_VOX
 	// VOX indicator
 	if (gEeprom.VOX_SWITCH) {
-		#ifdef ENABLE_DOCK
-			// -nicsure- bit 2 of val2 is vox
-			val2 |= 0b00000100;
-		#endif
 		memcpy(line + x, BITMAP_VOX, sizeof(BITMAP_VOX));
 		x1 = x + sizeof(BITMAP_VOX) + 1;
 	}
@@ -202,19 +146,11 @@ void UI_DisplayStatus()
 
 	// KEY-LOCK indicator
 	if (gEeprom.KEY_LOCK) {
-		#ifdef ENABLE_DOCK
-			// -nicsure- bit 3 of val2 is key lock
-			val2 |= 0b00001000;
-		#endif
 		memcpy(line + x, BITMAP_KeyLock, sizeof(BITMAP_KeyLock));
 		x += sizeof(BITMAP_KeyLock);
 		x1 = x;
 	}
 	else if (gWasFKeyPressed) {
-		#ifdef ENABLE_DOCK
-			// -nicsure- bit 4 of val2 is F key mode
-			val2 |= 0b00010000;
-		#endif
 		memcpy(line + x, BITMAP_F_Key, sizeof(BITMAP_F_Key));
 		x += sizeof(BITMAP_F_Key);
 		x1 = x;
@@ -225,10 +161,6 @@ void UI_DisplayStatus()
 		unsigned int x2 = LCD_WIDTH - sizeof(BITMAP_BatteryLevel1) - 0;
 
 		if (gChargingWithTypeC) {
-			#ifdef ENABLE_DOCK
-				// -nicsure- bit 5 of val2 is USB C Charging
-				val2 |= 0b00100000;
-			#endif
 			x2 -= sizeof(BITMAP_USB_C);  // the radio is on charge
 		}
 
@@ -263,11 +195,6 @@ void UI_DisplayStatus()
 
 	// BATTERY LEVEL indicator
 	UI_DrawBattery(line + x, gBatteryDisplayLevel, gLowBatteryBlink);
-
-	#ifdef ENABLE_DOCK
-		UART_SendUiElement(5, 0, 0, 0, 0, NULL);
-		UART_SendUiElement(6, val1, val2, val3, (gBatteryVoltageAverage>999?999:gBatteryVoltageAverage)>>2, NULL );
-	#endif	
 
 	// **************
 

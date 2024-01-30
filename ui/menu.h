@@ -127,9 +127,6 @@ enum
 	MENU_F2LONG,
 	MENU_MLONG,
 	MENU_BATTYP,
-#ifdef ENABLE_DOCK
-	MENU_REMOTE_UI
-#endif	
 };
 
 extern const uint8_t FIRST_HIDDEN_MENU_ITEM;

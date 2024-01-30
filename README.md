@@ -25,7 +25,6 @@ Anyway, have fun.
   - [Manual](#manual)
   - [Radio performance](#radio-performance)
   - [User customization](#user-customization)
-    - [To use the Quansheng Dock from **nicsure** you need QuanshengDock https://github.com/nicsure/QuanshengDock](#to-use-the-quansheng-dock-from-nicsure-you-need-quanshengdock-httpsgithubcomnicsurequanshengdock)
   - [Compiler](#compiler)
   - [Building](#building)
     - [Github Codespace build method](#github-codespace-build-method)
@@ -149,10 +148,6 @@ You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) .
 | ENABLE_MESSENGER_NOTIFICATION | play sound when message received |
 | ENABLE_MESSENGER_UART | send and receive short text messages via UART (to send write «SMS:Text to send») |
 | ENABLE_PMR_MODE | set the radio in PMR only operation ( work in progress ) |
-|🎛️ **nicsure** ||
-| ENABLE_DOCK | Enables the features required for remote operation with Quansheng Dock ( https://github.com/nicsure/QuanshengDock )|
-
-### To use the Quansheng Dock from **nicsure** you need QuanshengDock https://github.com/nicsure/QuanshengDock
 
 ## Compiler
 

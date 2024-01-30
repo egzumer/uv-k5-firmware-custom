@@ -22,7 +22,7 @@
 #include "driver/i2c.h"
 #include "misc.h"
 
-#ifdef ENABLE_DOCK
+#ifdef ENABLE_SCREEN_DUMP
 	KEY_Code_t gSimulateKey     = KEY_INVALID;
 	KEY_Code_t gSimulateHold     = KEY_INVALID;
 	uint8_t gDebounceDefeat = 0;
@@ -101,7 +101,7 @@ static const struct {
 
 KEY_Code_t KEYBOARD_Poll(void)
 {
-	#ifdef ENABLE_DOCK
+	#ifdef ENABLE_SCREEN_DUMP
 		if(gSimulateKey != KEY_INVALID)
 		{
 			const KEY_Code_t temp = gSimulateKey;

@@ -46,12 +46,8 @@
 	#include "sram-overlay.h"
 #endif
 
-#ifdef ENABLE_DOCK
-	#include "audio.h"
-	#include "driver/keyboard.h"
-	#include "driver/systick.h"
-#endif
 #ifdef ENABLE_SCREEN_DUMP
+	#include "driver/keyboard.h"
 	#include "driver/st7565.h"
 #endif
 
@@ -152,59 +148,14 @@ typedef struct {
 	uint32_t Timestamp;
 } CMD_052F_t;
 
-#ifdef ENABLE_DOCK
-	typedef struct {
-		Header_t Header;
-		uint8_t Key;
-		uint8_t Padding;
-		uint32_t Timestamp;
-	} CMD_0801_t; // simulate key press
 
-	typedef struct {
-		Header_t Header;
-		uint32_t MidFreq;
-		uint32_t Width;
-		uint16_t Density;
-		uint32_t Timestamp;
-	} CMD_0808_t; // scan
-
-	typedef struct {
-		Header_t Header;
-		struct {
-			uint8_t Length;
-			uint8_t Sync;
-			uint8_t Signals[100];
-		} Data;
-	} REPLY_0808_t; // scan reply
-
-	typedef struct {
-		Header_t Header;
-		uint16_t Length;
-		uint16_t RegData[50];
-	} CMD_085X_t; // Set and read registers
-
-	typedef struct {
-		Header_t Header;
-		uint16_t Length;
-		uint8_t GPIOData[50];
-	} CMD_086X_t; // Set and read GPIO bits
-
-	typedef struct {
-		Header_t Header;
-		struct {
-			uint16_t Register;
-			uint16_t Value;
-		} Data;
-	} REPLY_0851_t; // read register
-
-	typedef struct {
-		Header_t Header;
-		struct {
-			uint8_t Gpio;
-			uint8_t Bit;
-		} Data;
-	} REPLY_0861_t; // read GPIO bit
-
+#ifdef ENABLE_SCREEN_DUMP
+typedef struct {
+	Header_t Header;
+	uint8_t Key;
+	uint8_t Padding;
+	uint32_t Timestamp;
+} CMD_0A01_t; // simulate key press
 #endif
 
 static const uint8_t Obfuscation[16] =
@@ -501,275 +452,28 @@ static void CMD_052F(const uint8_t *pBuffer)
 	SendVersion();
 }
 
-#ifdef ENABLE_DOCK
-
-	static uint16_t	R10,R11,R12,R13,R14,R30,R37,R3D,R43,R47,R48,R7E;
-	static void BackupRegisters() {
-	R10 = BK4819_ReadRegister(BK4819_REG_10);
-	R11 = BK4819_ReadRegister(BK4819_REG_11);
-	R12 = BK4819_ReadRegister(BK4819_REG_12);
-	R13 = BK4819_ReadRegister(BK4819_REG_13);
-	R14 = BK4819_ReadRegister(BK4819_REG_14);
-	R30 = BK4819_ReadRegister(BK4819_REG_30);
-	R37 = BK4819_ReadRegister(BK4819_REG_37);
-	R3D = BK4819_ReadRegister(BK4819_REG_3D);
-	R43 = BK4819_ReadRegister(BK4819_REG_43);
-	R47 = BK4819_ReadRegister(BK4819_REG_47);
-	R48 = BK4819_ReadRegister(BK4819_REG_48);
-	R7E = BK4819_ReadRegister(BK4819_REG_7E);
-	}
-
-	static void RestoreRegisters() {
-	BK4819_WriteRegister(BK4819_REG_10, R10);
-	BK4819_WriteRegister(BK4819_REG_11, R11);
-	BK4819_WriteRegister(BK4819_REG_12, R12);
-	BK4819_WriteRegister(BK4819_REG_13, R13);
-	BK4819_WriteRegister(BK4819_REG_14, R14);
-	BK4819_WriteRegister(BK4819_REG_30, R30);
-	BK4819_WriteRegister(BK4819_REG_37, R37);
-	BK4819_WriteRegister(BK4819_REG_3D, R3D);
-	BK4819_WriteRegister(BK4819_REG_43, R43);
-	BK4819_WriteRegister(BK4819_REG_47, R47);
-	BK4819_WriteRegister(BK4819_REG_48, R48);
-	BK4819_WriteRegister(BK4819_REG_7E, R7E);
-	}
-
-	static void CMD_0850(const uint8_t *pBuffer) // write to multiple registers
-	{
-		const CMD_085X_t *pCmd = (const CMD_085X_t *)pBuffer;
-		for(int i=0, j=0; i<pCmd->Length; i++, j+=2)
-		{
-			BK4819_WriteRegister(pCmd->RegData[j], pCmd->RegData[j+1]);
-		}
-	}
-
-	// info on each register is returned as a single packet
-	static void CMD_0851(const uint8_t *pBuffer) // read multiple registers
-	{
-		const CMD_085X_t *pCmd = (const CMD_085X_t *)pBuffer;
-		REPLY_0851_t      Reply;
-		for(int i=0; i<pCmd->Length; i++)
-		{
-			Reply.Header.ID=0x951;
-			Reply.Header.Size = sizeof(Reply.Data);
-			Reply.Data.Register = pCmd->RegData[i];
-			Reply.Data.Value = BK4819_ReadRegister(Reply.Data.Register);
-			SendReply(&Reply, sizeof(Reply));
-		}
-	}
-
-	static void CMD_0860(const uint8_t *pBuffer)
-	{
-		const CMD_086X_t *pCmd = (const CMD_086X_t *)pBuffer;
-		for(int i=0, j=0; i<pCmd->Length; i++, j+=2)
-		{
-			const uint8_t bit = pCmd->GPIOData[j+1];
-			switch(pCmd->GPIOData[j])
-			{
-				case 0:
-					GPIO_SetBit(&GPIOA->DATA, bit);
-					break;
-				case 1:
-					GPIO_SetBit(&GPIOB->DATA, bit);
-					break;
-				case 2:
-					GPIO_SetBit(&GPIOC->DATA, bit);
-					break;
-				case 3:
-					GPIO_ClearBit(&GPIOA->DATA, bit);
-					break;
-				case 4:
-					GPIO_ClearBit(&GPIOB->DATA, bit);
-					break;
-				case 5:
-					GPIO_ClearBit(&GPIOC->DATA, bit);
-					break;
-			}
-		}
-	}
-
-	static void CMD_0861(const uint8_t *pBuffer)
-	{
-		const CMD_086X_t *pCmd = (const CMD_086X_t *)pBuffer;
-		REPLY_0861_t      Reply;
-		for(int i=0, j=0; i<pCmd->Length; i++, j+=2)
-		{
-			Reply.Header.ID = 0x961;
-			Reply.Header.Size = sizeof(Reply.Data);
-			uint8_t bit;
-			switch(pCmd->GPIOData[j])
-			{
-				case 0:
-					bit=GPIO_CheckBit(&GPIOA->DATA, pCmd->GPIOData[j+1]);					
-					break;
-				case 1:
-					bit=GPIO_CheckBit(&GPIOB->DATA, pCmd->GPIOData[j+1]);					
-					break;
-				case 2:
-					bit=GPIO_CheckBit(&GPIOC->DATA, pCmd->GPIOData[j+1]);					
-					break;
-			}
-			Reply.Data.Gpio = pCmd->GPIOData[j] + (bit?0:3);
-			Reply.Data.Bit = pCmd->GPIOData[j+1];
-			SendReply(&Reply, sizeof(Reply));
-		}
-	}
-
-	static void CMD_0870() // enter hardware control mode
-	{
-		FUNCTION_Select(FUNCTION_FOREGROUND);
-		BackupRegisters();
-		while(true) // sit in a loop just executing serial commands
-		{
-			if (UART_IsCommandAvailable())
-			{
-				if(UART_Command.Header.ID == 0x871) // exit h/w control
-					break;
-				if(UART_Command.Header.ID != 0x870) // prevent recursion
-					UART_HandleCommand();
-			}
-			SYSTICK_DelayUs(100); // loop delay
-		}
-		RestoreRegisters();
-		RADIO_SetupRegisters(false);
-		gSimulateKey = 13;
-		gSimulateHold = 19;
-		gDebounceDefeat = 0;				
-		return;		
-	}
-
-	static void CMD_0801(const uint8_t *pBuffer) // smulate a key press
-	{
-		const CMD_0801_t *pCmd = (const CMD_0801_t *)pBuffer;
-		const uint8_t key = pCmd->Key & 0x1f;
-		const bool click = pCmd->Key & 32;
-		if(key != KEY_INVALID)
-		{
-			gSimulateKey = key;
-			gDebounceDefeat = 0;
-			if(key == KEY_PTT)
-				gPttCounter = 40;
-		}
-		gSimulateHold = click ? KEY_INVALID : key;
-	}	
-
-	// scan, this command is blocking, it will continue to run until another serial command is receieved
-	static void CMD_0808(const uint8_t *pBuffer)
-	{
-		const CMD_0808_t *pCmd = (const CMD_0808_t *)pBuffer; // pointer to the command data
-		if(pCmd->Density<0x300 && pCmd->Density>0) // check the density is within limits
-		{
-			FUNCTION_Select(FUNCTION_FOREGROUND);
-			BackupRegisters();
-			// dunno, just copying what other stuff does
-			RADIO_SetupAGC(false, false);
-			AUDIO_AudioPathOff();
-			BK4819_WriteRegister(BK4819_REG_30, BK4819_ReadRegister(BK4819_REG_30) & 0xFDFF);
-			BK4819_WriteRegister(BK4819_REG_47, BK4819_ReadRegister(BK4819_REG_47) & 0xFEFF);
-			BK4819_SetFilterBandwidth(BK4819_FILTER_BW_WIDE, false);
-			// frequency step
-			uint32_t step = pCmd->Width;
-			// number of steps (ensure value is odd)
-			uint32_t steps = pCmd->Density | 1;
-			// start frequency
-			uint32_t startFreq = pCmd->MidFreq - ((steps>>1)*step);
-			// may as well re-use the receive buffer
-			REPLY_0808_t* Reply = (REPLY_0808_t*)pBuffer;
-			// loop forever (ish)
-			while(true)
-			{
-				if (UART_IsCommandAvailable()) // serial data is incoming
-				{
-					if(UART_Command.Header.ID == 0x809) // command to adjust scan 
-					{
-						pCmd = (const CMD_0808_t *)UART_Command.Buffer;
-						if(pCmd->Density == 0) // a zero density means to end the scan and change VFO frequency
-						{
-							RestoreRegisters();
-							gCurrentVfo->pRX->Frequency = pCmd->MidFreq;
-							gCurrentVfo->pTX->Frequency = pCmd->MidFreq;
-							RADIO_SetupRegisters(false);
-							gSimulateKey = 13;
-							gSimulateHold = 19;
-							gDebounceDefeat = 0;
-							return;
-						}
-						step = pCmd->Width;
-						steps = pCmd->Density | 1;
-						startFreq = pCmd->MidFreq - ((steps>>1)*step);
-					}
-					else // anything else means to stop scanning
-					{
-						// a hello response is sent to indicate exit from scanning mode
-						SendVersion();
-						// restore the radio's configuration
-						RestoreRegisters();
-						RADIO_SetupRegisters(false);
-						gSimulateKey = 13;
-						gSimulateHold = 19;
-						gDebounceDefeat = 0;				
-						return;
-					}
-				}
-				uint8_t sync = 0; // packet number, each reply packet is 100 steps long, for larger step ranges replies are split into multiple packets
-				int icnt = 0; // reply data packet index counter
-				uint32_t freq = startFreq; // starting frequency
-				for(uint32_t tot = 0; tot < steps; freq += step, tot++) // loop through all steps
-				{				
-					BK4819_SetFrequency((uint32_t)freq); // set to the current step frequency
-					BK4819_PickRXFilterPathBasedOnFrequency((uint32_t)freq); // dunno, everything else does it. Seems pretty self-explanitory though.
-					// seems to be needed to kick the RX in on the new frequency
-					uint16_t reg = BK4819_ReadRegister(BK4819_REG_30);
-					BK4819_WriteRegister(BK4819_REG_30, 0);
-					BK4819_WriteRegister(BK4819_REG_30, reg);
-					// set all the AGC tables to maximum gain
-					BK4819_WriteRegister(BK4819_REG_10, R10 & 0x3ff);
-					BK4819_WriteRegister(BK4819_REG_11, R11 & 0x3ff);
-					BK4819_WriteRegister(BK4819_REG_12, R12 & 0x3ff);
-					BK4819_WriteRegister(BK4819_REG_13, R13 & 0x3ff);
-					BK4819_WriteRegister(BK4819_REG_14, R14 & 0x3ff);				
-					SYSTICK_DelayUs(100); // short delay to allow rssi to build up
-					uint16_t sig = BK4819_GetRSSI(); // get the signal level
-					Reply->Data.Signals[icnt++]=(uint8_t)(sig>255?255:sig); // store the signal in the reply buffer, clamp it to 255
-					if(icnt>=100 || tot>=steps-1) // check if we need to send a reply yet
-					{
-						// set reply params
-						Reply->Header.ID = 0x908;
-						Reply->Header.Size = sizeof(Reply->Data);	
-						Reply->Data.Sync = sync;
-						Reply->Data.Length = icnt;
-						SendReply(Reply, 106); // send the reply
-						icnt=0; // reset reply packet index counter
-						sync++; // increment the packet number
-					}
-				}
-			}
-		}
-	}
-
-	void UART_SendUiElement(uint8_t type, uint32_t value1, uint32_t value2, uint32_t value3, uint32_t Length, const void* data)
-	{
-		if(gSetting_Remote_UI)
-		{
-			const uint8_t id = 0xB5;
-			UART_Send(&id, 1);
-			UART_Send(&type, 1);
-			UART_Send(&value1, 1);
-			UART_Send(&value2, 1);
-			UART_Send(&value3, 1);
-			UART_Send(&Length, 1);
-			UART_Send(data, Length);
-		}
-	}
-#endif
-
 #ifdef ENABLE_SCREEN_DUMP
-static void CMD_0803() // dumps the LCD screen memory to the PC. Not used in the Dock, is just for debug purposes
+static void CMD_0A03() // dumps the LCD screen memory to the PC. Not used in the Dock, is just for debug purposes
 {
 	const uint16_t screenDumpIdByte = 0xEFAB;
 	UART_Send(&screenDumpIdByte, 2);
 	UART_Send(gStatusLine, 128);
 	UART_Send(gFrameBuffer, 896);
+}
+
+static void CMD_0A01(const uint8_t *pBuffer) // smulate a key press
+{
+	const CMD_0A01_t *pCmd = (const CMD_0A01_t *)pBuffer;
+	const uint8_t key = pCmd->Key & 0x1f;
+	const bool click = pCmd->Key & 32;
+	if(key != KEY_INVALID)
+	{
+		gSimulateKey = key;
+		gDebounceDefeat = 0;
+		if(key == KEY_PTT)
+			gPttCounter = 40;
+	}
+	gSimulateHold = click ? KEY_INVALID : key;
 }
 #endif
 
@@ -986,40 +690,17 @@ void UART_HandleCommand(void)
 			CMD_0602_WriteBK4819Reg(UART_Command.Buffer);
 			break;
 #endif
+
 #ifdef ENABLE_SCREEN_DUMP
-		case 0x0803: // screen dump
-			CMD_0803();
+
+		case 0x0A01: // simulate key press
+			CMD_0A01(UART_Command.Buffer);
+			break;			
+		case 0x0A03: // screen dump
+			CMD_0A03();
 			break;
 #endif
-#ifdef ENABLE_DOCK
-		case 0x0801: // simulate key press
-			CMD_0801(UART_Command.Buffer);
-			break;
 
-		case 0x0808: // scan
-			CMD_0808(UART_Command.Buffer);
-			break;
-
-		case 0x0850:
-			CMD_0850(UART_Command.Buffer);
-			break;
-
-		case 0x0851:
-			CMD_0851(UART_Command.Buffer);
-			break;
-
-		case 0x0860:
-			CMD_0860(UART_Command.Buffer);
-			break;
-
-		case 0x0861:
-			CMD_0861(UART_Command.Buffer);
-			break;
-
-		case 0x0870: // full control mode
-			CMD_0870();
-			break;
-#endif
 
 	}
 }

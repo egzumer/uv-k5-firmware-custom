@@ -36,9 +36,6 @@
 #include "ui/inputbox.h"
 #include "ui/main.h"
 #include "ui/ui.h"
-#ifdef ENABLE_DOCK
-	#include "app/uart.h"
-#endif
 
 center_line_t center_line = CENTER_LINE_NONE;
 
@@ -200,10 +197,6 @@ void DisplayRSSIBar(const bool now)
 		)
 		return;     // display is in use
 
-#ifdef ENABLE_DOCK
-	if(now)
-		UART_SendUiElement(5, line+1, line+1, 0, 0, NULL);
-#endif
 	if (now)
 		memset(p_line, 0, LCD_WIDTH);
 
@@ -231,10 +224,7 @@ void DisplayRSSIBar(const bool now)
 
 	UI_PrintStringSmallNormal(str, 2, 0, line);
 	DrawLevelBar(bar_x, line, s_level + overS9Bars);
-#ifdef ENABLE_DOCK
-	if (now)
-		UART_SendUiElement(8, s_level, overS9Bars, 0, 0, NULL);
-#endif
+
 	if (now)
 		ST7565_BlitLine(line);
 #else
@@ -415,17 +405,13 @@ void UI_DisplayMain(void)
 			}
 
 			// highlight the selected/used VFO with a marker
-#ifdef ENABLE_DOCK
-			UART_SendUiElement(7, line+1, isMainVFO, 0, 0, NULL);
-#endif
+
 			if (isMainVFO)
 				memcpy(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 		}
 		else // active TX VFO
 		{	// highlight the selected/used VFO with a marker
-#ifdef ENABLE_DOCK
-			UART_SendUiElement(7, line+1, isMainVFO, 0, 0, NULL);
-#endif
+
 			if (isMainVFO)
 				memcpy(p_line0 + 0, BITMAP_VFO_Default, sizeof(BITMAP_VFO_Default));
 			else
@@ -546,12 +532,7 @@ void UI_DisplayMain(void)
 					memcpy(p_line0 + 113, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
 				if (att.scanlist2)
 					memcpy(p_line0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
-#ifdef ENABLE_DOCK
-				if(att.scanlist1)
-					UART_SendUiElement(1, 113, line, 4, 1, "I");
-				if(att.scanlist2)
-					UART_SendUiElement(1, 117, line, 4, 2, "II");
-#endif
+
 				// compander symbol
 #ifndef ENABLE_BIG_FREQ
 				if (att.compander)
@@ -559,10 +540,7 @@ void UI_DisplayMain(void)
 #else
 				// TODO:  // find somewhere else to put the symbol
 #endif
-#ifdef ENABLE_DOCK
-				if (att.compander)
-					UART_SendUiElement(1, 123, line, 4, 1, "C");
-#endif
+
 
 				switch (gEeprom.CHANNEL_DISPLAY_MODE)
 				{
@@ -639,10 +617,7 @@ void UI_DisplayMain(void)
 #else
 					memcpy(p_line0 + 120 + LCD_WIDTH, BITMAP_compand, sizeof(BITMAP_compand));
 #endif
-#ifdef ENABLE_DOCK
-				if (att.compander)
-					UART_SendUiElement(1, 123, line, 4, 1, "C");
-#endif
+
 			}
 		}
 

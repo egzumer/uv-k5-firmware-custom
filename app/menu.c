@@ -228,10 +228,6 @@ int MENU_GetLimits(uint8_t menu_id, int32_t *pMin, int32_t *pMax)
 			*pMin = 0;
 			*pMax = ARRAY_SIZE(gSubMenu_RX_TX) - 1;
 			break;
-
-		#ifdef ENABLE_DOCK
-			case MENU_REMOTE_UI:
-		#endif
 		#ifdef ENABLE_AM_FIX
 			case MENU_AM_FIX:
 		#endif
@@ -708,12 +704,6 @@ void MENU_AcceptSetting(void)
 			gEeprom.ROGER = gSubMenuSelection;
 			break;
 
-#ifdef ENABLE_DOCK
-		case MENU_REMOTE_UI:
-			gSetting_Remote_UI = gSubMenuSelection;
-			break;
-#endif
-
 		case MENU_AM:
 			gTxVfo->Modulation     = gSubMenuSelection;
 			gRequestSaveChannel = 1;
@@ -1097,12 +1087,6 @@ void MENU_ShowCurrentSetting(void)
 		case MENU_ROGER:
 			gSubMenuSelection = gEeprom.ROGER;
 			break;
-
-#ifdef ENABLE_DOCK
-		case MENU_REMOTE_UI:
-			gSubMenuSelection = gSetting_Remote_UI;
-			break;
-#endif
 
 		case MENU_AM:
 			gSubMenuSelection = gTxVfo->Modulation;

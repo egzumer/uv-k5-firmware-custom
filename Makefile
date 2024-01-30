@@ -63,9 +63,6 @@ ENABLE_MESSENGER_UART					?= 1
 # Work in progress
 ENABLE_PMR_MODE               ?= 0
 
-# --- https://github.com/nicsure/quansheng-dock-fw
-# --- https://github.com/nicsure/QuanshengDock
-ENABLE_DOCK                   ?= 0
 
 #### INTERNAL USE ####
 ENABLE_SCREEN_DUMP			  ?= 0
@@ -251,9 +248,6 @@ CFLAGS += -DAUTHOR_STRING=\"$(AUTHOR_STRING)\" -DVERSION_STRING=\"$(VERSION_STRI
 
 ifeq ($(ENABLE_SCREEN_DUMP),1)
 	CFLAGS += -DENABLE_SCREEN_DUMP
-endif
-ifeq ($(ENABLE_DOCK),1)
-	CFLAGS += -DENABLE_DOCK
 endif
 ifeq ($(ENABLE_PMR_MODE),1)
 	CFLAGS  += -DENABLE_PMR_MODE
