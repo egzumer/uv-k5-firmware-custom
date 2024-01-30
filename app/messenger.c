@@ -576,7 +576,7 @@ void MSG_Send(const char txMessage[TX_MSG_LENGTH], bool bServiceMessage) {
 		//BK4819_PlayRogerNormal(98);
 		SYSTEM_DelayMs(100);
 
-		BK4819_ExitTxMute();
+		//BK4819_ExitTxMute();
 		
 		MSG_FSKSendData();
 
@@ -675,7 +675,7 @@ void MSG_StorePacket(const uint16_t interrupt_bits) {
 				}
 
 			#ifdef ENABLE_MESSENGER_UART
-				UART_printf("SMS<%s\r\n", &msgFSKBuffer[2]);
+				UART_printf("SMS%s\r\n", rxMessage[3]);
 			#endif
 
 				if ( gScreenToDisplay != DISPLAY_MSG ) {
