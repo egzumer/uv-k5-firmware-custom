@@ -1395,18 +1395,16 @@ void BK4819_GenTail(uint8_t Tail)
 	}
 }
 
-void BK4819_EnableCDCSS(void)
+void BK4819_PlayCDCSSTail(void)
 {
 	BK4819_GenTail(0);     // CTC134
-	BK4819_WriteRegister(BK4819_REG_51, 0x804A);
+	BK4819_WriteRegister(BK4819_REG_51, 0x804A); // 1 0 0 0 0 0 0 0  0  1001010
 }
 
-void BK4819_EnableCTCSS(void)
+void BK4819_PlayCTCSSTail(void)
 {
 	#ifdef ENABLE_CTCSS_TAIL_PHASE_SHIFT
-		//BK4819_GenTail(1);     // 120° phase shift
 		BK4819_GenTail(2);       // 180° phase shift
-		//BK4819_GenTail(3);     // 240° phase shift
 	#else
 		BK4819_GenTail(4);       // 55Hz tone freq
 	#endif
@@ -1448,7 +1446,7 @@ void BK4819_EnableCTCSS(void)
 	//       0   = min
 	//       127 = max
 
-	BK4819_WriteRegister(BK4819_REG_51, 0x904A); // 1 0 0 1 0 0 0 0 0 1001010
+	BK4819_WriteRegister(BK4819_REG_51, 0x904A); // 1 0 0 1 0 0 0 0  0  1001010
 }
 
 uint16_t BK4819_GetRSSI(void)

@@ -506,11 +506,6 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 			break;
 	}
 
-	if (Frequency < frequencyBandTable[0].lower)
-		Frequency = frequencyBandTable[0].lower;
-	else if (Frequency > frequencyBandTable[BAND_N_ELEM - 1].upper)
-		Frequency = frequencyBandTable[BAND_N_ELEM - 1].upper;
-
 	pInfo->freq_config_TX.Frequency = Frequency;
 }
 
@@ -994,9 +989,9 @@ void RADIO_PrepareTX(void)
 
 	gTxTimerCountdown_500ms = 0;            // no timeout
 
-	#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
+#if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 	if (gAlarmState == ALARM_STATE_OFF)
-	#endif
+#endif
 	{
 		if (gEeprom.TX_TIMEOUT_TIMER == 0)
 			gTxTimerCountdown_500ms = 60;   // 30 sec
@@ -1015,15 +1010,15 @@ void RADIO_PrepareTX(void)
 #endif
 }
 
-void RADIO_EnableCxCSS(void)
+void RADIO_SendCssTail(void)
 {
 	switch (gCurrentVfo->pTX->CodeType) {
 	case CODE_TYPE_DIGITAL:
 	case CODE_TYPE_REVERSE_DIGITAL:
-		BK4819_EnableCDCSS();
+		BK4819_PlayCDCSSTail();
 		break;
 	default:
-		BK4819_EnableCTCSS();
+		BK4819_PlayCTCSSTail();
 		break;
 	}
 
@@ -1036,7 +1031,8 @@ void RADIO_SendEndOfTransmission(void)
 	DTMF_SendEndOfTransmission();
 
 	// send the CTCSS/DCS tail tone - allows the receivers to mute the usual FM squelch tail/crash
-	RADIO_EnableCxCSS();
+	if(gEeprom.TAIL_TONE_ELIMINATION)
+		RADIO_SendCssTail();
 	RADIO_SetupRegisters(false);
 }
 
@@ -1046,6 +1042,7 @@ void RADIO_PrepareCssTX(void)
 
 	SYSTEM_DelayMs(200);
 
-	RADIO_EnableCxCSS();
+	if(gEeprom.TAIL_TONE_ELIMINATION)
+		RADIO_SendCssTail();
 	RADIO_SetupRegisters(true);
 }
