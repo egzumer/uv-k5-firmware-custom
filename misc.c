@@ -132,7 +132,7 @@ volatile bool     gNextTimeslice_500ms;
 volatile uint16_t gTxTimerCountdown_500ms;
 volatile bool     gTxTimeoutReached;
 
-volatile uint16_t gTailNoteEliminationCountdown_10ms;
+volatile uint16_t gTailToneEliminationCountdown_10ms;
 
 volatile uint8_t    gVFOStateResumeCountdown_500ms;
 
@@ -237,7 +237,7 @@ volatile bool     gNextTimeslice40ms;
 	volatile uint16_t gNOAACountdown_10ms = 0;
 	volatile bool     gScheduleNOAA       = true;
 #endif
-volatile bool     gFlagTailNoteEliminationComplete;
+volatile bool     gFlagTailToneEliminationComplete;
 #ifdef ENABLE_FMRADIO
 	volatile bool gScheduleFM;
 #endif

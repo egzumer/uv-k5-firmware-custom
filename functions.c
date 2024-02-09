@@ -57,8 +57,8 @@ void FUNCTION_Init(void)
 
 	g_SquelchLost      = false;
 
-	gFlagTailNoteEliminationComplete   = false;
-	gTailNoteEliminationCountdown_10ms = 0;
+	gFlagTailToneEliminationComplete   = false;
+	gTailToneEliminationCountdown_10ms = 0;
 	gFoundCTCSS                        = false;
 	gFoundCDCSS                        = false;
 	gFoundCTCSSCountdown_10ms          = 0;

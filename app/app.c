@@ -241,14 +241,12 @@ static void HandleReceive(void)
 
 	uint8_t Mode = END_OF_RX_MODE_SKIP;
 
-	if (gFlagTailNoteEliminationComplete)
-	{
+	if (gFlagTailToneEliminationComplete) {
 		Mode = END_OF_RX_MODE_END;
 		goto Skip;
 	}
 
-	if (gScanStateDir != SCAN_OFF && IS_FREQ_CHANNEL(gNextMrChannel))
-	{ // we are scanning in the frequency mode
+	if (gScanStateDir != SCAN_OFF && IS_FREQ_CHANNEL(gNextMrChannel)) { // we are scanning in the frequency mode
 		if (g_SquelchLost)
 			return;
 
@@ -256,15 +254,13 @@ static void HandleReceive(void)
 		goto Skip;
 	}
 
-	switch (gCurrentCodeType)
-	{
+	switch (gCurrentCodeType) {
 		default:
 		case CODE_TYPE_OFF:
 			break;
 
 		case CODE_TYPE_CONTINUOUS_TONE:
-			if (gFoundCTCSS && gFoundCTCSSCountdown_10ms == 0)
-			{
+			if (gFoundCTCSS && gFoundCTCSSCountdown_10ms == 0) {
 				gFoundCTCSS = false;
 				gFoundCDCSS = false;
 				Mode        = END_OF_RX_MODE_END;
@@ -274,8 +270,7 @@ static void HandleReceive(void)
 
 		case CODE_TYPE_DIGITAL:
 		case CODE_TYPE_REVERSE_DIGITAL:
-			if (gFoundCDCSS && gFoundCDCSSCountdown_10ms == 0)
-			{
+			if (gFoundCDCSS && gFoundCDCSSCountdown_10ms == 0) {
 				gFoundCTCSS = false;
 				gFoundCDCSS = false;
 				Mode        = END_OF_RX_MODE_END;
@@ -284,21 +279,16 @@ static void HandleReceive(void)
 			break;
 	}
 
-	if (g_SquelchLost)
-	{
-		#ifdef ENABLE_NOAA
-			if (!gEndOfRxDetectedMaybe && !IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
-		#else
-			if (!gEndOfRxDetectedMaybe)
-		#endif
-		{
-			switch (gCurrentCodeType)
-			{
+	if (g_SquelchLost) {
+		if (!gEndOfRxDetectedMaybe
+#ifdef ENABLE_NOAA
+		&& !IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE)
+#endif
+		) {
+			switch (gCurrentCodeType) {
 				case CODE_TYPE_OFF:
-					if (gEeprom.SQUELCH_LEVEL)
-					{
-						if (g_CxCSS_TAIL_Found)
-						{
+					if (gEeprom.SQUELCH_LEVEL) {
+						if (g_CxCSS_TAIL_Found) {
 							Mode               = END_OF_RX_MODE_TTE;
 							g_CxCSS_TAIL_Found = false;
 						}
@@ -306,19 +296,15 @@ static void HandleReceive(void)
 					break;
 
 				case CODE_TYPE_CONTINUOUS_TONE:
-					if (g_CTCSS_Lost)
-					{
+					if (g_CTCSS_Lost) {
 						gFoundCTCSS = false;
 					}
-					else
-					if (!gFoundCTCSS)
-					{
+					else if (!gFoundCTCSS) {
 						gFoundCTCSS               = true;
 						gFoundCTCSSCountdown_10ms = 100;   // 1 sec
 					}
 
-					if (g_CxCSS_TAIL_Found)
-					{
+					if (g_CxCSS_TAIL_Found) {
 						Mode               = END_OF_RX_MODE_TTE;
 						g_CxCSS_TAIL_Found = false;
 					}
@@ -326,19 +312,15 @@ static void HandleReceive(void)
 
 				case CODE_TYPE_DIGITAL:
 				case CODE_TYPE_REVERSE_DIGITAL:
-					if (g_CDCSS_Lost && gCDCSSCodeType == CDCSS_POSITIVE_CODE)
-					{
+					if (g_CDCSS_Lost && gCDCSSCodeType == CDCSS_POSITIVE_CODE) {
 						gFoundCDCSS = false;
 					}
-					else
-					if (!gFoundCDCSS)
-					{
+					else if (!gFoundCDCSS) {
 						gFoundCDCSS               = true;
 						gFoundCDCSSCountdown_10ms = 100;   // 1 sec
 					}
 
-					if (g_CxCSS_TAIL_Found)
-					{
+					if (g_CxCSS_TAIL_Found) {
 						if (BK4819_GetCTCType() == 1)
 							Mode = END_OF_RX_MODE_TTE;
 
@@ -356,32 +338,28 @@ static void HandleReceive(void)
 	     Mode == END_OF_RX_MODE_SKIP   &&
 	     gNextTimeslice40ms            &&
 	     gEeprom.TAIL_TONE_ELIMINATION &&
-	    (gCurrentCodeType == CODE_TYPE_DIGITAL || gCurrentCodeType == CODE_TYPE_REVERSE_DIGITAL) &&
+	     (gCurrentCodeType == CODE_TYPE_DIGITAL || gCurrentCodeType == CODE_TYPE_REVERSE_DIGITAL) &&
 	     BK4819_GetCTCType() == 1)
 		Mode = END_OF_RX_MODE_TTE;
 	else
 		gNextTimeslice40ms = false;
 
 Skip:
-	switch (Mode)
-	{
+	switch (Mode) {
 		case END_OF_RX_MODE_SKIP:
 			break;
 
 		case END_OF_RX_MODE_END:
 			RADIO_SetupRegisters(true);
 
-			#ifdef ENABLE_NOAA
-				if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
-					gNOAACountdown_10ms = 300;         // 3 sec
-			#endif
-
+#ifdef ENABLE_NOAA
+			if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
+				gNOAACountdown_10ms = 300;         // 3 sec
+#endif
 			gUpdateDisplay = true;
 
-			if (gScanStateDir != SCAN_OFF)
-			{
-				switch (gEeprom.SCAN_RESUME_MODE)
-				{
+			if (gScanStateDir != SCAN_OFF) {
+				switch (gEeprom.SCAN_RESUME_MODE) {
 					case SCAN_RESUME_TO:
 						break;
 
@@ -399,12 +377,11 @@ Skip:
 			break;
 
 		case END_OF_RX_MODE_TTE:
-			if (gEeprom.TAIL_TONE_ELIMINATION)
-			{
+			if (gEeprom.TAIL_TONE_ELIMINATION) {
 				AUDIO_AudioPathOff();
 
-				gTailNoteEliminationCountdown_10ms = 20;
-				gFlagTailNoteEliminationComplete   = false;
+				gTailToneEliminationCountdown_10ms = 20;
+				gFlagTailToneEliminationComplete   = false;
 				gEndOfRxDetectedMaybe = true;
 				gEnableSpeaker        = false;
 			}
@@ -1196,7 +1173,8 @@ void APP_TimeSlice10ms(void)
 				if (gAlarmState == ALARM_STATE_TXALARM) {
 					gAlarmState = ALARM_STATE_SITE_ALARM;
 
-					RADIO_EnableCxCSS();
+					if(gEeprom.TAIL_TONE_ELIMINATION)
+						RADIO_SendCssTail();
 					BK4819_SetupPowerAmplifier(0, 0);
 					BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_PA_ENABLE, false);
 					BK4819_Enable_AfDac_DiscMode_TxDsp();

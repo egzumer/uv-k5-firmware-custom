@@ -205,7 +205,7 @@ extern volatile bool         gNextTimeslice_500ms;
 extern volatile uint16_t     gTxTimerCountdown_500ms;
 extern volatile bool         gTxTimeoutReached;
 
-extern volatile uint16_t     gTailNoteEliminationCountdown_10ms;
+extern volatile uint16_t     gTailToneEliminationCountdown_10ms;
 
 #ifdef ENABLE_NOAA
 	extern volatile uint16_t gNOAA_Countdown_10ms;
@@ -315,7 +315,7 @@ extern volatile bool         gNextTimeslice40ms;
 	extern volatile uint16_t gNOAACountdown_10ms;
 	extern volatile bool     gScheduleNOAA;
 #endif
-extern volatile bool         gFlagTailNoteEliminationComplete;
+extern volatile bool         gFlagTailToneEliminationComplete;
 extern volatile uint8_t      gVFOStateResumeCountdown_500ms;
 #ifdef ENABLE_FMRADIO
 	extern volatile bool     gScheduleFM;

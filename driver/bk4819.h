@@ -132,8 +132,8 @@ void     BK4819_PlayDTMFString(const char *pString, bool bDelayFirst, uint16_t F
 void     BK4819_TransmitTone(bool bLocalLoopback, uint32_t Frequency);
 
 void     BK4819_GenTail(uint8_t Tail);
-void     BK4819_EnableCDCSS(void);
-void     BK4819_EnableCTCSS(void);
+void     BK4819_PlayCDCSSTail(void);
+void     BK4819_PlayCTCSSTail(void);
 
 uint16_t BK4819_GetRSSI(void);
 int8_t   BK4819_GetRxGain_dB(void);
