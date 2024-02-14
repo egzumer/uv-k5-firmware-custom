@@ -395,7 +395,7 @@ void MENU_AcceptSetting(void)
 
 		case MENU_STEP:
 			gTxVfo->STEP_SETTING = FREQUENCY_GetStepIdxFromSortedIdx(gSubMenuSelection);
-			if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
+			if (IS_VFO_CHANNEL(gTxVfo->CHANNEL_SAVE))
 			{
 				gRequestSaveChannel = 1;
 				return;
@@ -1166,7 +1166,7 @@ void MENU_ShowCurrentSetting(void)
 
 static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
-	uint8_t  Offset;
+	channel_t  Offset;
 	int32_t  Min;
 	int32_t  Max;
 	uint16_t Value = 0;

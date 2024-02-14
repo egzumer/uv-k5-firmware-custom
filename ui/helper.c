@@ -27,7 +27,7 @@
 	#define ARRAY_SIZE(arr) (sizeof(arr)/sizeof((arr)[0]))
 #endif
 
-void UI_GenerateChannelString(char *pString, const uint8_t Channel)
+void UI_GenerateChannelString(char *pString, const channel_t Channel)
 {
 	unsigned int i;
 
@@ -44,7 +44,7 @@ void UI_GenerateChannelString(char *pString, const uint8_t Channel)
 		pString[i + 3] = (gInputBox[i] == 10) ? '-' : gInputBox[i] + '0';
 }
 
-void UI_GenerateChannelStringEx(char *pString, const bool bShowPrefix, const uint8_t ChannelNumber)
+void UI_GenerateChannelStringEx(char *pString, const bool bShowPrefix, const channel_t ChannelNumber)
 {
 	if (gInputBoxIndex > 0) {
 		for (unsigned int i = 0; i < 3; i++) {
@@ -58,7 +58,7 @@ void UI_GenerateChannelStringEx(char *pString, const bool bShowPrefix, const uin
 	if (bShowPrefix) {
 		// BUG here? Prefixed NULLs are allowed
 		sprintf(pString, "CH-%03u", ChannelNumber + 1);
-	} else if (ChannelNumber == 0xFF) {
+	} else if (ChannelNumber == MAX_CHANNEL) {
 		strcpy(pString, "NULL");
 	} else {
 		sprintf(pString, "%03u", ChannelNumber + 1);

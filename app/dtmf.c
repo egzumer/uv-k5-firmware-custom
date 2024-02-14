@@ -139,7 +139,7 @@ bool DTMF_GetContact(const int Index, char *pContact)
 		return false;
 	}
 
-	EEPROM_ReadBuffer(0x1C00 + (Index * 16), pContact, 16);
+	EEPROM_ReadBuffer(EEPROM_DTMF_CONTACT_OFF + (Index * 16), pContact, 16);
 
 	// check whether the first character is printable or not
 	return (pContact[0] >= ' ' && pContact[0] < 127);

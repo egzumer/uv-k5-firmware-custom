@@ -69,7 +69,7 @@ void CHFRSCANNER_Start(const bool storeBackupSettings, const int8_t scan_directi
 
 void CHFRSCANNER_ContinueScanning(void)
 {
-	if (IS_FREQ_CHANNEL(gNextMrChannel))
+	if (IS_VFO_CHANNEL(gNextMrChannel))
 	{
 		if (gCurrentFunction == FUNCTION_INCOMING)
 			APP_StartListening(gMonitor ? FUNCTION_MONITOR : FUNCTION_RECEIVE);

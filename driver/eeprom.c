@@ -20,6 +20,7 @@
 #include "driver/eeprom.h"
 #include "driver/i2c.h"
 #include "driver/system.h"
+#include "misc.h"
 
 void EEPROM_ReadBuffer(uint16_t Address, void *pBuffer, uint8_t Size)
 {
@@ -41,7 +42,7 @@ void EEPROM_ReadBuffer(uint16_t Address, void *pBuffer, uint8_t Size)
 
 void EEPROM_WriteBuffer(uint16_t Address, const void *pBuffer)
 {
-	if (pBuffer == NULL || Address >= 0x2000)
+	if (pBuffer == NULL || Address >= EEPROM_SIZE)
 		return;
 
 

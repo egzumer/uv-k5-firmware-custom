@@ -207,7 +207,7 @@ void Main(void)
 				AUDIO_SetVoiceID(1, VOICE_ID_CHANNEL_MODE);
 				AUDIO_SetDigitVoice(2, Channel + 1);
 			}
-			else if (IS_FREQ_CHANNEL(Channel))
+			else if (IS_VFO_CHANNEL(Channel))
 				AUDIO_SetVoiceID(1, VOICE_ID_FREQUENCY_MODE);
 
 			AUDIO_PlaySingleVoice(0);

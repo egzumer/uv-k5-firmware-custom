@@ -246,7 +246,7 @@ static void HandleReceive(void)
 		goto Skip;
 	}
 
-	if (gScanStateDir != SCAN_OFF && IS_FREQ_CHANNEL(gNextMrChannel)) { // we are scanning in the frequency mode
+	if (gScanStateDir != SCAN_OFF && IS_VFO_CHANNEL(gNextMrChannel)) { // we are scanning in the frequency mode
 		if (g_SquelchLost)
 			return;
 
