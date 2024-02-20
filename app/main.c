@@ -43,6 +43,9 @@
 #include "ui/ui.h"
 #include <stdlib.h>
 
+
+
+
 void toggle_chan_scanlist(void)
 {	// toggle the selected channels scanlist setting
 
@@ -58,18 +61,15 @@ void toggle_chan_scanlist(void)
 #endif
 		return;
 	}
-	
-	if (gTxVfo->SCANLIST1_PARTICIPATION ^ gTxVfo->SCANLIST2_PARTICIPATION){
-		gTxVfo->SCANLIST2_PARTICIPATION = gTxVfo->SCANLIST1_PARTICIPATION;
-	} else {
-		gTxVfo->SCANLIST1_PARTICIPATION = !gTxVfo->SCANLIST1_PARTICIPATION;
-	}
 
 	SETTINGS_UpdateChannel(gTxVfo->CHANNEL_SAVE, gTxVfo, true);
 
 	gVfoConfigureMode = VFO_CONFIGURE;
 	gFlagResetVfos    = true;
 }
+
+
+
 
 static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 {
@@ -233,7 +233,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			break;
 
 		case KEY_9:
-			if (RADIO_CheckValidChannel(gEeprom.CHAN_1_CALL, false, 0)) {
+			if (RADIO_CheckValidChannel(gEeprom.CHAN_1_CALL, false, 10)) {
 				gEeprom.MrChannel[Vfo]     = gEeprom.CHAN_1_CALL;
 				gEeprom.ScreenChannel[Vfo] = gEeprom.CHAN_1_CALL;
 #ifdef ENABLE_VOICE
@@ -260,6 +260,10 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 	}
 }
 
+
+
+
+// Function to run when a digit (0-9) is pressed.  Key is the number of the key pressed, bKeyPressed whether it had been pressed??, bKeyHeld is if the key has been held down
 static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
 	if (bKeyHeld) { // key held down
@@ -305,7 +309,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			const uint16_t Channel = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
 
-			if (!RADIO_CheckValidChannel(Channel, false, 0)) {
+			if (!RADIO_CheckValidChannel(Channel, false, 10)) {
 				gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 				return;
 			}
@@ -417,6 +421,9 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	processFKeyFunction(Key, true);
 }
 
+
+
+
 static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 {
 	if (!bKeyHeld && bKeyPressed) { // exit key pressed
@@ -479,6 +486,9 @@ static void MAIN_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 	}
 }
 
+
+
+
 static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 {
 	if (bKeyPressed && !bKeyHeld) // menu key pressed
@@ -526,6 +536,9 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		}
 	}
 }
+
+
+
 
 static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 {
@@ -597,6 +610,9 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 	gPttWasReleased = true;
 	gUpdateStatus   = true;
 }
+
+
+
 
 static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 {
@@ -680,6 +696,9 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 
 	gPttWasReleased = true;
 }
+
+
+
 
 void MAIN_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {

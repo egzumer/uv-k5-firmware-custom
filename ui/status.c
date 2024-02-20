@@ -34,6 +34,9 @@
 #include "ui/ui.h"
 #include "ui/status.h"
 
+
+
+
 void UI_DisplayStatus()
 {
 	gUpdateStatus = false;
@@ -80,20 +83,25 @@ void UI_DisplayStatus()
 #endif
 	{ // SCAN indicator
 		if (gScanStateDir != SCAN_OFF || SCANNER_IsScanning()) {
-			char * s = "";
+//			char * s = "";
+			char s[11];
+			sprintf(s, "");
 			if (IS_MR_CHANNEL(gNextMrChannel) && !SCANNER_IsScanning()) { // channel mode
-				switch(gEeprom.SCAN_LIST_DEFAULT) {
-					case 0: s = "1"; break;
-					case 1: s = "2"; break;
-					case 2: s = "C"; break;
-					case 3: s = "L"; break;
-					case 4: s = "N"; break;
+				for (uint8_t i = 0; i < 10; i++)
+				{
+					if(currentScanList == i)
+					{
+						if (gEeprom.SCAN_LISTS[i]) { s[i] = i + '0'; } // If the currentScanList is enabled, show the number
+						else { s[i] = '-'; } // Otherwise, show a hyphen (When ChanScanning it loops all lists then stops, leaving currentScanList populated)
+					}
+					else { s[i] = gEeprom.SCAN_LISTS[i] ? '*' : '-'; } // show an asterisk if it's enabled, or a hyphen if not
 				}
 			}
 			else {	// frequency mode
-				s = "S";
+				s[3] = 'S';
 			}
-			UI_PrintStringSmallBufferNormal(s, line + x + 1);
+			s[10] = '\0'; // terminate the string
+			UI_PrintStringSmallBufferNormal(s, line + x + 1 - 9); // Added -9 to move it to the far left
 			x1 = x + 10;
 		}
 	}
@@ -113,8 +121,8 @@ void UI_DisplayStatus()
 		if(dw == 1 || dw == 3) { // DWR - dual watch + respond
 			if(gDualWatchActive)
 				memcpy(line + x + (dw==1?0:2), BITMAP_TDR1, sizeof(BITMAP_TDR1) - (dw==1?0:5));
-			else
-				memcpy(line + x + 3, BITMAP_TDR2, sizeof(BITMAP_TDR2));
+//			else // Show the Dual Watch Paused image, but it'll cover the scan numbers
+//				memcpy(line + x + 3, BITMAP_TDR2, sizeof(BITMAP_TDR2));
 		}
 		else if(dw == 2) { // XB - crossband
 			memcpy(line + x + 2, BITMAP_XB, sizeof(BITMAP_XB));

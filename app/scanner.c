@@ -27,6 +27,7 @@
 #include "settings.h"
 #include "ui/inputbox.h"
 #include "ui/ui.h"
+#include "driver/system.h"
 
 DCS_CodeType_t    gScanCssResultType;
 uint8_t           gScanCssResultCode;
@@ -40,6 +41,8 @@ bool              gScanUseCssResult;
 
 STEP_Setting_t    stepSetting;
 uint8_t           scanHitCount;
+
+
 
 
 static void SCANNER_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
@@ -67,7 +70,7 @@ static void SCANNER_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 #ifdef ENABLE_VOICE
 				gAnotherVoiceID = (VOICE_ID_t)Key;
 #endif
-				gShowChPrefix = RADIO_CheckValidChannel(chan, false, 0);
+				gShowChPrefix = RADIO_CheckValidChannel(chan, false, 10);
 				gScanChannel  = (uint8_t)chan;
 				return;
 			}
@@ -76,6 +79,9 @@ static void SCANNER_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 	}
 }
+
+
+
 
 static void SCANNER_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 {
@@ -107,6 +113,9 @@ static void SCANNER_Key_EXIT(bool bKeyPressed, bool bKeyHeld)
 		}
 	}
 }
+
+
+
 
 static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 {
@@ -153,7 +162,7 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 			if (IS_MR_CHANNEL(gTxVfo->CHANNEL_SAVE)) {
 				gScannerSaveState = SCAN_SAVE_CHAN_SEL;
 				gScanChannel      = gTxVfo->CHANNEL_SAVE;
-				gShowChPrefix     = RADIO_CheckValidChannel(gTxVfo->CHANNEL_SAVE, false, 0);
+				gShowChPrefix     = RADIO_CheckValidChannel(gTxVfo->CHANNEL_SAVE, false, 10);
 			}
 			else {
 				gScannerSaveState = SCAN_SAVE_CHANNEL;
@@ -224,6 +233,9 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 	}
 }
 
+
+
+
 static void SCANNER_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 {
 	if (!bKeyHeld && bKeyPressed) {
@@ -232,6 +244,9 @@ static void SCANNER_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 	}
 	return;
 }
+
+
+
 
 static void SCANNER_Key_UP_DOWN(bool bKeyPressed, bool pKeyHeld, int8_t Direction)
 {
@@ -249,12 +264,15 @@ static void SCANNER_Key_UP_DOWN(bool bKeyPressed, bool pKeyHeld, int8_t Directio
 
 	if (gScannerSaveState == SCAN_SAVE_CHAN_SEL) {
 		gScanChannel          = NUMBER_AddWithWraparound(gScanChannel, Direction, 0, MR_CHANNEL_LAST);
-		gShowChPrefix         = RADIO_CheckValidChannel(gScanChannel, false, 0);
+		gShowChPrefix         = RADIO_CheckValidChannel(gScanChannel, false, 10);
 		gRequestDisplayScreen = DISPLAY_SCANNER;
 	}
 	else
 		gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 }
+
+
+
 
 void SCANNER_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
@@ -295,6 +313,9 @@ void SCANNER_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			break;
 	}
 }
+
+
+
 
 void SCANNER_Start(bool singleFreq)
 {
@@ -368,6 +389,9 @@ void SCANNER_Start(bool singleFreq)
 	gScanProgressIndicator = 0;
 }
 
+
+
+
 void SCANNER_Stop(void)
 {
 	if(SCANNER_IsScanning()) {
@@ -383,6 +407,9 @@ void SCANNER_Stop(void)
 		BK4819_StopScan();
 	}
 }
+
+
+
 
 void SCANNER_TimeSlice10ms(void)
 {
@@ -501,6 +528,9 @@ void SCANNER_TimeSlice10ms(void)
 
 }
 
+
+
+
 void SCANNER_TimeSlice500ms(void)
 {
 	if (SCANNER_IsScanning() && gScannerSaveState == SCAN_SAVE_NO_PROMPT && gScanCssState < SCAN_CSS_STATE_FOUND) {
@@ -521,6 +551,9 @@ void SCANNER_TimeSlice500ms(void)
 		gUpdateDisplay = true;
 	}
 }
+
+
+
 
 bool SCANNER_IsScanning(void)
 {

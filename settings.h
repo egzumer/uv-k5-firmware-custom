@@ -169,10 +169,9 @@ typedef struct {
 	uint8_t               BATTERY_SAVE;
 	uint8_t               BACKLIGHT_TIME;
 	uint8_t               SCAN_RESUME_MODE;
-	uint8_t               SCAN_LIST_DEFAULT;
-	bool                  SCAN_LIST_ENABLED[2];
-	uint8_t               SCANLIST_PRIORITY_CH1[2];
-	uint8_t               SCANLIST_PRIORITY_CH2[2];
+
+	bool                  SCAN_LISTS[16]; //AUBS-Added for scanlist number (for lists 0123456789) we only need 10, but to fill 2 bytes, we use 16 bits
+	bool                  SCAN_ON_START; //AUBS-Added defines if the radio should automatically start scanning on start (not yet implemented)
 
 	uint8_t               field29_0x26;
 	uint8_t               field30_0x27;
@@ -269,6 +268,7 @@ void SETTINGS_SaveChannelName(uint8_t channel, const char * name);
 void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, uint8_t Mode);
 void SETTINGS_SaveBatteryCalibration(const uint16_t * batteryCalibration);
 void SETTINGS_UpdateChannel(uint8_t channel, const VFO_Info_t *pVFO, bool keep);
+void SETTINGS_SaveChannelLists(uint8_t channel,bool ClearList);
 void SETTINGS_WriteBuildOptions(void);
 
 #endif

@@ -55,6 +55,9 @@ inline static void ACTION_1750() { ACTION_AlarmOr1750(true); };
 
 inline static void ACTION_ScanRestart() { ACTION_Scan(true); };
 
+
+
+
 void (*action_opt_table[])(void) = {
 	[ACTION_OPT_NONE] = &FUNCTION_NOP,
 	[ACTION_OPT_POWER] = &ACTION_Power,
@@ -104,6 +107,9 @@ void (*action_opt_table[])(void) = {
 
 static_assert(ARRAY_SIZE(action_opt_table) == ACTION_OPT_LEN);
 
+
+
+
 void ACTION_Power(void)
 {
 	if (++gTxVfo->OUTPUT_POWER > OUTPUT_POWER_HIGH)
@@ -118,6 +124,9 @@ void ACTION_Power(void)
 #endif
 
 }
+
+
+
 
 void ACTION_Monitor(void)
 {
@@ -158,6 +167,9 @@ void ACTION_Monitor(void)
 #endif
 		gRequestDisplayScreen = gScreenToDisplay;
 }
+
+
+
 
 void ACTION_Scan(bool bRestart)
 {
@@ -204,18 +216,6 @@ void ACTION_Scan(bool bRestart)
 			return;
 		}
 
-		// channel mode. Keep scanning but toggle between scan lists
-		gEeprom.SCAN_LIST_DEFAULT = (gEeprom.SCAN_LIST_DEFAULT + 1) % 5;
-		/*
-		This is the toggle to change the scan level while it is currently scanning
-		SCAN_LIST_DEFAULT + 1 can be L1:0+1=1 or L2:1+1=2, or ALL CHANNELS:2+1=3, or the new ALL LISTS:3+1=4, and NO LISTS:4+1=5
-		If it is L1(0), it will return 1 [L2]
-		If it is L2(1), it will return 2 [ALL CHANNELS]
-		If it is ALL CHANNELS(2), it'll return 3 [ALL LISTS]
-		If it is ALL LISTS(3), it'll return 4 [NO LISTS]
-		If it is NO LISTS(4), it'll return 0 (L1)
-		*/
-
 		// jump to the next channel
 		CHFRSCANNER_Start(false, gScanStateDir);
 		gScanPauseDelayIn_10ms = 1;
@@ -240,6 +240,8 @@ void ACTION_Scan(bool bRestart)
 }
 
 
+
+
 void ACTION_SwitchDemodul(void)
 {
 	gRequestSaveChannel = 1;
@@ -249,6 +251,8 @@ void ACTION_SwitchDemodul(void)
 	if(gTxVfo->Modulation == MODULATION_UKNOWN)
 		gTxVfo->Modulation = MODULATION_FM;
 }
+
+
 
 
 void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
@@ -324,6 +328,8 @@ void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 }
 
 
+
+
 #ifdef ENABLE_FMRADIO
 void ACTION_FM(void)
 {
@@ -352,6 +358,9 @@ void ACTION_FM(void)
 		gRequestDisplayScreen = DISPLAY_FM;
 	}
 }
+
+
+
 
 static void ACTION_Scan_FM(bool bRestart)
 {
@@ -392,8 +401,9 @@ static void ACTION_Scan_FM(bool bRestart)
 #endif
 
 }
-
 #endif
+
+
 
 
 #if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
@@ -421,9 +431,10 @@ static void ACTION_AlarmOr1750(const bool b1750)
 	if (gScreenToDisplay != DISPLAY_MENU)     // 1of11 .. don't close the menu
 		gRequestDisplayScreen = DISPLAY_MAIN;
 }
-
-
 #endif
+
+
+
 
 #ifdef ENABLE_VOX
 void ACTION_Vox(void)
@@ -438,6 +449,9 @@ void ACTION_Vox(void)
 	#endif
 }
 #endif
+
+
+
 
 #ifdef ENABLE_BLMIN_TMP_OFF
 void ACTION_BlminTmpOff(void)

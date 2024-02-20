@@ -516,13 +516,14 @@ void UI_DisplayMain(void)
 			if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 			{	// it's a channel
 
+/* AUBS-Removed - We need to find a way to add the current channel's lists.  Maybe top right like scanning?
 				// show the scan list assigment symbols
 				const ChannelAttributes_t att = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
 				if (att.scanlist1)
 					memcpy(p_line0 + 113, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
 				if (att.scanlist2)
 					memcpy(p_line0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
-
+*/
 				// compander symbol
 #ifndef ENABLE_BIG_FREQ
 				if (att.compander)

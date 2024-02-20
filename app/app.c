@@ -79,6 +79,8 @@ static bool flagSaveChannel;
 static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
 
+
+
 void (*ProcessKeysFunctions[])(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) = {
 	[DISPLAY_MAIN] = &MAIN_ProcessKeys,
 	[DISPLAY_MENU] = &MENU_ProcessKeys,
@@ -94,6 +96,7 @@ void (*ProcessKeysFunctions[])(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld) 
 };
 
 static_assert(ARRAY_SIZE(ProcessKeysFunctions) == DISPLAY_N_ELEM);
+
 
 
 
@@ -170,6 +173,9 @@ static void CheckForIncoming(void)
 	}
 }
 
+
+
+
 static void HandleIncoming(void)
 {
 	if (!g_SquelchLost) {	// squelch is closed
@@ -232,6 +238,9 @@ static void HandleIncoming(void)
 
 	APP_StartListening(gMonitor ? FUNCTION_MONITOR : FUNCTION_RECEIVE);
 }
+
+
+
 
 static void HandleReceive(void)
 {
@@ -335,11 +344,11 @@ static void HandleReceive(void)
 		Mode = END_OF_RX_MODE_END;
 
 	if (!gEndOfRxDetectedMaybe         &&
-	     Mode == END_OF_RX_MODE_SKIP   &&
-	     gNextTimeslice40ms            &&
-	     gEeprom.TAIL_TONE_ELIMINATION &&
-	     (gCurrentCodeType == CODE_TYPE_DIGITAL || gCurrentCodeType == CODE_TYPE_REVERSE_DIGITAL) &&
-	     BK4819_GetCTCType() == 1)
+		Mode == END_OF_RX_MODE_SKIP   &&
+		gNextTimeslice40ms            &&
+		gEeprom.TAIL_TONE_ELIMINATION &&
+		(gCurrentCodeType == CODE_TYPE_DIGITAL || gCurrentCodeType == CODE_TYPE_REVERSE_DIGITAL) &&
+		BK4819_GetCTCType() == 1)
 		Mode = END_OF_RX_MODE_TTE;
 	else
 		gNextTimeslice40ms = false;
@@ -389,12 +398,18 @@ Skip:
 	}
 }
 
+
+
+
 static void HandlePowerSave()
 {
 	if (!gRxIdleMode) {
 		CheckForIncoming();
 	}
 }
+
+
+
 
 static void (*HandleFunction_fn_table[])(void) = {
 	[FUNCTION_FOREGROUND] = &CheckForIncoming,
@@ -406,12 +421,18 @@ static void (*HandleFunction_fn_table[])(void) = {
 	[FUNCTION_BAND_SCOPE] = &FUNCTION_NOP,
 };
 
+
+
+
 static_assert(ARRAY_SIZE(HandleFunction_fn_table) == FUNCTION_N_ELEM);
 
 static void HandleFunction(void)
 {
 	HandleFunction_fn_table[gCurrentFunction]();
 }
+
+
+
 
 void APP_StartListening(FUNCTION_Type_t function)
 {
@@ -496,6 +517,9 @@ void APP_StartListening(FUNCTION_Type_t function)
 	gUpdateStatus = true;
 }
 
+
+
+
 uint32_t APP_SetFreqByStepAndLimits(VFO_Info_t *pInfo, int8_t direction, uint32_t lower, uint32_t upper)
 {
 	uint32_t Frequency = FREQUENCY_RoundToStep(pInfo->freq_config_RX.Frequency + (direction * pInfo->StepFrequency), pInfo->StepFrequency);
@@ -508,10 +532,16 @@ uint32_t APP_SetFreqByStepAndLimits(VFO_Info_t *pInfo, int8_t direction, uint32_
 	return Frequency;
 }
 
+
+
+
 uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t direction)
 {
 	return APP_SetFreqByStepAndLimits(pInfo, direction, frequencyBandTable[pInfo->Band].lower, frequencyBandTable[pInfo->Band].upper);
 }
+
+
+
 
 #ifdef ENABLE_NOAA
 	static void NOAA_IncreaseChannel(void)
@@ -520,6 +550,9 @@ uint32_t APP_SetFrequencyByStep(VFO_Info_t *pInfo, int8_t direction)
 			gNoaaChannel = 0;
 	}
 #endif
+
+
+
 
 static void DualwatchAlternate(void)
 {
@@ -557,6 +590,9 @@ static void DualwatchAlternate(void)
 		gDualWatchCountdown_10ms = dual_watch_count_toggle_10ms;
 	#endif
 }
+
+
+
 
 static void CheckRadioInterrupts(void)
 {
@@ -706,6 +742,9 @@ static void CheckRadioInterrupts(void)
 	}
 }
 
+
+
+
 void APP_EndTransmission(void)
 {
 	// back to RX mode
@@ -718,6 +757,9 @@ void APP_EndTransmission(void)
 		gFlagReconfigureVfos = true;
 	}
 }
+
+
+
 
 #ifdef ENABLE_VOX
 static void HandleVox(void)
@@ -792,6 +834,9 @@ static void HandleVox(void)
 	}
 }
 #endif
+
+
+
 
 void APP_Update(void)
 {
@@ -935,8 +980,8 @@ void APP_Update(void)
 #endif
 
 			if (gEeprom.DUAL_WATCH != DUAL_WATCH_OFF &&
-			    gScanStateDir == SCAN_OFF &&
-			    !gCssBackgroundScan)
+				gScanStateDir == SCAN_OFF &&
+				!gCssBackgroundScan)
 			{	// dual watch mode, toggle between the two VFO's
 				DualwatchAlternate();
 				goToSleep = false;
@@ -972,6 +1017,10 @@ void APP_Update(void)
 		gPowerSaveCountdownExpired = false;
 	}
 }
+
+
+
+
 
 // called every 10ms
 static void CheckKeys(void)
@@ -1084,6 +1133,9 @@ static void CheckKeys(void)
 		gDebounceCounter = key_repeat_delay_10ms+1;
 	}
 }
+
+
+
 
 void APP_TimeSlice10ms(void)
 {
@@ -1234,6 +1286,9 @@ void APP_TimeSlice10ms(void)
 	CheckKeys();
 }
 
+
+
+
 void cancelUserInputModes(void)
 {
 	if (gDTMF_InputMode || gDTMF_InputBox_Index > 0)
@@ -1254,6 +1309,9 @@ void cancelUserInputModes(void)
 		gUpdateDisplay      = true;
 	}
 }
+
+
+
 
 // this is called once every 500ms
 void APP_TimeSlice500ms(void)
@@ -1485,6 +1543,9 @@ void APP_TimeSlice500ms(void)
 #endif
 }
 
+
+
+
 #if defined(ENABLE_ALARM) || defined(ENABLE_TX1750)
 static void ALARM_Off(void)
 {
@@ -1509,6 +1570,9 @@ static void ALARM_Off(void)
 		gRequestDisplayScreen = DISPLAY_MAIN;
 }
 #endif
+
+
+
 
 static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
@@ -1640,6 +1704,16 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 			gUpdateDisplay = true;
 			return;
 		}
+	}
+
+	if (Key <= KEY_9 && bKeyPressed && gScanStateDir != SCAN_OFF) // Memory Channel Scanning, so toggle the scan list and save
+	{
+		gEeprom.SCAN_LISTS[Key] = !gEeprom.SCAN_LISTS[Key];
+		SETTINGS_SaveActiveLists();
+		BK4819_ToggleGpioOut(((gEeprom.SCAN_LISTS[Key])?BK4819_GPIO6_PIN2_GREEN:BK4819_GPIO5_PIN1_RED), true);
+		SYSTEM_DelayMs(100);
+		BK4819_ToggleGpioOut(((gEeprom.SCAN_LISTS[Key])?BK4819_GPIO6_PIN2_GREEN:BK4819_GPIO5_PIN1_RED), false);
+		return;
 	}
 
 	if (Key <= KEY_9 || Key == KEY_F) {

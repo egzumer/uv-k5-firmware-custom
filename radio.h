@@ -33,13 +33,6 @@ enum {
 	BANDWIDTH_NARROW
 };
 
-enum {
-	VAL_SCAN_LIST1        = 0,
-	VAL_SCAN_LIST2        = 1,
-	VAL_SCAN_All_CHANNELS = 2,
-	VAL_SCAN_All_LISTS    = 3,
-	VAL_SCAN_NO_LISTS     = 4
-};
 
 enum PTT_ID_t {
 	PTT_ID_OFF = 0,    // OFF
@@ -122,9 +115,6 @@ typedef struct VFO_Info_t
 	uint8_t        SCRAMBLING_TYPE;
 	uint8_t        CHANNEL_BANDWIDTH;
 
-	uint8_t        SCANLIST1_PARTICIPATION;
-	uint8_t        SCANLIST2_PARTICIPATION;
-
 	uint8_t        Band;
 #ifdef ENABLE_DTMF_CALLING
 	uint8_t        DTMF_DECODING_ENABLE;
@@ -138,6 +128,7 @@ typedef struct VFO_Info_t
 	uint8_t        Compander;
 
 	char           Name[16];
+	bool           Lists[16];
 } VFO_Info_t;
 
 // Settings of the main VFO that is selected by the user
@@ -157,7 +148,7 @@ extern DCS_CodeType_t gCurrentCodeType;
 extern VfoState_t     VfoState[2];
 
 bool     RADIO_CheckValidChannel(uint16_t channel, bool checkScanList, uint8_t scanList);
-uint8_t  RADIO_FindNextChannel(uint8_t ChNum, int8_t Direction, bool bCheckScanList, uint8_t RadioNum);
+uint8_t  RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScanList, uint8_t ScanList);
 void     RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t Frequency);
 void     RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure);
 void     RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo);

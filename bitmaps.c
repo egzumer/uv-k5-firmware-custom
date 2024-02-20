@@ -204,20 +204,6 @@ const uint8_t BITMAP_TDR1[16] =
 	0b01000110
 };
 
-const uint8_t BITMAP_TDR2[10] =
-{	// "><" .. DW on hold
-	0b00000000,
-	0b00100010,
-	0b00110110,
-	0b00011100,
-	0b00001000,
-	0b00000000,
-	0b00001000,
-	0b00011100,
-	0b00110110,
-	0b00100010,
-};
-
 #ifdef ENABLE_VOICE
 	const uint8_t BITMAP_VoicePrompt[9] =
 	{
@@ -281,26 +267,6 @@ const uint8_t BITMAP_VFO_NotDefault[8] =
 	0b00010100,
 	0b00010100,
 	0b00001000
-};
-
-const uint8_t BITMAP_ScanList1[6] =
-{	// 'I' symbol
-	0b00000000,
-	0b00000000,
-	0b01000010,
-	0b01111110,
-	0b01000010,
-	0b00000000
-};
-
-const uint8_t BITMAP_ScanList2[6] =
-{	// 'II' symbol
-	0b00000000,
-	0b01000010,
-	0b01111110,
-	0b01000010,
-	0b01111110,
-	0b01000010
 };
 
 const uint8_t BITMAP_compand[6] =

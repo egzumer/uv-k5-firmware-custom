@@ -18,6 +18,8 @@
 #define UI_STATUS_H
 
 void UI_DisplayStatus();
+extern uint8_t currentScanList;
+
 
 #endif
 

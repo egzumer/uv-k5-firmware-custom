@@ -56,9 +56,24 @@ const char gModulationStr[MODULATION_UKNOWN][4] = {
 
 
 
+
 bool RADIO_CheckValidChannel(uint16_t channel, bool checkScanList, uint8_t scanList)
 {
-	// return true if the channel appears valid
+
+//	for (int i = 1; i <= channel+1; i++ )
+//	{
+//		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true);
+//		SYSTEM_DelayMs(200);
+//		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
+//		SYSTEM_DelayMs(200);
+//	}
+//	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, true);
+//	SYSTEM_DelayMs(200);
+//	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, false);
+//	SYSTEM_DelayMs(400);
+
+
+	(void)scanList;
 	if (!IS_MR_CHANNEL(channel))
 		return false;
 
@@ -67,25 +82,23 @@ bool RADIO_CheckValidChannel(uint16_t channel, bool checkScanList, uint8_t scanL
 	if (att.band > BAND7_470MHz)
 		return false;
 
-	if (scanList == VAL_SCAN_All_CHANNELS || !checkScanList) // If we're scanning all channels, or don't check if the channel is in a list
+//	return true;
+	// if we're just checking it is a valid channel and don't care what scanList it is in
+	if (!checkScanList)
 		return true;
-	if ((scanList == VAL_SCAN_LIST1 && att.scanlist1) || (scanList == VAL_SCAN_LIST2 && att.scanlist2)) // If the channel is in the current scanList
-		return true;
-	if (scanList == VAL_SCAN_All_LISTS && (att.scanlist1 || att.scanlist2)) // If the channel is in any scanList and we're scanning all lists
-		return true;
-	if (scanList == VAL_SCAN_NO_LISTS && !att.scanlist1 && !att.scanlist2) // If the channel is not in any scanList and we're scanning no lists
-		return true;
+	// If we're checking the scanlist, make sure the check the channel has been added to the scanlist
+	if (checkScanList)
+		if (gMR_ChannelLists[channel].List[scanList])
+			return true;
+
 	return false; // It's not a channel to scan
 
-	// We're not using priority channels, and this checks that the current channel isn't one of the priority channels, but when the
-	// priority channels are called through NextMemChannel(), they set the checkScanList to $false, which will be picked up above anyway
-	// Perhaps these don't need to be used now?
-	//const uint8_t PriorityCh1 = gEeprom.SCANLIST_PRIORITY_CH1[scanList];
-	//const uint8_t PriorityCh2 = gEeprom.SCANLIST_PRIORITY_CH2[scanList];
-	//return PriorityCh1 != channel && PriorityCh2 != channel;
 }
 
-uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScanList, uint8_t VFO)
+
+
+
+uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScanList, uint8_t ScanList)
 {
 	for (unsigned int i = 0; IS_MR_CHANNEL(i); i++, Channel += Direction) {
 		if (Channel == 0xFF) {
@@ -93,8 +106,7 @@ uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScan
 		} else if (!IS_MR_CHANNEL(Channel)) {
 			Channel = MR_CHANNEL_FIRST;
 		}
-
-		if (RADIO_CheckValidChannel(Channel, bCheckScanList, VFO)) {
+		if (RADIO_CheckValidChannel(Channel, bCheckScanList, ScanList)) {
 			return Channel;
 		}
 	}
@@ -102,13 +114,16 @@ uint8_t RADIO_FindNextChannel(uint8_t Channel, int8_t Direction, bool bCheckScan
 	return 0xFF;
 }
 
+
+
+
 void RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t Frequency)
 {
 	memset(pInfo, 0, sizeof(*pInfo));
 
 	pInfo->Band                     = FREQUENCY_GetBand(Frequency);
-	pInfo->SCANLIST1_PARTICIPATION  = false;
-	pInfo->SCANLIST2_PARTICIPATION  = false;
+//	pInfo->SCANLIST1_PARTICIPATION  = false; //AUBS-Removed
+//	pInfo->SCANLIST2_PARTICIPATION  = false; //AUBS-Removed
 	pInfo->STEP_SETTING             = STEP_12_5kHz;
 	pInfo->StepFrequency            = gStepFrequencyTable[pInfo->STEP_SETTING];
 	pInfo->CHANNEL_SAVE             = ChannelSave;
@@ -127,6 +142,9 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t
 
 	RADIO_ConfigureSquelchAndOutputPower(pInfo);
 }
+
+
+
 
 void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure)
 {
@@ -190,21 +208,21 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		band = BAND6_400MHz;
 	}
 
-	bool bParticipation1;
-	bool bParticipation2;
+//	bool bParticipation1;
+//	bool bParticipation2;
 	if (IS_MR_CHANNEL(channel)) {
-		bParticipation1 = att.scanlist1;
-		bParticipation2 = att.scanlist2;
+//		bParticipation1 = att.scanlist1; //AUBS-Removed
+//		bParticipation2 = att.scanlist2; //AUBS-Removed
 	}
 	else {
 		band = channel - FREQ_CHANNEL_FIRST;
-		bParticipation1 = true;
-		bParticipation2 = true;
+//		bParticipation1 = true;
+//		bParticipation2 = true;
 	}
 
 	pVfo->Band                    = band;
-	pVfo->SCANLIST1_PARTICIPATION = bParticipation1;
-	pVfo->SCANLIST2_PARTICIPATION = bParticipation2;
+//	pVfo->SCANLIST1_PARTICIPATION = bParticipation1; //AUBS-Removed
+//	pVfo->SCANLIST2_PARTICIPATION = bParticipation2; //AUBS-Removed
 	pVfo->CHANNEL_SAVE            = channel;
 
 	uint16_t base;
@@ -390,10 +408,11 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 	RADIO_ConfigureSquelchAndOutputPower(pVfo);
 }
 
+
+
+
 void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 {
-
-
 	// *******************************
 	// squelch
 
@@ -490,6 +509,9 @@ void RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo)
 	// *******************************
 }
 
+
+
+
 void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 {
 	uint32_t Frequency = pInfo->freq_config_RX.Frequency;
@@ -509,6 +531,9 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 	pInfo->freq_config_TX.Frequency = Frequency;
 }
 
+
+
+
 static void RADIO_SelectCurrentVfo(void)
 {
 	// if crossband is active and DW not the gCurrentVfo is gTxVfo (gTxVfo/TX_VFO is only ever changed by the user)
@@ -517,6 +542,9 @@ static void RADIO_SelectCurrentVfo(void)
 	// note: it is called only in certain situations so could be not up-to-date
  	gCurrentVfo = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF || gEeprom.DUAL_WATCH != DUAL_WATCH_OFF) ? gRxVfo : gTxVfo;
 }
+
+
+
 
 void RADIO_SelectVfos(void)
 {
@@ -528,6 +556,9 @@ void RADIO_SelectVfos(void)
 
 	RADIO_SelectCurrentVfo();
 }
+
+
+
 
 void RADIO_SetupRegisters(bool switchToForeground)
 {
@@ -759,6 +790,9 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	}
 #endif
 
+
+
+
 void RADIO_SetTxParameters(void)
 {
 	BK4819_FilterBandwidth_t Bandwidth = gCurrentVfo->CHANNEL_BANDWIDTH;
@@ -822,6 +856,9 @@ void RADIO_SetTxParameters(void)
 	}
 }
 
+
+
+
 void RADIO_SetModulation(ModulationMode_t modulation)
 {
 	BK4819_AF_Type_t mod;
@@ -856,6 +893,9 @@ void RADIO_SetModulation(ModulationMode_t modulation)
 	RADIO_SetupAGC(modulation == MODULATION_AM, false);
 }
 
+
+
+
 void RADIO_SetupAGC(bool listeningAM, bool disable)
 {
 	static uint8_t lastSettings;
@@ -884,6 +924,9 @@ void RADIO_SetupAGC(bool listeningAM, bool disable)
 	}
 }
 
+
+
+
 void RADIO_SetVfoState(VfoState_t State)
 {
 	if (State == VFO_STATE_NORMAL) {
@@ -901,6 +944,8 @@ void RADIO_SetVfoState(VfoState_t State)
 	gVFOStateResumeCountdown_500ms = (State == VFO_STATE_NORMAL) ? 0 : vfo_state_resume_countdown_500ms;
 	gUpdateDisplay = true;
 }
+
+
 
 
 void RADIO_PrepareTX(void)
@@ -1010,6 +1055,9 @@ void RADIO_PrepareTX(void)
 #endif
 }
 
+
+
+
 void RADIO_SendCssTail(void)
 {
 	switch (gCurrentVfo->pTX->CodeType) {
@@ -1025,6 +1073,9 @@ void RADIO_SendCssTail(void)
 	SYSTEM_DelayMs(200);
 }
 
+
+
+
 void RADIO_SendEndOfTransmission(void)
 {
 	BK4819_PlayRoger();
@@ -1035,6 +1086,9 @@ void RADIO_SendEndOfTransmission(void)
 		RADIO_SendCssTail();
 	RADIO_SetupRegisters(false);
 }
+
+
+
 
 void RADIO_PrepareCssTX(void)
 {
