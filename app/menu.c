@@ -1139,8 +1139,7 @@ void MENU_ShowCurrentSetting(void)
 		case MENU_F1LONG:
 		case MENU_F2SHRT:
 		case MENU_F2LONG:
-		case MENU_MLONG:
-		{
+		case MENU_MLONG: {
 			uint8_t * fun[]= {
 				&gEeprom.KEY_1_SHORT_PRESS_ACTION,
 				&gEeprom.KEY_1_LONG_PRESS_ACTION,
@@ -1202,17 +1201,14 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 	gRequestDisplayScreen = DISPLAY_MENU;
 
-	if (!gIsInSubMenu)
-	{
-		switch (gInputBoxIndex)
-		{
+	if (!gIsInSubMenu) {
+		switch (gInputBoxIndex) {
 			case 2:
 				gInputBoxIndex = 0;
 
 				Value = (gInputBox[0] * 10) + gInputBox[1];
 
-				if (Value > 0 && Value <= gMenuListCount)
-				{
+				if (Value > 0 && Value <= gMenuListCount) {
 					gMenuCursor         = Value - 1;
 					gFlagRefreshSetting = true;
 					return;
@@ -1226,8 +1222,7 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 				[[fallthrough]];
 			case 1:
 				Value = gInputBox[0];
-				if (Value > 0 && Value <= gMenuListCount)
-				{
+				if (Value > 0 && Value <= gMenuListCount) {
 					gMenuCursor         = Value - 1;
 					gFlagRefreshSetting = true;
 					return;
@@ -1241,21 +1236,19 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		return;
 	}
 
-	if (UI_MENU_GetCurrentMenuId() == MENU_OFFSET)
-	{
+	if (UI_MENU_GetCurrentMenuId() == MENU_OFFSET) {
 		uint32_t Frequency;
 
-		if (gInputBoxIndex < 6)
-		{	// invalid frequency
-			#ifdef ENABLE_VOICE
-				gAnotherVoiceID = (VOICE_ID_t)Key;
-			#endif
+		if (gInputBoxIndex < 6) { // invalid frequency
+#ifdef ENABLE_VOICE
+			gAnotherVoiceID = (VOICE_ID_t)Key;
+#endif
 			return;
 		}
 
-		#ifdef ENABLE_VOICE
-			gAnotherVoiceID = (VOICE_ID_t)Key;
-		#endif
+#ifdef ENABLE_VOICE
+		gAnotherVoiceID = (VOICE_ID_t)Key;
+#endif
 
 		Frequency = StrToUL(INPUTBOX_GetAscii())*100;
 		gSubMenuSelection = FREQUENCY_RoundToStep(Frequency, gTxVfo->StepFrequency);
@@ -1270,11 +1263,10 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		UI_MENU_GetCurrentMenuId() == MENU_MEM_NAME)
 	{	// enter 3-digit channel number
 
-		if (gInputBoxIndex < 3)
-		{
-			#ifdef ENABLE_VOICE
-				gAnotherVoiceID   = (VOICE_ID_t)Key;
-			#endif
+		if (gInputBoxIndex < 3) {
+#ifdef ENABLE_VOICE
+			gAnotherVoiceID   = (VOICE_ID_t)Key;
+#endif
 			gRequestDisplayScreen = DISPLAY_MENU;
 			return;
 		}
@@ -1283,11 +1275,10 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 		Value = ((gInputBox[0] * 100) + (gInputBox[1] * 10) + gInputBox[2]) - 1;
 
-		if (IS_MR_CHANNEL(Value))
-		{
-			#ifdef ENABLE_VOICE
-				gAnotherVoiceID = (VOICE_ID_t)Key;
-			#endif
+		if (IS_MR_CHANNEL(Value)) {
+#ifdef ENABLE_VOICE
+			gAnotherVoiceID = (VOICE_ID_t)Key;
+#endif
 			gSubMenuSelection = Value;
 			return;
 		}
@@ -1296,8 +1287,7 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 		return;
 	}
 
-	if (MENU_GetLimits(UI_MENU_GetCurrentMenuId(), &Min, &Max))
-	{
+	if (MENU_GetLimits(UI_MENU_GetCurrentMenuId(), &Min, &Max)) {
 		gInputBoxIndex = 0;
 		gBeepToPlay = BEEP_500HZ_60MS_DOUBLE_BEEP_OPTIONAL;
 		return;
@@ -1305,8 +1295,7 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 	Offset = (Max >= 100) ? 3 : (Max >= 10) ? 2 : 1;
 
-	switch (gInputBoxIndex)
-	{
+	switch (gInputBoxIndex) {
 		case 1:
 			Value = gInputBox[0];
 			break;
@@ -1321,8 +1310,7 @@ static void MENU_Key_0_to_9(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	if (Offset == gInputBoxIndex)
 		gInputBoxIndex = 0;
 
-	if (Value <= Max)
-	{
+	if (Value <= Max) {
 		gSubMenuSelection = Value;
 		return;
 	}
@@ -1613,16 +1601,13 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 
 		gInputBoxIndex = 0;
 	}
-	else
-	if (!bKeyPressed)
+	else if (!bKeyPressed)
 		return;
 
-	if (SCANNER_IsScanning()) {
+	if (SCANNER_IsScanning())
 		return;
-	}
 
-	if (!gIsInSubMenu)
-	{
+	if (!gIsInSubMenu) {
 		gMenuCursor = NUMBER_AddWithWraparound(gMenuCursor, -Direction, 0, gMenuListCount - 1);
 
 		gFlagRefreshSetting = true;
@@ -1640,11 +1625,9 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 		return;
 	}
 
-	if (UI_MENU_GetCurrentMenuId() == MENU_OFFSET)
-	{
+	if (UI_MENU_GetCurrentMenuId() == MENU_OFFSET) {
 		int32_t Offset = (Direction * gTxVfo->StepFrequency) + gSubMenuSelection;
-		if (Offset < 99999990)
-		{
+		if (Offset < 99999990) {
 			if (Offset < 0)
 				Offset = 99999990;
 		}
@@ -1688,18 +1671,8 @@ static void MENU_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 
 void MENU_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 {
-	switch (Key)
-	{
-		case KEY_0:
-		case KEY_1:
-		case KEY_2:
-		case KEY_3:
-		case KEY_4:
-		case KEY_5:
-		case KEY_6:
-		case KEY_7:
-		case KEY_8:
-		case KEY_9:
+	switch (Key) {
+		case KEY_0...KEY_9:
 			MENU_Key_0_to_9(Key, bKeyPressed, bKeyHeld);
 			break;
 		case KEY_MENU:
