@@ -206,8 +206,6 @@ typedef union {
 	uint16_t __ChanInfoVal
 extern ChannelInfo_t        gMR_ChannelInfo[200];
 */
-uint128_t thisone;
-
 extern volatile uint16_t     gBatterySaveCountdown_10ms;
 
 extern volatile bool         gPowerSaveCountdownExpired;
