@@ -59,39 +59,29 @@ const char gModulationStr[MODULATION_UKNOWN][4] = {
 
 bool RADIO_CheckValidChannel(uint16_t channel, bool checkScanList, uint8_t scanList)
 {
-
-//	for (int i = 1; i <= channel+1; i++ )
-//	{
-//		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, true);
-//		SYSTEM_DelayMs(200);
-//		BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
-//		SYSTEM_DelayMs(200);
-//	}
-//	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, true);
-//	SYSTEM_DelayMs(200);
-//	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, false);
-//	SYSTEM_DelayMs(400);
-
-
 	(void)scanList;
-	if (!IS_MR_CHANNEL(channel))
+	if (!IS_MR_CHANNEL(channel)) {
 		return false;
+	}
 
 	const ChannelAttributes_t att = gMR_ChannelAttributes[channel];
 
-	if (att.band > BAND7_470MHz)
+	if (att.band > BAND7_470MHz) {
 		return false;
+	}
 
-//	return true;
-	// if we're just checking it is a valid channel and don't care what scanList it is in
-	if (!checkScanList)
+	// Just checking it is a valid channel and don't care what scanList it is in
+	if (!checkScanList) {
 		return true;
-	// If we're checking the scanlist, make sure the check the channel has been added to the scanlist
-	if (checkScanList)
-		if (gMR_ChannelLists[channel].List[scanList])
+	}
+	else { // Checking the scanlist
+		// Make sure the channel is in the scanlist
+		if (gMR_ChannelLists[channel].List[scanList]) {
 			return true;
+		}
+	}
 
-	return false; // It's not a channel to scan
+	return false; // It's not a valid channel
 
 }
 
@@ -536,11 +526,11 @@ void RADIO_ApplyOffset(VFO_Info_t *pInfo)
 
 static void RADIO_SelectCurrentVfo(void)
 {
-	// if crossband is active and DW not the gCurrentVfo is gTxVfo (gTxVfo/TX_VFO is only ever changed by the user)
+	// if crossband is active and DW is not, the gCurrentVfo is gTxVfo (gTxVfo/TX_VFO is only ever changed by the user)
 	// otherwise it is set to gRxVfo which is set to gTxVfo in RADIO_SelectVfos
 	// so in the end gCurrentVfo is equal to gTxVfo unless dual watch changes it on incomming transmition (again, this can only happen when XB off)
 	// note: it is called only in certain situations so could be not up-to-date
- 	gCurrentVfo = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF || gEeprom.DUAL_WATCH != DUAL_WATCH_OFF) ? gRxVfo : gTxVfo;
+	gCurrentVfo = (gEeprom.CROSS_BAND_RX_TX == CROSS_BAND_OFF || gEeprom.DUAL_WATCH != DUAL_WATCH_OFF) ? gRxVfo : gTxVfo;
 }
 
 

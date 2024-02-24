@@ -191,6 +191,23 @@ typedef struct {
 } ChannelLists_t;
 extern ChannelLists_t        gMR_ChannelLists[200];
 
+/*
+typedef struct {
+	char Name[10];
+    bool List[10];
+} ChannelInfo_t;
+extern ChannelInfo_t        gMR_ChannelInfo[200];
+
+typedef union {
+	struct {
+		char Name[10];
+		bool List[10];
+	};
+	uint16_t __ChanInfoVal
+extern ChannelInfo_t        gMR_ChannelInfo[200];
+*/
+uint128_t thisone;
+
 extern volatile uint16_t     gBatterySaveCountdown_10ms;
 
 extern volatile bool         gPowerSaveCountdownExpired;

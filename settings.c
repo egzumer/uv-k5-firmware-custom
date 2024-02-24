@@ -555,7 +555,6 @@ void SETTINGS_SaveActiveLists(void)
 	for (int i = 8; i < 10; ++i) { // Loop through each of the next 2 bools (8-9) and set the corresponding bit in the second byte to 1 if true
     	packed_bools |= (gEeprom.SCAN_LISTS[i] << i); // Set bit i if SCAN_LISTS[i] is true
 	}
-	
 	packed_bools |= (gEeprom.SCAN_ON_START << (2)); // set the SCAN_ON_START value to the 3rd bit in the second byte to 1 if true
 	// No need to zero out the 12th-16th bits (4-8 of the second byte) as they are already 0
 	State[1] = packed_bools; // List 8-9 and SCAN_ON_START
@@ -726,7 +725,7 @@ void SETTINGS_SaveChannel(uint8_t Channel, uint8_t VFO, const VFO_Info_t *pVFO, 
 			| (pVFO->CHANNEL_BANDWIDTH << 1)
 			| (pVFO->FrequencyReverse  << 0);
 		State._8[5] = ((pVFO->DTMF_PTT_ID_TX_MODE & 7u) << 1)
-#ifdef ENABLE_DTMF_CALLING
+#ifdef ENABLE_DTMF_CALLING 
 			| ((pVFO->DTMF_DECODING_ENABLE & 1u) << 0)
 #endif
 		;
