@@ -905,6 +905,9 @@ buf[1] = 0
 #ifdef ENABLE_AM_FIX
     | (1 << 4)
 #endif
+#ifdef ENABLE_SPECTRUM
+    | (1 << 5)
+#endif
 ;
 	EEPROM_WriteBuffer(0x1FF0, buf);
 }
