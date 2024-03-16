@@ -515,15 +515,6 @@ void UI_DisplayMain(void)
 
 			if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 			{	// it's a channel
-
-/* AUBS-Removed - We need to find a way to add the current channel's lists.  Maybe top right like scanning?
-				// show the scan list assigment symbols
-				const ChannelAttributes_t att = gMR_ChannelAttributes[gEeprom.ScreenChannel[vfo_num]];
-				if (att.scanlist1)
-					memcpy(p_line0 + 113, BITMAP_ScanList1, sizeof(BITMAP_ScanList1));
-				if (att.scanlist2)
-					memcpy(p_line0 + 120, BITMAP_ScanList2, sizeof(BITMAP_ScanList2));
-*/
 				// compander symbol
 #ifndef ENABLE_BIG_FREQ
 				if (att.compander)
@@ -663,14 +654,14 @@ void UI_DisplayMain(void)
 		if (state == VFO_STATE_NORMAL || state == VFO_STATE_ALARM)
 		{	// show the TX power
 			const char pwr_list[][2] = {"L","M","H"};
-			int i = vfoInfo->OUTPUT_POWER % 3;
+			int i = vfoInfo->OUTPUT_POWER;// % 3; //AUBS-REMOVED - See if it can be left, or if there's any way it could be <0 or >3
 			UI_PrintStringSmallNormal(pwr_list[i], LCD_WIDTH + 46, 0, line + 1);
 		}
 
 		if (vfoInfo->freq_config_RX.Frequency != vfoInfo->freq_config_TX.Frequency)
 		{	// show the TX offset symbol
 			const char dir_list[][2] = {"", "+", "-"};
-			int i = vfoInfo->TX_OFFSET_FREQUENCY_DIRECTION % 3;
+			int i = vfoInfo->TX_OFFSET_FREQUENCY_DIRECTION;// % 3; //AUBS-REMOVED - See if it can be left, or if there's any way it could be <0 or >3
 			UI_PrintStringSmallNormal(dir_list[i], LCD_WIDTH + 54, 0, line + 1);
 		}
 

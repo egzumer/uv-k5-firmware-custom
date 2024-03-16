@@ -1709,7 +1709,7 @@ static void ProcessKey(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 	if (Key <= KEY_9 && bKeyPressed && gScanStateDir != SCAN_OFF) // Memory Channel Scanning, so toggle the scan list and save
 	{
 		gEeprom.SCAN_LISTS[Key] = !gEeprom.SCAN_LISTS[Key];
-		SETTINGS_SaveActiveLists();
+		SETTINGS_SaveActiveScanLists();
 		BK4819_ToggleGpioOut(((gEeprom.SCAN_LISTS[Key])?BK4819_GPIO6_PIN2_GREEN:BK4819_GPIO5_PIN1_RED), true);
 		SYSTEM_DelayMs(100);
 		BK4819_ToggleGpioOut(((gEeprom.SCAN_LISTS[Key])?BK4819_GPIO6_PIN2_GREEN:BK4819_GPIO5_PIN1_RED), false);

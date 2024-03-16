@@ -20,7 +20,7 @@
 #include "driver/keyboard.h"
 
 void MAIN_ProcessKeys(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
-void SETTINGS_SaveActiveLists(void);
+void SETTINGS_SaveActiveScanLists(void);
 
 #endif
 

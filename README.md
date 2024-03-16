@@ -1,7 +1,104 @@
 # Open re-implementation of the Quansheng UV-K5/K6/5R v2.1.27 firmware
 
-This repository is a merge of [OneOfEleven custom firmware](https://github.com/OneOfEleven/uv-k5-firmware-custom) with [fagci spectrum analizer](https://github.com/fagci/uv-k5-firmware-fagci-mod/tree/refactor) plus my few changes.<br>
+This repository is a fork of the [Egzumer](https://github.com/egzumer/uv-k5-firmware-custom) firmware, which itself is merge of [OneOfEleven custom firmware](https://github.com/OneOfEleven/uv-k5-firmware-custom) with [fagci spectrum analizer](https://github.com/fagci/uv-k5-firmware-fagci-mod/tree/refactor) plus my few changes.<br>
 All is a cloned and customized version of DualTachyon's open firmware found [here](https://github.com/DualTachyon/uv-k5-firmware) ... a cool achievement !
+
+NOTE: This README has only barely been updated from the original Egzumer version.  All links still currently point to the original as it is mostly the same.
+
+The main differences are:
+* The two ScanLists have been removed and replaced with 10 ScanLists (0-9)
+* Channels no longer show which list they are in on the right side of the display
+* When scanning, the ScanLists now show along the top of the screen
+* Toggling ScanLists on/off is as simple as pressing the number
+* Memory channels can now be excluded (Lockout/Skip) from scanning
+* Scanning can be set to automatically start when the radio is turned on
+* All the changes can be managed through CHIRP
+* When factory resetting, it will only create ONE new channel instead of the original 5
+
+## Usage
+# Adding a memory channel to one or more lists
+1. Switch to the required Memory Channel
+2. Press the Menu button
+3. Navigate to item 14 `ScnAdd`
+4. Press the Menu button to edit
+5. Press the number buttons, 0-9, to add the channel to the respective list
+6. Press the Menu button to exit.
+
+# Scanning
+1. Switch to a Memory Channel (MR not VFO)
+2. Press and hold the `*` key to start scanning
+3. The ScanLists will now be shown along the top of the screen
+    * If a ScanList is disabled, it will show as an underscore (_) 
+    * If a ScanList is enabled, it will show as an:
+        * Asterisk (*) if it is not the active ScanList
+        * Number (0-9) if it is the active ScanList
+5. Toggle each ScanList by pressing the corresponding number (e.g. to turn ScanList 1 on, press 1, to turn ScanList 1 off, press 1 again)
+Note:
+* (as previous) to cancel scanning, press EXIT
+* (as previous) when stopped on an active channel, press Menu to stop scanning and stay on the channel
+* (as previous) to change direction, press up / down
+
+# Lockouts
+The scanner can be set to exclude (lockout/skip) channels from all lists
+1. Switch to a Memory Channel
+2. Press the Menu button
+3. Navigate to item 15 `ScnLkO`
+4. Press the Menu button to edit
+5. Press Up/Down to toggle the lockout
+6. Press the Menu button to save
+
+# Scan on start
+1. Press the Menu button
+2. Navigate to item 16 `ScnSrt`
+3. Press the Menu button to edit
+4. Press Up/Down to toggle Scan on Start 
+5. Press the Menu button to save
+4. Turn the radio off and back on:
+    * If Scan On Start is `ON`, the radio will automatically start scanning
+    * If Scan On Start is `OFF`, the radio will not automatically start scanning
+
+# Review ScanList Members
+1. Press the Menu button
+2. Navigate to items 20 to 29, for ScanList 0 to 9 respectively `SList0`..`SList9`
+3. Press the Menu button to step into the list
+4. Press Up/Down to scroll through the channels in the current ScanList
+5. Press the Exit button to close
+
+# CHIRP
+All the above can be set through CHIRP and I highly recommend you use it, as it makes it a lot easier.<br>
+I have forked and modifidied Egzumer's CHIRP driver for the UV-K5 to manage the ScanLists, LockOut, and StartOnScan.<br>
+[Aubs UV-K5 Driver](https://github.com/AubsUK/uvk5-chirp-driver)
+
+
+
+## Photos
+Scanning List 2 (Lists 2,3,4,5,6,7 enabled)<br><br>
+![Scanning List 2 (Lists 2,3,4,5,6,7 enabled)](images/Aubs_Scan_List2.png)<br><br>
+Scanning List 4 (Lists 2,3,4,5,6,7 enabled)<br><br>
+![Scanning List 4 (Lists 2,3,4,5,6,7 enabled)](images/Aubs_Scan_List4.png)<br><br>
+Menu 14 >> Show ScanLists this channel is a member of<br><br>
+![Menu 14 >> Show ScanLists this channel is a member of](images/Aubs_Menu14_ScanList.png)<br><br>
+Menu 14 >> Editing the ScanLists this channel is a member of<br><br>
+![Menu 14 >> Editing the ScanLists this channel is a member of](images/Aubs_Menu14_ScanList_Edit.png)<br><br>
+Menu 15 >> If this channel is locked out of scanning<br><br>
+![Menu 15 >> If this channel is locked out of scanning](images/Aubs_Menu15_ScanLock_Off.png)<br><br>
+Menu 16 >> If Scan on Start is enabled or disabled<br><br>
+![Menu 16 >> If Scan on Start is enabled or disabled](images/Aubs_Menu16_ScanOnStart.png)<br><br>
+Menus 20 to 29 list all channels in each ScanList<br><br>
+![Menus 20 to 29 list all channels in each ScanList](images/Aubs_Menu20-29_ScanList_Members.png)<br><br>
+Menu 22 >> Listing members of ScanList2 (first)<br><br>
+![Menu 22 >> Listing members of ScanList2 (first)](images/Aubs_Menu20-29_ScanList_Members_List1.png)<br><br>
+Menu 22 >> Listing members of ScanList2 (second)<br><br>
+![Menu 22 >> Listing members of ScanList2 (second)](images/Aubs_Menu20-29_ScanList_Members_List2.png)<br><br>
+
+
+CHIRP Download Menu<br><br>
+![CHIRP Download Menu](images/Aubs_CHIRP_DownloadFromRadio.png)<br><br>
+CHIRP Memories showing LockOut and ScanLists<br><br>
+![CHIRP Memories showing LockOut and ScanLists](images/Aubs_CHIRP_Memories_LockOutScanLists.png)<br><br>
+CHIRP ScanList Settings<br><br>
+![CHIRP ScanList Settings](images/Aubs_CHIRP_ScanListSettings.png)<br><br>
+
 
 > [!TIP]
 > There is a work done by others on forks of this repository. I encourage you to take a look at those too.

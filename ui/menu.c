@@ -53,16 +53,9 @@ const t_menu_item MenuList[] =
 	{"BusyCL", VOICE_ID_BUSY_LOCKOUT,                  MENU_BCL           }, // was "BCL"
 	{"Compnd", VOICE_ID_INVALID,                       MENU_COMPAND       },
 	{"Demodu", VOICE_ID_INVALID,                       MENU_AM            }, // was "AM"
-	{"ScAdd0", VOICE_ID_INVALID,                       MENU_S_ADD0        },
-	{"ScAdd1", VOICE_ID_INVALID,                       MENU_S_ADD1        },
-	{"ScAdd2", VOICE_ID_INVALID,                       MENU_S_ADD2        }, 
-	{"ScAdd3", VOICE_ID_INVALID,                       MENU_S_ADD3        },
-	{"ScAdd4", VOICE_ID_INVALID,                       MENU_S_ADD4        },
-	{"ScAdd5", VOICE_ID_INVALID,                       MENU_S_ADD5        },
-	{"ScAdd6", VOICE_ID_INVALID,                       MENU_S_ADD6        },
-	{"ScAdd7", VOICE_ID_INVALID,                       MENU_S_ADD7        },
-	{"ScAdd8", VOICE_ID_INVALID,                       MENU_S_ADD8        },
-	{"ScAdd9", VOICE_ID_INVALID,                       MENU_S_ADD9        },
+	{"ScnAdd", VOICE_ID_INVALID,                       MENU_S_ADD         },
+	{"ScnLkO", VOICE_ID_INVALID,                       MENU_SCN_LOCKOUT   },
+	{"ScnSrt", VOICE_ID_INVALID,                       MENU_SCN_START     },
 	{"ChSave", VOICE_ID_MEMORY_CHANNEL,                MENU_MEM_CH        }, // was "MEM-CH"
 	{"ChDele", VOICE_ID_DELETE_CHANNEL,                MENU_DEL_CH        }, // was "DEL-CH"
 	{"ChName", VOICE_ID_INVALID,                       MENU_MEM_NAME      },
@@ -632,16 +625,6 @@ void UI_DisplayMenu(void)
 		#endif
 		case MENU_BCL:
 		case MENU_BEEP:
-		case MENU_S_ADD0:
-		case MENU_S_ADD1:
-		case MENU_S_ADD2:
-		case MENU_S_ADD3:
-		case MENU_S_ADD4:
-		case MENU_S_ADD5:
-		case MENU_S_ADD6:
-		case MENU_S_ADD7:
-		case MENU_S_ADD8:
-		case MENU_S_ADD9:
 		case MENU_STE:
 		case MENU_D_ST:
 #ifdef ENABLE_DTMF_CALLING
@@ -656,9 +639,15 @@ void UI_DisplayMenu(void)
 		case MENU_500TX:
 		case MENU_350EN:
 		case MENU_SCREN:
+		case MENU_SCN_START:
+		case MENU_SCN_LOCKOUT:
 			strcpy(String, gSubMenu_OFF_ON[gSubMenuSelection]);
 			break;
-
+		case MENU_S_ADD:{
+			UI_GetScanListInfo();
+			already_printed = true;
+			break;
+		}
 		case MENU_MEM_CH:
 		case MENU_1_CALL:
 		case MENU_DEL_CH:
@@ -979,3 +968,38 @@ void UI_DisplayMenu(void)
 
 	ST7565_BlitFullScreen();
 }
+
+
+
+
+// Inline function to convert a positive single-digit integer to a character
+inline char UI_ConvertintToChar(uint8_t num, char OutOfRangeReturnChar) {
+	if (num <= 9) {
+		return num + '0';
+	} else {
+		return OutOfRangeReturnChar; // Handle out-of-range input (return the specified character)
+	}
+}
+
+
+
+// Extract Lists assigned to the current channel
+void UI_GetScanListInfo()
+{
+	char listText[11];
+	memset(listText, '\0', sizeof(listText));					    // Clear out everything in the listText array
+	for (uint8_t i = 0; i < 10; ++i) {
+		if (gMR_ChannelLists[gTxVfo->CHANNEL_SAVE].ScanList[i]) {	// Check if the list is on
+			listText[i] = UI_ConvertintToChar(i,'-');				// Set position i to be the number of the list [List is on] (return a hyphen '-' if it's out of range)
+		} else {
+			listText[i] = '_';									    // Set position i to be an underscore [List is off]
+		}
+	}
+	/*
+	 * menu_list_width = 6;
+	 * menu_item_x1    = (8 * menu_list_width) + 2;	== (8*6)+2	= 48
+	 * int menu_item_x2    = LCD_WIDTH - 1;			== 128		= 127
+	 */
+	UI_PrintString(listText, 48, 127, 1, 8);					    // Print/Re-print the list to screen in the menu
+}
+

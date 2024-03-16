@@ -25,9 +25,6 @@ uint32_t            lastFoundFrqOrChan;
 static void NextFreqChannel(void);
 static void NextMemChannel(void);
 
-
-
-
 void CHFRSCANNER_Start(const bool storeBackupSettings, const int8_t scan_direction)
 {
 	if (storeBackupSettings) {
@@ -167,11 +164,15 @@ void CHFRSCANNER_Stop(void)
 // Get the first or last channel numerically in the specified list. For FirstOrLast, use 1 for first, or -1 for last
 uint8_t CURRENT_LIST_FIRST_or_LAST_CHANNEL(uint8_t CurList, int8_t FirstOrLast)
 {
-	for (uint8_t curChan = (FirstOrLast == 1) ? 0 : 199; (FirstOrLast == 1) ? (curChan < 200) : (curChan != 255); curChan += FirstOrLast) // Loop through all channels
+	for (
+			uint8_t First_Last_Chan_Val = (FirstOrLast == 1) ? MR_CHANNEL_FIRST : MR_CHANNEL_LAST;
+			First_Last_Chan_Val <= MR_CHANNEL_LAST;
+			First_Last_Chan_Val += FirstOrLast
+		) // Loop through all possible channels
 	{
-		if (gMR_ChannelLists[curChan].List[CurList]) // We only need to look at the array item listed
+		if (gMR_ChannelLists[First_Last_Chan_Val].ScanList[CurList]) // We only need to look at the array item listed
 		{
-			return curChan; // Match found, return it
+			return First_Last_Chan_Val; // Match found, return it
 		} 
 	}
 	return 0xFF; // No channels returned
@@ -213,7 +214,7 @@ static void NextMemChannel(void)
 	uint8_t             CurrChan         = 0xFF;
 	uint8_t             PrevChan         = gNextMrChannel;
 
-	// Starting at the current list, Find the next list that is enabled (only go through each scanlist once, returning back to the original list if none found)
+	// Starting at the current list, Find the next list that is enabled (only go through each ScanList once, returning back to the original list if none found)
 	for (uint8_t i = 0; i < 11; i++, currentScanList += gScanStateDir)
 	{
 		if (currentScanList == 0xFF) { currentScanList = 9; } // On decrement, if it reaches 0 and rolls round to 255, set to last list (9)
@@ -221,10 +222,10 @@ static void NextMemChannel(void)
 		if (currentScanList != PrevScanList) // No longer on the same ScanList as previous
 		{
 			// If Dual Watch is on, this could be the time to scan it
-			// When NextMemChannel is called again, we'll continue on the newly found scanlist as it is the first found to be enabled.
+			// When NextMemChannel is called again, we'll continue on the newly found ScanList as it is the first found to be enabled.
 			// Be careful with how the checking of the channel loop FirstChan/LastChan would work with this
 		}
-		if (gEeprom.SCAN_LISTS[currentScanList]) // Found an enabled scanlist
+		if (gEeprom.SCAN_LISTS[currentScanList]) // We're on an enabled ScanList
 		{
 			CurrChan = RADIO_FindNextChannel(gNextMrChannel + gScanStateDir, gScanStateDir, true, currentScanList);
 			uint8_t FirstChan = CURRENT_LIST_FIRST_or_LAST_CHANNEL(currentScanList, 1);
@@ -235,19 +236,18 @@ static void NextMemChannel(void)
 				||
 				//Found chan = last chan of current list AND PrevChan = first chan of current list AND we're going backwards AND we haven't moved list
 				(CurrChan == LastChan && PrevChan == FirstChan && gScanStateDir == -1 && i == 0)
-			)
+				)
 			{
 				// Can't use the current channel as it matches one of the criteria
 				// let's loop into the next ScanList.  
 				// If we get to the end again and we're back on the same list, that's ok, because i will be 10.
 				CurrChan = 0xFF;
 			}
-
 			if (CurrChan != 0xFF) { break; } // Found a valid channel, break out the loop
 		}
 		// Do anything if it doesn't find any lists that are enabled? - Defaults to Channel 1
 	}
-	SYSTEM_DelayMs(250);
+	// SYSTEM_DelayMs(1000); // Adds a delay while scanning, useful for testing and screenshots
 	if (CurrChan == 0xFF)
 	{	// no valid channel found
 		CurrChan = MR_CHANNEL_FIRST;

@@ -63,16 +63,9 @@ enum
 #endif
 	MENU_SC_REV,
 	MENU_AUTOLK,
-	MENU_S_ADD0,
-	MENU_S_ADD1,
-	MENU_S_ADD2,
-	MENU_S_ADD3,
-	MENU_S_ADD4,
-	MENU_S_ADD5,
-	MENU_S_ADD6,
-	MENU_S_ADD7,
-	MENU_S_ADD8,
-	MENU_S_ADD9,
+	MENU_S_ADD,
+	MENU_SCN_LOCKOUT,
+	MENU_SCN_START,
 	MENU_STE,
 	MENU_RP_STE,
 	MENU_MIC,
@@ -191,5 +184,8 @@ extern int               edit_index;
 void UI_DisplayMenu(void);
 int UI_MENU_GetCurrentMenuId();
 uint8_t UI_MENU_GetMenuIdx(uint8_t id);
+
+char UI_ConvertintToChar(uint8_t num, char OutOfRangeReturnChar);	// declaration, function in ui/menu.c
+void UI_GetScanListInfo();											// declaration, function in ui/menu.c
 
 #endif

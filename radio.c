@@ -57,9 +57,9 @@ const char gModulationStr[MODULATION_UKNOWN][4] = {
 
 
 
-bool RADIO_CheckValidChannel(uint16_t channel, bool checkScanList, uint8_t scanList)
+bool RADIO_CheckValidChannel(uint16_t channel, bool checkScanList, uint8_t ScanList)
 {
-	(void)scanList;
+	(void)ScanList;
 	if (!IS_MR_CHANNEL(channel)) {
 		return false;
 	}
@@ -70,13 +70,13 @@ bool RADIO_CheckValidChannel(uint16_t channel, bool checkScanList, uint8_t scanL
 		return false;
 	}
 
-	// Just checking it is a valid channel and don't care what scanList it is in
+	// Just checking it is a valid channel and don't care what ScanList it is in
 	if (!checkScanList) {
 		return true;
 	}
-	else { // Checking the scanlist
-		// Make sure the channel is in the scanlist
-		if (gMR_ChannelLists[channel].List[scanList]) {
+	else { // Checking the ScanList
+		// Make sure the channel is in the ScanList and it's not locked out
+		if (gMR_ChannelLists[channel].ScanList[ScanList] && !gMR_ChannelLists[channel].ScanListLockout) {
 			return true;
 		}
 	}
@@ -112,8 +112,6 @@ void RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t
 	memset(pInfo, 0, sizeof(*pInfo));
 
 	pInfo->Band                     = FREQUENCY_GetBand(Frequency);
-//	pInfo->SCANLIST1_PARTICIPATION  = false; //AUBS-Removed
-//	pInfo->SCANLIST2_PARTICIPATION  = false; //AUBS-Removed
 	pInfo->STEP_SETTING             = STEP_12_5kHz;
 	pInfo->StepFrequency            = gStepFrequencyTable[pInfo->STEP_SETTING];
 	pInfo->CHANNEL_SAVE             = ChannelSave;
@@ -198,21 +196,11 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		band = BAND6_400MHz;
 	}
 
-//	bool bParticipation1;
-//	bool bParticipation2;
-	if (IS_MR_CHANNEL(channel)) {
-//		bParticipation1 = att.scanlist1; //AUBS-Removed
-//		bParticipation2 = att.scanlist2; //AUBS-Removed
-	}
-	else {
+	if (!IS_MR_CHANNEL(channel)) {
 		band = channel - FREQ_CHANNEL_FIRST;
-//		bParticipation1 = true;
-//		bParticipation2 = true;
 	}
 
 	pVfo->Band                    = band;
-//	pVfo->SCANLIST1_PARTICIPATION = bParticipation1; //AUBS-Removed
-//	pVfo->SCANLIST2_PARTICIPATION = bParticipation2; //AUBS-Removed
 	pVfo->CHANNEL_SAVE            = channel;
 
 	uint16_t base;

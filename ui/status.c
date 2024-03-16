@@ -34,6 +34,8 @@
 #include "ui/ui.h"
 #include "ui/status.h"
 
+uint8_t CURRENT_LIST_FIRST_or_LAST_CHANNEL(uint8_t CurList, int8_t FirstOrLast);
+
 
 
 

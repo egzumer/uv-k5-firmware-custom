@@ -19,6 +19,11 @@
 
 #include "driver/keyboard.h"
 
+char UI_ConvertintToChar(uint8_t num, char OutOfRangeReturnChar);		// Declaration, function in ui/menu.c
+void UI_GetScanListInfo();												// Declaration, function in ui/menu.c"
+void UI_MENU_ScanLists();												// Declaration, function in ui/menu.c"
+
+
 #ifdef ENABLE_F_CAL_MENU
 	void writeXtalFreqCal(const int32_t value, const bool update_eeprom);
 #endif

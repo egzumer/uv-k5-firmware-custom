@@ -115,7 +115,7 @@ uint16_t          gEEPROM_1F8C;
 
 ChannelAttributes_t gMR_ChannelAttributes[FREQ_CHANNEL_LAST + 1];
 
-ChannelLists_t    gMR_ChannelLists[200];
+ChannelLists_t    gMR_ChannelLists[MR_CHANNEL_LAST + 1];
 
 volatile uint16_t gBatterySaveCountdown_10ms = battery_save_count_10ms;
 

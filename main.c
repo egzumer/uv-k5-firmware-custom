@@ -49,6 +49,12 @@
 #include "ui/lock.h"
 #include "ui/welcome.h"
 #include "ui/menu.h"
+
+#include "app\chFrScanner.h"
+
+
+
+
 void _putchar(__attribute__((unused)) char c)
 {
 
@@ -219,6 +225,11 @@ void Main(void)
 #endif
 	}
 
+	if (gEeprom.SCAN_ON_START)
+	{
+		// SCAN_ON_START is enabled, so we need to call the scanner
+		CHFRSCANNER_Start(true, SCAN_FWD);
+	}
 	while (true) {
 		APP_Update();
 
