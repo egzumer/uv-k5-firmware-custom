@@ -83,7 +83,7 @@ You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) .
 
 |Build option | Description |
 | --- | ---- |
-|🧰 **STOCK QUANSHENG FERATURES**||
+|🧰 **STOCK QUANSHENG FEATURES**||
 | ENABLE_UART | without this you can't configure radio via PC ! |
 | ENABLE_AIRCOPY | easier to just enter frequency with butts |
 | ENABLE_FMRADIO | WBFM VHF broadcast band receiver |
