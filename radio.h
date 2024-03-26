@@ -22,6 +22,7 @@
 
 #include "dcs.h"
 #include "frequencies.h"
+#include "misc.h"
 
 enum {
 	RADIO_CHANNEL_UP   = 0x01u,
@@ -95,7 +96,7 @@ typedef struct VFO_Info_t
 	uint32_t       TX_OFFSET_FREQUENCY;
 	uint16_t       StepFrequency;
 
-	uint8_t        CHANNEL_SAVE;
+	channel_t      CHANNEL_SAVE;
 
 	uint8_t        TX_OFFSET_FREQUENCY_DIRECTION;
 
@@ -148,9 +149,9 @@ extern DCS_CodeType_t gCurrentCodeType;
 
 extern VfoState_t     VfoState[2];
 
-bool     RADIO_CheckValidChannel(uint16_t channel, bool checkScanList, uint8_t scanList);
-uint8_t  RADIO_FindNextChannel(uint8_t ChNum, int8_t Direction, bool bCheckScanList, uint8_t RadioNum);
-void     RADIO_InitInfo(VFO_Info_t *pInfo, const uint8_t ChannelSave, const uint32_t Frequency);
+bool     RADIO_CheckValidChannel(channel_t channel, bool checkScanList, uint8_t scanList);
+channel_t  RADIO_FindNextChannel(channel_t ChNum, int8_t Direction, bool bCheckScanList, uint8_t RadioNum);
+void     RADIO_InitInfo(VFO_Info_t *pInfo, const channel_t ChannelSave, const uint32_t Frequency);
 void     RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure);
 void     RADIO_ConfigureSquelchAndOutputPower(VFO_Info_t *pInfo);
 void     RADIO_ApplyOffset(VFO_Info_t *pInfo);

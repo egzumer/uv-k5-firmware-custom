@@ -204,7 +204,7 @@ static void SCANNER_Key_MENU(bool bKeyPressed, bool bKeyHeld)
 				gEeprom.MrChannel[gEeprom.TX_VFO] = chan;
 			}
 			else {
-				chan = gTxVfo->Band + FREQ_CHANNEL_FIRST;
+				chan = gTxVfo->Band + VFO_CHANNEL_FIRST;
 				gEeprom.FreqChannel[gEeprom.TX_VFO] = chan;
 			}
 
@@ -310,7 +310,7 @@ void SCANNER_Start(bool singleFreq)
 
 #ifdef ENABLE_NOAA
 	if (IS_NOAA_CHANNEL(gRxVfo->CHANNEL_SAVE))
-		gRxVfo->CHANNEL_SAVE = FREQ_CHANNEL_FIRST + BAND6_400MHz;
+		gRxVfo->CHANNEL_SAVE = VFO_CHANNEL_FIRST + BAND6_400MHz;
 #endif
 
 	uint8_t  backupStep      = gRxVfo->STEP_SETTING;

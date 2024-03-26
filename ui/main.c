@@ -442,12 +442,12 @@ void UI_DisplayMain(void)
 				sprintf(String, "M%.3s", INPUTBOX_GetAscii());  // show the input text
 			UI_PrintStringSmallNormal(String, x, 0, line + 1);
 		}
-		else if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
+		else if (IS_VFO_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 		{	// frequency mode
 			// show the frequency band number
 			const unsigned int x = 2;
 			char * buf = gEeprom.VfoInfo[vfo_num].pRX->Frequency < _1GHz_in_KHz ? "" : "+";
-			sprintf(String, "F%u%s", 1 + gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST, buf);
+			sprintf(String, "F%u%s", 1 + gEeprom.ScreenChannel[vfo_num] - VFO_CHANNEL_FIRST, buf);
 			UI_PrintStringSmallNormal(String, x, 0, line + 1);
 		}
 #ifdef ENABLE_NOAA
@@ -483,7 +483,7 @@ void UI_DisplayMain(void)
 			if (state < ARRAY_SIZE(VfoStateStr))
 				UI_PrintString(VfoStateStr[state], 31, 0, line, 8);
 		}
-		else if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_VFO == vfo_num)
+		else if (gInputBoxIndex > 0 && IS_VFO_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_VFO == vfo_num)
 		{	// user entering a frequency
 			const char * ascii = INPUTBOX_GetAscii();
 			bool isGigaF = frequency>=_1GHz_in_KHz;

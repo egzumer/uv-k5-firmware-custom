@@ -90,7 +90,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 			break;
 
 		case KEY_1:
-			if (!IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE)) {
+			if (!IS_VFO_CHANNEL(gTxVfo->CHANNEL_SAVE)) {
 				gWasFKeyPressed = false;
 				gUpdateStatus   = true;
 				gBeepToPlay     = BEEP_1KHZ_60MS_OPTIONAL;
@@ -115,7 +115,7 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				if (IS_MR_CHANNEL(gEeprom.ScreenChannel[vfo]))
 				{	// copy channel to VFO, then swap to the VFO
 
-					gEeprom.ScreenChannel[vfo] = FREQ_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
+					gEeprom.ScreenChannel[vfo] = VFO_CHANNEL_FIRST + gEeprom.VfoInfo[vfo].Band;
 					gEeprom.VfoInfo[vfo].CHANNEL_SAVE = gEeprom.ScreenChannel[vfo];
 
 					RADIO_SelectVfos();
@@ -147,8 +147,8 @@ static void processFKeyFunction(const KEY_Code_t Key, const bool beep)
 				gTxVfo->Band = BAND1_50MHz;
 			}
 
-			gEeprom.ScreenChannel[Vfo] = FREQ_CHANNEL_FIRST + gTxVfo->Band;
-			gEeprom.FreqChannel[Vfo]   = FREQ_CHANNEL_FIRST + gTxVfo->Band;
+			gEeprom.ScreenChannel[Vfo] = VFO_CHANNEL_FIRST + gTxVfo->Band;
+			gEeprom.FreqChannel[Vfo]   = VFO_CHANNEL_FIRST + gTxVfo->Band;
 
 			gRequestSaveVFO            = true;
 			gVfoConfigureMode          = VFO_CONFIGURE_RELOAD;
@@ -325,7 +325,7 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 //		#ifdef ENABLE_NOAA
 //			if (!IS_NOAA_CHANNEL(gTxVfo->CHANNEL_SAVE))
 //		#endif
-		if (IS_FREQ_CHANNEL(gTxVfo->CHANNEL_SAVE))
+		if (IS_VFO_CHANNEL(gTxVfo->CHANNEL_SAVE))
 		{	// user is entering a frequency
 
 #ifdef ENABLE_VOICE
@@ -355,8 +355,8 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 
 			if (gTxVfo->Band != band) {
 				gTxVfo->Band               = band;
-				gEeprom.ScreenChannel[Vfo] = band + FREQ_CHANNEL_FIRST;
-				gEeprom.FreqChannel[Vfo]   = band + FREQ_CHANNEL_FIRST;
+				gEeprom.ScreenChannel[Vfo] = band + VFO_CHANNEL_FIRST;
+				gEeprom.FreqChannel[Vfo]   = band + VFO_CHANNEL_FIRST;
 
 				SETTINGS_SaveVfoIndices();
 
@@ -600,14 +600,14 @@ static void MAIN_Key_STAR(bool bKeyPressed, bool bKeyHeld)
 
 static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 {
-	uint8_t Channel = gEeprom.ScreenChannel[gEeprom.TX_VFO];
+	channel_t Channel = gEeprom.ScreenChannel[gEeprom.TX_VFO];
 
 	if (bKeyHeld || !bKeyPressed) { // key held or released
 		if (gInputBoxIndex > 0)
 			return; // leave if input box active
 
 		if (!bKeyPressed) {
-			if (!bKeyHeld || IS_FREQ_CHANNEL(Channel))
+			if (!bKeyHeld || IS_VFO_CHANNEL(Channel))
 				return;
 			// if released long button press and not in freq mode
 #ifdef ENABLE_VOICE
@@ -630,8 +630,8 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 		if (!IS_NOAA_CHANNEL(Channel))
 #endif
 		{
-			uint8_t Next;
-			if (IS_FREQ_CHANNEL(Channel)) { // step/down in frequency
+			channel_t Next;
+			if (IS_VFO_CHANNEL(Channel)) { // step/down in frequency
 				const uint32_t frequency = APP_SetFrequencyByStep(gTxVfo, Direction);
 
 				if (RX_freq_check(frequency) < 0) { // frequency not allowed
@@ -646,7 +646,7 @@ static void MAIN_Key_UP_DOWN(bool bKeyPressed, bool bKeyHeld, int8_t Direction)
 			}
 
 			Next = RADIO_FindNextChannel(Channel + Direction, Direction, false, 0);
-			if (Next == 0xFF)
+			if (Next == MAX_CHANNEL)
 				return;
 			if (Channel == Next)
 				return;
