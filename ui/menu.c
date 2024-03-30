@@ -258,6 +258,7 @@ const char gSubMenu_PONMSG[][8] =
 	"FULL",
 	"MESSAGE",
 	"VOLTAGE",
+	"IMAGE",
 	"NONE"
 };
 

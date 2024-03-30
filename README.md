@@ -74,6 +74,16 @@ On the other hand, FM RX audio will/should be fine.
 
 But, they are nice toys for the price, fun to play with.
 
+## Customize welcome image
+
+You can set welcome image instead text message or battery voltage something.
+
+1. Open welcome-image.html in web browser and process image to what you like
+2. Copy the text in "Buffer" field
+3. Replace the value of the variable "all" in ui/welcome.c where the line starts with "uint8_t all[8][128]"
+
+
+
 ## User customization
 
 You can customize the firmware by enabling/disabling various compile options, this allows
@@ -96,6 +106,7 @@ You'll find the options at the top of "Makefile" ('0' = disable, '1' = enable) .
 | ENABLE_DTMF_CALLING | DTMF calling fuctionality, sending calls, receiving calls, group calls, contacts list etc. |
 | ENABLE_FLASHLIGHT | enable top flashlight LED (on, blink, SOS) |
 |🧰 **CUSTOM MODS**||
+| ENABLE_WELCOME_IMAGE | Customize welcome image (will be blank screen if not build but still select the option) |
 | ENABLE_BIG_FREQ | big font frequencies (like original QS firmware) |
 | ENABLE_SMALL_BOLD | bold channel name/no. (when name + freq channel display mode) |
 | ENABLE_CUSTOM_MENU_LAYOUT | changes how the menu looks like |
