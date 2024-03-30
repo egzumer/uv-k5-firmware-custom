@@ -78,7 +78,7 @@ imageUpload.addEventListener('change', function() {
         for(let i = 0; i < img.height; i++){
             let arr = []
             for(let j = 0; j < img.width; j++){
-                arr.push(img.getBitXY(j, i) == 0 ? " " : "#");
+                arr.push(img.getBitXY(j, i) == 1 ? " " : "#");
             }
             arr2d.push(arr.join(""));
         }
