@@ -32,8 +32,8 @@ void UI_DisplayReleaseKeys(void)
 	memset(gStatusLine,  0, sizeof(gStatusLine));
 	UI_DisplayClear();
 
-	UI_PrintString("RELEASE", 0, 127, 1, 10);
-	UI_PrintString("ALL KEYS", 0, 127, 3, 10);
+	UI_PrintString("MOLLA", 0, 127, 1, 10);
+	UI_PrintString("TUTTO !", 0, 127, 3, 10);
 
 	ST7565_BlitStatusLine();  // blank status line
 	ST7565_BlitFullScreen();
@@ -55,7 +55,7 @@ void UI_DisplayWelcome(void)
 
 		if (gEeprom.POWER_ON_DISPLAY_MODE == POWER_ON_DISPLAY_MODE_VOLTAGE)
 		{
-			strcpy(WelcomeString0, "VOLTAGE");
+			strcpy(WelcomeString0, "VOLTAGGIO");
 			sprintf(WelcomeString1, "%u.%02uV %u%%",
 				gBatteryVoltageAverage / 100,
 				gBatteryVoltageAverage % 100,
