@@ -1,0 +1,4 @@
+FROM archlinux:latest
+RUN pacman -Syyu make git which arm-none-eabi-gcc arm-none-eabi-newlib python-crcmod --noconfirm
+RUN mkdir -p /app && chmod 777 /app
+WORKDIR /app
