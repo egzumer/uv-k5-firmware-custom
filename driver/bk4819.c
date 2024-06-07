@@ -611,6 +611,28 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 	uint16_t val = 0;
 	switch (Bandwidth)
 	{
+#ifdef ENABLE_DIGITAL_MODULATION
+		case BK4819_FILTER_BW_DIGITAL_WIDE:
+			val = (7u << 12) |     // *3 RF filter bandwidth
+				  (7u <<  9) |     // Weak signal bandwidth
+				  (4u <<  6) |     // 4.5kHz
+				  (2u <<  4) |     // 25kHz channel bandwidth
+				  (1u <<  3) |     // ?
+				  (0u <<  2);      // 0 Gain after FM Demodulation
+			// Disable DC filter (RX & TX).
+			BK4819_WriteRegister(BK4819_REG_7E, BK4819_ReadRegister(BK4819_REG_7E) & 0xFFC0);
+			break;
+		case BK4819_FILTER_BW_DIGITAL_NARROW:
+			val = (7u << 12) |     // *3 RF filter bandwidth
+				  (7u <<  9) |     // Weak signal bandwidth
+				  (0u <<  6) |     // 3kHz
+				  (0u <<  4) |     // 12.5kHz channel bandwidth
+				  (1u <<  3) |     // ?
+				  (0u <<  2);      // 0 Gain after FM Demodulation
+			// Disable DC filter (RX & TX).
+			BK4819_WriteRegister(BK4819_REG_7E, BK4819_ReadRegister(BK4819_REG_7E) & 0xFFC0);
+			break;
+#endif
 		default:
 		case BK4819_FILTER_BW_WIDE:	// 25kHz
 			val = (4u << 12) |     // *3 RF filter bandwidth
@@ -744,7 +766,11 @@ void BK4819_SetupSquelch(
 
 		// original (*)
 	(1u << 14) |                  //  1 ???
+#ifdef ENABLE_DIGITAL_MODULATION
+	(0u << 11) |                  // *0  squelch = open  delay .. 0 ~ 7
+#else
 	(5u << 11) |                  // *5  squelch = open  delay .. 0 ~ 7
+#endif
 	(6u <<  9) |                  // *3  squelch = close delay .. 0 ~ 3
 	SquelchOpenGlitchThresh);     //  0 ~ 255
 
@@ -780,7 +806,16 @@ void BK4819_SetAF(BK4819_AF_Type_t AF)
 	// Undocumented bits 0x2040
 	//
 //	BK4819_WriteRegister(BK4819_REG_47, 0x6040 | (AF << 8));
-	BK4819_WriteRegister(BK4819_REG_47, (6u << 12) | (AF << 8) | (1u << 6));
+
+	unsigned disable_af_filters = 0;
+
+#ifdef ENABLE_DIGITAL_MODULATION
+	// Disable AF TX filters when using BYPASS mode.
+	if (AF == BK4819_AF_UNKNOWN3) {
+		disable_af_filters = 1;
+	}
+#endif
+	BK4819_WriteRegister(BK4819_REG_47, (6u << 12) | (AF << 8) | (1u << 6) | disable_af_filters);
 }
 
 void BK4819_SetRegValue(RegisterSpec s, uint16_t v) {
@@ -1086,8 +1121,6 @@ void BK4819_Idle(void)
 
 void BK4819_ExitBypass(void)
 {
-	BK4819_SetAF(BK4819_AF_MUTE);
-
 	// REG_7E
 	//
 	// <15>    0 AGC fix mode
@@ -1125,9 +1158,12 @@ void BK4819_ExitBypass(void)
 	);
 }
 
-void BK4819_PrepareTransmit(void)
+void BK4819_PrepareTransmit(bool bEnableBypassFilter)
 {
-	BK4819_ExitBypass();
+	BK4819_SetAF(BK4819_AF_MUTE);
+	if (bEnableBypassFilter) {
+		BK4819_ExitBypass();
+	}
 	BK4819_ExitTxMute();
 	BK4819_TxOn_Beep();
 }

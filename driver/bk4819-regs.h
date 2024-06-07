@@ -74,6 +74,8 @@ enum BK4819_REGISTER_t {
 	BK4819_REG_3D = 0x3DU,
 	BK4819_REG_3E = 0x3EU,
 	BK4819_REG_3F = 0x3FU,
+	// TX Deviation
+	BK4819_REG_40 = 0x40U,
 	BK4819_REG_43 = 0x43U,
 	BK4819_REG_46 = 0x46U,
 	BK4819_REG_47 = 0x47U,
@@ -85,6 +87,8 @@ enum BK4819_REGISTER_t {
 	// REG_49<13:7> 0x50; RF AGC high threshold, 1 dB/LSB
 	// REG_49<6:0> 0x30; RF AGC low threshold, 1 dB/LSB
 	BK4819_REG_49 = 0x49U,
+	// ALC (audio level control)
+	BK4819_REG_4B = 0x4BU,
 	BK4819_REG_4D = 0x4DU,
 	BK4819_REG_4E = 0x4EU,
 	BK4819_REG_4F = 0x4FU,
@@ -116,6 +120,7 @@ enum BK4819_REGISTER_t {
 	BK4819_REG_7B = 0x7BU,
 	// REG_7C<15:0> 0x8000 RSSI table
 	BK4819_REG_7C = 0x7CU,
+	// MIC Sensitivity
 	BK4819_REG_7D = 0x7DU,
 	// REG_7E<15> 0; AGC fix mode:
 	// 1: Fix
