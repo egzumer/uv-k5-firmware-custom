@@ -724,8 +724,14 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	// RX expander
 	BK4819_SetCompander((gRxVfo->Modulation == MODULATION_FM && gRxVfo->Compander >= 2) ? gRxVfo->Compander : 0);
 
+#ifdef ENABLE_DIGITAL_MODULATION
+	if (gRxVfo->Modulation != MODULATION_DIGITAL) {
+#endif
 	BK4819_EnableDTMF();
 	InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
+#ifdef ENABLE_DIGITAL_MODULATION
+	}
+#endif
 
 	RADIO_SetupAGC(gRxVfo->Modulation == MODULATION_AM, false);
 
@@ -788,7 +794,7 @@ void RADIO_SetTxParameters(void)
 	BK4819_FilterBandwidth_t Bandwidth = gCurrentVfo->CHANNEL_BANDWIDTH;
 
 #ifdef ENABLE_DIGITAL_MODULATION
-	if (gRxVfo->Modulation == MODULATION_DIGITAL) {
+	if (gCurrentVfo->Modulation == MODULATION_DIGITAL) {
 		if (Bandwidth == BK4819_FILTER_BW_WIDE) {
 			Bandwidth = BK4819_FILTER_BW_DIGITAL_WIDE;
 		} else {
@@ -833,9 +839,15 @@ void RADIO_SetTxParameters(void)
 	// TX compressor
 	BK4819_SetCompander((gRxVfo->Modulation == MODULATION_FM && (gRxVfo->Compander == 1 || gRxVfo->Compander >= 3)) ? gRxVfo->Compander : 0);
 
-	BK4819_PrepareTransmit(gRxVfo->Modulation == MODULATION_FM);
-
-	SYSTEM_DelayMs(10);
+#ifdef ENABLE_DIGITAL_MODULATION
+	if (gCurrentVfo->Modulation == MODULATION_DIGITAL) {
+		BK4819_PrepareDigitalTransmit(gCurrentVfo->CHANNEL_BANDWIDTH);
+	} else
+#endif
+	{
+		BK4819_PrepareTransmit();
+		SYSTEM_DelayMs(10);
+	}
 
 	BK4819_PickRXFilterPathBasedOnFrequency(gCurrentVfo->pTX->Frequency);
 
@@ -897,23 +909,17 @@ void RADIO_SetModulation(ModulationMode_t modulation)
 	BK4819_SetAF(mod);
 
 #ifdef ENABLE_DIGITAL_MODULATION
-	if (MODULATION_DIGITAL == modulation) {
-		// Disable TX and RX audio filters.
-		BK4819_WriteRegister(BK4819_REG_2B, 0x707);
-		// Disable MIC AGC.
-		BK4819_WriteRegister(BK4819_REG_19, 0b1001000001000001);
-		// Disable ALC
-		BK4819_WriteRegister(BK4819_REG_4B, 0b100000);
-		// Fixed MIC Sensitivity
-		BK4819_WriteRegister(BK4819_REG_7D, 0xE940);
+	if (modulation == MODULATION_DIGITAL || modulation == MODULATION_FM) {
+		BK4819_SetRegValue(afcDisableRegSpec, 0); // enable AFC
+	} else {
+		BK4819_SetRegValue(afcDisableRegSpec, 1); // disable AFC
 	}
+#else
+	BK4819_SetRegValue(afcDisableRegSpec, modulation != MODULATION_FM);
 #endif
-
+	RADIO_SetupAGC(modulation == MODULATION_AM, false);
 	BK4819_SetRegValue(afDacGainRegSpec, 0xF);
 	BK4819_WriteRegister(BK4819_REG_3D, modulation == MODULATION_USB ? 0 : 0x2AAB);
-	BK4819_SetRegValue(afcDisableRegSpec, modulation != MODULATION_FM);
-
-	RADIO_SetupAGC(modulation == MODULATION_AM, false);
 }
 
 void RADIO_SetupAGC(bool listeningAM, bool disable)

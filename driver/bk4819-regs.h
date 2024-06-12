@@ -30,6 +30,10 @@ typedef struct {
 static const RegisterSpec afcDisableRegSpec = {"AFC Disable", 0x73, 4, 1, 1};
 static const RegisterSpec afOutRegSpec = {"AF Output Select", 0x47, 8, 0xF, 1};
 static const RegisterSpec afDacGainRegSpec = {"AF DAC Gain", 0x48, 0, 0xF, 1};
+#ifdef ENABLE_DIGITAL_MODULATION
+static const RegisterSpec alcDisableRegSpec = {"ALC Disable", 0x4B, 5, 1, 1};
+static const RegisterSpec micAgcDisableRegSpec = {"MIC AGC Disable", 0x19, 15, 1, 1};
+#endif
 
 enum BK4819_REGISTER_t {
 	BK4819_REG_00 = 0x00U,
@@ -113,6 +117,8 @@ enum BK4819_REGISTER_t {
 	BK4819_REG_70 = 0x70U,
 	BK4819_REG_71 = 0x71U,
 	BK4819_REG_72 = 0x72U,
+	// AFC
+	BK4819_REG_73 = 0x73U,
 	BK4819_REG_78 = 0x78U,
 	BK4819_REG_79 = 0x79U,
 	BK4819_REG_7A = 0x7AU,
