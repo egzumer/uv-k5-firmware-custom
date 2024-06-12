@@ -50,7 +50,11 @@ const char gModulationStr[MODULATION_UKNOWN][4] = {
 
 #ifdef ENABLE_BYP_RAW_DEMODULATORS
 	[MODULATION_BYP]="BYP",
-	[MODULATION_RAW]="RAW"
+	[MODULATION_RAW]="RAW",
+#endif
+
+#ifdef ENABLE_DIGITAL_MODULATION
+	[MODULATION_DIGITAL]="DIG",
 #endif
 };
 
@@ -527,9 +531,22 @@ void RADIO_SetupRegisters(bool switchToForeground)
 {
 	BK4819_FilterBandwidth_t Bandwidth = gRxVfo->CHANNEL_BANDWIDTH;
 
-	AUDIO_AudioPathOff();
+#ifdef ENABLE_DIGITAL_MODULATION
+	if (gRxVfo->Modulation == MODULATION_DIGITAL) {
+		if (Bandwidth == BK4819_FILTER_BW_WIDE) {
+			Bandwidth = BK4819_FILTER_BW_DIGITAL_WIDE;
+		} else {
+			Bandwidth = BK4819_FILTER_BW_DIGITAL_NARROW;
+		}
+	} else
+	// Do not turn off the audio path for digital modulation.
+	// This is needed to reduce turn-around time.
+#endif
+	{
+		AUDIO_AudioPathOff();
 
-	gEnableSpeaker = false;
+		gEnableSpeaker = false;
+	}
 
 	BK4819_ToggleGpioOut(BK4819_GPIO6_PIN2_GREEN, false);
 
@@ -547,6 +564,12 @@ void RADIO_SetupRegisters(bool switchToForeground)
 				BK4819_SetFilterBandwidth(Bandwidth, false);
 			#endif
 			break;
+#ifdef ENABLE_DIGITAL_MODULATION
+		case BK4819_FILTER_BW_DIGITAL_WIDE:
+		case BK4819_FILTER_BW_DIGITAL_NARROW:
+			BK4819_SetFilterBandwidth(Bandwidth, false);
+			break;
+#endif
 	}
 
 	BK4819_ToggleGpioOut(BK4819_GPIO5_PIN1_RED, false);
@@ -567,7 +590,14 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	BK4819_WriteRegister(BK4819_REG_3F, 0);
 
 	// mic gain 0.5dB/step 0 to 31
-	BK4819_WriteRegister(BK4819_REG_7D, 0xE940 | (gEeprom.MIC_SENSITIVITY_TUNING & 0x1f));
+	#ifdef ENABLE_DIGITAL_MODULATION
+	if (gRxVfo->Modulation == MODULATION_DIGITAL) {
+		BK4819_WriteRegister(BK4819_REG_7D, 0xE940);
+	} else
+	#endif
+	{
+		BK4819_WriteRegister(BK4819_REG_7D, 0xE940 | (gEeprom.MIC_SENSITIVITY_TUNING & 0x1f));
+	}
 
 	uint32_t Frequency;
 	#ifdef ENABLE_NOAA
@@ -694,8 +724,14 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	// RX expander
 	BK4819_SetCompander((gRxVfo->Modulation == MODULATION_FM && gRxVfo->Compander >= 2) ? gRxVfo->Compander : 0);
 
+#ifdef ENABLE_DIGITAL_MODULATION
+	if (gRxVfo->Modulation != MODULATION_DIGITAL) {
+#endif
 	BK4819_EnableDTMF();
 	InterruptMask |= BK4819_REG_3F_DTMF_5TONE_FOUND;
+#ifdef ENABLE_DIGITAL_MODULATION
+	}
+#endif
 
 	RADIO_SetupAGC(gRxVfo->Modulation == MODULATION_AM, false);
 
@@ -757,9 +793,22 @@ void RADIO_SetTxParameters(void)
 {
 	BK4819_FilterBandwidth_t Bandwidth = gCurrentVfo->CHANNEL_BANDWIDTH;
 
-	AUDIO_AudioPathOff();
+#ifdef ENABLE_DIGITAL_MODULATION
+	if (gCurrentVfo->Modulation == MODULATION_DIGITAL) {
+		if (Bandwidth == BK4819_FILTER_BW_WIDE) {
+			Bandwidth = BK4819_FILTER_BW_DIGITAL_WIDE;
+		} else {
+			Bandwidth = BK4819_FILTER_BW_DIGITAL_NARROW;
+		}
+	} else
+	// Do not turn off the audio path for digital modulation.
+	// This is needed to reduce turn-around time.
+#endif
+	{
+		AUDIO_AudioPathOff();
 
-	gEnableSpeaker = false;
+		gEnableSpeaker = false;
+	}
 
 	BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_RX_ENABLE, false);
 
@@ -777,6 +826,12 @@ void RADIO_SetTxParameters(void)
 				BK4819_SetFilterBandwidth(Bandwidth, false);
 			#endif
 			break;
+#ifdef ENABLE_DIGITAL_MODULATION
+		case BK4819_FILTER_BW_DIGITAL_WIDE:
+		case BK4819_FILTER_BW_DIGITAL_NARROW:
+			BK4819_SetFilterBandwidth(Bandwidth, false);
+			break;
+#endif
 	}
 
 	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency);
@@ -784,9 +839,15 @@ void RADIO_SetTxParameters(void)
 	// TX compressor
 	BK4819_SetCompander((gRxVfo->Modulation == MODULATION_FM && (gRxVfo->Compander == 1 || gRxVfo->Compander >= 3)) ? gRxVfo->Compander : 0);
 
-	BK4819_PrepareTransmit();
-
-	SYSTEM_DelayMs(10);
+#ifdef ENABLE_DIGITAL_MODULATION
+	if (gCurrentVfo->Modulation == MODULATION_DIGITAL) {
+		BK4819_PrepareDigitalTransmit(gCurrentVfo->CHANNEL_BANDWIDTH);
+	} else
+#endif
+	{
+		BK4819_PrepareTransmit();
+		SYSTEM_DelayMs(10);
+	}
 
 	BK4819_PickRXFilterPathBasedOnFrequency(gCurrentVfo->pTX->Frequency);
 
@@ -830,7 +891,11 @@ void RADIO_SetModulation(ModulationMode_t modulation)
 		case MODULATION_USB:
 			mod = BK4819_AF_BASEBAND2;
 			break;
-
+#ifdef ENABLE_DIGITAL_MODULATION
+		case MODULATION_DIGITAL:
+			mod = BK4819_AF_FM;	// Bypass
+			break;
+#endif
 #ifdef ENABLE_BYP_RAW_DEMODULATORS
 		case MODULATION_BYP:
 			mod = BK4819_AF_UNKNOWN3;
@@ -843,11 +908,18 @@ void RADIO_SetModulation(ModulationMode_t modulation)
 
 	BK4819_SetAF(mod);
 
+#ifdef ENABLE_DIGITAL_MODULATION
+	if (modulation == MODULATION_DIGITAL || modulation == MODULATION_FM) {
+		BK4819_SetRegValue(afcDisableRegSpec, 0); // enable AFC
+	} else {
+		BK4819_SetRegValue(afcDisableRegSpec, 1); // disable AFC
+	}
+#else
+	BK4819_SetRegValue(afcDisableRegSpec, modulation != MODULATION_FM);
+#endif
+	RADIO_SetupAGC(modulation == MODULATION_AM, false);
 	BK4819_SetRegValue(afDacGainRegSpec, 0xF);
 	BK4819_WriteRegister(BK4819_REG_3D, modulation == MODULATION_USB ? 0 : 0x2AAB);
-	BK4819_SetRegValue(afcDisableRegSpec, modulation != MODULATION_FM);
-
-	RADIO_SetupAGC(modulation == MODULATION_AM, false);
 }
 
 void RADIO_SetupAGC(bool listeningAM, bool disable)
@@ -941,6 +1013,12 @@ void RADIO_PrepareTX(void)
 		// over voltage .. this is being a pain
 		State = VFO_STATE_VOLTAGE_HIGH;
 	}
+#ifdef ENABLE_DIGITAL_MODULATION
+	else if (gCurrentVfo->Modulation == MODULATION_DIGITAL) {
+		// Allow TX in digital mode.
+		State = VFO_STATE_NORMAL;
+	}
+#endif
 #ifndef ENABLE_TX_WHEN_AM
 	else if (gCurrentVfo->Modulation != MODULATION_FM) {
 		// not allowed to TX if in AM mode

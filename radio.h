@@ -65,6 +65,10 @@ typedef enum {
 	MODULATION_RAW,
 #endif
 
+#ifdef ENABLE_DIGITAL_MODULATION
+	MODULATION_DIGITAL,
+#endif
+
 	MODULATION_UKNOWN
 } ModulationMode_t;
 

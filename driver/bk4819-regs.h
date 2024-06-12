@@ -30,6 +30,10 @@ typedef struct {
 static const RegisterSpec afcDisableRegSpec = {"AFC Disable", 0x73, 4, 1, 1};
 static const RegisterSpec afOutRegSpec = {"AF Output Select", 0x47, 8, 0xF, 1};
 static const RegisterSpec afDacGainRegSpec = {"AF DAC Gain", 0x48, 0, 0xF, 1};
+#ifdef ENABLE_DIGITAL_MODULATION
+static const RegisterSpec alcDisableRegSpec = {"ALC Disable", 0x4B, 5, 1, 1};
+static const RegisterSpec micAgcDisableRegSpec = {"MIC AGC Disable", 0x19, 15, 1, 1};
+#endif
 
 enum BK4819_REGISTER_t {
 	BK4819_REG_00 = 0x00U,
@@ -74,6 +78,8 @@ enum BK4819_REGISTER_t {
 	BK4819_REG_3D = 0x3DU,
 	BK4819_REG_3E = 0x3EU,
 	BK4819_REG_3F = 0x3FU,
+	// TX Deviation
+	BK4819_REG_40 = 0x40U,
 	BK4819_REG_43 = 0x43U,
 	BK4819_REG_46 = 0x46U,
 	BK4819_REG_47 = 0x47U,
@@ -85,6 +91,8 @@ enum BK4819_REGISTER_t {
 	// REG_49<13:7> 0x50; RF AGC high threshold, 1 dB/LSB
 	// REG_49<6:0> 0x30; RF AGC low threshold, 1 dB/LSB
 	BK4819_REG_49 = 0x49U,
+	// ALC (audio level control)
+	BK4819_REG_4B = 0x4BU,
 	BK4819_REG_4D = 0x4DU,
 	BK4819_REG_4E = 0x4EU,
 	BK4819_REG_4F = 0x4FU,
@@ -109,6 +117,8 @@ enum BK4819_REGISTER_t {
 	BK4819_REG_70 = 0x70U,
 	BK4819_REG_71 = 0x71U,
 	BK4819_REG_72 = 0x72U,
+	// AFC
+	BK4819_REG_73 = 0x73U,
 	BK4819_REG_78 = 0x78U,
 	BK4819_REG_79 = 0x79U,
 	BK4819_REG_7A = 0x7AU,
@@ -116,6 +126,7 @@ enum BK4819_REGISTER_t {
 	BK4819_REG_7B = 0x7BU,
 	// REG_7C<15:0> 0x8000 RSSI table
 	BK4819_REG_7C = 0x7CU,
+	// MIC Sensitivity
 	BK4819_REG_7D = 0x7DU,
 	// REG_7E<15> 0; AGC fix mode:
 	// 1: Fix

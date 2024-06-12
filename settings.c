@@ -760,6 +760,10 @@ buf[1] = 0
 #ifdef ENABLE_SPECTRUM
     | (1 << 5)
 #endif
+#ifdef ENABLE_DIGITAL_MODULATION
+    | (1 << 6)
+#endif
+
 ;
 	EEPROM_WriteBuffer(0x1FF0, buf);
 }
