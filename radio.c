@@ -893,7 +893,7 @@ void RADIO_SetModulation(ModulationMode_t modulation)
 			break;
 #ifdef ENABLE_DIGITAL_MODULATION
 		case MODULATION_DIGITAL:
-			mod = BK4819_AF_UNKNOWN3;	// Bypass
+			mod = BK4819_AF_FM;	// Bypass
 			break;
 #endif
 #ifdef ENABLE_BYP_RAW_DEMODULATORS
